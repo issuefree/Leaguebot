@@ -51,6 +51,10 @@ function Run()
       end
    end
    
+   if IsRecalling(me) then
+      return
+   end
+   
    if IsOn("lastH") and not GetWeakEnemy("MAGIC", 750) then
       if (IsOn("stoke") and Check(stun)) or not CanUse("dis") then
          KillWeakMinion(spells["AA"])
