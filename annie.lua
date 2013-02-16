@@ -51,8 +51,10 @@ function Run()
       end
    end
    
+   asdf
+   
    if IsRecalling(me) then
-      return
+      return 
    end
    
    if IsOn("lastH") and not GetWeakEnemy("MAGIC", 750) then
