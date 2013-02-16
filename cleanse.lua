@@ -10,7 +10,7 @@ local cleanseKey
 if me.SummonerD == "SummonerBoost" then
    cleanseKey = "D"
 elseif me.SummonerF == "SummonerBoost" then
-   cleanseKey = "F"
+   cleanseKey = "F" 
 end
 
 local function cleanseObj(object)
