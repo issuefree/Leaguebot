@@ -29,12 +29,22 @@ function Run()
 	
 	Clean(poisons, "charName", "Global_poison")
 	
-	for _,obj in ipairs(poisons) do
-		DrawCircleObject(obj, 75, yellow)
-	end
+--	for _,obj in ipairs(poisons) do
+--		DrawCircleObject(obj, 75, yellow)
+--	end
 	
 	if HotKey() then
 		UseAllItems()
+		if CanUse("blind") then
+   		if GetDistance(EADC) < spells["blind"].range then
+            CastSpellTarget("Q", EADC)
+   		else
+            local target = GetWeakEnemy("MAGIC", spells["blind"].range)
+            if target then
+               CastSpellTarget("Q", target)
+            end
+         end
+      end   
 	end
 	
 	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 700) then
@@ -72,7 +82,7 @@ function aaWeakMinion()
 end
 
 local function onObject(object)
-	if GetDistance(object) < 1000 then
+	if IsOn("clear") and GetDistance(object) < 1000 then
 		if find(object.charName, "Global_poison") then
 			table.insert(poisons, object)
 		end 
