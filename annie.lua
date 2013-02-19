@@ -8,6 +8,9 @@ spells["dis"] = {key="Q", range=625, color=violet, base={85,125,165,205,245}, ap
 spells["inc"] = {key="W", range=625, color=red,    base={80,130,180,230,280}, ap=.75, cone=45}
 spells["tibbers"] = {key="R", range=600, color=red, base={200,325,450}, ap=.7}
 
+local aloneRange = 1750  -- if no enemies in this range consider yourself alone
+local nearRange = 900    -- if no enemies in this range consider them not "near"
+
 local stun = nil
 function stunOn()
    if Check(stun) then
@@ -22,12 +25,16 @@ AddToggle("lastH", {on=true, key=112, label="Crispy Critters", auxLabel="{0}", a
 -- kill graoups of weak minions with Incinerate
 AddToggle("flame", {on=true, key=113, label="Extra Crispy", auxLabel="{0}", args={"inc"}})
 -- build up and hold on to stun
-AddToggle("stoke", {on=false, key=114, label="Stoke", auxLabel="{0}", args={stunOn}})
+AddToggle("stoke", {on=true, key=114, label="Stoke", auxLabel="{0}", args={stunOn}})
 
 
 function Run()
    TimTick()      
    
+   if IsRecalling(me) then
+      return 
+   end
+
    if HotKey() then
       local target = GetWeakEnemy('MAGIC',625+50,"NEARMOUSE")
       if target then
@@ -49,25 +56,46 @@ function Run()
             end
          end
       end
+   end   
+   
+   -- if i don't have stun and I have mana and I'm alone, stack stun with shield
+   if IsOn("stoke") and 
+      not Check(stun) and 
+      me.mana / me.maxMana > .25 and
+      not GetWeakEnemy("MAGIC", aloneRange) 
+   then
+      CastSpellTarget("E", me)
    end
    
-   if IsRecalling(me) then
-      return 
-   end
-   
-   if IsOn("lastH") and not GetWeakEnemy("MAGIC", 750) then
-      if (IsOn("stoke") and Check(stun)) or not CanUse("dis") then
-         KillWeakMinion(spells["AA"])
-      else
-         KillWeakMinion(spells["dis"])
+   -- if we're alone blast everything.
+   -- if there's a near, try to save stun
+   if IsOn("lastH") then
+      if not GetWeakEnemy("MAGIC", aloneRange) then
+         if CanUse("dis") then
+            KillWeakMinion(spells["dis"], 100)
+         else
+            KillWeakMinion(spells["AA"], 100)
+         end      
+      elseif not GetWeakEnemy("MAGIC", nearRange) then
+         if (IsOn("stoke") and Check(stun)) or not CanUse("dis") then
+            KillWeakMinion(spells["AA"])
+         else
+            KillWeakMinion(spells["dis"], 50)
+         end
       end
    end   
    
-   if IsOn("flame") and not GetWeakEnemy("MAGIC", 750) then
-      if IsOn("stoke") and not Check(stun) then
+   -- if we're alone blast 2 or more
+   -- if we're not alone but not near blast 2 if we're stoking else 3
+   if IsOn("flame") then
+      if not GetWeakEnemy("MAGIC", aloneRange) then
          KillMinionsInCone(spells["inc"], 2, 200, Check(stun))
-      else
-         KillMinionsInCone(spells["inc"], 3, 200, Check(stun))
+      elseif not GetWeakEnemy("MAGIC", nearRange) then
+         if IsOn("stoke") and not Check(stun) then
+            KillMinionsInCone(spells["inc"], 2, 200, Check(stun))
+         else
+            KillMinionsInCone(spells["inc"], 3, 200, Check(stun))
+         end
       end
    end
 end
@@ -168,7 +196,7 @@ local function onObject(object)
 --   if GetDistance(object) < 100 then
 --      pp(object.charName)
 --   end
-   if find(object.charName,"StunReady") then
+   if find(object.charName,"StunReady") and GetDistance(object) < 50 then
       stun = {object.charName, object}
    end
 end

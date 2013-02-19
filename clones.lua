@@ -57,7 +57,7 @@ if load then
 		end
 	end
 
-	SetTimerCallback("OnTick")
+	SetTimerCallback("Run")
 
 	ModuleConfig.clones = true
 end

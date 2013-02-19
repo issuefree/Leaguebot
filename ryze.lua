@@ -1,15 +1,21 @@
 require "Utils"
 
-print=printtext
-printtext("Sida's Ryze")
-local hotkey=GetScriptKey()
-local myHero = GetSelf()
+pp("Tim's Ryze")
+
+spells["overload"] = {key="Q", range=650, color=violet, base={60,85,110,135,160}, ap=.4, mana=.065}
+spells["prison"]   = {key="W", range=625, color=red,    base={60,95,130,165,200}, ap=.6, mana=.045}
+spells["flux"]     = {key="E", range=675, color=violet, base={50,70,90,110,130},  ap=.35, mana=.01}
+
+AddToggle("lasthit", {on=true, key=112, label="Last Hit"})
+
+local aloneRange = 1750  -- if no enemies in this range consider yourself alone
+local nearRange = 900    -- if no enemies in this range consider them not "near"
+
 local qLast, wLast = false, false
 function Run()
-	local k=IsKeyDown(hotkey)
-	local target = GetWeakEnemy('MAGIC',650)
-	if k~=0 then
-		if target ~= nil then
+	if HotKey() then
+   	local target = GetWeakEnemy('MAGIC',675)
+		if target then
 			if rotationReady() then
 				if GetDistance(myHero, target) < 650 then castQ(target) end
 				if GetDistance(myHero, target) < 625 then castW(target) end
@@ -20,9 +26,11 @@ function Run()
 				CastSpellTarget("E", target)
 			end
 		end
-		moveToMouse()
-	end	
-	Draw()
+	end
+	
+	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", nearRange) then
+	  KillWeakMinion("AA")
+	end
 end
 
 function castQ(target)
@@ -72,8 +80,5 @@ function GetTick()
 	return GetClock()
 end
 
-function Draw()
-	DrawCircle(myHero.x, myHero.y, myHero.z, 650, 0x02)
-end
 
 SetTimerCallback("Run")

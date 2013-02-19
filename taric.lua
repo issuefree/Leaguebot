@@ -9,9 +9,9 @@ spells["heal"]     = {key="Q", range=750,  color=green,  base={60,100,140,180,22
 spells["shatter"]  = {key="W", range=400,  color=red,    base={60,105,150,195,240}, ap=.6}
 spells["radiance"] = {key="R", range=400,  color=red,    base={171,285,399},        ap=.7}
 spells["aura"]     = {key="W", range=1000, color=yellow}
-spells["stun"]     = {key="E", range=625,  color=red,    base={150,195,240},        ap=.6}
+spells["stun"]     = {key="E", range=625,  color=violet,    base={150,195,240},        ap=.6}
 
-AddToggle("healing", {on=true, key=113, label="Heal Team", auxLabel="{0}", args={"heal"}})
+AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
 
 function Run()
 	TimTick()

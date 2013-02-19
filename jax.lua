@@ -4,10 +4,13 @@ require "modules"
 
 print("\nTim's Jax")
 
+spells["leap"] = {key="Q", range=700, color=violet, base={70,110,150,190,230}, ap=.6, adb=1}
+spells["empower"] = {key="W", range=spells["AA"].range, color=yellow, base={40,75,110,145,180}, ap=.6, ad=1}
+spells["counter"] = {key="E", range=375, color=red}
+
 AddToggle("autoStun", {on=true,  key=112, label="AutoStun"})
 AddToggle("autoW",    {on=true,  key=113, label="Auto W"})
 AddToggle("autoUlt",  {on=false, key=114, label="AutoUlt"})
-
 
 local target
 local targetaa
@@ -22,14 +25,26 @@ function Run()
 		WardJump("Q")
 	end
 
-	keyDown = IsKeyDown(hotKey) == 1
 
-	target = GetWeakEnemy('PHYS',700)
-	targetaa = GetWeakEnemy('PHYS',275)
+   -- try to stick to a target
+   if not target or 
+      not (GetDistance(target) < spells["leap"].range+50) 
+   then
+   	target = GetWeakEnemy('PHYS', spells["leap"].range+50)      -- find the weakest I can jump to with a little buffer
+   end
 
-	if keyDown then
+   if not targetaa or
+      not (GetDistance(targetaa) < spells["counter"].range-50)
+   then
+	  targetaa = GetWeakEnemy('PHYS', spells["counter"].range-50) -- find the weakest I can reasonably hit/stun
+	end
+
+	if HotKey() then
+	
 		UseAllItems()
+		
 		if target then
+         -- if there's a good target far away but not near    
 			if not targetaa then
 				if CanCastSpell("Q") then
 					CastSpellTarget("Q",target)
@@ -40,22 +55,20 @@ function Run()
 				end
 			else
 				if IsOn("autoStun") and
-				   GetDistance(targetaa) < 180 and
 				   CanCastSpell("E")
 				then
 					CastSpellTarget("E", me)
 				end
 				
-				if CanCastSpell("W") and os.clock() - lastAttack > attackDelay and os.clock() - lastAttack < 2 then
+				if CanCastSpell("W") and os.clock() - lastAttack > attackDelay then
 					CastSpellTarget("W", targetaa)
 				end
+
+				AttackTarget(targetaa)
 			end
 
 			if IsOn("autoUlt") and CanCastSpell("R") then
 				CastSpellTarget("R", me)
-			end
-			if targetaa then
-				AttackTarget(targetaa)
 			end
 		end
 	end

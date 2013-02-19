@@ -234,21 +234,6 @@ function killSteal()
 			return
 		end
 	end
-
---
---	if lastHotkey == 3 then 
---		CastHotkey("SPELLE:WEAKENEMY ONESPELLHIT=#((spellq_ready)*(((spellq_level*30)+30+((player_ap*45)/100))-1)+(spelle_ready)*(((spelle_level*25)+15+((player_ap*4)/10))-1)+(spellw_ready)*(((spellw_level*35)+5+((player_ap*25)/100)+((player_ad*6)/10))-1)+(spell4_ready)*(((target_hpmax*15)/100)-1)+(spell3_ready)*(300+((player_ap*4)/10))) RANGE=700 NOSHOW")
---		lastHotkey = 1
---		return
---	elseif lastHotkey == 1 then
---		CastHotkey("SPELLW:WEAKENEMY ONESPELLHIT=#((spellq_ready)*(((spellq_level*30)+30+((player_ap*45)/100))-1)+(spelle_ready)*(((spelle_level*25)+15+((player_ap*4)/10))-1)+(spellw_ready)*(((spellw_level*35)+5+((player_ap*25)/100)+((player_ad*6)/10))-1)+(spell4_ready)*(((target_hpmax*15)/100)-1)+(spell3_ready)*(300+((player_ap*4)/10))) RANGE=375 NOSHOW")
---		lastHotkey = 2
---		return
---	elseif lastHotkey == 2 then
---		CastHotkey("SPELLQ:WEAKENEMY ONESPELLHIT=#((spellq_ready)*(((spellq_level*30)+30+((player_ap*45)/100))-1)+(spelle_ready)*(((spelle_level*25)+15+((player_ap*4)/10))-1)+(spellw_ready)*(((spellw_level*35)+5+((player_ap*25)/100)+((player_ad*6)/10))-1)+(spell4_ready)*(((target_hpmax*15)/100)-1)+(spell3_ready)*(300+((player_ap*4)/10))) RANGE=675 NOSHOW")
---		lastHotkey = 3
---		return
---	end
 end
 
 function onCreateObj(object)

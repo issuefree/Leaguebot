@@ -43,7 +43,7 @@ function Run()
 			end
 		end
 		
-		useSupportItems()
+		UseAllItems()
 	end
 end
 

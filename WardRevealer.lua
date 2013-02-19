@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 
 local showWardsFromSpells = true

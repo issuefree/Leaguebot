@@ -97,18 +97,6 @@ playerTeam = ""
 ITEMS = {}
 spells = {}
 
-local ignite = {range=600, color=red, base={50}, lvl=20}
-
-if me.SummonerD == "SummonerDot" then
-	ignite.key = "D"
-	spells["Ignite"] = ignite
---	print("Ignite in "..ignite.key)
-elseif me.SummonerF == "SummonerDot" then
-	ignite.key = "F"
-	spells["Ignite"] = ignite
---	print("Ignite in "..ignite.key)
-end
-
 -- simple attempt to grab high priority targets
 ADC = nil
 APC = nil
@@ -122,6 +110,7 @@ ALLIES = {}
 ENEMIES = {}
 RECALLS = {}
 TURRETS = {}
+MYTURRETS = {}
 CCS = {}
 WARDS = {}
 
@@ -298,10 +287,13 @@ function doCreateObj(object)
 	end
 
 	if ( find(object.name, "OrderTurret") or
-		 find(object.name, "ChaosTurret") ) and
-		 object.team ~= me.team 
+	     find(object.name, "ChaosTurret") )
 	then
-		table.insert(TURRETS, object)
+      if object.team ~= me.team then 	     
+         table.insert(TURRETS, object)
+      else
+         table.insert(MYTURRETS, object)
+      end
 	end
 
 	if find(object.charName, "TeleportHome") then
@@ -383,6 +375,7 @@ local function updateObjects()
 	Clean(CCS)
 	Clean(WARDS, "name", "Ward")
 	Clean(TURRETS, "name", "Turret")
+	Clean(MYTURRETS, "name", "Turret")
 end
 
 
@@ -831,6 +824,9 @@ function GetSpellDamage(thing, target)
 	if spell.adb then
 		damage = damage + spell.adb*me.addDamage
 	end
+   if spell.mana then
+      damage = damage + spell.mana*me.maxMana
+   end
 	if spell.lvl then
 		damage = damage + me.selflevel*spell.lvl
 	end
@@ -852,18 +848,7 @@ function OnProcessSpell(object, spell)
 --	end
 	for i, callback in ipairs(SPELL_CALLBACKS) do
 		callback(object, spell)
-	end
-	
-	if spells["Ignite"] and CanUse("Ignite") then
-		if spell.name == "SwainMetamorphism" or	  
-			spell.name == "Sadism" or
-			spell.name == "meditate"			
-		then
-			if object.team ~= me.team and GetDistance(object) < spells["Ignite"].range then				
-				CastSpellTarget(spells["Ignite"].key, object)
-			end
-		end
-	end
+	end	
 end
 
 -- Common stuff that should happen every time
