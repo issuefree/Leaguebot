@@ -4,11 +4,34 @@ require "modules"
 
 pp("\nTim's Annie")
 
-spells["dis"] = {key="Q", range=625, color=violet, base={85,125,165,205,245}, ap=.7}
-spells["inc"] = {key="W", range=625, color=red,    base={80,130,180,230,280}, ap=.75, cone=45}
-spells["tibbers"] = {key="R", range=600, color=red, base={200,325,450}, ap=.7}
+spells["dis"] = {
+   key="Q", 
+   range=625, 
+   color=violet, 
+   base={85,125,165,205,245}, 
+   cost={60,65,70,75,80},
+   ap=.7
+}
+spells["inc"] = {
+   key="W", 
+   range=625, 
+   color=red,    
+   base={80,130,180,230,280},
+   cost={70,80,90,100,110}, 
+   ap=.75, 
+   cone=45
+}
+spells["tibbers"] = {
+   key="R", 
+   range=600, 
+   color=red, 
+   base={200,325,450},
+   cost={125,175,225}, 
+   ap=.7,
+   area=250
+}
 
-local aloneRange = 1750  -- if no enemies in this range consider yourself alone
+local aloneRange = 2000  -- if no enemies in this range consider yourself alone
 local nearRange = 900    -- if no enemies in this range consider them not "near"
 
 local stun = nil
@@ -38,7 +61,7 @@ function Run()
    if HotKey() then
       local target = GetWeakEnemy('MAGIC',625+50,"NEARMOUSE")
       if target then
-         UseAllItems() 
+         UseItems() 
       
          if Check(stun) then
             if CanUse("tibbers") and GetDistance(target) < 600 then
@@ -72,15 +95,15 @@ function Run()
    if IsOn("lastH") then
       if not GetWeakEnemy("MAGIC", aloneRange) then
          if CanUse("dis") then
-            KillWeakMinion(spells["dis"], 100)
+            KillWeakMinion("dis", 100)
          else
-            KillWeakMinion(spells["AA"], 100)
+            KillWeakMinion("AA", 100)
          end      
       elseif not GetWeakEnemy("MAGIC", nearRange) then
          if (IsOn("stoke") and Check(stun)) or not CanUse("dis") then
-            KillWeakMinion(spells["AA"])
+            KillWeakMinion("AA")
          else
-            KillWeakMinion(spells["dis"], 50)
+            KillWeakMinion("dis", 50)
          end
       end
    end   
@@ -100,103 +123,13 @@ function Run()
    end
 end
 
-function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
-   local spell = GetSpell(thing)
-   if not spell then return end
-   if not CanUse(spell) then return end
-
-   if not extraRange then extraRange = 0 end
-
-   -- cache damage calculation      
-   local wDam = GetSpellDamage(spell)
-   -- convert from degrees   
-   local spellAngle = spell.cone/360*math.pi*2
-
-   local minionAngles = {}
-
-   -- clean out the ones I can't kill and get the angles   
-   for i,minion in ipairs(GetInRange(me, spell.range+extraRange, MINIONS)) do
-      if CalcMagicDamage(minion, wDam) > minion.health then
-         table.insert(minionAngles, {AngleBetween(minion, me), minion})
-      end
-   end
-
-
-   -- results variables
-   local bestAngleI
-   local bestAngleJ
-   local maxDist
-   local bestAngleK = 1
-
-   -- are there enough possible targets to bother?
-   if #minionAngles >= minKills then
-   
-      -- sort by angle and make a sweep from left to right
-      -- start with the first target and expand the cone until you run out of targets or the next target is out of the cone
-      -- do this for each target in order keeping track of the best start and end index 
-      
-      table.sort(minionAngles, function(a,b) return a[1] < b[1] end)
-
-      for i=1, #minionAngles-1 do
-         local angleK = 1
-         local j = i
-         for li=i, #minionAngles-1 do
-            local angleli = minionAngles[li][1]
-            while j+1 < #minionAngles+1 and minionAngles[j+1] and 
-                  minionAngles[j+1][1] - angleli < spellAngle and minionAngles[j+1][1] - angleli > 0
-            do
-               angleK = angleK + 1
-               j = j + 1
-            end
-         end
-         if angleK > bestAngleK then
-            bestAngleI = i
-            bestAngleJ = j
-            bestAngleK = angleK
-         end
-      end 
-
-      -- are there enough actual kills to bother?
-      if bestAngleK >= minKills then
-      
-         -- find the furthest target minion so we can move toward it if it's out of range.
-         local farMinion
-         local farMinionD
-         for i = bestAngleI, bestAngleJ do
-            local dist = GetDistance(minionAngles[i][2])
-            if not farMinion or dist > farMinionD then
-               farMinion = minionAngles[i][2]
-               farMinionD = dist
-            end
-         end
-
-         -- find the target point that puts our targets in the cone
-         local x = (minionAngles[bestAngleI][2].x + minionAngles[bestAngleJ][2].x)/2  
-         local y = (minionAngles[bestAngleI][2].y + minionAngles[bestAngleJ][2].y)/2  
-         local z = (minionAngles[bestAngleI][2].z + minionAngles[bestAngleJ][2].z)/2
-         
-         -- draw the target cone and the target spot  
-         DrawCircle(x,y,z,25,yellow)
-         LineBetween(me, minionAngles[bestAngleI][2])
-         LineBetween(me, minionAngles[bestAngleJ][2])
-         
-         -- execute
-         if not drawOnly then
-            if farMinionD < spell.range then                        
-               CastSpellXYZ(spell.key, x,y,z)
-            else
-               MoveToXYZ(farMinion.x, farMinion.y, farMinion.z)
-            end
-         end
-      end
-   end
-end
-
 local function onObject(object)
 --   if GetDistance(object) < 100 then
 --      pp(object.charName)
 --   end
-   if find(object.charName,"StunReady") and GetDistance(object) < 50 then
+   if find(object.charName,"StunReady") and 
+      GetDistance(object) < 50 
+   then
       stun = {object.charName, object}
    end
 end

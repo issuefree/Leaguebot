@@ -4,7 +4,7 @@ require "modules"
 
 print("\nTim's Jax")
 
-spells["leap"] = {key="Q", range=700, color=violet, base={70,110,150,190,230}, ap=.6, adb=1}
+spells["leap"] = {key="Q", range=700, color=violet, base={70,110,150,190,230}, ap=.6, adBonus=1}
 spells["empower"] = {key="W", range=spells["AA"].range, color=yellow, base={40,75,110,145,180}, ap=.6, ad=1}
 spells["counter"] = {key="E", range=375, color=red}
 
@@ -28,9 +28,9 @@ function Run()
 
    -- try to stick to a target
    if not target or 
-      not (GetDistance(target) < spells["leap"].range+50) 
+      not (GetDistance(target) < spells["leap"].range+150) 
    then
-   	target = GetWeakEnemy('PHYS', spells["leap"].range+50)      -- find the weakest I can jump to with a little buffer
+   	target = GetWeakEnemy('PHYS', spells["leap"].range+150)      -- find the weakest I can jump to with a little buffer
    end
 
    if not targetaa or
@@ -41,7 +41,7 @@ function Run()
 
 	if HotKey() then
 	
-		UseAllItems()
+		UseItems()
 		
 		if target then
          -- if there's a good target far away but not near    

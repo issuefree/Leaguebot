@@ -13,21 +13,22 @@ elseif me.SummonerF == "SummonerDot" then
 end
 
 function igniteTick()
-   for _,enemy in ipairs(ENEMIES) do
+   local inRange = GetInRange(me, spells["ignite"].range, ENEMIES)
+   for _,enemy in ipairs(inRange) do
       if CanUse("ignite") and enemy.health < GetSpellDamage("ignite") then
          CastSpellTarget(spells["ignite"].key, enemy)
       end      
    end
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
    if spells["ignite"] and CanUse("ignite") then
       if spell.name == "SwainMetamorphism" or     
          spell.name == "Sadism" or
          spell.name == "meditate"         
       then
-         if object.team ~= me.team and GetDistance(object) < spells["ignite"].range then           
-            CastSpellTarget(spells["ignite"].key, object)
+         if unit.team ~= me.team and GetDistance(unit) < spells["ignite"].range then           
+            CastSpellTarget(spells["ignite"].key, unit)
          end
       end
    end
@@ -39,6 +40,3 @@ if spells["ignite"] then
    ModuleConfig:permaShow("ignite")
    AddOnSpell(onSpell)
 end
-
-
-

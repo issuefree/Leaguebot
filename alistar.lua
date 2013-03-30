@@ -30,7 +30,7 @@ function Run()
 		then
 			CastSpellTarget("W", target)
 		end
-		UseAllItems()
+		UseItems()
 	end
 end
 

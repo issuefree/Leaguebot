@@ -90,7 +90,7 @@ function Run()
 		-- just hit shit that's weak
 		local target = GetWeakEnemy('MAGIC',650,"NEARMOUSE")
 		if target then
-			useItems(target)
+			UseItems(target)
 			if CanUse("sphere") then 
 				CastSpellTarget("Q",target) 
 			elseif CanUse("pulse") then

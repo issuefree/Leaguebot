@@ -1,11 +1,8 @@
-
-local top=200
-local topleft=60
+local top=200;local topleft=60;local script_loaded=1;                       
 local ctr=0
 local a={}
 local key=0x78;--F9
 local reloadkey=0x79;
-local script_loaded=1
 local lmouse=0
 local toggle_timer=os.clock()
 local save_timer=os.clock()-4000
@@ -15,7 +12,7 @@ function sample_CallBackGui()
 	CLOCK=os.clock()
 	ctr=ctr+1
 	local i=1
-	if (ctr==10) then
+	if (ctr==30) then
 		local fileinfo={LoadFile("script_gui_backup.txt")}
 		while (i<#fileinfo) do
 			if (tonumber(fileinfo[i+1])==1) then
@@ -32,8 +29,9 @@ function sample_CallBackGui()
 	if (IsKeyDown(key)~=0 and CLOCK-toggle_timer>1.2) then
 		toggle_timer=CLOCK
 		script_loaded= ((script_loaded+1)%2)
+		SetGuiParams(top,topleft,script_loaded)
 	end
-	if (script_loaded==0) then return end
+	--if (script_loaded==0) then return end
 	local lmouseclick=0
 	if (IsKeyDown(0x01)~=0) then
 		if (lmouse==0) then lmouseclick=1 end
@@ -57,7 +55,7 @@ function sample_CallBackGui()
 	local filebuf="";
 	--DrawBox(topleft-5,top-5,sz*30,#a*sz+20,0xFF222222)
 	local moveguicolor=0xFF11EEDD
-	DrawText("All Scripts, F9 Hide,F10 Reload",topleft,top-sz,0xFF11EEDD);
+	DrawText("All Scripts, F9 Hide/Show,F10 Reload",topleft,top-sz,0xFF11EEDD);
 	if (posX<(1*sz)+topleft and posX>topleft-2*sz-2 and posY<top+(1)*sz and posY>top-sz) then
 		moveguicolor=0xFFDDDD11
 		if (lmouseclick==1) then
@@ -67,8 +65,10 @@ function sample_CallBackGui()
 	if (movegui==1) then
 		topleft=posX+1+sz
 		top=posY
+		SetGuiParams(top,topleft,script_loaded)
 	end
 	DrawText("@",topleft-2*sz-2,top-sz,moveguicolor);
+	if (script_loaded==0) then return end
 	while (i<#a) do
 		local saver=0
 		if (i==#a-1) then

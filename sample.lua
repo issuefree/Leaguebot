@@ -42,6 +42,7 @@ GetWorldY() returns number  //center of camera y
 GetWorldWidth() returns number //viewport width
 
 IsKeyDown(number) returns number //accepts virtual key codes returns 0 if not pressed
+IsChatOpen() returns 1 or 0
 IsSpellReady(spell) returns number
 GetSpellLevel(spell) returns number
 CanUseSpell(spell) returns number // same as (IsSpellReady(spell) and GetSpellLevel(spell)>0)
@@ -61,6 +62,7 @@ CastHotkey(hotkey_text)  //Example CastHotkey("AUTO 100,0 ATTACK:WEAKENEMY RANGE
 GetWeakEnemy(damage_type,range) returns Unit		//damage type is 'PHYS' 'MAGIC' 'TRUE'
 GetWeakEnemy(damage_type,range,"NEARMOUSE")
 GetWeakEnemy(damage_type,range,"ONLYNEARMOUSE")
+GetWeakEnemy(damage_type,range,"BASIC",rank) // rank describes how weak the enemy is, 1 for weakest 5 for strongest
 GetInventoryItem(slotnumber) returns id_number // slotnumber is 1,2,3,4,5,6
 PlaySound("filename.wav") or PlaySound("Beep")
 CalcDamage(target,damage) returns number // Ex:CalcDamage(enemy,100+(GetSelf()).ad*2)
@@ -70,6 +72,9 @@ GetFireahead(target,delay,projectilespeed) returns x,y,z
 IsWall(x,y,z) returns 1 or 0
 WillHitWall(target,knockbackdistance) returns 1 or 0
 CreepBlock(x,y,z,(optional) skillshot_width) returns 1 or 0
+GetXerathLocus() returns 1 or 0
+GetMarkedTarget() returns Unit
+GetLastOrder() returns pos
 
 
 
@@ -80,6 +85,7 @@ CreepBlock(x,y,z,(optional) skillshot_width) returns 1 or 0
 objManager:GetObject(index) returns Unit
 objManager:GetCreature(index) returns Unit
 objManager:GetNewObject(index) returns Unit
+objManager:GetDelObject(index) returns Unit
 objManager:GetHero(index) returns Unit
 
 objManager:GetMaxHeroes() returns number
@@ -108,10 +114,12 @@ Unit.mana
 Unit.maxMana
 Unit.range
 Unit.movespeed
+Unit.attackspeed
 Unit.addDamage
 Unit.baseDamage
 Unit.cdr
 Unit.armor
+Unit.crit
 Unit.magicArmor
 Unit.ap
 Unit.armorPen
@@ -119,8 +127,7 @@ Unit.magicPen
 Unit.armorPenPercent
 Unit.magicPenPercent
 Unit.selflevel
-Unit.SummonerD
-Unit.SummonerF
+Unit.SpellNameQ
 Unit.SpellTimeQ
 Unit.SpellLevelQ
 

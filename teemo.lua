@@ -12,11 +12,7 @@ function getMaladyDamage()
 	return maladyDam
 end
 
-function getAADamage(target)
-	return math.floor(GetSpellDamage("AA", target) + GetSpellDamage("toxic", target) + getMaladyDamage())
-end
-
-AddToggle("lasthit", {on=true, key=112, label="Last Hit", auxLabel="{0}", args={getAADamage}})
+AddToggle("lasthit", {on=true, key=112, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=113, label="Clear Waves"})
 
 spells["blind"] = {key="Q", range=680, color=yellow, base={80,125,170,215,260}, ap=.8}
@@ -33,10 +29,21 @@ function Run()
 --		DrawCircleObject(obj, 75, yellow)
 --	end
 	
+	local tt = GetWeakEnemy("MAGIC", 10000)
+	if tt then
+	  PrintState(1, tt.name)
+	  local facingMe = FacingMe(tt)
+	  if facingMe then
+	     PrintState(2, "facing me")
+	  else
+	     PrintState(2, "facing away")
+	  end
+   end
+	
 	if HotKey() then
-		UseAllItems()
+		UseItems()
 		if CanUse("blind") then
-   		if GetDistance(EADC) < spells["blind"].range then
+   		if EADC and GetDistance(EADC) < spells["blind"].range then
             CastSpellTarget("Q", EADC)
    		else
             local target = GetWeakEnemy("MAGIC", spells["blind"].range)
@@ -47,8 +54,8 @@ function Run()
       end   
 	end
 	
-	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 700) then
-		aaWeakMinion()
+	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 750) then
+      KillWeakMinion("AA", 50)
 	end 
 	
 	if IsOn("clear") and not GetWeakEnemy("MAGIC", 1000) then
@@ -64,23 +71,6 @@ function Run()
 	end
 end
     
-    
-function aaWeakMinion()
-	-- find a weak minion
-	local wMinion
-	for _,minion in ipairs(GetInRange(me, spells["AA"].range, MINIONS)) do
-		if not wMinion or minion.health < wMinion.health then
-			wMinion = minion
-		end
-	end
-
-	-- if it's weak enough KILL IT
-	if wMinion and wMinion.health < getAADamage() then
-		AttackTarget(wMinion)
-	end
-
-end
-
 local function onObject(object)
 	if IsOn("clear") and GetDistance(object) < 1000 then
 		if find(object.charName, "Global_poison") then
@@ -90,13 +80,13 @@ local function onObject(object)
 end
 
 local function onSpell(object, spell)
-	if object.name == me.name then
-		if spell.target then
-			pp(spell.name.."->"..spell.target.name)
-		else		
-			pp(spell.name)
-		end
-	end
+--	if object.name == me.name then
+--		if spell.target then
+--			pp(spell.name.."->"..spell.target.name)
+--		else		
+--			pp(spell.name)
+--		end
+--	end
 end
 
 AddOnCreate(onObject)

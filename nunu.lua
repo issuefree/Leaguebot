@@ -43,7 +43,7 @@ function Run()
 			end
 		end
 		
-		UseAllItems()
+		UseItems()
 	end
 end
 

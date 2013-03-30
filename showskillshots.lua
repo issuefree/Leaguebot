@@ -14,10 +14,15 @@ local dodgeskillshotkey = 74 -- dodge skillshot key J
 local player=GetSelf()
 local show_allies=0
 
-require "utils"
+--require "utils"
 function round(num, idp)
   local mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
+end
+function GetDistance(p1, p2)
+        if p2 == nil then p2 = myHero end
+    if p1.z == nil or p2.z == nil then return math.sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2)
+        else return math.sqrt((p1.x-p2.x)^2+(p1.z-p2.z)^2) end
 end
 
 function dodgeaoe(pos1, pos2, radius)
@@ -237,6 +242,54 @@ function table_print (tt, indent, done)
     return tt .. "\n"
   end
 end
+--################## CLASS ##################--
+function class()
+    local cls = {}
+    cls.__index = cls
+    return setmetatable(cls, {__call = function (c, ...)
+        instance = setmetatable({}, cls)
+        if cls.__init then
+            cls.__init(instance, ...)
+        end
+        return instance
+    end})
+end
+--################## END CLASS ##################--
+
+--################## VECTOR CLASS ##################--
+Vector = class()
+function Vector:__init(a, b, c)
+    if a == nil then
+        self.x, self.y, self.z = 0.0, 0.0, 0.0
+    elseif b == nil then
+        --assert(VectorType(a), "Vector: wrong argument types (expected nil or <Vector> or 2 <number> or 3 <number>)")
+        self.x, self.y, self.z = a.x, a.y, a.z
+    else
+        assert(type(a) == "number" and (type(b) == "number" or type(c) == "number"), "Vector: wrong argument types (<Vector> or 2 <number> or 3 <number>)")
+        self.x = a
+        if b and type(b) == "number" then self.y = b end
+        if c and type(c) == "number" then self.z = c end
+    end
+end
+function Vector:clone()
+    return Vector(self)
+end
+function Vector:normalize()
+    local a = math.sqrt(self.x*self.x+self.y*self.y+self.z*self.z);
+    self.x = self.x / a
+    self.y = self.y / a
+    self.z = self.z / a
+end
+
+function Vector:normalized()
+    local a = self:clone()
+    a:normalize()
+    return a
+end
+function Vector:__sub(v)
+    --assert(VectorType(v) and VectorType(self), "Sub: wrong argument types (<Vector> expected)")
+    return Vector(self.x - v.x, (v.y and self.y) and self.y - v.y, (v.z and self.z) and self.z - v.z)
+end
 
 function sample_CallBackskill()
 	cc=cc+1
@@ -305,6 +358,15 @@ print(" heros:" .. tostring(iCount))
         local skillshotplayerObj = GetSelf();--objManager:GetHero(i)
 		print(" name:" .. skillshotplayerObj.name);
         --if (skillshotplayerObj.team ~= player.team or (show_allies==1)) then
+		if 1==1 or skillshotplayerObj.name == "Thresh" then
+			table.insert(skillshotArray,{name= "ThreshQ", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 1100, type = 1, radius = 100, color= coloryellow, time = 1.5, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
+			table.insert(skillshotArray,{name= "ThreshQInternal", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 1100, type = 1, radius = 100, color= coloryellow, time = 1.5, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
+			skillshotcharexist = true
+		end
+		if 1==1 or skillshotplayerObj.name == "Quinn" then
+                table.insert(skillshotArray,{name= "QuinnQMissile", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 1025, type = 1, radius = 40, color= coloryellow, time = 1, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
+            skillshotcharexist = true
+        end
 		if 1==1 or skillshotplayerObj.name == "Syndra" then
 				table.insert(skillshotArray,{name= "SyndraQ", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 800, type = 3, radius = 200, color= coloryellow, time = 1, isline = false, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
 				table.insert(skillshotArray,{name= "SyndraE", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 650, type = 1, radius = 100, color= coloryellow, time = 0.5, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
@@ -342,7 +404,7 @@ print(" heros:" .. tostring(iCount))
             skillshotcharexist = true
             end
             if 1==1 or skillshotplayerObj.name == "Ashe" then
-                table.insert(skillshotArray,{name= "EnchantedCrystalArrow", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 50000, type = 4, radius = 120, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0})
+                table.insert(skillshotArray,{name= "EnchantedCrystalArrow", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 3000, type = 4, radius = 120, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0})
             skillshotcharexist = true
             end
             if 1==1 or skillshotplayerObj.name == "Blitzcrank" then
@@ -384,13 +446,13 @@ print(" heros:" .. tostring(iCount))
             end
             if 1==1 or skillshotplayerObj.name == "Draven" then
                 table.insert(skillshotArray,{name= "DravenDoubleShot", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 1050, type = 1, radius = 125, color= colorcyan, time = 1, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
-                table.insert(skillshotArray,{name= "DravenRCast", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 5000, type = 1, radius = 100, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
+                table.insert(skillshotArray,{name= "DravenRCast", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 3000, type = 1, radius = 100, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0 })
             skillshotcharexist = true
             end
             if 1==1 or skillshotplayerObj.name == "Ezreal" then
                 table.insert(skillshotArray,{name= "EzrealEssenceFluxMissile", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 900, type = 1, radius = 100, color= colorcyan, time = 1, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
                 table.insert(skillshotArray,{name= "EzrealMysticShotMissile", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 1100, type = 1, radius = 80, color= colorcyan, time = 1, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
-                table.insert(skillshotArray,{name= "EzrealTrueshotBarrage", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 5000, type = 4, radius = 150, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
+                table.insert(skillshotArray,{name= "EzrealTrueshotBarrage", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 3000, type = 4, radius = 150, color= colorcyan, time = 4, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
                 table.insert(skillshotArray,{name= "EzrealArcaneShift", shot=0, lastshot = 0, skillshotpoint = {}, maxdistance = 475, type = 5, radius = 100, color= colorgreen, time = 1, isline = true, p1x =0, p1y =0 , p1z =0 , p2x =0, p2y =0 , p2z =0  })
             skillshotcharexist = true
             end

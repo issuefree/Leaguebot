@@ -94,7 +94,7 @@ function healTeam()
 end
 
 function useItems()
-	UseAllItems()
+	UseItems()
 end
 
 SetTimerCallback("Run")

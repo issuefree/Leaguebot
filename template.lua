@@ -1,17 +1,18 @@
 require "Utils"
 require "timCommon"
 require "modules"
+require "support"
 
 pp("\nTim's Template")
 
---AddToggle("autoQ", {on=false, key=112, label="Auto Q"})
+--AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
 
 --spells["blind"] = {key="Q", range=680, color=yellow, base={80,125,170,215,260}, ap=.8}
 
 function Run()
 	TimTick()
 	if HotKey() then
-		UseAllItems()
+		UseItems()
 	end
 end
 
@@ -23,6 +24,4 @@ end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
-SetTimerCallback("Run")
-
 SetTimerCallback("Run")

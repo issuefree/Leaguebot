@@ -14,15 +14,15 @@ spells["morale"]  = {key="E", range=1200, color=blue}
 function Run()
 	TimTick()
 			
-	if IsKeyDown(hotKey) == 1 then
+	if HotKey() then
 		local target = GetWeakEnemy("PHYS", spells["gun"].range)
+		UseItems()
 		if target and CanCastSpell("Q") then
 			CastSpellTarget("Q", target)
 		end
 		if me.health/me.maxHealth < .5 then
 			CastSpellTarget("W", me)
 		end
-		useItems()
 	end
 	
 	if IsOn("ult") and CanCastSpell("R") then
@@ -37,15 +37,6 @@ function Run()
 		KillFarMinion(spells["gun"])
 --		killNearMinion("AA")
 	end			
-end
-
-function useItems()
-	useItem("Entropy")
-	useItem("Youmuu's Ghostblade")
-	useItem("Bilgewater Cutlass")
-	useItem("Blade of the Ruined King")
-	useItem("Randuin's Omen")
-	useItem("Ravenous Hydra")
 end
 
 

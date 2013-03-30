@@ -2,8 +2,8 @@ require "Utils"
 require "timCommon"
 
 local cleanse = {"Stun_glb", "summoner_banish", "Global_Taunt", "Global_Fear", "Ahri_Charm_buf", "leBlanc_shackle_tar", "LuxLightBinding_tar", "RunePrison_tar", "DarkBinding_tar", "nassus_wither_tar", "Amumu_SadRobot_Ultwrap", "Amumu_Ultwrap", "maokai_elementalAdvance_root_01", "RengarEMax_tar", "VarusRHitFlash"} 
-local byAbil = merge({"AlZaharNetherGrasp_tar", "InfiniteDuress_tar", "skarner_ult_tail_tip", "SwapArrow_red"}, cleanse)
-local byItem  = merge({"summoner_banish", "mordekaiser_cotg_tar", "Fizz_UltimateMissle_Orbit", "Fizz_UltimateMissle_Orbit_Lobster"}, byAbil)
+local byAbil = concat({"AlZaharNetherGrasp_tar", "InfiniteDuress_tar", "skarner_ult_tail_tip", "SwapArrow_red"}, cleanse)
+local byItem  = concat({"summoner_banish", "mordekaiser_cotg_tar", "Fizz_UltimateMissle_Orbit", "Fizz_UltimateMissle_Orbit_Lobster"}, byAbil)
 
 local cleanseKey
 
@@ -15,6 +15,7 @@ end
 
 local function cleanseObj(object)
 	if GetDistance(object) < 25 and ModuleConfig.cleanse then
+
 		if me.name == "Gangplank" and 
 		   CanCastSpell("W") and 
 		   ListContains(object.charName, byAbil) 
@@ -27,6 +28,7 @@ local function cleanseObj(object)
 			ListContains(object.charName, byAbil) and
          CanCastSpell("R") 
       then
+         pp("here")
 			CastSpellTarget("R", me)
 			return
 		end

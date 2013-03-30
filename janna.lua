@@ -10,7 +10,7 @@ spells["zephyr"]  = {key="W", range=600,  color=violet, base={60,115,170,225,280
 spells["eye"]     = {key="E", range=800,  color=green,  base={80,120,160,200,240}, ap=.9}
 spells["monsoon"] = {key="R", range=800, color=green, base={280,440,600}, ap=1.4}
 
-AddToggle("shield", {on=true, key=113, label="Auto Shield", auxLabel="{0}", args={"eye"}})
+AddToggle("shield", {on=true, key=112, label="Auto Shield", auxLabel="{0}", args={"eye"}})
 
 function Run()
 	TimTick()
@@ -20,17 +20,18 @@ function Run()
 	end
 
 	if HotKey() then	
-		UseAllItems()
+		UseItems()
 	end
 end 
 
-function checkShield(object, spell)
-	if not spell.target or
-	   find(object.name, "Minion") or
+function checkShield(unit, spell)
+	if not IsOn("shield") or
+      not spell.target or
+	   find(unit.name, "Minion") or
 	   find(spell.target.name, "Minion") or
 	   IsRecalling(me) or
 	   not CanUse("eye") or
-	   object.team == me.team or
+	   unit.team == me.team or
 	   GetDistance(spell.target) > 800 or
 	   spell.target.team ~= me.team
 	then

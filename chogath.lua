@@ -18,7 +18,7 @@ function Run()
 	TimTick()
 	
 	if KeyDown(hotKey) then
-		UseAllItems()
+		UseItems()
 --		local target = GetWeakEnemy("MAGIC", 950)
 --		if target then
 --			local x,y,z = GetFireahead(target,1.5*5,999) ;

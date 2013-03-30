@@ -14,6 +14,13 @@ pos.y=target.maxBBy
 pos.z=target.maxBBz
 return pos
 end
+function GetLastOrder()
+local pos={}
+pos.x=GetLastOrderX()
+pos.y=GetLastOrderY()
+pos.z=GetLastOrderZ()
+return pos
+end
 function scriptloader (scriptname,scriptnum)
 printtext(tostring(scriptname) .. " " .. tostring(scriptnum));
 local scriptenv = {}   -- a new table (one for each script)

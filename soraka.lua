@@ -37,7 +37,7 @@ function Run()
 			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", target) end 
 			if GetDistance(me, target) < 725 and CanCastSpell("E") then CastSpellTarget("E", target) end 
 		end
-		UseAllItems()
+		UseItems()
 	end
 
 	infuseTeam()
@@ -145,7 +145,7 @@ function healTeam()
 		CustomCircle(100, 4, yellow, bestOutRangeT)
 	end
 
-	if CanCastSpell("W") then
+	if CanCastSpell("W") and me.dead ~= 1 then
 		-- let me know if someone oustside of range is in need
 		if bestOutRangeT and 
 		   ( not bestInRangeT or
