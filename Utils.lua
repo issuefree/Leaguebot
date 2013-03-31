@@ -1134,7 +1134,7 @@ function SC__OnWndMsg(msg,key)
             if _SC._changeKeyMenu and key == _SC.menuKey then _SC._changeKeyMenu = false end
         end
     end
-    if msg == WM_LBUTTONDOWN and KeyDown(_SC.menuKey) then
+    if msg == WM_LBUTTONDOWN then
         if CursorIsUnder(_SC.draw.x, _SC.draw.y, _SC.draw.width, _SC.draw.heigth) then
             _SC.menuIndex = -1
             if CursorIsUnder(_SC.draw.x + _SC.draw.width - _SC.draw.fontSize * 1.5, _SC.draw.y, _SC.draw.fontSize, _SC.draw.cellSize) then
@@ -1150,14 +1150,15 @@ function SC__OnWndMsg(msg,key)
                 for index,instance in ipairs(_SC.instances) do
                     if CursorIsUnder(_SC.draw.x, y1, _SC.draw.width, _SC.draw.cellSize) then _SC.menuIndex = index end
                     y1 = y1 + _SC.draw.cellSize
-                end
+                end                
             end
         elseif CursorIsUnder(_SC.pDraw.x, _SC.pDraw.y, _SC.pDraw.width, _SC.pDraw.heigth) then
+            _SC.instances[1]:OnPWndMsg()
             _SC.pDraw.offset = Vector(GetCursorX(), GetCursorY()) - _SC.pDraw
             _SC.pDraw.move = true
         elseif _SC.menuIndex == 0 then
             TS_ClickMenu(_SC._Idraw.x, _SC.draw.y + _SC.draw.cellSize)
-        elseif _SC.menuIndex > 0 and CursorIsUnder(_SC._Idraw.x, _SC.draw.y, _SC.draw.width, _SC._Idraw.heigth) then
+        elseif _SC.menuIndex > 0 and CursorIsUnder(_SC._Idraw.x, _SC.draw.y, _SC.draw.width, _SC._Idraw.heigth) then            
             _SC.instances[_SC.menuIndex]:OnWndMsg()
         end
     elseif msg == WM_LBUTTONUP then
@@ -1382,6 +1383,16 @@ function scriptConfig:save()
         -- table.insert (content, "_permaShow."..i.."="..tostring(pShow))
     -- end
     __SC__save(self.name, content)
+end
+
+function scriptConfig:OnPWndMsg()
+   for i,param in ipairs(self._param) do
+      if CursorIsUnder(_SC.pDraw.x, _SC.pDraw.y + (i-1)*_SC.pDraw.cellSize, _SC.pDraw.width, _SC.pDraw.fontSize) then
+         self[param.var] = not self[param.var]
+         self:save()
+         return
+      end
+   end
 end
 
 function scriptConfig:OnWndMsg()

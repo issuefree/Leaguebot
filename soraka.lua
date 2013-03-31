@@ -3,7 +3,7 @@ require "timCommon"
 require "modules"
 require "support"
 
-print("Tim's Soraka")
+pp("Tim's Soraka")
 
 spells["starfall"]     = {key="Q", range=650,  color=red,    base={60,85,110,135,160},  ap=.4}
 spells["heal"]         = {key="W", range=750,  color=green,  base={70,140,210,280,350}, ap=.45}

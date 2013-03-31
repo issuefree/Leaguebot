@@ -4,7 +4,6 @@ require "modules"
 require "support"
 
 pp("\nTim's Sona")
-
 AddToggle("lastHit", {on=false, key=112, label="Last Hit", auxLabel="{0}", args={"blue"}})
 AddToggle("healTeam", {on=true, key=113, label="Heal Team", auxLabel="{0}", args={"green"}})
 AddToggle("fastWalk", {on=true, key=114, label="Fast Walk"})
@@ -35,7 +34,6 @@ spells["yellow"] = {
    base={150,250,350}, 
    ap=.8
 }
-
 
 function Run()
    TimTick()
