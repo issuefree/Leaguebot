@@ -110,6 +110,7 @@ EAPC = nil
 
 -- object arrays
 MINIONS = {}
+MYMINIONS = {}
 CREEPS = {}
 ALLIES = {}
 ENEMIES = {}
@@ -142,6 +143,7 @@ CreepNames = concat(concat(MinorCreepNames, BigCreepNames), MajorCreepNames)
 
 enrage = nil
 lichbane = nil
+tear = nil
 
 -- globals for the toggle menus
 keyToggles = {}
@@ -189,9 +191,15 @@ ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
 ITEMS["Malady"] = {id=3114, base={15}, ap=.1}
 ITEMS["Wit's End"] = {id=3091, base={42}}
 
-ITEMS["Sheen"] =         {id=3057, base={0}, adBase=1}
+ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1}
 ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=1.5}
-ITEMS["Lich Bane"] = {id=3100, base={50}, ap=.75}
+ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75}
+
+-- Tear
+ITEMS["Tear of the Goddess"] = {id=3070}
+ITEMS["Archangel's Staff"] = {id=3003}
+ITEMS["Manamune"] = {id=3004}
+
 
 repeat
    if string.format(me.team) == "100" then
@@ -324,6 +332,13 @@ function doCreateObj(object)
       table.insert(MINIONS, object)
    end
 
+   -- find minions
+   if ( ( find(object.name, "Blue_Minion") and playerTeam == "Blue" ) or 
+        ( find(object.name, "Red_Minion") and playerTeam == "Red" ) )
+   then
+      table.insert(MYMINIONS, object)
+   end
+
    if ListContains(object.name, CreepNames) then
       table.insert(CREEPS, object)
    end
@@ -363,6 +378,15 @@ function doCreateObj(object)
    then
       lichbane = {object.charName, object}
    end
+
+   --tear
+   if find(object.charName, "TearoftheGoddess") and 
+      GetDistance(object) < 50 
+   then
+      tear = {object.charName, object}
+   end
+   
+   
       
    for i, callback in ipairs(OBJECT_CALLBACKS) do
       callback(object, LOADING)
@@ -428,6 +452,16 @@ local function updateMinions()
          not find(minion.name, "Minion")
       then
          table.remove(MINIONS,i)
+      end
+   end
+   for i,minion in rpairs(MYMINIONS) do
+      if not minion or
+         minion.dead == 1 or
+         minion.x == nil or 
+         minion.y == nil or
+         not find(minion.name, "Minion")
+      then
+         table.remove(MYMINIONS,i)
       end
    end
 end
@@ -687,19 +721,18 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    end
 end
 
-function GetUnblocked(range, width, ...)
+function GetUnblocked(source, range, width, ...)
    local minionWidth = 55
-   local targets = GetInRange(me, range, concat(...))
-   
-   SortByDistance(targets)
+   local targets = GetInRange(source, range, concat(...))
+   SortByDistance(targets, source)
    
    local blocked = {}
    
    for i,target in ipairs(targets) do
-      local d = GetDistance(target)
+      local d = GetDistance(source, target)
       for m = i+1, #targets do
-         local a = AngleBetween(me, targets[m])
-         local proj = {x=me.x+math.sin(a)*d, z=me.z+math.cos(a)*d}
+         local a = AngleBetween(source, targets[m])
+         local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
          if GetDistance(target, proj) < width+minionWidth then
             table.insert(blocked, targets[m])
          end
@@ -852,7 +885,7 @@ function FilterList(list, f)
 end
 
 function ListContains(item, list, exact)
-   for _, test in pairs(list) do
+   for _,test in pairs(list) do
       if exact or not type(item) == "string" then
          if item == test then return true end
       else

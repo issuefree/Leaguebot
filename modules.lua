@@ -10,9 +10,11 @@ function loadModule(module)
 	end
 end
 
-loadModule("WardRevealer.lua")
 --loadModule("clones.lua")
 --loadModule("showskillshots.lua")
+
+loadModule("WardRevealer.lua")
 loadModule("cleanse.lua")
 loadModule("ignite.lua")
+loadModule("antiSkillShot.lua")
 loadModule("objectFind.lua")

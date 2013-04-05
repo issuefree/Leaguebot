@@ -101,7 +101,7 @@ function Run()
    local target = GetWeakEnemy("MAGIC", 750)
    if IsOn("butcher") and not HotKey() and not target then
       local cleaver = spells["cleaver"]	
-   	for _,minion in ipairs(GetUnblocked(cleaver.range, cleaver.width, MINIONS)) do
+   	for _,minion in ipairs(GetUnblocked(me, cleaver.range, cleaver.width, MINIONS)) do
    		if GetDistance(minion) > spells["agony"].range and 
    		   GetSpellDamage(cleaver, minion) > minion.health 
    		then
@@ -119,7 +119,7 @@ function cleaverEnemy()
    local cleaver = spells["cleaver"]
    local target = GetWeakEnemy("MAGIC", cleaver.range+50)
    if target and CanUse(cleaver) then
-      local unblocked = GetUnblocked(cleaver.range+50, cleaver.width, MINIONS, ENEMIES)
+      local unblocked = GetUnblocked(me, cleaver.range+50, cleaver.width, MINIONS, ENEMIES)
 
       unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
 

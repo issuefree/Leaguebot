@@ -10,7 +10,7 @@ AddToggle("fastWalk", {on=true, key=114, label="Fast Walk"})
 
 spells["blue"] = {
    key="Q", 
-   range=700, 
+   range=825, 
    color=blue, 
    base={50,100,150,200,250}, 
    ap=.7
@@ -35,9 +35,14 @@ spells["yellow"] = {
    ap=.8
 }
 
+pcBlue = nil
+pcGreen = nil
+pcViolet = nil
+
 function Run()
    TimTick()
    
+
    if IsRecalling(me) then
       return
    end
@@ -69,7 +74,7 @@ function Run()
    
    if IsOn("lastHit") and not GetWeakEnemy("MAGIC", 750) then
       local spell = spells["blue"]
-      local minionRays = 2 ---#GetInRange(me, spell.range, ENEMIES)
+      local minionRays = 2 -- - #GetInRange(me, spell.range, ENEMIES)
       local targets = GetInRange(me, spell.range, MINIONS)
       SortByDistance(targets)
       for _,minion in ipairs(targets) do
@@ -85,7 +90,14 @@ function Run()
    end
    
    if IsOn("fastWalk") and CanCastSpell("E") and not GetWeakEnemy("MAGIC", 1500) then
-      if me.mana/me.maxMana > .9 then
+      if GetDistance(HOME) > 1000 and me.mana/me.maxMana > .9 then
+         CastSpellTarget("E", me)
+      elseif ( GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
+               GetInventorySlot(ITEMS["Archangel's Staff"].id) or
+               GetInventorySlot(ITEMS["Manamune"].id) ) and 
+         not Check(tear) and
+         me.mana/me.maxMana > .75
+      then
          CastSpellTarget("E", me)
       end
    end
@@ -93,8 +105,17 @@ function Run()
 end
 
 
-
 local function onObject(object)
+   if find(object.charName, "SonaPowerChordReady") then
+      if find(object.charName, "blue") then
+         pcBlue = {object.charName, object}
+      elseif find(object.charName, "green") then
+         pcGreen = {object.charName, object}
+      elseif find(object.charName, "violet") then
+         pcViolet = {object.charName, object}
+      end
+   end
+   
 end
 
 local function onSpell(object, spell)

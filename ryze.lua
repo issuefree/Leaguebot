@@ -1,4 +1,6 @@
 require "Utils"
+require "timCommon"
+require "modules"
 
 pp("Tim's Ryze")
 
@@ -13,6 +15,8 @@ local nearRange = 900    -- if no enemies in this range consider them not "near"
 
 local qLast, wLast = false, false
 function Run()
+   TimTick()
+   
 	if HotKey() then
    	local target = GetWeakEnemy('MAGIC',675)
 		if target then
@@ -28,9 +32,9 @@ function Run()
 		end
 	end
 	
-	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", nearRange) then
-	  KillWeakMinion("AA")
-	end
+--	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", nearRange) then
+--	  KillWeakMinion("AA")
+--	end
 end
 
 function castQ(target)

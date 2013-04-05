@@ -50,7 +50,7 @@ function lastHit()
       return true
    end
    if CanUse("shot") then
-      for _,minion in ipairs(GetUnblocked(spells["shot"].range, spells["shot"].width, MINIONS)) do
+      for _,minion in ipairs(GetUnblocked(me, spells["shot"].range, spells["shot"].width, MINIONS)) do
          if GetSpellDamage("shot", minion) > minion.health and
 --            ( GetDistance(minion) > spells["AA"].range+50 or                 
 --              GetSpellDamage("AA", minion) < minion.health ) 
@@ -69,7 +69,7 @@ end
 function mysticEnemy()
    local target = GetWeakEnemy("PHYSICAL", spells["shot"].range)
    if target and CanUse("shot") then
-      local unblocked = GetUnblocked(spells["shot"].range, spells["shot"].width, MINIONS, ENEMIES)
+      local unblocked = GetUnblocked(me, spells["shot"].range, spells["shot"].width, MINIONS, ENEMIES)
 
       unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
 
