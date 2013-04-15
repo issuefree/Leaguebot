@@ -7,7 +7,13 @@ pp("\nTim's Template")
 
 --AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
 
---spells["blind"] = {key="Q", range=680, color=yellow, base={80,125,170,215,260}, ap=.8}
+--spells["jav"] = {
+--   key="Q", 
+--   range=1500, 
+--   color=violet, 
+--   base={55,95,140,185,230}, 
+--   ap=.65
+--}
 
 function Run()
 	TimTick()

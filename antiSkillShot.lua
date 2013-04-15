@@ -48,7 +48,9 @@ function assTick()
    end
    if ModuleConfig.ass then
       for _,enemy in pairs(ssers) do
-         if enemy.spell.type == "line" then
+         if not enemy.visible then
+         
+         elseif enemy.spell.type == "line" then
             if enemy.obj and enemy.obj.x and GetDistance(enemy.obj) < enemy.spell.range then
                local unblocked = GetUnblocked(enemy.obj, enemy.spell.range, enemy.spell.width, MYMINIONS, ALLIES)
                for _,test in ipairs(unblocked) do

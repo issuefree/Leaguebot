@@ -18,11 +18,11 @@ function Run()
    TimTick()  
   
    -- TODO something with ult
-   local target = GetWeakEnemy("MAGIC", 99999)
-   if target then
-      local x,y,z = GetFireahead(target, 1.2, 20)
-      DrawCircle(x,y,z,100, red )
-   end
+--   local target = GetWeakEnemy("MAGIC", 99999)
+--   if target then
+--      local x,y,z = GetFireahead(target, 1.2, 20)
+--      DrawCircle(x,y,z,100, red )
+--   end
   
    if HotKey() then
       UseItems()

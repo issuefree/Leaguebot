@@ -4,7 +4,7 @@ local num = 10
 local objects = {}
 local spells = {}
 
-local range = 100
+local range = 200
 
 function debugTick()
    if not ModuleConfig.debug then
@@ -16,8 +16,11 @@ function debugTick()
    for i = 1, objManager:GetMaxObjects(), 1 do
       local object = objManager:GetObject(i)
       if object and object.x and object.charName and
-         GetDistance(object, GetMousePos()) < 100 then
-         table.insert(objects, object.charName.."      "..object.name)
+         GetDistance(object, GetMousePos()) < range 
+      then
+         if not find(object.charName, "Minion") then            
+            table.insert(objects, object.charName.."      "..object.name)
+         end
       end
    end
       
@@ -27,7 +30,7 @@ function debugTick()
       end
    end
    
-   PrintState(1, "Objects")
+   PrintState(1, "Objects: chN     N")
    for i, object in ipairs(objects) do
       PrintState(i+1, objects[i])
    end
@@ -42,7 +45,10 @@ local function onSpell(unit, spell)
    if not ModuleConfig.debug then
       return
    end
-   if GetDistance(unit) < 100 or GetDistance(unit, GetMousePos()) < 100 then
+   if find(unit.charName, "Minion") then
+      return
+   end   
+   if GetDistance(unit) < range or GetDistance(unit, GetMousePos()) < range then
       if spell.target and spell.target.charName then
          table.insert(spells, unit.name.." : "..spell.name.." -> "..spell.target.charName)
       else
@@ -63,15 +69,18 @@ local function onSpell(unit, spell)
 end
 
 local function onObject(object)
---   if GetDistance(object, GetMousePos()) < 100 then
---      table.insert(objects, object.charName)
---   end
+   if not ModuleConfig.debug then
+      return
+   end
+   if GetDistance(object, GetMousePos()) < range then
+      pp(object.charName.."      "..object.name)
+   end
 end
 
 ModuleConfig:addParam("debug", "Debug Objects", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("debug")
 
 AddOnSpell(onSpell)
-AddOnSpell(onObject)
+AddOnCreate(onObject)
 
 SetTimerCallback("debugTick")

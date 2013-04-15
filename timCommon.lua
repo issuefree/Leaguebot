@@ -248,6 +248,24 @@ local function drawCommon()
    drawItemRanges()
 end
 
+function LoadConfig(name)
+   local config = {}
+   for line in io.lines(name..".cfg") do
+      for k,v in string.gmatch(line, "(%w+)=(%w+)") do
+         config[k] = v
+      end
+   end
+   return config
+end
+
+function SaveConfig(name, config)
+   local file = io.open(name..".cfg", "w")
+   for k,v in pairs(config) do
+      file:write(k.."="..v.."\n")
+   end
+   file:close()
+end
+
 function AddToggle(key, value)
    keyToggles[key] = value
    table.insert(toggleOrder, key)
@@ -800,7 +818,7 @@ function find(source, target)
    if not source then
       return false
    end
-   return string.find(source, target)
+   return string.find(string.lower(source), string.lower(target))
 end
 
 function copy(orig)
@@ -889,7 +907,7 @@ function ListContains(item, list, exact)
       if exact or not type(item) == "string" then
          if item == test then return true end
       else
-         if find(name, test) then return true end
+         if find(item, test) then return true end
       end
    end
    return false
@@ -965,8 +983,8 @@ function UseItem(itemName, target)
 
       local target = ADC
       if target and target.name ~= me.name and 
-      GetDistance(target, me) < crucibleRange and
-      #GetInRange(target, 50, CCS) > 0
+         GetDistance(target, me) < crucibleRange and
+         #GetInRange(target, 50, CCS) > 0
       then 
          CastSpellTarget(slot, target)
          pp(target.name) 
@@ -1274,6 +1292,9 @@ function GetSpellDamage(thing, target)
    end
    if spell.lvl then
       damage = damage + me.selflevel*spell.lvl
+   end
+   if spell.bonus then
+      damage = damage + spell.bonus
    end
 
    if target then

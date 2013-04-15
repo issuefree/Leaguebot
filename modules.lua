@@ -13,6 +13,7 @@ end
 --loadModule("clones.lua")
 --loadModule("showskillshots.lua")
 
+loadModule("smite.lua")
 loadModule("WardRevealer.lua")
 loadModule("cleanse.lua")
 loadModule("ignite.lua")
