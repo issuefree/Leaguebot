@@ -6,7 +6,7 @@ ssers = {
       spell = {type="circle", width=350}   
    },
    morgana = {
-      spell = {type="line", range=1300, block=true, width=60}
+      spell = {type="line", range=1300, key="Q", block=true, width=60}
    },
    ezreal = {
       spell = {type="line", range=1100, block=true, width=60}
@@ -48,15 +48,17 @@ function assTick()
    end
    if ModuleConfig.ass then
       for _,enemy in pairs(ssers) do
-         if not enemy.visible then
-         
-         elseif enemy.spell.type == "line" then
-            if enemy.obj and enemy.obj.x and GetDistance(enemy.obj) < enemy.spell.range then
-               local unblocked = GetUnblocked(enemy.obj, enemy.spell.range, enemy.spell.width, MYMINIONS, ALLIES)
-               for _,test in ipairs(unblocked) do
-                  if test.charName == me.charName then
-                     LineBetween(enemy.obj, me, enemy.spell.width)
-                     break
+         if enemy.obj then
+            if enemy.obj.visible == 0 then
+            
+            elseif enemy.spell.type == "line" then
+               if enemy.obj.x and GetDistance(enemy.obj) < enemy.spell.range and enemy.obj["SpellTime"..enemy.spell.key] >= -.5 then
+                  local unblocked = GetUnblocked(enemy.obj, enemy.spell.range, enemy.spell.width, MYMINIONS, ALLIES)
+                  for _,test in ipairs(unblocked) do
+                     if test.charName == me.charName then
+                        LineBetween(enemy.obj, me, enemy.spell.width)
+                        break
+                     end
                   end
                end
             end

@@ -903,8 +903,11 @@ function FilterList(list, f)
 end
 
 function ListContains(item, list, exact)
+   if type(item) ~= "string" then
+      exact = true
+   end
    for _,test in pairs(list) do
-      if exact or not type(item) == "string" then
+      if exact then
          if item == test then return true end
       else
          if find(item, test) then return true end

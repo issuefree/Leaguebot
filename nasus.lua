@@ -13,7 +13,7 @@ end
 function setStrikes(val)
    spells["strike"].bonus = val
    config["strikes"] = val
-   SaveConfig("nasus", config)   
+   SaveConfig("nasus", config)
 end
 
 AddToggle("autoStrike", {on=true, key=112, label="Auto Strike", auxLabel="{0} / {1}", args={strikeBonus, "strike"}})
@@ -48,7 +48,7 @@ config = LoadConfig("nasus")
 spells["strike"].bonus = config["strikes"]
 
 -- didn't work
-if GetDistance(HOME) < 1000 and GetSpellLevel("Q") == 0 then
+if GetSpellLevel("Q") == 0 then
    setStrikes(0)
 end
 
@@ -72,8 +72,12 @@ function Run()
          local targets = GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS)
          for _,target in ipairs(targets) do 
             if GetSpellDamage("strike", target) > target.health then
-               AttackTarget(target)
-               CastSpellTarget("Q", me)
+               CastSpellTarget("Q", target)
+               if ListContains(target, CREEPS) then
+                  ClickSpellXYZ("M", target.x, target.y, target.z, 0)
+               else 
+                  AttackTarget(target)
+               end
                victim = target
                victimName = target.name
                break
