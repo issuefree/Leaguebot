@@ -34,7 +34,7 @@ function Run()
 
 	if IsKeyDown(hotKey) ~= 0 then
 		if target ~= nil then
-			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", target) end 
+			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", me) end 
 			if GetDistance(me, target) < 725 and CanCastSpell("E") then CastSpellTarget("E", target) end 
 		end
 		UseItems()

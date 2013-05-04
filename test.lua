@@ -34,25 +34,24 @@ function pp(str)
    end
 end
 
-local config = {strikes="45", foo="bar"}
-
-function LoadConfig(name)
-   local config = {}
-   for line in io.lines(name..".cfg") do
-      for k,v in string.gmatch(line, "(%w+)=(%w+)") do
-         config[k] = v
-      end
+function concat(...)
+   local resTable = {}
+   for _,tablex in ipairs(arg) do
+      if type(tablex) == "table" then
+         for _,v in ipairs(tablex) do
+            table.insert(resTable, v)
+         end
+      else
+         table.insert(resTable, tablex)
+      end      
    end
-   return config
+   return resTable
 end
 
-function SaveConfig(name, config)
-   local file = io.open(name..".cfg", "w")
-   for k,v in pairs(config) do
-      file:write(k.."="..v.."\n")
-   end
-   file:close()
-end
-SaveConfig("nasus", config)
-foo = LoadConfig("nasus")
-pp(foo)
+a = {1,2,3}
+b = {5,6,7}
+c = "f"
+d = 4
+
+pp(concat(d, c))
+

@@ -65,7 +65,10 @@ function Run()
 
 	if HotKey() then
       UseItems()
-      cleaverEnemy()
+      
+--      if not SkillShot("cleaver", "peel") then
+         SkillShot("cleaver")
+--      end
       
       if IsOn("berserk") then
          local target = GetWeakEnemy("PHYSICAL", 350)
@@ -113,28 +116,6 @@ function Run()
    		end	
    	end
 	end
-end
-
-function cleaverEnemy()
-   local cleaver = spells["cleaver"]
-   local target = GetWeakEnemy("MAGIC", cleaver.range+50)
-   if target and CanUse(cleaver) then
-      local unblocked = GetUnblocked(me, cleaver.range+50, cleaver.width, MINIONS, ENEMIES)
-
-      unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
-
-      target = GetWeakest(cleaver, unblocked)
-
-      if target then
-         local x,y,z = GetFireahead(target, cleaver.delay, cleaver.speed)
-         if GetDistance({x=x, y=y, z=z}) < cleaver.range then
-            CastSpellXYZ(cleaver.key, x, y, z)
-            --            OrbWalk(250)
-            return target            
-         end
-      end
-   end
-   return false
 end
 
 function checkBurning(object)

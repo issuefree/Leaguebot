@@ -40,7 +40,7 @@ function Run()
    end
    if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 950) then
       if KillWeakMinion("AA", 100) then
-         OrbWalk(500)
+--         OrbWalk(500)
       end
    end
 end

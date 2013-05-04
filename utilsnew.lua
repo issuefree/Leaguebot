@@ -1,38 +1,37 @@
-
 --[[
 	====================================
 	|    Leaguebot Utility Library     |
 	|          Version 1.3.5           |
 	====================================
-
+	
 		This library consolidates functions that are often repeated in scripts as well as including
 		multiple classes and additional functions.
-
+	
 	====================================
 	|            How To Use            |
 	====================================
 		- add 'require "Utils"' to the top of your script, without single quotes.
-
+		
 	====================================
 	|            Version Log           |
 	====================================
-
+	
 	1.0.0:
 		- Initial Release
-
-	1.0.1:
+	
+	1.0.1: 
 		- Added additional functions
-
+	
 	1.2.0:
 		- Added Script Configuration Menu
 		- Fixed 'Class' class.
 		- Added support for OnWndMsg function
-
+	
 	1.2.1:
 		- Added two new param types to script configuration menu (thanks Dasia!)
 		- Fixed some bugs with script configuration menu
 		- Added additional functions
-
+		
 	1.2.2:
 		- Fixed callback issues caused by latest Leaguebot update
 		- Fixed bug where new objects would be checked even if script didn't use the function
@@ -40,19 +39,19 @@
 		- Updated OnProcessSpell to also return target
 		- Added API
 		- Added GetTickCount()
-
+		
 	1.2.3:
 		- Added Color class
-
+	
 	1.2.4:
 		- Added UseItemLocation(item, x, y, z)
 		- Added CustomCircle(radius,thickness,color,object,x,y,z) (thanks PEDO)
 		- Added mousePos variable which represents your cursor. E.g. GetDistance(mousePos)
 		- Added item support with 3 functions - UseAllItems(target), UseTargetItems(target), UseSelfItems(target)
-
+	
 	1.2.5:
 		- Fixed a bug that stopped NUMERICUPDOWN loading decimals correctly
-
+		
 	1.3.0:
 		- Added GetMEC(radius, range, target) - > Will return the best location for aoe spells to hit as many enemies around the target as possible
 		- Added Minion Manager
@@ -61,35 +60,39 @@
 		- Added ValidTarget(target)
 	1.3.1:
 		- Added callback for deleted objects. Use function OnDeleteObj(object)
-
+	
 	1.3.2:
 		- Fixed bug with ValidTarget
 		- Updated GetMEC
         - Added summoner spell functions:
             CastSummonerIgnite(target)
             CastSummonerExhaust(target)
-            CastSummonerHeal()
-            CastSummonerClarity()
+            CastSummonerHeal()    
+            CastSummonerClarity()            
             CastSummonerBarrier()
 			CastSummonerClairvoyance(x, y x)
+		
 	1.3.3
 		- Fixed a bug in Class that would overwrite parent class with member if member was a class created during __init
 		- Fixed a bug in GetMEC checking nil vector
 		- GetMEC results are now found with pos.x, pos.y, pos.z rather than pos.center.x, pos.center.y, pos.center.z
+		
 	1.3.4
 		- Fixed bug caused by using GetMEC on single target
+		
 	1.3.5
 		- Fixed bug in GetLowestHealthEnemyMinion
+		
 	====================================
 	|               API                |
 	====================================
-
+		
 	Globals
-
+	
 		----- Callback Functions -----
 			These functions can be added to your script and will be automatically called when necessary.
-
-				function OnDraw()						-- Do any drawing here (circles, text etc).
+			
+				function OnDraw()						-- Do any drawing here (circles, text etc).			
 				function OnProcessSpell(unit, spell)	-- This function is called whenever any spell is cast by anyone, including auto attacks and detected for players,
 																minions, towers, everything. This is only called when a spell is first cast so store the spell object if
 																you wish to use it later.
@@ -105,10 +108,10 @@
 																	function OnWndMsg(msg, key)
 																		if msg == KEY_DOWN and key == 32 then printtext("We pressed space!") end
 																	end
-
+				
 		----- Global Functions -----
 			These functions can simply be used whenever you want them.
-
+				
 				printtext("text")				-- Prints text to the console
 				ValidTarget(target)				-- Returns whether the target is valid to attack (alive, enemy etc)
 				KeyDown(key)					-- Returns true or false if key is or isn't pressed. Accepts only ascii key codes e.g. KeyDown(32)
@@ -140,64 +143,65 @@
 				CastSummonerClarity()			-- Cast summoner clarity
 				CastSummonerBarrier()			-- Cast summoner barrier
 				CastSummonerClairvoyance(x, y x)-- Cast summoner clairvoyance at given coordinates
+														
 				CustomCircle(radius,thickness,color,object,x,y,z) -- Draws a custom circle around an object
-
+																
 		----- Windows Messages -----
 			When using the OnWndMsg callback, the following are available as messages
-
+				
 				KEY_DOWN								-- Keyboard key was pressed
 				KEY_UP									-- Keyboard key was released
 				WM_LBUTTONDOWN							-- Left mouse button was pressed
 				WM_LBUTTONUP							-- Left mouse button was released
 				WM_RBUTTONDOWN							-- Right mouse button was pressed
 				WM_RBUTTONUP							-- Right mouse button was released
-
+				
 		----- Global Variables -----
 			These variables can be used in your script without having to create them.
-
+			
 				TEAM_BLUE, TEAM_RED, TEAM_ENEMY			-- Represents the teams
 				myHero									-- Returns your hero object
 				mousePos 								-- Represents your cursor. E.g. GetDistance(mousePos)
-				Color									-- Returns a colour code.
+				Color									-- Returns a colour code. 
 															Usage: Color.Red
 															Available Colours:
 																	Black
 																	Gray
 																	White
-																	Azure
-																	Brown
-																	Olive
-																	Red
-																	Maroon
-																	Coral
-																	Orange
-																	Yellow
-																	Lime
+																	Azure 
+																	Brown 
+																	Olive 
+																	Red 
+																	Maroon 
+																	Coral 
+																	Orange 
+																	Yellow 
+																	Lime 
 																	Green
-																	Cyan
-																	LightBlue
-																	SkyBlue
-																	Blue
-																	Purple
-																	Pink
-																	DeepPink
-
+																	Cyan 
+																	LightBlue 
+																	SkyBlue 
+																	Blue 
+																	Purple 
+																	Pink 
+																	DeepPink		
+			
 	Classes
-
+	
 		-----> Medium Enclosing Circle <-----
 			This class allows you to return the position that would hit the most
 			enemies around your target when using an aoe spell
-
-			Functions:
+			
+			Functions: 
 				GetMEC(radius, range, target)					-- returns pos
-
+			
 		-----> Class <-----
 			This class allows you to treat code as a class object similar to those found in other languages.
 			Simply use ClassName = class(). See classes below for examples.
-
+			
 		-----> Minion Manager <-----
 			This class alows you to retrieve lists of minions
-
+			
 			Functions:
 				GetLowestHealthEnemyMinion(range)		-- returns the lowest health enemy minion in the given range
 				GetAllyMinions(sortMode)				-- returns a list of ally minions sorted by the given sort mode
@@ -206,13 +210,13 @@
 						MINION_SORT_HEALTH_ASC			-- sort by health in ascending order (lowest hp first)
 						MINION_SORT_HEALTH_DEC			-- sort by health in descending order (highest hp first)
 						MINION_SORT_MAXHEALTH_ASC		-- sort by max health in ascending order
-						MINION_SORT_MAXHEALTH_DEC		-- sort by max health in descending order
+						MINION_SORT_MAXHEALTH_DEC		-- sort by max health in descending order	
 						MINION_SORT_AD_ASC				-- sort by ad in ascending order
 						MINION_SORT_AD_DEC				-- sort by ad in descending order
-
+			
 		-----> Vector <-----
 			Allows you to create and manipulate vectors.
-
+			
 			Functions:
 				VectorType(v)                          -- return if as vector
 				VectorIntersection(a1,b1,a2,b2)        -- return the Intersection of 2 lines
@@ -247,15 +251,15 @@
 				vector:compare(v)                        -- compare vector and v
 				vector:perpendicular()                   -- return new Vector rotated 90? rigth
 				vector:perpendicular2()                  -- return new Vector rotated 90? left
-
+			
 		-----> Script Configuration Menu <-----
 			Allows you to create in-game menus.
-
+			
 				Functions:
 					scriptConfig("Visible Name", "UniqueIdentifier")
 					:addParam
 					:permaShow
-
+			
 				Available param types:
 					SCRIPT_PARAM_ONKEYDOWN 				-- Returns true/false
 					SCRIPT_PARAM_ONOFF 					-- Returns true/false
@@ -263,43 +267,43 @@
 					SCRIPT_PARAM_INFO 					-- No return
 					SCRIPT_PARAM_NUMERICUPDOWN 			-- Returns selected value
 					SCRIPT_PARAM_DOMAINUPDOWN 			-- Returns selected index
-
+					
 				Usage:
 					TestMenu = scriptConfig("Test Script Config", "test")
 						This will create a new menu with the visible name "Test Script Config" and "test" as the unique identifier.
-
+						
 					TestMenu:addParam("TestP1", "Test Param 1", SCRIPT_PARAM_ONKEYDOWN, false, 32)
-						This will create a parameter called "TestP1", it will be displayed as "Test Param 1".
-						SCRIPT_PARAM_ONKEYDOWN means it will be true when the key is pressed.
+						This will create a parameter called "TestP1", it will be displayed as "Test Param 1". 
+						SCRIPT_PARAM_ONKEYDOWN means it will be true when the key is pressed. 
 						false means it's disabled by default. 32 is the key.
-
+						
 					TestMenu:addParam("TestP2", "Test Param 2", SCRIPT_PARAM_ONOFF, false)
-						This will create a parameter called "TestP2", it will be displayed as "Test Param 2".
-						SCRIPT_PARAM_ONOFF means you can toggle it on or off with the in-game menu.
+						This will create a parameter called "TestP2", it will be displayed as "Test Param 2". 
+						SCRIPT_PARAM_ONOFF means you can toggle it on or off with the in-game menu. 
 						false means it's disabled by default.
-
+						
 					TestMenu:addParam("TestP3", "Test Param 3", SCRIPT_PARAM_ONKEYTOGGLE, false, 32)
-						This will create a parameter called "TestP3", it will be displayed as "Test Param 3".
-						SCRIPT_PARAM_ONKEYTOGGLE means you can toggle it on or off with the in-game menu and with a key.
+						This will create a parameter called "TestP3", it will be displayed as "Test Param 3". 
+						SCRIPT_PARAM_ONKEYTOGGLE means you can toggle it on or off with the in-game menu and with a key. 
 						false means it's disabled by default. 32 is the key.
-
+					
 					TestMenu:addParam("TestP4", "Test Param 4", SCRIPT_PARAM_INFO)
-						This will create a parameter called "TestP4", it will be displayed as "Test Param 4".
+						This will create a parameter called "TestP4", it will be displayed as "Test Param 4". 
 						SCRIPT_PARAM_INFO is used simply for displaying a row of text in the menu. It has no return value.
-
+					
 					TestMenu:addParam("TestP5", "Test Number Spin", SCRIPT_PARAM_NUMERICUPDOWN, 5, 72, 0, 100, 10)
-						This will create a parameter called "TestP5", it will be displayed as "Test Number Spin".
-						SCRIPT_PARAM_NUMERICUPDOWN is used for allowing users to iterate through a list of numbers.
-						5 is the default value, 72 is the key, 0 is min value, 100 is max value, 10 is step.
+						This will create a parameter called "TestP5", it will be displayed as "Test Number Spin". 
+						SCRIPT_PARAM_NUMERICUPDOWN is used for allowing users to iterate through a list of numbers. 
+						5 is the default value, 72 is the key, 0 is min value, 100 is max value, 10 is step. 
 						This example would start at 5, pressing the key would loop through 5-15-25-35-45-55-65-75-85-95 then return back to 5.
-
+					
 					TestMenu:addParam("TestP6", "Test String Spin", SCRIPT_PARAM_DOMAINUPDOWN, 5, 84, {"one","two","three","four","five","six","seven","eight","nine","ten"})
-						This will create a parameter called "TestP6", it will be displayed as "Test String Spin".
-						SCRIPT_PARAM_DOMAINUPDOWN allows you to create the same behaviour as NUMERICUPDOWN but with strings.
-						5 is default index, 84 is key, finally the list of strings. This example would start at index 5 and would display "five" to the user.
-						Pressing the key would iterate as "six"-"seven"-"eight"-"nine"-"ten"-"one" etc.
+						This will create a parameter called "TestP6", it will be displayed as "Test String Spin". 
+						SCRIPT_PARAM_DOMAINUPDOWN allows you to create the same behaviour as NUMERICUPDOWN but with strings. 
+						5 is default index, 84 is key, finally the list of strings. This example would start at index 5 and would display "five" to the user. 
+						Pressing the key would iterate as "six"-"seven"-"eight"-"nine"-"ten"-"one" etc. 
 						The param holds the index of the selected value, so if the user has selected six...TestMenu.TestP6 == 6.
-
+						
 				Example Script:
 					require "Utils"
 
@@ -317,8 +321,8 @@
 					TestConfig:addParam("TestStrSpin", "Test String Spin", SCRIPT_PARAM_DOMAINUPDOWN, 5, 84, {"one","two","three","four","five","six","seven","eight","nine","ten"})
 					TestConfig:permaShow("TestP1")
 					TestConfig:permaShow("TestP2")
-					SetTimerCallback("Run")
-
+					SetTimerCallback("Run")		
+					
 --]]
 
 ------------ > Don't touch anything below here < --------------
@@ -363,15 +367,16 @@ Color = {
 	DeepPink = 0xFFFF1493
 }
 
-local Summoners =
+local Summoners = 
 				{
-					Ignite = {Key = nil, Name = 'SummonerDot'},
-					Exhaust = {Key = nil, Name = 'SummonerExhaust'},
-					Heal = {Key = nil, Name = 'SummonerHeal'},
-					Clarity = {Key = nil, Name = 'SummonerMana'},
+					Ignite = {Key = nil, Name = 'SummonerDot'}, 
+					Exhaust = {Key = nil, Name = 'SummonerExhaust'}, 
+					Heal = {Key = nil, Name = 'SummonerHeal'}, 
+					Clarity = {Key = nil, Name = 'SummonerMana'}, 
 					Barrier = {Key = nil, Name = 'SummonerBarrier'},
 					Clairvoyance = {Key = nil, Name = 'SummonerClairvoyance'}
 				}
+				
 for _, Summoner in pairs(Summoners) do
 	if myHero.SummonerD == Summoner.Name then
 		Summoner.Key = "D"
@@ -379,12 +384,14 @@ for _, Summoner in pairs(Summoners) do
 		Summoner.Key = "F"
 	end
 end
+
 function Util__OnTick()
     checkAndRunFunction("OnDraw")
 	if functionExists("OnProcessSpell") then DoSpells() end
     SC__OnDraw()
     UpdateMessage()
     FindNewObjects()
+	--FindDeletedObjects()
 	minionManager__OnTick()
 	mousePos = {x = GetCursorWorldX(), y = GetCursorWorldY(), z = GetCursorWorldZ()}
 end
@@ -417,31 +424,37 @@ end
 function PrintChat(text)
 	--Function to supress errors while porting
 end
+
 function CastSummonerIgnite(target)
 	if ValidTarget(target) and Summoners.Ignite.Key ~= nil then
 		CastSpellTarget(Summoners.Ignite.Key, target)
 	end
 end
+
 function CastSummonerExhaust(target)
 	if ValidTarget(target) and Summoners.Exhaust.Key ~= nil then
 		CastSpellTarget(Summoners.Exhaust.Key, target)
 	end
 end
+
 function CastSummonerHeal()
 	if Summoners.Heal.Key ~= nil then
 		CastSpellTarget(Summoners.Heal.Key, myHero)
 	end
 end
+
 function CastSummonerClarity()
 	if Summoners.Clarity.Key ~= nil then
 		CastSpellTarget(Summoners.Clarity.Key, myHero)
 	end
 end
+
 function CastSummonerBarrier()
 	if Summoners.Barrier.Key ~= nil then
 		CastSpellTarget(Summoners.Barrier.Key, myHero)
 	end
 end
+
 function CastSummonerClairvoyance(x, y, z)
 	if Summoners.Clairvoyance.Key ~= nil then
 		CastSpellXYZ(Summoners.Clairvoyance.Key, x, y, z)
@@ -508,14 +521,11 @@ function FindDeletedObjects()
 		end
     end
 end
+
 function GetDistance(p1, p2)
-   if p2 == nil then p2 = myHero end
-   if not p1.x then
-      print(debug.traceback())
-      return
-   end
-   if p1.z == nil or p2.z == nil then return math.sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2)
-   else return math.sqrt((p1.x-p2.x)^2+(p1.z-p2.z)^2) end
+        if p2 == nil then p2 = myHero end
+    if p1.z == nil or p2.z == nil then return math.sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2)
+        else return math.sqrt((p1.x-p2.x)^2+(p1.z-p2.z)^2) end
 end
 
 function ValidTarget(object, distance, enemyTeam)
@@ -525,9 +535,11 @@ function ValidTarget(object, distance, enemyTeam)
     local enemyTeam = (enemyTeam ~= false)
     return object ~= nil and (object.team ~= myHero.team) == enemyTeam and object.visible == 1 and object.dead == 0 and (enemyTeam == false or object.invulnerable == 0) and (distance == nil or GetDistance(object) <= distance)
 end
+
 function ValidTargetNear(object, distance, target)
     return object ~= nil and object.team == target.team and object.visible == 1 and object.dead == 0 and GetDistanceSqr(target, object) <= distance * distance
 end
+
 function GetDistanceSqr(p1, p2)
     p2 = p2 or myHero
     return (p1.x - p2.x) ^ 2 + ((p1.z or p1.y) - (p2.z or p2.y)) ^ 2
@@ -545,7 +557,7 @@ local items = {
         EXE = {id=3123, range = 350, reqTarget = false, slot = nil},	-- Executioner's Calling
         RAN = {id=3143, range = 350, reqTarget = false, slot = nil},	-- Randuin's Omen
 		}
-
+		
 function UseAllItems(target)
 	for _,item in pairs(items) do
 		item.slot = GetInventorySlot(item.id)
@@ -558,7 +570,7 @@ function UseAllItems(target)
 		end
 	end
 end
-
+	
 function UseTargetItems(target)
 	for _,item in pairs(items) do
 		item.slot = GetInventorySlot(item.id)
@@ -568,7 +580,7 @@ function UseTargetItems(target)
 			end
 		end
 	end
-end
+end	
 
 function UseSelfItems(target)
 	for _,item in pairs(items) do
@@ -1238,7 +1250,7 @@ function SC__OnWndMsg(msg,key)
             if _SC._changeKeyMenu and key == _SC.menuKey then _SC._changeKeyMenu = false end
         end
     end
-    if msg == WM_LBUTTONDOWN then
+    if msg == WM_LBUTTONDOWN and KeyDown(_SC.menuKey) then
         if CursorIsUnder(_SC.draw.x, _SC.draw.y, _SC.draw.width, _SC.draw.heigth) then
             _SC.menuIndex = -1
             if CursorIsUnder(_SC.draw.x + _SC.draw.width - _SC.draw.fontSize * 1.5, _SC.draw.y, _SC.draw.fontSize, _SC.draw.cellSize) then
@@ -1257,7 +1269,6 @@ function SC__OnWndMsg(msg,key)
                 end
             end
         elseif CursorIsUnder(_SC.pDraw.x, _SC.pDraw.y, _SC.pDraw.width, _SC.pDraw.heigth) then
-            _SC.instances[1]:OnPWndMsg()
             _SC.pDraw.offset = Vector(GetCursorX(), GetCursorY()) - _SC.pDraw
             _SC.pDraw.move = true
         elseif _SC.menuIndex == 0 then
@@ -1459,7 +1470,7 @@ function split (s, delim)
 		end
 		table.insert (t, string.sub (s, start, pos - 1))
 		start = pos + string.len (delim)
-	end
+	end 
 	table.insert (t, string.sub (s, start))
 	return t
 end
@@ -1487,16 +1498,6 @@ function scriptConfig:save()
         -- table.insert (content, "_permaShow."..i.."="..tostring(pShow))
     -- end
     __SC__save(self.name, content)
-end
-
-function scriptConfig:OnPWndMsg()
-   for i,param in ipairs(self._param) do
-      if CursorIsUnder(_SC.pDraw.x, _SC.pDraw.y + (i-1)*_SC.pDraw.cellSize, _SC.pDraw.width, _SC.pDraw.fontSize) then
-         self[param.var] = not self[param.var]
-         self:save()
-         return
-      end
-   end
 end
 
 function scriptConfig:OnWndMsg()
@@ -1585,19 +1586,26 @@ end
 
 --################## END SCRIPT CONFIG CLASS ##################--
 
+--################## START CIRCLE CLASS ##################--
+
 Circle = class()
 function Circle:__init(center, radius)
     assert((VectorType(center) or center == nil) and (type(radius) == "number" or radius == nil), "Circle: wrong argument types (expected <Vector> or nil, <number> or nil)")
     self.center = Vector(center) or Vector()
     self.radius = radius or 0
 end
+
 function Circle:Contains(v)
     assert(VectorType(v), "Contains: wrong argument types (expected <Vector>)")
     return math.close(self.center:dist(v), self.radius)
 end
+
 function Circle:__tostring()
     return "{center: " .. tostring(self.center) .. ", radius: " .. tostring(self.radius) .. "}"
 end
+
+--################## END CIRCLE CLASS ##################--
+
 --################## START MEC CLASS ##################--
 
 MEC = class()
@@ -1765,9 +1773,9 @@ function _CalcSpellPosForGroup(radius, range, points)
                 spellPos = Circle(c.center, c.radius)
             end
         end
-        if spellPos ~= nil then
+        if spellPos ~= nil then 
 			local ret = {x = spellPos.center.x, y = spellPos.center.y, z = spellPos.center.z}
-			return ret
+			return ret 
 		end
     end
 end
@@ -1807,9 +1815,9 @@ _minionManager.enemy = (myHero.team == TEAM_BLUE and "Red" or "Blue")
 function minionManager__OnCreateObj(object)
 	if object ~= nil then
 	local name = object.name
-		if name:sub(1, #_minionManager.ally) == _minionManager.ally then
+		if name:sub(1, #_minionManager.ally) == _minionManager.ally then 
 			table.insert(allyMinions, object)
-		elseif name:sub(1, #_minionManager.enemy) == _minionManager.enemy then
+		elseif name:sub(1, #_minionManager.enemy) == _minionManager.enemy then 
 			table.insert(enemyMinions, object)
 		end
 	end
@@ -1820,10 +1828,10 @@ for i = 1, objManager:GetMaxObjects() do
 end
 
 function minionManager__OnTick()
-	for i,object in pairs(allyMinions) do
+	for i,object in pairs(allyMinions) do 
 		if object == nil or object.dead == 1 then table.remove(allyMinions, i) end
 	end
-	for i,object in pairs(enemyMinions) do
+	for i,object in pairs(enemyMinions) do 
 		if object == nil or object.dead == 1 then table.remove(enemyMinions, i) end
 	end
 end

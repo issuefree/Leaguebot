@@ -25,21 +25,6 @@ function Run()
 	
 	Clean(poisons, "charName", "Global_poison")
 	
---	for _,obj in ipairs(poisons) do
---		DrawCircleObject(obj, 75, yellow)
---	end
-	
-	local tt = GetWeakEnemy("MAGIC", 10000)
-	if tt then
-	  PrintState(1, tt.name)
-	  local facingMe = FacingMe(tt)
-	  if facingMe then
-	     PrintState(2, "facing me")
-	  else
-	     PrintState(2, "facing away")
-	  end
-   end
-	
 	if HotKey() then
 		UseItems()
 		if CanUse("blind") then

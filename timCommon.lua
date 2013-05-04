@@ -48,8 +48,12 @@ end
 function concat(...)
    local resTable = {}
    for _,tablex in ipairs(arg) do
-      for _,v in ipairs(tablex) do
-         table.insert(resTable, v)
+      if type(tablex) == "table" then
+         for _,v in ipairs(tablex) do
+            table.insert(resTable, v)
+         end
+      else
+         table.insert(resTable, tablex)
       end      
    end
    return resTable
@@ -68,7 +72,7 @@ end
 
 local line = 0
 function PrintState(state, str)
-   DrawText(str,15,100+state*15,0xFFCCEECC);
+   DrawText(str,100,100+state*15,0xFFCCEECC);
 -- pp(state.."."..str)
 end
 
@@ -120,6 +124,9 @@ MYTURRETS = {}
 CCS = {}
 WARDS = {}
 
+DRAGON = {}
+BARON = {}
+
 -- name field
 MinorCreepNames = {
    "wolf", 
@@ -139,7 +146,104 @@ MajorCreepNames = {
    "Worm"
 }
 
-CreepNames = concat(concat(MinorCreepNames, BigCreepNames), MajorCreepNames)
+CreepNames = concat(MinorCreepNames, BigCreepNames, MajorCreepNames)
+
+ENEMY_SPELLS = {
+   {charName = "Akali", spellName = "akalimota", spellType = "Damage"},
+   {charName = "Alistar", spellName = "headbutt", spellType = "Stun"},
+   {charName = "Amumu", spellName = "bandagetoss", spellType = "Stun"},
+   {charName = "Anivia", spellName = "flashfrost", spellType = "Stun"},
+   {charName = "Anivia", spellName = "frostbite", spellType = "Damage"},
+   {charName = "Annie", spellName = "disintigrate", spellType = "Stun"},
+   {charName = "Annie", spellName = "infernalguardian", spellType = "Stun"},   
+   {charName = "Ahri", spellName = "ahriseduce", spellType = "Stun"},   
+   {charName = "Ashe", spellName = "volley", spellType = "Slow"},
+   {charName = "Blitzcrank", spellName = "rocketgrab", spellType = "Stun"},   
+   {charName = "Brand", spellName = "brandblaze", spellType = "Damage"},   
+   {charName = "Brand", spellName = "brandconflagration", spellType = "Damage"},   
+   {charName = "Brand", spellName = "brandwildfire", spellType = "Damage"},   
+   {charName = "Caitlyn", spellName = "caitlynpiltoverpeacemaker", spellType = "Damage"},   
+   {charName = "Caitlyn", spellName = "caitlynentrapment", spellType = "Slow"},   
+   {charName = "Caitlyn", spellName = "caitlynaceinthehole", spellType = "Damage"},   
+   {charName = "Chogath", spellName = "rupture", spellType = "Damage"},   
+   {charName = "Chogath", spellName = "feralscream", spellType = "Damage"},   
+   {charName = "Chogath", spellName = "feast", spellType = "Damage"},   
+   {charName = "Corki", spellName = "missilebarrage", spellType = "Damage"},   
+   {charName = "Darius", spellName = "dariusaxegrabcone", spellType = "Stun"},
+   {charName = "Darius", spellName = "dariusexecute", spellType = "Damage"},
+   {charName = "Draven", spellName = "dravendoubleshot", spellType = "Slow"},
+   {charName = "Draven", spellName = "dravenrcast", spellType = "Damage"},
+   {charName = "Dr. Mundo", spellName = "infectedcleavermissilecast", spellType = "Slow"},
+   {charName = "Fiddlesticks", spellName = "terrify", spellType = "Stun"},
+   {charName = "Fiddlesticks", spellName = "drain", spellType = "Damage"},
+   {charName = "Fizz", spellName = "fizzmarinerdoom", spellType = "Damage"},
+   {charName = "Galio", spellName = "galioresolutesmite", spellType = "Damage"},
+   {charName = "Gangplank", spellName = "parley", spellType = "Damage"},
+   {charName = "Garen", spellName = "garenjustice", spellType = "Silence"},
+   {charName = "Graves", spellName = "gravesclustershot", spellType = "Damage"},
+   {charName = "Graves", spellName = "graveschargeshot", spellType = "Damage"},
+   {charName = "Heimerdinger", spellName = "hextechmicrorockets", spellType = "Damage"},
+   {charName = "Irelia", spellName = "ireliaequilibriumstrike", spellType = "Stun"},
+   {charName = "Janna", spellName = "sowthewind", spellType = "Slow"},
+   {charName = "Jayce", spellName = "jayceshockblast", spellType = "Damage"},
+   {charName = "Karthus", spellName = "fallenone", spellType = "Damage"},
+   {charName = "Kassadin", spellName = "nulllance", spellType = "Damage"},
+   {charName = "Kassadin", spellName = "forcepulse", spellType = "Damage"},
+   {charName = "Kayle", spellName = "judicatorreckoning", spellType = "Slow"},
+   {charName = "LeBlanc", spellName = "leblancchaosorb", spellType = "Slow"},
+   {charName = "LeBlanc", spellName = "leblancsoulshackle", spellType = "Slow"},
+   {charName = "LeeSin", spellName = "blindmonkqone", spellType = "Damage"},
+   {charName = "Leona", spellName = "leonasolarflare", spellType = "Stun"},
+   {charName = "Lulu", spellName = "luluw", spellType = "Slow"},
+   {charName = "Lux", spellName = "luxlightbinding", spellType = "Stun"},
+   {charName = "Malphite", spellName = "ufslash", spellType = "Stun"},
+   {charName = "Malphite", spellName = "seismicshard", spellType = "Slow"},
+   {charName = "Malzahar", spellName = "alzaharnethergrasp", spellType = "Stun"},
+   {charName = "Malzahar", spellName = "alzaharmaleficvisions", spellType = "Damage"},
+   {charName = "Maoki", spellName = "maokaitrunkline", spellType = "Stun"},
+   {charName = "Maoki", spellName = "maokaiunstablegrowth", spellType = "Stun"},
+   {charName = "MasterYi", spellName = "alphastrike", spellType = "Damage"},
+   {charName = "MissFortune", spellName = "missfortunericochetshot", spellType = "Damage"},
+   {charName = "Mordekaiser", spellName = "mordekaiserchildrenofthegrave", spellType = "Damage"},
+   {charName = "Morgana", spellName = "darkbinding", spellType = "Stun"},
+   {charName = "Nasus", spellName = "wither", spellType = "Stun"},
+   {charName = "Nautilus", spellName = "nautilusanchordrag", spellType = "Stun"},
+   {charName = "Nautilus", spellName = "nautilusgrandline", spellType = "Stun"},
+   {charName = "Nidalee", spellName = "javelintoss", spellType = "Damage"},
+   {charName = "Nocturne", spellName = "nocturneduskbringer", spellType = "Damage"},
+   {charName = "Nunu", spellName = "iceblast", spellType = "Stun"},
+   {charName = "Olaf", spellName = "olafaxethrowcast", spellType = "Slow"},
+   {charName = "Olaf", spellName = "olafrecklessstrike", spellType = "Slow"},
+   {charName = "Pantheon", spellName = "pantheon_throw", spellType = "Damage"},
+   {charName = "Pantheon", spellName = "pantheon_leapbash", spellType = "Stun"},
+   {charName = "Rammus", spellName = "puncturingtaunt", spellType = "Stun"},
+   {charName = "Rengar", spellName = "rengarE", spellType = "Stun"},
+   {charName = "Ryze", spellName = "runeprison", spellType = "Stun"},
+   {charName = "Ryze", spellName = "overload", spellType = "Damage"},
+   {charName = "Shen", spellName = "shenshadowdash", spellType = "Stun"},
+   {charName = "Sion", spellName = "crypticgaze", spellType = "Stun"},
+   {charName = "Skarner", spellName = "skarnerimpale", spellType = "Stun"},
+   {charName = "Sona", spellName = "sonacrescendo", spellType = "Stun"},
+   {charName = "Taric", spellName = "dazzle", spellType = "Stun"},
+   {charName = "Teemo", spellName = "blindingdart", spellType = "Damage"},
+   {charName = "Tristana", spellName = "detonatingshot", spellType = "Damage"},
+   {charName = "Tristana", spellName = "bustershot", spellType = "Damage"},
+   {charName = "Tryndamere", spellName = "mockingshout", spellType = "Slow"},
+   {charName = "Twisted Fate", spellName = "redcard", spellType = "Slow"},
+   {charName = "Twisted Fate", spellName = "yellowcard", spellType = "Stun"},    
+   {charName = "Twisted Fate", spellName = "wildcards", spellType = "Stun"},    
+   {charName = "Twitch", spellName = "TwitchVenomCask", spellType = "Slow"},    
+   {charName = "Varus", spellName = "varusr", spellType = "Stun"},    
+   {charName = "Vayne", spellName = "VayneCondemn", spellType = "Stun"},    
+   {charName = "Veigar", spellName = "veigarbalefulstrike", spellType = "Damage"},    
+   {charName = "Veigar", spellName = "veigareventhorizon", spellType = "Stun"},    
+   {charName = "Veigar", spellName = "veigarprimordialburst", spellType = "Damage"},    
+   {charName = "Volibear", spellName = "volibearq", spellType = "Stun"},    
+   {charName = "Vi", spellName = "assaultandbattery", spellType = "Stun"},
+   {charName = "Xerath", spellName = "xeratharcanopulse", spellType = "Damage"},
+   {charName = "Zyra", spellName = "ZyraGraspingRoots", spellType = "Stun"}
+}
+
 
 enrage = nil
 lichbane = nil
@@ -211,41 +315,10 @@ repeat
    end
 until playerTeam ~= nil and playerTeam ~= "0"
 
-
-local function drawSpellRanges()
-   for name,info in pairs(spells) do
-      if info.range and info.color and 
-      ( not info.key or GetSpellLevel(info.key) > 0 ) 
-      then
-         if type(info.range) == "number" then 
-            DrawCircleObject(me, info.range, info.color)
-         else           
-            DrawCircleObject(me, info.range(), info.color)
-         end 
-      end   
-   end
-end
-
-local function drawItemRanges()
-   local ranges = {}
-   for name, item in pairs(ITEMS) do
-      if GetInventorySlot(item.id) and item.range and item.color then
-         local range = item.range
-         while ranges[range] do
-            range = range+1
-         end
-         DrawCircleObject(me, range, item.color)
-         ranges[range] = true
-      end
-   end 
-end
-
 local function drawCommon()
    if me.dead == 1 then
       return
    end
-   drawSpellRanges()
-   drawItemRanges()
 end
 
 function LoadConfig(name)
@@ -357,7 +430,13 @@ function doCreateObj(object)
       table.insert(MYMINIONS, object)
    end
 
-   if ListContains(object.name, CreepNames) then
+   if ListContains(object.name, CreepNames, true) then
+      if object.name == "Dragon" then         
+         DRAGON = {object.name, object}
+      end
+      if object.name == "Worm" then
+         BARON = {object.name, object}
+      end
       table.insert(CREEPS, object)
    end
 
@@ -459,6 +538,10 @@ local function updateHeroes()
    if EAPC then
       DrawText("APC:"..EAPC.name, 150, 925, 0xFFFF0000)
    end
+end
+
+function GetVis(list)
+   return FilterList(list, function(item) return item.dead == 0 and item.visible == 1 end)
 end
 
 local function updateMinions()
@@ -589,6 +672,10 @@ function OrbWalk(millis)
    )
 end
 
+function MoveToTarget(t)
+   MoveToXYZ(t.x, t.y, t.z)
+end
+
 -- find lowest health minion in range and smack it if it will die
 function KillWeakMinion(thing, extraRange)
    if throttle("kwm", 100) then return nil end
@@ -645,6 +732,80 @@ function KillFarMinion(spell)
          CastSpellTarget(spell.key, wMinion)
       end
    end
+end
+
+--[[
+Returns the x,y,z of the center of the targes
+--]]
+function GetCenter(targets)
+   local x = 0
+   local y = 0
+   local z = 0
+         
+   for _,t in ipairs(targets) do
+      x = x + t.x
+      y = y + t.y
+      z = z + t.z
+   end
+   
+   x = x / #targets
+   y = y / #targets
+   z = z / #targets
+   
+   return x,y,z
+end
+
+--[[
+returns the width of a unit
+--]]
+function GetWidth(unit)
+   local minbb = GetMinBBox(unit)
+   if not minbb.x then -- for when I pass in not a real unit
+      return 70
+   end
+   return GetDistance(unit, minbb)
+end
+
+function GetInLine(width, targets, style)
+   local hits = {}
+   local score = 0
+   
+   SortByAngle(targets)   
+         
+   for pi,p in ipairs(targets) do
+      local lHits = {p}
+      local lScore = 0
+      local pw = GetWidth(p)
+      for si,s in ipairs(targets) do
+         if s ~= p then
+            local sw = GetWidth(s)
+            local ra = RelativeAngle(me, p, s)
+            if GetOrthDist(p, s) < width + pw + sw and ra < math.pi/3 then
+               table.insert(lHits, s)
+            end
+         end
+      end
+      
+      if style == "damage" then
+         for _,lHit in ipairs(lHits) do
+            lScore = lScore + GetSpellDamage("spark", lHit)
+         end
+      elseif style == "hits" then
+         lScore = lScore + 1      
+      else --if style == "kills" then
+         for _,lHit in ipairs(lHits) do
+            if GetSpellDamage("spark", lHit) > lHit.health then
+               lScore = lScore + 1
+            end 
+         end
+      end
+      if lScore > score then         
+         hits = lHits
+         score = lScore
+      end
+   end
+   
+   return hits
 end
 
 function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
@@ -739,6 +900,44 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    end
 end
 
+function SkillShot(thing, purpose)
+   local spell = GetSpell(thing)
+   local target = GetWeakEnemy("MAGIC", spell.range)  -- doesn't matter if its phys or mag, we just want to know if there's someone in range
+
+   if target and CanUse(spell) then
+
+      local unblocked = GetUnblocked(me, spell.range, spell.width, MINIONS, ENEMIES)
+
+      unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
+
+      if purpose == "peel" then
+         target = GetPeel({ADC, APC, me}, unblocked)
+      else
+         target = GetWeakest(spell, unblocked)
+      end
+
+      if target then
+      
+         -- if we don't have spell speed or delay use some sensible defaults.
+         if not spell.delay then spell.delay = 2 end
+         if not spell.speed then spell.speed = 20 end
+         
+         local x,y,z = GetFireahead(target,spell.delay,spell.speed)
+         local angleRel = RadsToDegs(ApproachAngle(target, me))
+         angleRel = math.abs(angleRel-90)
+         DrawThickCircleObject(target, 75, red, 4)
+         if angleRel > 30 then
+            LineBetween(me, target)
+         end
+         if angleRel > 30 and GetDistance({x=x, y=y, z=z}) < spell.range then
+            CastSpellXYZ(spell.key, x, y, z)
+            return true
+         end
+      end
+   end
+   return false
+end
+
 function GetUnblocked(source, range, width, ...)
    local minionWidth = 55
    local targets = GetInRange(source, range, concat(...))
@@ -818,6 +1017,9 @@ function find(source, target)
    if not source then
       return false
    end
+   if string.len(target) == 0 then
+      return false
+   end
    return string.find(string.lower(source), string.lower(target))
 end
 
@@ -865,7 +1067,7 @@ function GetInRange(target, range, ...)
    local result = {}
    local list = concat(...)
    for _,test in ipairs(list) do
-      if target and test and test.x and test.y and       
+      if target and test and test.x and test.dead == 0  and
          GetDistance(target, test) < range 
       then
          table.insert(result, test)
@@ -874,8 +1076,16 @@ function GetInRange(target, range, ...)
    return result
 end
 
+function SortByHealth(things, target)
+   table.sort(things, function(a,b) return a.health < b.health end)
+end
+
 function SortByDistance(things, target)
    table.sort(things, function(a,b) return GetDistance(a, target) < GetDistance(b, target) end)
+end
+
+function SortByAngle(things)
+   table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
 end
 
 
@@ -1118,6 +1328,34 @@ function WardJump(key)
    end
 end
 
+function RadsToDegs(rads)
+   return rads*180/math.pi
+end
+
+
+--[[
+returns the orthoganal component of the distance between two objects
+--]]
+function GetOrthDist(t1, t2)
+   local angleT = AngleBetween(t1, t2) - AngleBetween(me, t1)
+   if math.min(10, angleT) == 10 then
+      return 0
+   end   
+   local h = GetDistance(t1, t2)
+   local d = h*math.sin(angleT)
+   return math.abs(d)   
+end
+
+function RelativeAngle(center, o1, o2)
+   local a1 = AngleBetween(center, o1)
+   local a2 = AngleBetween(center, o2)
+   local ra = math.abs(a1-a2)
+   if ra > math.pi then
+      ra = 2*math.pi - ra
+   end
+   return ra
+end
+
 function AngleBetween(object1, object2)
    if not object1 or not object2 then
       pp(debug.traceback())
@@ -1131,6 +1369,13 @@ function AngleBetween(object1, object2)
       angle = angle+math.pi
    end
    return angle
+end
+
+-- angle of approach of attacker to target in radians
+-- 0 should be dead on, math.pi should be dead away
+function ApproachAngle(attacker, target)
+   local x,y,z = GetFireahead(attacker, 2, 20)
+   return math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, {x=x, y=y,z=z}) )
 end
 
 function LineBetween(object1, object2, thickness)
@@ -1155,6 +1400,15 @@ function DrawKnockback(object2, dist)
    DrawLineObject(object2, dist, 0, angle, 0)
 end
 
+
+function DrawThickCircle(x,y,z,radius,color,thickness)
+   local count = math.floor(thickness/2)
+   repeat
+      DrawCircle(x,y,z,radius+count,color)
+      count = count-2
+   until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
+end
+
 function DrawThickCircleObject(object,radius,color,thickness)
    local count = math.floor(thickness/2)
    repeat
@@ -1163,14 +1417,14 @@ function DrawThickCircleObject(object,radius,color,thickness)
    until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
 end
 
-function CalculateDamage(target, damage, type)
+function CalculateDamage(target, damage, dType)
    local res = 0
-   if not type then
-      type = "M"
+   if not dType then
+      dType = "M"
    end 
-   if type == "M" then
+   if dType == "M" then
       res = math.max(target.magicArmor*me.magicPenPercent - me.magicPen, 0)
-   elseif type == "P" then
+   elseif dType == "P" then
       res = math.max(target.armor*me.armorPenPercent - me.armorPen, 0)
    end
    return damage*(100/(100+res))
@@ -1313,6 +1567,23 @@ function GetSpellDamage(thing, target)
    return math.floor(damage)
 end
 
+--[[
+This should look at the allies in [save] in order 
+and return an enemy in [stop] that is trying to kill that ally in [save]
+--]]
+function GetPeel(save, stop)
+   for _,ally in ipairs(save) do
+      -- check if the target is moving "directly" toward this ally
+      -- check if the target is close enough to the ally to be a threat
+      for _,enemy in ipairs(stop) do
+         if GetDistance(enemy, ally) < 500 and            
+            RadsToDegs(ApproachAngle(enemy, ally)) < 45
+         then
+            return enemy
+         end
+      end
+   end
+end
 
 function GetWeakest(thing, list)
    local type = "M"

@@ -13,76 +13,67 @@ AddToggle("lasthit", {on=true, key=112, label="Last Hit"})
 local aloneRange = 1750  -- if no enemies in this range consider yourself alone
 local nearRange = 900    -- if no enemies in this range consider them not "near"
 
-local qLast, wLast = false, false
+local lastAttack = GetClock()
+
 function Run()
    TimTick()
    
 	if HotKey() then
-   	local target = GetWeakEnemy('MAGIC',675)
+      UseItems()
+      
+   	local target = GetWeakEnemy('MAGIC',625)
 		if target then
-			if rotationReady() then
-				if GetDistance(myHero, target) < 650 then castQ(target) end
-				if GetDistance(myHero, target) < 625 then castW(target) end
-				if GetDistance(myHero, target) < 649 then castE(target) end
-			else
-				CastSpellTarget("Q", target)
+         if CanUse("overload") then
+            CastSpellTarget("Q", target)
+         elseif CanUse("prison") then
 				CastSpellTarget("W", target)
-				CastSpellTarget("E", target)
+		   elseif CanUse("flux") then
+				CastSpellTarget("E", target)				
 			end
-		end
+		else
+         target = GetWeakEnemy("MAGIC", 650)
+         if target then
+            if CanUse("overload") then
+               CastSpellTarget("Q", target)
+            elseif CanUse("flux") then
+               CastSpellTarget("E", target)           
+            else
+               AttackTarget(target)
+            end
+         else
+            target = GetWeakEnemy("MAGIC", 675)
+            if target then
+               if CanUse("flux") then
+                  CastSpellTarget("E", target)           
+               else
+                  AttackTarget(target)
+               end
+            end
+         end            
+      end
 	end
 	
---	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", nearRange) then
---	  KillWeakMinion("AA")
---	end
-end
-
-function castQ(target)
-	if IsSpellReady("Q") == 1 then
-		CastSpellTarget("Q",target)
-		setLast("Q")
+	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", nearRange) then
+	  if GetClock() - lastAttack < 250 then
+	     KillWeakMinion("Q")
+	  else
+	     KillWeakMinion("AA")
+	  end
 	end
 end
 
-function castW(target)
-	if IsSpellReady("W") == 1 and (qLast) and IsSpellReady("Q") == 0 then
-		CastSpellTarget("W",target)
-		setLast("W")
-	end
+local function onObject(object)
 end
 
-function castE(target)
-	if IsSpellReady("E") == 1 then
-		CastSpellTarget("E", target)
-		setLast("E")
-	end
+local function onSpell(object, spell)
+   if object.name == me.name then
+      if find(spell.name, "attack") then
+         lastAttack = GetClock()
+      end
+      pp(spell.name)
+   end
 end
 
-function setLast(spell)
-	if spell == "Q" then 
-		qLast=true 
-		wLast=false
-	elseif spell == "W" then 
-	qLast=false 
-	wLast=true
-	elseif spell == "E" then
-	qLast=false 
-	wLast=false
-	end
-end
-	
-function rotationReady()
-	if GetSpellLevel("Q") > 0 and GetSpellLevel("W") > 0 and GetSpellLevel("E") > 0 then return true
-	else return false end
-end
-
-function moveToMouse()
-	MoveToXYZ(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
-end
-
-function GetTick()
-	return GetClock()
-end
-
-
+AddOnCreate(onObject)
+AddOnSpell(onSpell)
 SetTimerCallback("Run")

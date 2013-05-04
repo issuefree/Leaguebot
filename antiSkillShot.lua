@@ -1,27 +1,27 @@
 ssers = {
    blitz = {
-      spell = {type="line", range=925, block=true, width=80}
+      spell = {type="line", range=925, key="Q", block=true, width=80}
    },
    lux = {
-      spell = {type="circle", width=350}   
+      spell = {type="line", range=1175, key="Q", width=80}   
    },
    morgana = {
-      spell = {type="line", range=1300, key="Q", block=true, width=60}
+      spell = {type="line", range=1300, key="Q", block=true, width=90}
    },
    ezreal = {
-      spell = {type="line", range=1100, block=true, width=60}
+      spell = {type="line", range=1100, key="Q", block=true, width=80}
    },
    thresh = {
-      spell = {type="line", range=1075, block=true, width=60}
+      spell = {type="line", range=1075, key="Q", block=true, width=100}
    },
    nautilus = {
-      spell = {type="line", range=950, block=true, width=80}
+      spell = {type="line", range=950, key="Q", block=true, width=80}
    },
    leesin = {
-      spell = {type="line", range=975, block=true, width=60}
+      spell = {type="line", range=975, key="Q", block=true, width=60}
    },
    nidalee = {
-      spell = {type="line", range=1500, block=true, width=80}
+      spell = {type="line", range=1500, key="Q", block=true, width=80}
    }
 }
 

@@ -356,7 +356,7 @@ function QFarm()
                -- do nothing if there's a hero nearby and i'm under a tower
             elseif bestKills >= 1 then
                CastQ(bestKillTargets[1])
-               OrbWalk(250)
+--               OrbWalk(250)
             end
          end
       end

@@ -47,6 +47,7 @@ IsSpellReady(spell) returns number
 GetSpellLevel(spell) returns number
 CanUseSpell(spell) returns number // same as (IsSpellReady(spell) and GetSpellLevel(spell)>0)
 
+------Cursor Functions---------
 GetCursorX()
 GetCursorY()
 GetCursorWorldX()
@@ -55,8 +56,16 @@ GetCursorWorldZ()
 GetScreenX()
 GetScreenY()
 GetFontSize()
-
 GetClock()
+
+------Input Functions--------
+KeyDown(int key) //Press key
+KeyUp(int key)  //Release key
+MoveMouse(int dx,int dy)
+MouseLeftClick()
+MouseRightClick()
+
+-------Extras------
 CastHotkey(hotkey_text)  //Example CastHotkey("AUTO 100,0 ATTACK:WEAKENEMY RANGE=600 FORCETARGET=" .. target.name)
 						 //Example2 CastHotkey("AUTO 100,0 SPELLQ:WEAKENEMY RANGE=600 COOLDOWN");
 GetWeakEnemy(damage_type,range) returns Unit		//damage type is 'PHYS' 'MAGIC' 'TRUE'
@@ -67,7 +76,7 @@ GetInventoryItem(slotnumber) returns id_number // slotnumber is 1,2,3,4,5,6
 PlaySound("filename.wav") or PlaySound("Beep")
 CalcDamage(target,damage) returns number // Ex:CalcDamage(enemy,100+(GetSelf()).ad*2)
 CalcMagicDamage(target,damage) returns number
-GetMap() returns number 1=SummonersRift
+GetMap() returns number 1=Summoners Rift
 GetFireahead(target,delay,projectilespeed) returns x,y,z
 IsWall(x,y,z) returns 1 or 0
 WillHitWall(target,knockbackdistance) returns 1 or 0

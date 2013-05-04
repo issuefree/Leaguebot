@@ -13,6 +13,9 @@ elseif me.SummonerF == "SummonerSmite" then
 end
 
 function smiteTick()
+   if not ModuleConfig.smite then
+      return
+   end
    for i,target in rpairs(smiteTargets) do
       if not target or
          target.dead == 1 or

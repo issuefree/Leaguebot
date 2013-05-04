@@ -38,7 +38,7 @@ function checkShield(unit, spell)
 		return
 	end
 
-	pp(object.name.." : "..spell.name.." -> "..spell.target.name)
+	pp(unit.name.." : "..spell.name.." -> "..spell.target.name)
 	CastSpellTarget("E", spell.target)
 end
 

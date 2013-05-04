@@ -7,12 +7,15 @@ pp("\nTim's Template")
 
 --AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
 
---spells["jav"] = {
+--spells["binding"] = {
 --   key="Q", 
---   range=1500, 
+--   range=1175, 
 --   color=violet, 
---   base={55,95,140,185,230}, 
---   ap=.65
+--   base={60,110,160,210,260}, 
+--   ap=.7,
+--   delay=2,
+--   speed=12,
+--   width=80
 --}
 
 function Run()
