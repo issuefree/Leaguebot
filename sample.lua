@@ -136,6 +136,7 @@ Unit.magicPen
 Unit.armorPenPercent
 Unit.magicPenPercent
 Unit.selflevel
+Unit.gold
 Unit.SpellNameQ
 Unit.SpellTimeQ
 Unit.SpellLevelQ

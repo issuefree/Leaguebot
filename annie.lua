@@ -50,9 +50,8 @@ AddToggle("flame", {on=true, key=113, label="Extra Crispy", auxLabel="{0}", args
 -- build up and hold on to stun
 AddToggle("stoke", {on=true, key=114, label="Stoke", auxLabel="{0}", args={stunOn}})
 
-
 function Run()
-   TimTick()      
+   TimTick()
    
    if IsRecalling(me) then
       return 

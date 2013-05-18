@@ -19,24 +19,28 @@ AddToggle("wish",     {on=true,  key=115, label="Wish Alert", auxLabel="{0}", ar
 
 function Run()
 	TimTick()
-	SupportTick()	
 
 	Wish()
-
 	
 	if IsRecalling(me) then
 		return
 	end
 
-	healTeam()
+   if IsOn("healing") then
+	  healTeam(spells["heal"])
+   end
 
-	target = GetWeakEnemy('MAGIC',725,"NEARMOUSE")
 
-	if IsKeyDown(hotKey) ~= 0 then
-		if target ~= nil then
-			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", me) end 
+	if HotKey() then
+   	local target = GetWeakEnemy('MAGIC',725,"NEARMOUSE")
+		if target then
 			if GetDistance(me, target) < 725 and CanCastSpell("E") then CastSpellTarget("E", target) end 
 		end
+		target = GetWeakEnemy("MAGIC", 650)
+		if target then
+			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", me) end
+      end
+      
 		UseItems()
 	end
 
@@ -101,64 +105,6 @@ function Farm()
 			CastSpellTarget("Q", me)
 		end
 	end
-end
-
-function healTeam()
-	if not IsOn("healing") then
-		return
-	end
-	
-	local maxW = GetSpellDamage("heal")
-
-	local bestInRangeT = nil
-	local bestInRangeP = 1
-	local bestOutRangeT = nil
-	local bestOutRangeP = 1
-	
-	for _,hero in ipairs(ALLIES) do
-		if GetDistance(HOME, hero) > 1000 and
-		   hero.health + maxW < hero.maxHealth*.9 and
-		   not isWounded(hero) and 
-		   not IsRecalling(hero)
-		then
-			if GetDistance(me, hero) < 750 then			
-				if not bestInRangeT or
-				   hero.health/hero.maxHealth < bestInRangeP
-				then				
-					bestInRangeT = hero
-					bestInRangeP = hero.health/hero.maxHealth
-				end
-			elseif GetDistance(me, hero) < 1000 then
-				if not bestOutRangeT or
-				   hero.health/hero.maxHealth < bestOutRangeP
-				then				
-					bestOutRangeT = hero
-					bestOutRangeP = hero.health/hero.maxHealth
-				end
-			end
-		end
-	end
-	if bestInRangeT then
-		DrawCircleObject(bestInRangeT, 100, green)
-	end
-	if bestOutRangeT and GetDistance(me, bestOutRangeT) > 750 then
-		CustomCircle(100, 4, yellow, bestOutRangeT)
-	end
-
-	if CanCastSpell("W") and me.dead ~= 1 then
-		-- let me know if someone oustside of range is in need
-		if bestOutRangeT and 
-		   ( not bestInRangeT or
-			 ( bestOutRangeP < .33 and
-			   bestInRangeP > .5 ) )			
-		then
---			PlaySound("Beep")
-		end
-
-		if bestInRangeT then
-			CastSpellTarget("W", bestInRangeT)
-		end
-	end						   
 end
 
 function infuseTeam()

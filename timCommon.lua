@@ -265,16 +265,18 @@ ITEMS["Bilgewater Cutlass"]       = {id=3144, range=500,         type="active", 
 ITEMS["Hextech Gunblade"]         = {id=3146, range=700,         type="active", color=violet}
 ITEMS["Blade of the Ruined King"] = {id=3153, range=500,         type="active", color=violet}
 ITEMS["Deathfire Grasp"]          = {id=3128, range=750,         type="active", color=violet}
-ITEMS["Ravenous Hydra"]           = {id=3074, range=400,         type="active", color=red}
+ITEMS["Tiamat"]                   = {id=3077, range=350,         type="active", color=red}
+ITEMS["Ravenous Hydra"]           = {id=3074, range=350,         type="active", color=red}
 ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=me.range+50, type="active"}
 ITEMS["Randuin's Omen"]           = {id=3143, range=500,         type="active", color=yellow}
 
 --Active defense
 ITEMS["Locket of the Iron Solari"] = {id=3190, range=700, type="active", color=green}
+ITEMS["Guardian's Horn"] = {id=2051, type="active"}
 
 --Aura offense
 ITEMS["Abyssal Scepter"] = {id=3001, range=700, type="aura", color=violet}
-ITEMS["Frozen Heart"]    = {id=3110, range=700, type="aura", color=violet}
+ITEMS["Frozen Heart"]    = {id=3110, range=700, type="aura", color=blue}
 
 --Aura Defense
 ITEMS["Mana Manipulator"]     = {id=3037, range=1200, type="aura", color=blue}
@@ -902,40 +904,79 @@ end
 
 function SkillShot(thing, purpose)
    local spell = GetSpell(thing)
-   local target = GetWeakEnemy("MAGIC", spell.range)  -- doesn't matter if its phys or mag, we just want to know if there's someone in range
 
-   if target and CanUse(spell) then
+   -- doesn't matter if its phys or mag, we just want to know if there's someone in range
+   if GetWeakEnemy("MAGIC", spell.range) and CanUse(spell) then
 
-      local unblocked = GetUnblocked(me, spell.range, spell.width, MINIONS, ENEMIES)
+      -- if we don't have spell speed or delay use some sensible defaults.
+      if not spell.delay then spell.delay = 2 end
+      if not spell.speed then spell.speed = 20 end
+   
+      local unblocked = GetUnblocked(me, spell.range, spell.width, GetVis(MINIONS), GetVis(ENEMIES))
 
       unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
 
-      if purpose == "peel" then
-         target = GetPeel({ADC, APC, me}, unblocked)
-      else
-         target = GetWeakest(spell, unblocked)
+      local target
+      while true do
+         if #unblocked == 0 then
+            break
+         end
+         if purpose == "peel" then
+            target = GetPeel({ADC, APC, me}, unblocked)
+         else
+            target = GetWeakest(spell, unblocked)
+         end
+         if not target then
+            break
+         end
+         if SSGoodTarget(target, spell) then
+            break
+         end
+         for i,t in ipairs(unblocked) do
+            if t.name == target.name then
+               table.remove(unblocked, i)
+               break
+            end
+         end
+         target = nil
       end
-
-      if target then
       
-         -- if we don't have spell speed or delay use some sensible defaults.
-         if not spell.delay then spell.delay = 2 end
-         if not spell.speed then spell.speed = 20 end
-         
-         local x,y,z = GetFireahead(target,spell.delay,spell.speed)
-         local angleRel = RadsToDegs(ApproachAngle(target, me))
-         angleRel = math.abs(angleRel-90)
-         DrawThickCircleObject(target, 75, red, 4)
-         if angleRel > 30 then
-            LineBetween(me, target)
-         end
-         if angleRel > 30 and GetDistance({x=x, y=y, z=z}) < spell.range then
-            CastSpellXYZ(spell.key, x, y, z)
-            return true
-         end
+      if target then
+         local x,y,z = GetFireahead(target,spell.delay,spell.speed*1.2)
+         CastSpellXYZ(spell.key, x,y,z)
+         return true
       end
    end
    return false
+end
+
+function SSGoodTarget(target, spell)
+   if not target then
+--      pp("no target")
+      return false
+   end
+   -- up speed by 20% so we don't get quite so much leading
+   local x,y,z = GetFireahead(target,spell.delay,spell.speed*1.2)
+   
+   if GetDistance({x=x, y=y, z=z}) > spell.range then
+--      pp(target.name.." target leaving range")
+      return false
+   end
+   
+   if GetDistance(target, {x=x, y=y, z=z}) < 50 then
+--      pp(target.name.." target not moving KILLIT")
+      return true
+   end
+   
+   local angleRel = RadsToDegs(ApproachAngle(target, me))
+   angleRel = math.abs(angleRel-90)
+
+   if angleRel > 30 then
+--      pp(target.name.." angle ("..angleRel..") ok. shoot")
+      return true
+   end
+   
+   return false   
 end
 
 function GetUnblocked(source, range, width, ...)
@@ -1065,7 +1106,7 @@ end
 
 function GetInRange(target, range, ...)
    local result = {}
-   local list = concat(...)
+   local list = GetVis(concat(...))
    for _,test in ipairs(list) do
       if target and test and test.x and test.dead == 0  and
          GetDistance(target, test) < range 
@@ -1138,6 +1179,7 @@ function UseItem(itemName, target)
       itemName == "Hextech Gunblade" or
       itemName == "Blade of the Ruined King" or
       itemName == "Deathfire Grasp" or
+      itemName == "Tiamat" or
       itemName == "Ravenous Hydra" or
       itemName == "Youmuu's Ghostblade" or
       itemName == "Randuin's Omen"
@@ -1172,6 +1214,11 @@ function UseItem(itemName, target)
          CastSpellTarget(slot, target)
       end
 
+   elseif itemName == "Guardian's Horn" then
+      target = GetWeakEnemy("MAGIC", 600)
+      if target then
+         CastSpellTarget(slot, me)
+      end
 
    elseif itemName == "Locket of the Iron Solari" then
       -- locket
@@ -1200,7 +1247,7 @@ function UseItem(itemName, target)
          #GetInRange(target, 50, CCS) > 0
       then 
          CastSpellTarget(slot, target)
-         pp(target.name) 
+         pp("uncc adc "..target.name) 
       else
          target = APC
          if target and target.name ~= me.name and 
@@ -1208,13 +1255,14 @@ function UseItem(itemName, target)
          #GetInRange(target, 50, CCS) > 0
          then 
             CastSpellTarget(slot, target)
-            pp(target.name)
+            pp("uncc apc "..target.name)
          end
       end
 
       for _,hero in ipairs(ALLIES) do
          if hero.health/hero.maxHealth < .25 then
-            CastSpellTarget(slot, target)
+            CastSpellTarget(slot, hero)
+            pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
          end
       end
    end

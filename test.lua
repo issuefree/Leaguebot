@@ -48,10 +48,11 @@ function concat(...)
    return resTable
 end
 
-a = {1,2,3}
-b = {5,6,7}
-c = "f"
-d = 4
+--a = {1,2,3}
+--b = {5,6,7}
+--c = "f"
+--d = 4
+--
+--pp(concat(d, c))
 
-pp(concat(d, c))
 

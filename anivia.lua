@@ -37,15 +37,74 @@ spells["storm"] = {
    ap=.25
 }
 
+-- throw orb at people.
+-- stun them.
+-- spike people who are "frosted"
+--   either detect this or spike people hit by orb or ult.
+
+local orb
+local freezes = {}
 
 function Run()
    TimTick()
-   if HotKey() then
-      UseItems()
+   Clean(freezes, "charName", "Global_Freeze")
+
+   for _,hero in ipairs(ENEMIES) do
+      if isFrozen(hero) then
+         DrawCircleObject(hero, 100, blue)
+      end
    end
+
+
+   if HotKey() then   
+      UseItems()
+      
+      local target = GetWeakEnemy("MAGIC", spells['orb'].range)
+      if not Check(orb) and target and CanUse("orb") then
+         CastSpellXYZ(spells["orb"].key, target.x, target.y, target.z)
+      end
+      
+      if Check(orb) then
+         DrawCircleObject(orb[2], 150, blue)
+         local inRange = GetInRange(orb[2], 150, GetVis(ENEMIES))
+         if #inRange > 0 and CanUse("orb") then
+            CastSpellTarget("Q", me)
+         end
+      end
+      
+      if CanUse("spike") then
+         local spell = spells["spike"]
+         local enemies = GetInRange(me, spell.range, ENEMIES)
+         enemies = FilterList(enemies, isFrozen)
+         local target = GetWeakest(spell, enemies)
+         if target then
+            CastSpellTarget(spell.key, target)
+         end
+      end
+   end
+   
+   
+end
+
+function isFrozen(hero)
+   for _,obj in ipairs(freezes) do
+      if obj and GetDistance(hero, obj) < 50 then
+         return true
+      end
+   end
+   return false
 end
 
 local function onObject(object)
+--   if GetDistance(me, object) then
+--      pp(object.)
+   if find(object.charName, "cryo_FlashFrost_mis") then
+      orb = {object.charName, object}
+   end
+   
+   if find(object.charName, "Global_Freeze") then
+      table.insert(freezes, object) 
+   end 
 end
 
 local function onSpell(object, spell)

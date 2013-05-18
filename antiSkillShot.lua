@@ -39,7 +39,7 @@ function assTick()
       elseif enemy.name == "Thresh" then
          ssers.thresh.obj = enemy
       elseif enemy.name == "Nautilus" then
-         ssers.nautalis.obj = enemy
+         ssers.nautilus.obj = enemy
       elseif enemy.name == "LeeSin" then
          ssers.leesin.obj = enemy
       elseif enemy.name == "Nidalee" then

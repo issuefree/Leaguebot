@@ -92,12 +92,7 @@ function Run()
    if IsOn("fastWalk") and CanCastSpell("E") and not GetWeakEnemy("MAGIC", 1500) then
       if GetDistance(HOME) > 1000 and me.mana/me.maxMana > .9 then
          CastSpellTarget("E", me)
-      elseif ( GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
-               GetInventorySlot(ITEMS["Archangel's Staff"].id) or
-               GetInventorySlot(ITEMS["Manamune"].id) ) and 
-         not Check(tear) and
-         me.mana/me.maxMana > .75
-      then
+      elseif CanChargeTear() and me.mana/me.maxMana > .75 then
          CastSpellTarget("E", me)
       end
    end
