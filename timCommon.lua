@@ -247,6 +247,7 @@ ENEMY_SPELLS = {
 
 enrage = nil
 lichbane = nil
+-- tear of the goddess items
 tear = nil
 
 -- globals for the toggle menus
@@ -895,7 +896,11 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
             if farMinionD < spell.range then                        
                CastSpellXYZ(spell.key, x,y,z)
             else
-               MoveToXYZ(farMinion.x, farMinion.y, farMinion.z)
+               -- move 50 units toward the target spot
+               local a = AngleBetween(me, farMinion)
+               local d = 50
+               local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
+               MoveToXYZ(proj.x, me.y, proj.z)
             end
          end
       end
@@ -1166,6 +1171,18 @@ function ListContains(item, list, exact)
    end
    return false
 end
+
+function CanChargeTear()
+   if ( GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
+        GetInventorySlot(ITEMS["Archangel's Staff"].id) or
+        GetInventorySlot(ITEMS["Manamune"].id) ) and 
+      not Check(tear) 
+   then
+      return true
+   end
+   return false
+end
+
 
 function UseItem(itemName, target)
    local item = ITEMS[itemName]

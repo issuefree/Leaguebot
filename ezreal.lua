@@ -43,7 +43,7 @@ function Run()
    end           
    
    if IsOn("harrass") then
-      if SkillShot("mystic") then
+      if SkillShot("shot") then
          return
       end
    end
@@ -91,7 +91,7 @@ function combo()
    end
    
    -- mystic shot   
-   if mysticEnemy() then
+   if SkillShot("shot") then
       return true
    end
 

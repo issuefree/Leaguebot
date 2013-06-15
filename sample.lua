@@ -39,7 +39,7 @@ GetScriptVar(slot) returns number  //can set in hotkey with SETVARX=Y
 GetScriptKey() returns number      //the hotkey that activated the script
 GetWorldX() returns number  //center of camera X
 GetWorldY() returns number  //center of camera y
-GetWorldWidth() returns number //viewport width
+GetWorldWidth() returns number //viewport width, changes when you zoom
 
 IsKeyDown(number) returns number //accepts virtual key codes returns 0 if not pressed
 IsChatOpen() returns 1 or 0

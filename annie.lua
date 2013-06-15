@@ -14,7 +14,7 @@ spells["dis"] = {
 }
 spells["inc"] = {
    key="W", 
-   range=625, 
+   range=600, 
    color=red,    
    base={80,130,180,230,280},
    cost={70,80,90,100,110}, 
@@ -65,15 +65,15 @@ function Run()
          if Check(stun) then
             if CanUse("tibbers") and GetDistance(target) < 600 then
                CastSpellTarget("R", target)
-            elseif CanUse("inc") and GetDistance(target) < 600 then
+            elseif CanUse("inc") and GetDistance(target) < 575 then
                CastSpellTarget("W", target)
-            elseif CanUse("dis") then
+            elseif CanUse("dis") and GetDistance(target) < 625 then
                CastSpellTarget("Q", target)
             end
          else
-            if CanUse("dis") then
+            if CanUse("dis") and GetDistance(target) < 625 then
                CastSpellTarget("Q", target)
-            elseif CanUse("inc") then
+            elseif CanUse("inc") and GetDistance(target) < 575 then
                CastSpellTarget("W", target)
             end
          end
@@ -94,13 +94,11 @@ function Run()
    if IsOn("lastH") then
       if not GetWeakEnemy("MAGIC", aloneRange) then
          if CanUse("dis") then
-            KillWeakMinion("dis", 100)
-         else
-            KillWeakMinion("AA", 100)
+            KillWeakMinion("dis", 100)         
          end      
       elseif not GetWeakEnemy("MAGIC", nearRange) then
          if (IsOn("stoke") and Check(stun)) or not CanUse("dis") then
-            KillWeakMinion("AA")
+            --KillWeakMinion("AA")
          else
             KillWeakMinion("dis", 50)
          end

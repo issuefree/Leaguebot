@@ -1,0 +1,159 @@
+-- port of MapPosition, without modifying original files
+--
+-- v01 - 5/23/2013 10:13:43 AM - initial release
+-- v02 - 5/23/2013 12:02:16 PM - added support for the two wall functions, isWall and intersectsWall
+-- v03 - 5/23/2013 5:18:35 PM  - added a new function, MapPosition:inBush(unit)
+-- v04 - 5/23/2013 5:50:41 PM  - added MapPosition:inMyBase(unit) and MapPosition:inMyJungle(unit)
+-- v05 - 5/23/2013 7:42:07 PM  - uses spatial map for inBush, Common dir now required, inWall/inBush also accept units
+--
+-- requires MapPosition.lua and 2DGeometry.lua
+--
+-- installation requirement: Create a directory named Common in your LB folder if it doesn't exist
+--
+-- the script will generate cache files on the first run, this takes ~3 seconds on jit
+--
+-- see MapPosition.lua for documentation
+
+require 'utils'
+
+local lclass = class
+local function bclass(name)
+    local c = lclass()
+    _G[name] = c
+end
+
+local function file_exists(name)
+    local f = io.open(name, "r") if f ~= nil then io.close(f) return true else return false end
+end
+
+class = bclass
+require 'MapPosition'
+class = lclass
+
+-- support for wall functions, and spatial map cache
+
+if SCRIPT_PATH == nil then SCRIPT_PATH = '' end
+if package.path:find([[;.\Common\?]], 1, true) == nil then
+    package.path = package.path..[[;.\Common\?]]
+    package.path = package.path..[[;.\Common\?.lua]]
+end
+
+-- cache files are generated one time and stored in Common\
+-- wall cache generates in ~3 seconds using the jit
+
+local walls_cached = file_exists('Common/MapPosition_walls_1_1.lua')
+local bushes_cached = file_exists('Common/MapPosition_bushes_1.lua')
+
+-- adding 'inBush'
+
+local bushQuads = { -- this data slightly inaccurate in places
+    {x1=7518.2153320313,x2=7530.71875,x3=7193.9765625,x4=7238.9736328125,z1=641.78741455078,z2=558.71649169922,z3=536.95721435547,z4=634.78192138672 },
+    {x1=8684.6328125,x2=8563.5087890625,x3=8890.91796875,x4=9004.5322265625,z1=1706.2954101563,z2=1928.1704101563,z3=2054.1772460938,z4=1858.7463378906 },
+    {x1=9776.8466796875,x2=9945,x3=10180.98046875,x4=10187.516601563,z1=2737.759765625,z2=3065,z3=2876.6650390625,z4=2762.7749023438 },
+    {x1=11438.2421875,x2=11553.133789063,x3=11757.572265625,x4=11485.76953125,z1=3640.6740722656,z2=3699.5812988281,z3=3222.41796875,z4=3209.8098144531 },
+    {x1=12649.26171875,x2=13259.23828125,x3=13335.918945313,x4=12791.076171875,z1=1970.8107910156,z2=2894.4050292969,z3=2792.01953125,z4=1813.9447021484 },
+    {x1=12555.688476563,x2=11683,x3=11615.383789063,x4=12364.55078125,z1=1556.9916992188,z2=943,z3=1111.6633300781,z4=1649.1688232422 },
+    {x1=7861.2763671875,x2=7854.091796875,x3=7426.771484375,x4=7409.392578125,z1=3369.6188964844,z2=3234.4265136719,z3=3194.0646972656,z4=3413.5715332031 },
+    {x1=6710.6801757813,x2=6755.1572265625,x3=6194.060546875,x4=6213.03515625,z1=2991.7956542969,z2=2826.5041503906,z3=2823.7023925781,z4=2958.8374023438 },
+    {x1=5012.4145507813,x2=4984.19921875,x3=5384.91796875,x4=5419,z1=3020.1779785156,z2=3262.7741699219,z3=3362.2065429688,z4=3245 },
+    {x1=5979.7875976563,x2=6094.2006835938,x3=6261.0043945313,x4=6229.6147460938,z1=4290.896484375,z2=4586.6694335938,z3=4585.7509765625,z4=4279.9311523438 },
+    {x1=7886.6328125,x2=8180.779296875,x3=8319.90625,x4=8226.5224609375,z1=4577.3540039063,z2=4674.525390625,z3=4254.771484375,z4=4124.6899414063 },
+    {x1=8901.3798828125,x2=9078.4716796875,x3=9132.671875,x4=9052.9462890625,z1=5528.5625,z2=5502.1171875,z3=5309.6049804688,z4=5272.8720703125 },
+    {x1=7779.8984375,x2=7546.3256835938,x3=8218.7099609375,x4=8393.126953125,z1=5858.9873046875,z2=5991.1450195313,z3=6520.40625,z4=6403.1586914063 },
+    {x1=8786.6669921875,x2=8956.7236328125,x3=9574.1591796875,x4=9588.744140625,z1=6199.1416015625,z2=6014.0844726563,z3=6210.6557617188,z4=6625.2192382813 },
+    {x1=9482.3154296875,x2=9757.6962890625,x3=9642.1787109375,x4=9487.6123046875,z1=7167.1137695313,z2=7285.5747070313,z3=7820.716796875,z4=8008.3955078125 },
+    {x1=11201.662109375,x2=11508.702148438,x3=11285.108398438,x4=11000.489257813,z1=7378.1821289063,z2=7130.9248046875,z3=6797.849609375,z4=6842.0517578125 },
+    {x1=11884.068359375,x2=12198.336914063,x3=12309.836914063,x4=12212.60546875,z1=4902.9111328125,z2=5182.681640625,z3=5127.8295898438,z4=4611.4755859375 },
+    {x1=13757.692382813,x2=13666.208984375,x3=13648.884765625,x4=13725.844726563,z1=6500.8217773438,z2=6551.595703125,z3=6887.4052734375,z4=6914.8208007813 },
+    {x1=5775.8051757813,x2=6378.6254882813,x3=6524.6083984375,x4=5958.7446289063,z1=7953.1704101563,z2=8438.578125,z3=8281.349609375,z4=7774.6611328125 },
+    {x1=5248.6591796875,x2=5014.2905273438,x3=4341.791015625,x4=4399.9560546875,z1=8256.0830078125,z2=8476.1513671875,z3=8047.4404296875,z4=7805.1162109375 },
+    {x1=4724.806640625,x2=4747.3056640625,x3=4944.66796875,x4=4924.8754882813,z1=8809.66796875,z2=9027.919921875,z3=9005.638671875,z4=8871.6923828125 },
+    {x1=4484.0830078125,x2=4263.8579101563,x3=4365.6435546875,x4=4486.4545898438,z1=6468.7822265625,z2=7018.5961914063,z3=7298.9228515625,z4=7265.052734375 },
+    {x1=2745.7309570313,x2=2592.9399414063,x3=2894.337890625,x4=3127.9279785156,z1=7139.6479492188,z2=7461.1596679688,z3=7687.5766601563,z4=7495.1499023438 },
+    {x1=1907.8170166016,x2=1781.8581542969,x3=1830.1352539063,x4=2155.7104492188,z1=9245.5625,z2=9303.814453125,z3=9774.494140625,z4=9520.2392578125 },
+    {x1=2148.7583007813,x2=2257.0495605469,x3=2644.7626953125,x4=2511.1401367188,z1=11369.637695313,z2=11436.31640625,z3=10981.759765625,z4=10872.884765625 },
+    {x1=3792.0959472656,x2=4171.4497070313,x3=4274.431640625,x4=4132.810546875,z1=11599.807617188,z2=11801.0390625,z3=11694.685546875,z4=11349.4921875 },
+    {x1=5029.244140625,x2=5023.0908203125,x3=5435.5146484375,x4=5527.7915039063,z1=12348.341796875,z2=12555.654296875,z3=12664.2890625,z4=12469.424804688 },
+    {x1=6555.6987304688,x2=6575.154296875,x3=6929.9130859375,x4=6941.1059570313,z1=13916.046875,z2=13825.478515625,z3=13804.478515625,z4=13889.920898438 },
+    {x1=7319.5483398438,x2=7461.51953125,x3=7871.3984375,x4=7882.5825195313,z1=11463.884765625,z2=11694.7265625,z3=11622.151367188,z4=11472.288085938 },
+    {x1=8587.68359375,x2=8972.79296875,x3=9058.2646484375,x4=8794.5107421875,z1=11179.747070313,z2=11392.6953125,z3=11199.34765625,z4=11067.290039063 },
+    {x1=7963.8247070313,x2=7801.515625,x3=7759.11328125,x4=7957.30859375,z1=10190.237304688,z2=10171.16796875,z3=9883.2041015625,z4=9838.19921875 },
+    {x1=6635.0849609375,x2=6204.42578125,x3=6235.9951171875,x4=6592.0654296875,z1=11009.173828125,z2=11127.413085938,z3=11248.918945313,z4=11290.568359375 },
+    {x1=5788.3930664063,x2=5784.26953125,x3=5912.232421875,x4=6218.4379882813,z1=10368.354492188,z2=9902.4912109375,z3=9817.9453125,z4=9888.0458984375 },
+    {x1=342.44448852539,x2=472.52020263672,x3=494.22247314453,x4=360.47937011719,z1=7598.6674804688,z2=7642.1611328125,z3=8139.744140625,z4=8159.1171875 },
+}
+
+local bushes={}
+
+for i=1,#bushQuads do
+    local b = bushQuads[i]
+    local poly = Polygon(Point(b.x1,b.z1), Point(b.x2,b.z2), Point(b.x3,b.z3), Point(b.x4,b.z4))
+    table.insert(bushes, poly)
+end
+
+-- adding 'inMyBase' & 'inMyJungle'
+
+function MapPosition:inMyBase(unit)
+    local team = myHero.team
+    if team == TEAM_BLUE then
+        return MapPosition:inLeftBase(unit)
+    elseif team == TEAM_RED then
+        return MapPosition:inRightBase(unit)
+    else
+        error('unknown team: '..tostring(team))
+    end
+end
+
+function MapPosition:inMyJungle(unit)
+    local team = myHero.team
+    if team == TEAM_BLUE then
+        return MapPosition:inLeftJungle(unit)
+    elseif team == TEAM_RED then
+        return MapPosition:inRightJungle(unit)
+    else
+        error('unknown team: '..tostring(team))
+    end
+end
+
+-- spatial maps --
+
+if walls_cached then
+    print('*** MapPositionLB: loading wall cache')
+else
+    print('*** MapPositionLB: generating wall cache')
+end
+MapPosition:__init()
+
+-- wrap inWall so it accepts units as well as points
+MapPosition.inWallReal = MapPosition.inWall
+function MapPosition:inWall(o)
+    local point    
+    if o.z ~= nil then
+        point = Point(o.x, o.z)    
+    else
+        point = o
+    end
+    return MapPosition:inWallReal(point)
+end
+
+if bushes_cached then
+    print('*** MapPositionLB: loading bush cache')
+else
+    print('*** MapPositionLB: generating bush cache')
+end
+MapPosition.bushSpatialHashMap = SpatialHashMap(bushes, 400, "bushes_1")
+
+function MapPosition:inBush(o)  
+    local point    
+    if o.z ~= nil then
+        point = Point(o.x, o.z)    
+    else
+        point = o
+    end
+    for bushId, bush in pairs(self.bushSpatialHashMap:getSpatialObjects(point)) do
+        if bush:contains(point) then
+            return true
+        end
+    end
+    return false
+end

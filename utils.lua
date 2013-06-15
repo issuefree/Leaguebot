@@ -1,8 +1,8 @@
 --[[
     ====================================
     |    Leaguebot Utility Library     |
-    |          Version 1.3.5           |
-    |            Hotfixed5             |
+    |          Version 2.0.9           |
+    |                                  |
     ====================================
 
         This library consolidates functions that are often repeated in scripts as well as including
@@ -11,7 +11,8 @@
     ====================================
     |            How To Use            |
     ====================================
-        - add 'require "Utils"' to the top of your script, without single quotes.
+        - add 'require "utils"' to the top of your script, without single quotes.
+        - the require is no longer needed in version 2+ since it is now loaded by script_gui
 
     ====================================
     |            Version Log           |
@@ -72,17 +73,53 @@
             CastSummonerClarity()
             CastSummonerBarrier()
             CastSummonerClairvoyance(x, y x)
-
     1.3.3
         - Fixed a bug in Class that would overwrite parent class with member if member was a class created during __init
         - Fixed a bug in GetMEC checking nil vector
         - GetMEC results are now found with pos.x, pos.y, pos.z rather than pos.center.x, pos.center.y, pos.center.z
-
     1.3.4
         - Fixed bug caused by using GetMEC on single target
-
     1.3.5
         - Fixed bug in GetLowestHealthEnemyMinion
+    1.3.6
+        - Updated to hotfix 5
+
+    2.0.0 - 5/19/2012 11:39:00 AM
+          - requires script_loader v04
+          - requires script_gui v02
+          - overhaul of tick system to fix script interop when using OnDraw, OnProcessSpell, OnWndMsg
+          - Removed DoSpells, UpdateMessage, checkAndRunFunction
+          - Removed print assignment, it is now in script_loader
+
+    2.0.1 - 5/20/2013 12:40:05 PM
+          - fix for utils being loaded multiple times for some scripts, due to require casing
+
+    2.0.2 - 5/20/2013 2:04:19 PM
+          - undo 2.0.1 change in favor of a case insensitive require wrapper in script_loader
+
+    2.0.3 - 5/20/2013 7:24:36 PM
+          - looks like OnCreateObj needed the same fix the rest got, removed FindNewObjects
+
+    2.0.4 - 5/31/2013 12:04:39 PM
+          - RegisterLibraryOnTick, RegisterLibraryOnWndMsg, RegisterLibraryOnProcessSpell, RegisterLibraryOnCreateObj
+
+    2.0.5 - 6/3/2013 8:49:27 AM
+          - added Common to lua path and SCRIPT_PATH global for easier porting, no longer uses ListScripts for sending to scripts, no more myHero messages when lol not loaded
+
+    2.0.6 - 6/3/2013 11:29:19 AM
+          - throws an error if not using the lua jit
+
+    2.0.7 - 6/3/2013 9:56:28 PM
+          - added IsScriptActive, fixing the problem knowingly introduced in 2.0.5 where callbacks still ran for disabled scripts
+
+    2.0.8 - 6/9/2013 5:58:59 PM
+          - deprecated Util__Ontick(), tick now called directly from dotimercallback in script_loader
+
+    2.0.9 - 6/10/2013 9:18:42 AM
+          - revert the change in 2.0.8 for calling tick directly from dotimercallback, cannot support LOADSCRIPT
+
+    2.1.0 - 6/14/2013 11:50:51 AM
+          - added UTILS_VERSION global, for script authors
 
     ====================================
     |               API                |
@@ -328,9 +365,15 @@
 
 ------------ > Don't touch anything below here < --------------
 
---[[Globals]]
+if not jit then
+    local msg = "ERROR: The Lua JIT dll is required to use utils 2+"
+    PrintError(msg)
+    error(msg)
+end
 
-print=printtext
+UTILS_VERSION = 210
+
+--print=printtext -- new print is defined in script_loader
 KEY_DOWN = 256
 KEY_UP = 257
 WM_LBUTTONDOWN = 513
@@ -342,8 +385,14 @@ HookSpell()
 myHero = GetSelf()
 mousePos = {}
 TEAM_BLUE, TEAM_RED = 100, 200
-TEAM_ENEMY = (myHero.team == TEAM_BLUE and TEAM_RED or TEAM_BLUE)
-SetTimerCallback("Util__OnTick")
+if myHero ~= nil then
+    TEAM_ENEMY = (myHero.team == TEAM_BLUE and TEAM_RED or TEAM_BLUE)
+end
+
+local libraryOnTick = {}
+local libraryOnWndMsg = {}
+local libraryOnProcessSpell = {}
+local libraryOnCreateObj = {}
 
 Color = {
     Black = 0xFF000000,
@@ -378,24 +427,211 @@ local Summoners =
                     Clairvoyance = {Key = nil, Name = 'SummonerClairvoyance'}
                 }
 
-for _, Summoner in pairs(Summoners) do
-    if myHero.SummonerD == Summoner.Name then
-        Summoner.Key = "D"
-    elseif myHero.SummonerF == Summoner.Name then
-        Summoner.Key = "F"
+if myHero ~= nil then
+    for _, Summoner in pairs(Summoners) do
+        if myHero.SummonerD == Summoner.Name then
+            Summoner.Key = "D"
+        elseif myHero.SummonerF == Summoner.Name then
+            Summoner.Key = "F"
+        end
     end
 end
 
-function Util__OnTick()
-    checkAndRunFunction("OnDraw")
-    if functionExists("OnProcessSpell") then DoSpells() end
-    SC__OnDraw()
-    UpdateMessage()
-    FindNewObjects()
+mousePos = {x=0,y=0,z=0}
+function Util__Callback()
+    --printtext('~')
+    SendTickToLibraries()
+    HandleOnDraw()
+    HandleOnProcessSpell()
+    HandleOnWndMsg()
+    HandleOnCreateObj()
     --FindDeletedObjects()
     minionManager__OnTick()
-    mousePos = {x = GetCursorWorldX(), y = GetCursorWorldY(), z = GetCursorWorldZ()}
+    mousePos.x = GetCursorWorldX() -- faster
+    mousePos.y = GetCursorWorldY()
+    mousePos.z = GetCursorWorldZ()
 end
+
+function Util__OnTick()
+    -- deprecated to prevent double ticking
+end
+
+-- library callbacks, dont need draw --
+function RegisterLibraryOnTick(fn)
+    libraryOnTick[fn] = true
+end
+
+function RegisterLibraryOnWndMsg(fn)
+    libraryOnWndMsg[fn] = true
+end
+
+function RegisterLibraryOnProcessSpell(fn)
+    libraryOnProcessSpell[fn] = true
+end
+
+function RegisterLibraryOnCreateObj(fn)
+    libraryOnCreateObj[fn] = true
+end
+
+function SendMessagesToFunction(messages, fn)
+    assert(messages~=nil, 'messages cannot be nil')
+    assert(fn~=nil, 'fn cannot be nil')
+    for i=1,#messages do
+        local msg, key = unpack(messages[i])
+        fn(msg, key)
+    end
+end
+
+function SendObjectsToFunction(objects, fn)
+    assert(objects~=nil, 'objects cannot be nil')
+    assert(fn~=nil, 'fn cannot be nil')
+    for i=1,#objects do
+        local object = objects[i]
+        fn(object)
+    end
+end
+
+function SendSpellsToFunction(spells, fn)
+    assert(spells~=nil, 'spells cannot be nil')
+    assert(fn~=nil, 'fn cannot be nil')
+    for i=1,#spells do
+        local spell = spells[i]
+        fn(spell.unit, spell)
+    end
+end
+
+function SendMessagesToLibraries(messages)
+    local dict = libraryOnWndMsg
+    for fn,bool in pairs(dict) do
+        if bool then
+            SendMessagesToFunction(messages, fn)
+        end
+    end
+end
+
+function SendObjectsToLibraries(objects)
+    local dict = libraryOnCreateObj
+    for fn,bool in pairs(dict) do
+        if bool then
+            SendObjectsToFunction(objects, fn)
+        end
+    end
+end
+
+function SendSpellsToLibraries(spells)
+    local dict = libraryOnProcessSpell
+    for fn,bool in pairs(dict) do
+        if bool then
+            SendSpellsToFunction(spells, fn)
+        end
+    end
+end
+
+function SendTickToLibraries()
+    local dict = libraryOnTick
+    for fn,bool in pairs(dict) do
+        if bool then
+            fn()
+        end
+    end
+end
+
+-- send msg to all script
+function HandleOnWndMsg()
+    local messages = {}
+    local msg, key, param = GetMessage()
+    local g=0
+    while (msg ~= nil) do
+        table.insert(messages, {msg,key,param})
+        msg,key,param=GetMessage()
+    end
+    SendMessagesToLibraries(messages)
+    SendMessagesToFunction(messages, SC__OnWndMsg)
+    for i,fn in ipairs(GetScriptFunctions('OnWndMsg')) do
+        SendMessagesToFunction(messages, fn)
+    end
+end
+
+function HandleOnCreateObj()
+    local objects = {}
+    for i=1, objManager:GetMaxNewObjects() do
+        local object = objManager:GetNewObject(i)
+        if object ~= nil then
+            table.insert(objects, object)
+        end
+    end
+    SendObjectsToLibraries(objects)
+    SendObjectsToFunction(objects, minionManager__OnCreateObj)
+    for i,fn in ipairs(GetScriptFunctions('OnCreateObj')) do
+        SendObjectsToFunction(objects, fn)
+    end
+end
+
+-- send spells to all scripts' OnProcessSpell
+function HandleOnProcessSpell()
+    local spells={}
+    local a={GetCastSpell()}
+    local g=0
+    while (a~=nil and a[1] ~= nil and g<200) do
+        local spell={}
+        local startPos={}
+        local endPos={}
+        spell.unit=a[1]
+        spell.name=a[2]
+        startPos.x=a[3]
+        startPos.y=a[4]
+        startPos.z=a[5]
+        endPos.x=a[6]
+        endPos.y=a[7]
+        endPos.z=a[8]
+        spell.target=a[12]
+        spell.startPos=startPos
+        spell.endPos=endPos
+        --
+        table.insert(spells, spell)
+        --
+        a={GetCastSpell()}
+        g=g+1
+    end
+    SendSpellsToLibraries(spells)
+    for i,fn in ipairs(GetScriptFunctions('OnProcessSpell')) do
+        SendSpellsToFunction(spells, fn)
+    end
+end
+
+function HandleOnDraw()
+    --printtext('.')
+    for i,fn in ipairs(GetScriptFunctions('OnDraw')) do
+        fn()
+    end
+    SC__OnDraw()
+end
+
+function IsScriptActive(num)
+    local key = tostring(num)
+    return activescripts[key]
+end
+
+-- return list of functions with the name func_name for all scripts
+function GetScriptFunctions(function_name)
+    local functions = {}
+    -- now we actually loop the scriptlist
+    -- skip 0, which is script_gui and utils
+    for i=1,#scriptlist do
+        if IsScriptActive(i) then
+            local scriptenv = scriptlist[i]
+            if scriptenv~=nil then
+                local fn = scriptenv[function_name]
+                if fn ~= nil then
+                    table.insert(functions, fn)
+                end
+            end
+        end
+    end
+    return functions
+end
+
+---
 
 function KeyDown(key)
     return (IsKeyDown(key) == 1)
@@ -403,30 +639,6 @@ end
 
 function CanCastSpell(spell)
     return (CanUseSpell(spell) == 1)
-end
-
-function UpdateMessage()
-    msg,key,param=GetMessage()
-    while msg ~= nil do
-        if functionExists("OnWndMsg") then scriptlist[GetScriptNumber()]["OnWndMsg"](msg, key) end
-        SC__OnWndMsg(msg, key)
-        msg,key,param=GetMessage()
-    end
-end
-
-function GetVarArg(...)
-    if arg==nil then
-        local n = select('#', ...)
-        local t = {}
-        local v
-        for i=1,n do
-            v = select(i, ...)
-            table.insert(t,v)
-        end
-        return t
-    else
-        return arg
-    end
 end
 
 function MoveToMouse()
@@ -508,18 +720,6 @@ function UseItemLocation(item, x, y, z)
     end
 end
 
-function FindNewObjects()
-    for i = 1, objManager:GetMaxNewObjects(), 1 do
-        local object = objManager:GetNewObject(i)
-        if object ~= nil then
-            if functionExists("OnCreateObj") then
-                scriptlist[GetScriptNumber()]["OnCreateObj"](object)
-            end
-            minionManager__OnCreateObj(object)
-        end
-    end
-end
-
 function FindDeletedObjects()
     if functionExists("OnDeleteObj") then
         for i = 1, objManager:GetMaxDelObjects(), 1 do
@@ -539,7 +739,7 @@ function FindDeletedObjects()
 end
 
 function GetDistance(p1, p2)
-        if p2 == nil then p2 = myHero end
+         if p2 == nil then p2 = myHero end
     if (p1.z == nil or p2.z == nil) and p1.x~=nil and p1.y ~=nil and p2.x~=nil and p2.y~=nil then
         px=p1.x-p2.x
         py=p1.y-p2.y
@@ -551,11 +751,11 @@ function GetDistance(p1, p2)
             else
 				print(debug.traceback())
                 return 99999
-            end
+         end
         else
 			print(debug.traceback())
             return 99999
-        end
+end
 
     elseif p1.x~=nil and p1.z ~=nil and p2.x~=nil and p2.z~=nil then
         px=p1.x-p2.x
@@ -568,11 +768,11 @@ function GetDistance(p1, p2)
             else
 				print(debug.traceback())
                 return 99999
-            end
+    end
         else
 			print(debug.traceback())
             return 99999
-        end
+    end
 
     else
 				print(debug.traceback())
@@ -658,35 +858,6 @@ function CustomCircle(radius,thickness,color,object,x,y,z)
             DrawCircle(x,y,z,radius+count,color)
             count = count-2
         until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
-    end
-end
-
-function DoSpells()
-    local a={GetCastSpell()}
-    local g=0
-    while (a[1] ~= nil and g<200) do
-        local spell={}
-        local startPos={}
-        local endPos={}
-        spell.name=a[2]
-        startPos.x=a[3]
-        startPos.y=a[4]
-        startPos.z=a[5]
-        endPos.x=a[6]
-        endPos.y=a[7]
-        endPos.z=a[8]
-        spell.target=a[12];
-        spell.startPos=startPos
-        spell.endPos=endPos
-        scriptlist[GetScriptNumber()]["OnProcessSpell"](a[1], spell)
-        a={GetCastSpell()}
-        g=g+1
-    end
-end
-
-function checkAndRunFunction(name)
-    if scriptlist[GetScriptNumber()][name] ~= nil then
-        scriptlist[GetScriptNumber()][name]()
     end
 end
 
@@ -1278,7 +1449,6 @@ function __SC__DrawInstance(header, selected)
 end
 
 function SC__OnWndMsg(msg,key)
-
     if __SC__init() then return end
 
     local msg, key = msg, key
@@ -1380,13 +1550,28 @@ function scriptConfig:__init(header, name)
     table.insert(_SC.instances, self)
 end
 
+function GetVarArg(...)
+    if arg==nil then
+        local n = select('#', ...)
+        local t = {}
+        local v
+        for i=1,n do
+            v = select(i, ...)
+            --print('\nv = '..tostring(v))
+            table.insert(t,v)
+        end
+        return t
+    else
+        return arg
+    end
+end
+
 function scriptConfig:addParam(pVar, pText, pType, defaultValue, defaultKey, ...)
-	local arg = GetVarArg(...)
     assert(type(pVar) == "string" and type(pText) == "string" and type(pType) == "number", "addParam: wrong argument types (<string>, <string>, <pType> expected)")
     assert(string.find(pVar,"[^%a%d]") == nil, "addParam: pVar should contain only char and number")
     assert(self[pVar] == nil, "addParam: pVar should be unique, already existing "..pVar)
     local newParam = {var = pVar, text = pText, pType = pType, key = defaultKey}
-
+    local arg = GetVarArg(...)
     if pType == SCRIPT_PARAM_ONOFF or pType == SCRIPT_PARAM_ONKEYDOWN or pType == SCRIPT_PARAM_ONKEYTOGGLE then
         assert(type(defaultValue) == "boolean", "addParam: wrong argument types (pVar, pText, pType, defaultValue, defaultKey, enabled) expected.")
     elseif pType == SCRIPT_PARAM_SLICE then
@@ -1872,8 +2057,10 @@ MINION_SORT_AD_ASC = function(a, b) return a.ad < b.ad end
 MINION_SORT_AD_DEC = function(a, b) return a.ad > b.ad end
 local _minionManager = {ally = "##", enemy = "##"}
 
-_minionManager.ally = (myHero.team == TEAM_BLUE and "Blue" or "Red")
-_minionManager.enemy = (myHero.team == TEAM_BLUE and "Red" or "Blue")
+if myHero ~= nil then
+    _minionManager.ally = (myHero.team == TEAM_BLUE and "Blue" or "Red")
+    _minionManager.enemy = (myHero.team == TEAM_BLUE and "Red" or "Blue")
+end
 
 function minionManager__OnCreateObj(object)
     if object ~= nil then
@@ -1919,3 +2106,14 @@ function GetLowestHealthEnemyMinion(range)
     return nil
 end
 --################## END MINION MANAGER CLASS ##################--
+
+SetTimerCallback("Util__Callback")
+print('*** UTILS SetTimerCallback ***', GetScriptNumber())
+
+if SCRIPT_PATH == nil then SCRIPT_PATH = '' end
+
+-- help in porting, also serves as the first lb lib directory, even if we want to use a different lib directory officially
+if package.path:find([[;.\Common\?]], 1, true) == nil then
+    package.path = package.path..[[;.\Common\?]]
+    package.path = package.path..[[;.\Common\?.lua]]
+end

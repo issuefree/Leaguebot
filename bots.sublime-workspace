@@ -1,0 +1,776 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"healS",
+				"healScore"
+			],
+			[
+				"for",
+				"fori	for i,v in ipairs()"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "annie.lua",
+			"settings":
+			{
+				"buffer_size": 3922,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "utils.lua",
+			"settings":
+			{
+				"buffer_size": 81954,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "timCommon.lua",
+			"settings":
+			{
+				"buffer_size": 49453,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "graves.lua",
+			"settings":
+			{
+				"buffer_size": 973,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "template.lua",
+			"settings":
+			{
+				"buffer_size": 576,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "ashe.lua",
+			"settings":
+			{
+				"buffer_size": 1039,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "caitlyn.lua",
+			"settings":
+			{
+				"buffer_size": 1771,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "brand.lua",
+			"settings":
+			{
+				"buffer_size": 550,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "jax.lua",
+			"settings":
+			{
+				"buffer_size": 2353,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "ryze.lua",
+			"settings":
+			{
+				"buffer_size": 2059,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "sona.lua",
+			"settings":
+			{
+				"buffer_size": 2971,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "ezreal.lua",
+			"settings":
+			{
+				"buffer_size": 2884,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "alistar.lua",
+			"settings":
+			{
+				"buffer_size": 2394,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "require \"Utils\"\nrequire \"timCommon\"\nrequire \"modules\"\n\npp(\"\\nTim's Twitch\")\n\n--AddToggle(\"healTeam\", {on=true, key=112, label=\"Heal Team\", auxLabel=\"{0}\", args={\"green\"}})\n\nspells[\"cask\"] = {\n   key=\"W\", \n   range=950, \n   color=yellow, \n   delay=2,\n   speed=14,\n   area=300\n}\nspells[\"expColor2\"] = {\n   key=\"E\", \n   range=1198, \n   color=yellow\n}\nspells[\"expColor2\"] = {\n   key=\"W\", \n   range=949, \n   color=yellow\n}\nspells[\"expunge\"] = {\n   key=\"E\", \n   range=1200, \n   color=red, \n   base={40,50,60,70,80}, \n   ap=.2,\n   adBonus=.25\n}\n\n\nfunction Run()\n	TimTick()\n	if HotKey() then\n		UseItems()\n	end\nend\n\nlocal function onObject(object)\nend\n\nlocal function onSpell(object, spell)\nend\n\nAddOnCreate(onObject)\nAddOnSpell(onSpell)\nSetTimerCallback(\"Run\")\n",
+			"file": "twitch.lua",
+			"file_size": 806,
+			"file_write_time": 130151231760209743,
+			"settings":
+			{
+				"buffer_size": 753,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "require \"Utils\"\nrequire \"timCommon\"\n\nlocal cleanse = {\"Stun_glb\", \"summoner_banish\", \"Global_Taunt\", \"Global_Fear\", \"Ahri_Charm_buf\", \"leBlanc_shackle_tar\", \"LuxLightBinding_tar\", \"RunePrison_tar\", \"DarkBinding_tar\", \"nassus_wither_tar\", \"Amumu_SadRobot_Ultwrap\", \"Amumu_Ultwrap\", \"maokai_elementalAdvance_root_01\", \"RengarEMax_tar\", \"VarusRHitFlash\"} \nlocal byAbil = concat({\"AlZaharNetherGrasp_tar\", \"InfiniteDuress_tar\", \"skarner_ult_tail_tip\", \"SwapArrow_red\"}, cleanse)\nlocal byItem  = concat({\"summoner_banish\", \"mordekaiser_cotg_tar\", \"Fizz_UltimateMissle_Orbit\", \"Fizz_UltimateMissle_Orbit_Lobster\"}, byAbil)\n\nlocal cleanseKey\n\nif me.SummonerD == \"SummonerBoost\" then\n   cleanseKey = \"D\"\nelseif me.SummonerF == \"SummonerBoost\" then\n   cleanseKey = \"F\" \nend\n\nlocal function cleanseObj(object)\n	if GetDistance(object) < 25 and ModuleConfig.cleanse then\n\n		if me.name == \"Gangplank\" and \n		   CanCastSpell(\"W\") and \n		   ListContains(object.charName, byAbil) \n		then\n			CastSpellTarget(\"W\", me)\n			return\n		end\n		\n		if me.name == \"Olaf\" and \n			ListContains(object.charName, byAbil) and\n         CanCastSpell(\"R\") \n      then\n         pp(\"here\")\n			CastSpellTarget(\"R\", me)\n			return\n		end\n		\n		if ListContains(object.charName, byItem) then\n			UseItem(\"Quicksilver Sash\", me)\n			UseItem(\"Mercurial Scimitar\", me)\n			return\n		end\n		\n		if ListContains(object.charName, cleanse) then\n			CastHotkey(\"SPELL\"..cleanseKey..\":WEAKALLY SMARTCAST\")\n		end\n	end\nend\n\nModuleConfig:addParam(\"cleanse\", \"Auto Cleanse\", SCRIPT_PARAM_ONOFF, true)\nModuleConfig:permaShow(\"cleanse\")\n\nAddOnCreate(cleanseObj)",
+			"file": "cleanse.lua",
+			"file_size": 1643,
+			"file_write_time": 130062561955136628,
+			"settings":
+			{
+				"buffer_size": 1593,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "antiSkillShot.lua",
+			"settings":
+			{
+				"buffer_size": 2312,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "modules.lua",
+			"settings":
+			{
+				"buffer_size": 497,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 242.0,
+		"selected_items":
+		[
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/games/Leaguebot/twitch.lua",
+		"/C/games/Leaguebot/template.lua",
+		"/C/games/Leaguebot/templ",
+		"/C/games/Leaguebot/hotkey_Talon.txt",
+		"/C/games/Leaguebot/nidalee.lua",
+		"/C/games/Leaguebot/talon.lua",
+		"/C/Users/tim/AppData/Roaming/Sublime Text 2/Packages/Default/Default (Windows).sublime-keymap",
+		"/C/Users/tim/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/tim/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
+		"/C/games/Leaguebot/bots.sublime-project",
+		"/C/games/Leaguebot/timCommon.lua",
+		"/C/games/Leaguebot/timcom",
+		"/C/games/Leaguebot/ryze",
+		"/C/Users/tim/Desktop/workspace/python/rally.py",
+		"/C/games/Leaguebot/bkey.bin",
+		"/C/games/Leaguebot/nid"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			" / ",
+			"drawcircletarget",
+			"keydown",
+			"reindent",
+			"skillshot",
+			"unblocked",
+			"tear",
+			"check(tear",
+			"end",
+			")\n",
+			"\n                              ",
+			"                              "
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			","
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 13,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "annie.lua",
+					"settings":
+					{
+						"buffer_size": 3922,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								353,
+								353
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "utils.lua",
+					"settings":
+					{
+						"buffer_size": 81954,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								26581,
+								26581
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 8007.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "timCommon.lua",
+					"settings":
+					{
+						"buffer_size": 49453,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								46677,
+								46682
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 23652.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "graves.lua",
+					"settings":
+					{
+						"buffer_size": 973,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								448,
+								448
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 45.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "template.lua",
+					"settings":
+					{
+						"buffer_size": 576,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								576
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "ashe.lua",
+					"settings":
+					{
+						"buffer_size": 1039,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								809,
+								809
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "caitlyn.lua",
+					"settings":
+					{
+						"buffer_size": 1771,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								460,
+								266
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "brand.lua",
+					"settings":
+					{
+						"buffer_size": 550,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								251,
+								251
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "jax.lua",
+					"settings":
+					{
+						"buffer_size": 2353,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								626,
+								626
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3
+						},
+						"translation.x": 0.0,
+						"translation.y": 45.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "ryze.lua",
+					"settings":
+					{
+						"buffer_size": 2059,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1824,
+								1824
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 270.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "sona.lua",
+					"settings":
+					{
+						"buffer_size": 2971,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2053,
+								2053
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 664.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "ezreal.lua",
+					"settings":
+					{
+						"buffer_size": 2884,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								785,
+								785
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 90.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "alistar.lua",
+					"settings":
+					{
+						"buffer_size": 2394,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								769,
+								769
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 315.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "twitch.lua",
+					"settings":
+					{
+						"buffer_size": 753,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								359,
+								359
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "cleanse.lua",
+					"settings":
+					{
+						"buffer_size": 1593,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "antiSkillShot.lua",
+					"settings":
+					{
+						"buffer_size": 2312,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1222,
+								1222
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "modules.lua",
+					"settings":
+					{
+						"buffer_size": 497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								497,
+								497
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 182.0,
+	"status_bar_visible": true
+}
