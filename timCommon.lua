@@ -46,8 +46,9 @@ function merge(table1, table2)
 end
 
 function concat(...)
+   --arg = GetVarArg(arg)
    local resTable = {}
-   for _,tablex in ipairs(arg) do
+   for _,tablex in ipairs(...) do
       if type(tablex) == "table" then
          for _,v in ipairs(tablex) do
             table.insert(resTable, v)

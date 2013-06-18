@@ -48,11 +48,7 @@ function concat(...)
    return resTable
 end
 
---a = {1,2,3}
---b = {5,6,7}
---c = "f"
---d = 4
---
---pp(concat(d, c))
+a = "twitch_poison_counter_01"
+print(0+string.match(a, "r_(%d*)"))
 
 
