@@ -44,7 +44,10 @@ function healTeam()
 	
 	for _,hero in ipairs(ALLIES) do
 		if GetDistance(HOME, hero) > 1000 and
+		   hero.charName ~= me.name and
 		   hero.health + maxHeal < hero.maxHealth*.9 and
+		   hero.dead == 0 and
+		   hero.visible == 1 and
 --		   not isWounded(hero) and 
 		   not IsRecalling(hero)
 		then
@@ -87,8 +90,10 @@ function healTeam()
 			
 		if bestInRangeT then
 			CastSpellTarget("Q", bestInRangeT)
+			pp("Healing: "..bestInRangeT.name)
 		elseif me.health + maxHeal*1.4 < me.maxHealth*.75 then
 			CastSpellTarget("Q", me)
+			pp("Healing: me")
 		end
 	end		
 end

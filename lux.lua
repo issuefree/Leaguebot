@@ -4,6 +4,15 @@ require "modules"
 require "support"
 
 pp("\nTim's Lux")
+pp("  shield allies")
+pp("  bind people")
+pp("  singularity people, set it off if they try to get out.")
+pp("  steal dragon")
+
+-- I'd like to find a way to use binding and singularity to peel off adc/apc
+
+-- final spark if people line up or for kills
+
 
 
 spells["binding"] = {
@@ -65,17 +74,6 @@ AddToggle("ks", {on=false, key=116, label="Kill Steal Ult"})
 local singularity
 local lastSingularity = GetClock()
 
-
--- shield allies
--- bind people
--- singularity people, set it off if they try to get out.
-
--- I'd like to find a way to use binding and singularity to peel off adc/apc
-
--- final spark if people line up or for kills
-
-local lizard
-
 function Run()
    TimTick()
    
@@ -83,13 +81,6 @@ function Run()
    t.y = me.y
    local t2 = {x=t.x+250, y=t.y, z=t.z+150}
    local t3 = {x=t.x-250, y=t.y, z=t.z+150}
---   
---   DrawCircle(t.x, t.y, t.z, 20, red)
---   DrawCircle(t2.x, t2.y, t2.z, 20, red)
---   DrawCircle(t3.x, t3.y, t3.z, 20, red)
-   
-   
---   DrawCircle(t.x,t.y,t.z,50,yellow)
    
    local hits = GetInLine(R.width, GetInRange(me, R.range, CREEPS), "hits")
    local x,y,z = GetCenter(hits)

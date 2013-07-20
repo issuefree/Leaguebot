@@ -4,12 +4,24 @@
 		"selected_items":
 		[
 			[
-				"healS",
-				"healScore"
+				"max",
+				"maxChainDist"
+			],
+			[
+				"get",
+				"GetDistance"
+			],
+			[
+				"med",
+				"medTime"
 			],
 			[
 				"for",
-				"fori	for i,v in ipairs()"
+				"for	for i=1,10"
+			],
+			[
+				"healS",
+				"healScore"
 			]
 		]
 	},
@@ -24,26 +36,10 @@
 			}
 		},
 		{
-			"file": "utils.lua",
-			"settings":
-			{
-				"buffer_size": 81954,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "timCommon.lua",
 			"settings":
 			{
-				"buffer_size": 49453,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "graves.lua",
-			"settings":
-			{
-				"buffer_size": 973,
+				"buffer_size": 50256,
 				"line_ending": "Windows"
 			}
 		},
@@ -56,85 +52,87 @@
 			}
 		},
 		{
-			"file": "ashe.lua",
+			"file": "draven.lua",
 			"settings":
 			{
-				"buffer_size": 1039,
+				"buffer_size": 608,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "caitlyn.lua",
+			"file": "katarina.lua",
 			"settings":
 			{
-				"buffer_size": 1771,
+				"buffer_size": 13307,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "brand.lua",
+			"file": "soraka.lua",
 			"settings":
 			{
-				"buffer_size": 550,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "jax.lua",
-			"settings":
-			{
-				"buffer_size": 2353,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "ryze.lua",
-			"settings":
-			{
-				"buffer_size": 2059,
+				"buffer_size": 4125,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "sona.lua",
+			"file": "Common/Keys.lua",
 			"settings":
 			{
-				"buffer_size": 2971,
+				"buffer_size": 3411,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "ezreal.lua",
+			"file": "masteryi2.lua",
 			"settings":
 			{
-				"buffer_size": 2884,
+				"buffer_size": 15270,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "alistar.lua",
+			"file": "masteryi.lua",
 			"settings":
 			{
-				"buffer_size": 2394,
+				"buffer_size": 3673,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "require \"Utils\"\nrequire \"timCommon\"\nrequire \"modules\"\n\npp(\"\\nTim's Twitch\")\n\n--AddToggle(\"healTeam\", {on=true, key=112, label=\"Heal Team\", auxLabel=\"{0}\", args={\"green\"}})\n\nspells[\"cask\"] = {\n   key=\"W\", \n   range=950, \n   color=yellow, \n   delay=2,\n   speed=14,\n   area=300\n}\nspells[\"expColor2\"] = {\n   key=\"E\", \n   range=1198, \n   color=yellow\n}\nspells[\"expColor2\"] = {\n   key=\"W\", \n   range=949, \n   color=yellow\n}\nspells[\"expunge\"] = {\n   key=\"E\", \n   range=1200, \n   color=red, \n   base={40,50,60,70,80}, \n   ap=.2,\n   adBonus=.25\n}\n\n\nfunction Run()\n	TimTick()\n	if HotKey() then\n		UseItems()\n	end\nend\n\nlocal function onObject(object)\nend\n\nlocal function onSpell(object, spell)\nend\n\nAddOnCreate(onObject)\nAddOnSpell(onSpell)\nSetTimerCallback(\"Run\")\n",
-			"file": "twitch.lua",
-			"file_size": 806,
-			"file_write_time": 130151231760209743,
+			"file": "objectFind.lua",
 			"settings":
 			{
-				"buffer_size": 753,
+				"buffer_size": 2553,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "require \"Utils\"\nrequire \"timCommon\"\n\nlocal cleanse = {\"Stun_glb\", \"summoner_banish\", \"Global_Taunt\", \"Global_Fear\", \"Ahri_Charm_buf\", \"leBlanc_shackle_tar\", \"LuxLightBinding_tar\", \"RunePrison_tar\", \"DarkBinding_tar\", \"nassus_wither_tar\", \"Amumu_SadRobot_Ultwrap\", \"Amumu_Ultwrap\", \"maokai_elementalAdvance_root_01\", \"RengarEMax_tar\", \"VarusRHitFlash\"} \nlocal byAbil = concat({\"AlZaharNetherGrasp_tar\", \"InfiniteDuress_tar\", \"skarner_ult_tail_tip\", \"SwapArrow_red\"}, cleanse)\nlocal byItem  = concat({\"summoner_banish\", \"mordekaiser_cotg_tar\", \"Fizz_UltimateMissle_Orbit\", \"Fizz_UltimateMissle_Orbit_Lobster\"}, byAbil)\n\nlocal cleanseKey\n\nif me.SummonerD == \"SummonerBoost\" then\n   cleanseKey = \"D\"\nelseif me.SummonerF == \"SummonerBoost\" then\n   cleanseKey = \"F\" \nend\n\nlocal function cleanseObj(object)\n	if GetDistance(object) < 25 and ModuleConfig.cleanse then\n\n		if me.name == \"Gangplank\" and \n		   CanCastSpell(\"W\") and \n		   ListContains(object.charName, byAbil) \n		then\n			CastSpellTarget(\"W\", me)\n			return\n		end\n		\n		if me.name == \"Olaf\" and \n			ListContains(object.charName, byAbil) and\n         CanCastSpell(\"R\") \n      then\n         pp(\"here\")\n			CastSpellTarget(\"R\", me)\n			return\n		end\n		\n		if ListContains(object.charName, byItem) then\n			UseItem(\"Quicksilver Sash\", me)\n			UseItem(\"Mercurial Scimitar\", me)\n			return\n		end\n		\n		if ListContains(object.charName, cleanse) then\n			CastHotkey(\"SPELL\"..cleanseKey..\":WEAKALLY SMARTCAST\")\n		end\n	end\nend\n\nModuleConfig:addParam(\"cleanse\", \"Auto Cleanse\", SCRIPT_PARAM_ONOFF, true)\nModuleConfig:permaShow(\"cleanse\")\n\nAddOnCreate(cleanseObj)",
+			"contents": "	if unit.team==myHero.team and unit.name ==myHero.name then\n	--printtext(\"\\nS \"..spell.name..\"\\n\")        \n		local s=spell.name\n        if (s ~= nil) then\n            if string.find(s,\"Meditate\") ~= nil then    \n           \n				CLOCKM=os.clock()\n				--printtext(\"\\n\"..CLOCKM..\"\\n\")   \n                \n			\n            elseif string.find(s,\"Highlander\") ~= nil then    \n                \n				CLOCKU=os.clock()\n				ulting=true\n				--printtext(\"\\n\"..CLOCKM..\"\\n\")   \n                \n			\n			elseif string.find(s,\"Recall\") ~= nil then    \n             \n				CLOCKT=os.clock()\n				--printtext(\"\\n\"..CLOCKT..\"\\n\")   \n                \n			end\n        end\n\n	else\nlocal Q\nlocal W\nlocal E\nlocal R\n	if unit~= nil then\n		Q = unit.SpellNameQ\n		W = unit.SpellNameW\n		E = unit.SpellNameE\n		R = unit.SpellNameR\n	end\n		if checkDie==true then\n			if unit~= nil and unit.name~=\"Worm\" and spell ~= nil and unit.team ~= myHero.team and spell.target~=nil and spell.target.name~=nil and spell.target.name == myHero.name then\n			--print(\"\\nI: \" .. spell.target.name .. \"  S \" .. spell.name .. \"\\n Q \" .. Q.. \"  W \" .. W .. \"  E \" .. E .. \"  R \" .. R)\n			--print(\"\\nB: \" .. unit.name)\n    		if spell.name == Q then\n				if spellDmg[unit.name] and getDmg(\"Q\",myHero,unit)~=nil and getDmg(\"Q\",myHero,unit) > myHero.health then\n					zhonyas() \n					CastSummonerBarrier()\n					CastSummonerHeal()\n				end\n    		\n			elseif spell.name == W then\n        		if spellDmg[unit.name] and getDmg(\"W\",myHero,unit)~=nil and getDmg(\"W\",myHero,unit) > myHero.health then\n        			zhonyas() \n					CastSummonerBarrier()\n					CastSummonerHeal()\n				end\n    		\n			elseif spell.name == E then\n    			if spellDmg[unit.name] and getDmg(\"E\",myHero,unit)~=nil and getDmg(\"E\",myHero,unit) > myHero.health then\n   			     	zhonyas()\n					CastSummonerBarrier()\n					CastSummonerHeal()\n        		end\n\n			elseif spell.name == R then\n        		if spellDmg[unit.name] and getDmg(\"R\",myHero,unit)~=nil and getDmg(\"R\",myHero,unit) > myHero.health then\n        			zhonyas() \n					CastSummonerBarrier()\n					CastSummonerHeal()\n        		end\n    		\n			elseif spell.name:find(\"BasicAttack\") or spell.name:find(\"BasicAttack2\") or spell.name:find(\"BasicaAttack3\")  or spell.name:find(\"ChaosTurretFire\") then\n        		if (unit.baseDamage + unit.addDamage) > myHero.health then\n        			zhonyas() \n					CastSummonerBarrier()\n					CastSummonerHeal()\n				end	\n			elseif spell.name:find(\"CritAttack\") then\n        		if 2*(unit.baseDamage + unit.addDamage) > myHero.health then\n        			zhonyas() \n					CastSummonerBarrier()\n					CastSummonerHeal()\n				end\n        	end\n    \n		end\n",
+			"settings":
+			{
+				"buffer_size": 2610,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "sample.lua",
+			"settings":
+			{
+				"buffer_size": 4032,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "utils.lua",
+			"settings":
+			{
+				"buffer_size": 87762,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "cleanse.lua",
-			"file_size": 1643,
-			"file_write_time": 130062561955136628,
 			"settings":
 			{
 				"buffer_size": 1593,
@@ -146,14 +144,6 @@
 			"settings":
 			{
 				"buffer_size": 2312,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "modules.lua",
-			"settings":
-			{
-				"buffer_size": 497,
 				"line_ending": "Windows"
 			}
 		}
@@ -182,7 +172,31 @@
 	},
 	"file_history":
 	[
+		"/C/games/Leaguebot/hotkeys/hotkey_Draven.txt",
+		"/C/games/Leaguebot/masteryi.lua",
+		"/C/games/Leaguebot/UseItems.lua",
+		"/C/games/Leaguebot/teemo.lua",
+		"/C/games/Leaguebot/taric.lua",
+		"/C/games/Leaguebot/mundo.lua",
+		"/C/games/Leaguebot/alistar.lua",
+		"/C/games/Leaguebot/ezreal.lua",
+		"/C/games/Leaguebot/modules.lua",
+		"/C/games/Leaguebot/Common/SKeys.lua",
+		"/C/games/Leaguebot/ashe.lua",
+		"/C/games/Leaguebot/caitlyn.lua",
+		"/C/games/Leaguebot/brand.lua",
+		"/C/games/Leaguebot/jax.lua",
+		"/C/games/Leaguebot/sona.lua",
+		"/C/games/Leaguebot/ryze.lua",
+		"/C/games/Leaguebot/hotkeys/masteryi2.lua",
+		"/C/games/Leaguebot/hotkeys/hotkey_MasterYi.txt",
+		"/C/games/Leaguebot/mundo",
+		"/C/games/Leaguebot/utils.lua",
 		"/C/games/Leaguebot/twitch.lua",
+		"/C/games/Leaguebot/difftool.bat",
+		"/C/games/Leaguebot/difftool.sh",
+		"/C/games/Leaguebot/graves.lua",
+		"/C/games/Leaguebot/zyra.lua",
 		"/C/games/Leaguebot/template.lua",
 		"/C/games/Leaguebot/templ",
 		"/C/games/Leaguebot/hotkey_Talon.txt",
@@ -215,6 +229,51 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"farm",
+			"castspelltarget(\"R",
+			"table.insert",
+			"filter",
+			"getinrange",
+			"GetSpellDamage",
+			"TURRETS",
+			"findturret",
+			"zhon",
+			"ulting",
+			"isult",
+			"getclock",
+			"onprocess",
+			"ismed",
+			"ITEMS",
+			"getwea",
+			"ITEMS",
+			"27",
+			"skillshotArray",
+			" / ",
+			"getvis",
+			"healteam",
+			"heal",
+			"getclock",
+			"getberserk",
+			"...",
+			"safecall",
+			"...",
+			"concat",
+			"pp(",
+			"tot",
+			"arg",
+			"getvararg",
+			"...",
+			"concat",
+			"...",
+			"getunblocked",
+			"pp(",
+			"getunbl",
+			"skillshot",
+			"clean(",
+			"getvararg",
+			"concat(",
+			"...",
+			"arg",
 			" / ",
 			"drawcircletarget",
 			"keydown",
@@ -245,7 +304,7 @@
 	"groups":
 	[
 		{
-			"selected": 13,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -260,8 +319,8 @@
 						"selection":
 						[
 							[
-								353,
-								353
+								3465,
+								3596
 							]
 						],
 						"settings":
@@ -271,53 +330,42 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1280.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "utils.lua",
-					"settings":
-					{
-						"buffer_size": 81954,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								26581,
-								26581
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 8007.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
 					"file": "timCommon.lua",
 					"settings":
 					{
-						"buffer_size": 49453,
+						"buffer_size": 50256,
 						"regions":
 						{
+							"bookmarks":
+							{
+								"flags": 144,
+								"icon": "bookmark",
+								"regions":
+								[
+									[
+										16199,
+										16199
+									],
+									[
+										16648,
+										16650
+									]
+								],
+								"scope": "bookmarks"
+							}
 						},
 						"selection":
 						[
 							[
-								46677,
-								46682
+								16285,
+								16285
 							]
 						],
 						"settings":
@@ -327,39 +375,13 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 23652.0,
+						"translation.y": 7000.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "graves.lua",
-					"settings":
-					{
-						"buffer_size": 973,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								448,
-								448
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 45.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
+					"buffer": 2,
 					"file": "template.lua",
 					"settings":
 					{
@@ -370,8 +392,8 @@
 						"selection":
 						[
 							[
-								0,
-								576
+								193,
+								362
 							]
 						],
 						"settings":
@@ -380,263 +402,72 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "draven.lua",
+					"settings":
+					{
+						"buffer_size": 608,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								200,
+								200
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "katarina.lua",
+					"settings":
+					{
+						"buffer_size": 13307,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9191,
+								9224
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3837.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 5,
-					"file": "ashe.lua",
+					"file": "soraka.lua",
 					"settings":
 					{
-						"buffer_size": 1039,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								809,
-								809
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "caitlyn.lua",
-					"settings":
-					{
-						"buffer_size": 1771,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								460,
-								266
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "brand.lua",
-					"settings":
-					{
-						"buffer_size": 550,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								251,
-								251
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "jax.lua",
-					"settings":
-					{
-						"buffer_size": 2353,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								626,
-								626
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3
-						},
-						"translation.x": 0.0,
-						"translation.y": 45.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "ryze.lua",
-					"settings":
-					{
-						"buffer_size": 2059,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1824,
-								1824
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 270.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "sona.lua",
-					"settings":
-					{
-						"buffer_size": 2971,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2053,
-								2053
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 664.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "ezreal.lua",
-					"settings":
-					{
-						"buffer_size": 2884,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								785,
-								785
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 90.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "alistar.lua",
-					"settings":
-					{
-						"buffer_size": 2394,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								769,
-								769
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 315.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "twitch.lua",
-					"settings":
-					{
-						"buffer_size": 753,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								359,
-								359
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage",
-							"tab_size": 3,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "cleanse.lua",
-					"settings":
-					{
-						"buffer_size": 1593,
+						"buffer_size": 4125,
 						"regions":
 						{
 						},
@@ -659,7 +490,222 @@
 					"type": "text"
 				},
 				{
-					"buffer": 15,
+					"buffer": 6,
+					"file": "Common/Keys.lua",
+					"settings":
+					{
+						"buffer_size": 3411,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								679,
+								679
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "masteryi2.lua",
+					"settings":
+					{
+						"buffer_size": 15270,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6008,
+								6008
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2667.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "masteryi.lua",
+					"settings":
+					{
+						"buffer_size": 3673,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2214,
+								2214
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1272.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "objectFind.lua",
+					"settings":
+					{
+						"buffer_size": 2553,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1205,
+								1205
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 3,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 405.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"settings":
+					{
+						"buffer_size": 2610,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2610,
+								2610
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "sample.lua",
+					"settings":
+					{
+						"buffer_size": 4032,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1787,
+								1787
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 447.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "utils.lua",
+					"settings":
+					{
+						"buffer_size": 87762,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								29454,
+								29462
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 9297.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "cleanse.lua",
+					"settings":
+					{
+						"buffer_size": 1593,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								919,
+								919
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 14,
 					"file": "antiSkillShot.lua",
 					"settings":
 					{
@@ -679,32 +725,6 @@
 							"syntax": "Packages/Lua/Lua.tmLanguage",
 							"tab_size": 3,
 							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 16,
-					"file": "modules.lua",
-					"settings":
-					{
-						"buffer_size": 497,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								497,
-								497
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Lua/Lua.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
