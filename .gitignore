@@ -1,9 +1,10 @@
+/*.txt
+
 #################
 ## Eclipse
 #################
 
 *.exe
-*.txt
 *.dll
 *.ini
 *.bin
@@ -11,7 +12,7 @@
 externalScripts/
 
 *.pydevproject
-.project
+.project*
 .metadata
 bin/
 tmp/
