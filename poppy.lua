@@ -21,8 +21,8 @@ function Run()
       if target then
          if CanUse("blow") then
             CastSpellTarget("Q", me)
+            AttackTarget(target)
          end
-         AttackTarget(target)
       end      
    end
 end

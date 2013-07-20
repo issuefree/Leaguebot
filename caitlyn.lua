@@ -14,16 +14,41 @@ function getAceRange()
    return 0
 end
 
-spells["pp"] = {key="Q", range=1300, color=violet, base={20,60,100,140,180}, ad=1.3}
-spells["trap"] = {key="W", range=800, base={80,130,180,230,280}, ap=.6}
-spells["net"] = {key="E", range=800, color=yellow, base={80,130,180,230,280}, ap=.8}
-spells["recoil"] = {key="E", range=400+50, color=blue}
-spells["ace"] = {key="R", range=getAceRange, color=red, base={250,475,700}, adBonus=2}
-spells["headshot"] = {ad=0}
-
-function test()
-   pp("later")
-end
+spells["pp"] = {
+   key="Q", 
+   range=1300, 
+   color=violet, 
+   base={20,60,100,140,180}, 
+   ad=1.3
+}
+spells["trap"] = {
+  key="W", 
+  range=800, 
+  base={80,130,180,230,280}, 
+  ap=.6
+}
+spells["net"] = {
+  key="E", 
+  range=800, 
+  color=yellow, 
+  base={80,130,180,230,280}, 
+  ap=.8
+}
+spells["recoil"] = {
+   key="E", 
+   range=400+50, 
+   color=blue
+}
+spells["ace"] = {
+   key="R", 
+   range=getAceRange, 
+   color=red, 
+   base={250,475,700}, 
+   adBonus=2
+}
+spells["headshot"] = {
+   ad=0
+}
 
 function Run()
    TimTick()

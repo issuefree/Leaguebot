@@ -1,11 +1,3 @@
-LALT LOADSCRIPT=template.lua
+LALT LOADSCRIPT=urgot.lua
  
  
- 
- 
- 
- 
- 
- 
- 
-250 0
