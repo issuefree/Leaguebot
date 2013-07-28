@@ -55,7 +55,7 @@ function Run()
             CastSpellTarget("W", me)
             selecting = true
          end
-         
+
          if CanUse("wild") then
             CastSpellXYZ("Q", target.x, target.y, target.z)
          end
@@ -69,7 +69,7 @@ function Run()
 			local nearMinions = GetInRange(me, me.range+200, MINIONS)
 			for _, minion in ipairs(nearMinions) do
 				if minion.health < GetAADamage(minion) then
-					AttackTarget(minion)
+					AA(minion)
 					break
 				end
 				

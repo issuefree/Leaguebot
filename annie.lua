@@ -127,7 +127,7 @@ local function onObject(object)
    if find(object.charName,"StunReady") and 
       GetDistance(object) < 50 
    then
-      stun = {object.charName, object}
+      stun = SateObj(object)
    end
 end
 

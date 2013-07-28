@@ -4,7 +4,13 @@ require "modules"
 
 pp("\nTim's Twitch")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+-- AddToggle("pp", {on=true, key=113, label="Piltover", auxLabel="{0}", args={"pp"}})
+-- AddToggle("trap", {on=true, key=114, label="Trap"})
+-- AddToggle("execute", {on=true, key=115, label="AutoExecute", auxLabel="{0}", args={"ace"}})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["cask"] = {
    key="W", 
@@ -40,8 +46,8 @@ function Run()
 
    drawPoisons()
 
-	if HotKey() then
-		UseItems()
+	if HotKey() and CanAct() then
+		Action()
 	end
 end
 
@@ -59,7 +65,36 @@ function drawPoisons()
    end
 end
 
+function Action()
+   UseItems()
+      
+   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
+   if target then
+      if AA(target) then
+         return
+      end
+   end
 
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         return
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = GetInRange(me, "AA", MINIONS)
+      SortByHealth(minions)
+      local minion = minions[#minions]
+      if minion and AA(minion) then
+         return
+      end
+   end
+
+   if IsOn("move") then
+      MoveToCursor() 
+   end
+end
 
 local function onObject(object)
    if find(object.charName, "twitch_poison_counter_0") then

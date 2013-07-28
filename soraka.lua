@@ -34,11 +34,11 @@ function Run()
 	if HotKey() then
    	local target = GetWeakEnemy('MAGIC',725,"NEARMOUSE")
 		if target then
-			if GetDistance(me, target) < 725 and CanCastSpell("E") then CastSpellTarget("E", target) end 
+			if GetDistance(me, target) < 725 and CanUse("E") then CastSpellTarget("E", target) end 
 		end
 		target = GetWeakEnemy("MAGIC", 650)
 		if target then
-			if GetDistance(me, target) < 650 and CanCastSpell("Q") then CastSpellTarget("Q", me) end
+			if GetDistance(me, target) < 650 and CanUse("Q") then CastSpellTarget("Q", me) end
       end
       
 		UseItems()
@@ -47,7 +47,7 @@ function Run()
 	infuseTeam()
 	
 	if not GetWeakEnemy("MAGIC", 1000) then
-		SafeCall(Farm)
+		Farm()
 	end
 end 
 
@@ -85,7 +85,7 @@ function Farm()
 	end
 	
 	if qMinions > 1 then
-		if CanCastSpell("Q") then
+		if CanUse("Q") then
 			CastSpellTarget("Q", me)
 		end	
 	end
@@ -95,13 +95,13 @@ function Farm()
 	end
 	
 	if strongMinion then
-		if CanCastSpell("E") then
+		if CanUse("E") then
 			CastSpellTarget("E", strongMinion)
 		end
 	end
 	
 	if qMinions == 1 then
-		if CanCastSpell("Q") then
+		if CanUse("Q") then
 			CastSpellTarget("Q", me)
 		end
 	end
@@ -137,7 +137,7 @@ function infuseTeam()
 	end
 	
 	if bestInRangeT then
-		if CanCastSpell("E") and 
+		if CanUse("E") and 
 		   (not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5) 
 		then
 			CastSpellTarget("E", bestInRangeT)
@@ -148,7 +148,7 @@ function infuseTeam()
 end     
 
 function Wish()
-	if not CanCastSpell("R") then
+	if not CanUse("R") then
 		return
 	end
 	for _,ally in ipairs(ALLIES) do

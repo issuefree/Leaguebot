@@ -740,6 +740,7 @@ end
 
 function GetDistance(p1, p2)
          if p2 == nil then p2 = myHero end
+         if p1 == nil then return 99999 end
     if (p1.z == nil or p2.z == nil) and p1.x~=nil and p1.y ~=nil and p2.x~=nil and p2.y~=nil then
         px=p1.x-p2.x
         py=p1.y-p2.y

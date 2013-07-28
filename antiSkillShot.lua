@@ -53,7 +53,7 @@ function assTick()
             
             elseif enemy.spell.type == "line" then
                if enemy.obj.x and GetDistance(enemy.obj) < enemy.spell.range and enemy.obj["SpellTime"..enemy.spell.key] >= -.5 then
-                  local unblocked = GetUnblocked(enemy.obj, enemy.spell.range, enemy.spell.width, MYMINIONS, ALLIES)
+                  local unblocked = GetUnblocked(enemy.obj, enemy.spell, MYMINIONS, ALLIES)
                   for _,test in ipairs(unblocked) do
                      if test.charName == me.charName then
                         LineBetween(enemy.obj, me, enemy.spell.width)

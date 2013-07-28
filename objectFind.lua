@@ -6,6 +6,8 @@ local spells = {}
 
 local range = 200
 
+local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX"}
+
 function debugTick()
    if not ModuleConfig.debug then
       return
@@ -18,7 +20,7 @@ function debugTick()
       if object and object.x and object.charName and
          GetDistance(object, GetMousePos()) < range 
       then
-         if not find(object.charName, "Minion") then            
+         if not ListContains(object.charName, ignoredObjects) then
             table.insert(objects, object.charName.."      "..object.name)
          end
       end
@@ -75,7 +77,9 @@ local function onObject(object)
       return
    end
    if GetDistance(object, GetMousePos()) < range then
-      pp(object.charName.."      "..object.name)
+      if not ListContains(object.charName, ignoredObjects) then
+         pp(object.charName.."      "..object.name)
+      end
    end
 end
 

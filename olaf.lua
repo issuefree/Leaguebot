@@ -41,7 +41,7 @@ function Run()
    end
    
 --   if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 1000) then
---      KillMinionsInLine("axe", 50, 2, 0, false)
+--      KillMinionsInLine("axe", 2, false, 50, false)
 --      KillWeakMinion("AA", 50)
 --   end
       

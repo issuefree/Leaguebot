@@ -27,7 +27,7 @@ spells["barrage"] = {key="R", range=99999, base={350, 500, 650}, ad=1, ap=.9}
 
 function Run()
    TimTick()  
-  
+
    -- TODO something with ult
 --   local target = GetWeakEnemy("MAGIC", 99999)
 --   if target then
@@ -57,11 +57,10 @@ end
 
 function lastHit()
    if KillWeakMinion("AA", 50) then
---      OrbWalk(500)
       return true
    end
    if CanUse("shot") then
-      for _,minion in ipairs(GetUnblocked(me, spells["shot"].range, spells["shot"].width, MINIONS)) do
+      for _,minion in ipairs(GetUnblocked(me, "shot", MINIONS)) do
          if GetSpellDamage("shot", minion) > minion.health and
 --            ( GetDistance(minion) > spells["AA"].range+50 or                 
 --              GetSpellDamage("AA", minion) < minion.health ) 
@@ -69,7 +68,6 @@ function lastHit()
          then
             LineBetween(me, minion, spells["shot"].width)
             CastSpellXYZ("Q", minion.x, minion.y, minion.z)
---            OrbWalk(250)
             return true
          end   
       end
@@ -85,7 +83,6 @@ function combo()
       local x,y,z = GetFireahead(target,2,14)
       if GetDistance({x=x, y=y, z=z}) < spells["flux"].range then
          CastSpellXYZ('W', x, y, z)
---         OrbWalk(250)
          return true
       end            
    end
@@ -99,7 +96,6 @@ function combo()
    target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
    if target and CanUse("AA") then
       AttackTarget(target)
---      OrbWalk()
       return true
    end
    return false
