@@ -54,7 +54,7 @@ function Run()
 
    updateCharges()
 
-   if IsRecalling(me) then
+   if IsRecalling(me) or me.dead == 1 then
       return
    end
 
@@ -108,13 +108,10 @@ function Action()
    end
 
    if IsOn("clearminions") and Alone() then
-      local minions = GetInRange(me, "hunter", MINIONS)
-      SortByDistance(minions)
-      local minion = minions[1]
-
+      local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
       local mp = me.mana/me.maxMana
-      if ( CanChargeTear() and mp > .5 ) or
-         mp > .75
+      if ( CanChargeTear() and mp > .33 ) or
+         mp > .66
       then
          if minion and CanUse("hunter") then
             CastXYZ("hunter", minion)
@@ -122,11 +119,10 @@ function Action()
          end
       end
       
-      minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
-      local minion = minions[1]
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      local minion = minions[#minions]
       -- hit the highest health minion
-      if minion and AA(minion) then
+      if AA(minion) then
          return
       end
    end
@@ -141,16 +137,12 @@ function lastHit()
       return true
    end
    local spell = spells["hunter"]
-   if CanUse(spell) and CanAct() then
-      local minions = GetUnblocked(me, spell, GetInRange(me, spell, MINIONS))
-      SortByHealth(minions)
-      for _,minion in ipairs(minions) do
-         if GetSpellDamage(spell, minion) > minion.health then
-            -- LineBetween(me, minion, spell.width)
-            -- CastSpellXYZ(spell.key, minion.x, minion.y, minion.z)
-            CastXYZ("hunter", minion)
-            return true
-         end   
+   if CanUse(spell) then
+      local minion = SortByHealth(GetUnblocked(me, spell, GetInRange(me, spell, MINIONS)))[1]
+      if minion and GetSpellDamage(spell, minion) > minion.health then
+         -- LineBetween(me, minion, spell.width)
+         CastXYZ("hunter", minion)
+         return true
       end
    end
    return false

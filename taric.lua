@@ -77,7 +77,7 @@ function healTeam()
 		DrawCircleObject(bestOutRangeT, 104, yellow)
 	end
 
-	if CanCastSpell("Q") then
+	if CanUse("Q") then
 	
 		-- let me know if someone oustside of range is in need
 		if bestOutRangeT and 

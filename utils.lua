@@ -585,6 +585,7 @@ function HandleOnProcessSpell()
         endPos.y=a[7]
         endPos.z=a[8]
         spell.target=a[12]
+
         spell.startPos=startPos
         spell.endPos=endPos
         --
@@ -739,46 +740,13 @@ function FindDeletedObjects()
 end
 
 function GetDistance(p1, p2)
-         if p2 == nil then p2 = myHero end
-         if p1 == nil then return 99999 end
-    if (p1.z == nil or p2.z == nil) and p1.x~=nil and p1.y ~=nil and p2.x~=nil and p2.y~=nil then
-        px=p1.x-p2.x
-        py=p1.y-p2.y
-        if px~=nil and py~=nil then
-            px2=px*px
-            py2=py*py
-            if px2~=nil and py2~=nil then
-                return math.sqrt(px2+py2)
-            else
-				print(debug.traceback())
-                return 99999
-         end
-        else
-			print(debug.traceback())
-            return 99999
-end
-
-    elseif p1.x~=nil and p1.z ~=nil and p2.x~=nil and p2.z~=nil then
-        px=p1.x-p2.x
-        pz=p1.z-p2.z
-        if px~=nil and pz~=nil then
-            px2=px*px
-            pz2=pz*pz
-            if px2~=nil and pz2~=nil then
-                return math.sqrt(px2+pz2)
-            else
-				print(debug.traceback())
-                return 99999
+    p2 = p2 or myHero
+    if not p1 or not p1.x or not p2.x then
+        print(debug.traceback())
+        return 99999 
     end
-        else
-			print(debug.traceback())
-            return 99999
-    end
-
-    else
-				print(debug.traceback())
-                return 99999
-    end
+    
+    return math.sqrt(GetDistanceSqr(p1, p2))    
 end
 
 function ValidTarget(object, distance, enemyTeam)

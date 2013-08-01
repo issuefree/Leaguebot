@@ -2,24 +2,59 @@ require "Utils"
 require "timCommon"
 require "modules"
 
-spells["blades"]   = {key="Q", range=675, color=violet, base={60,85,110,135,160}, ap=.45}
-spells["dagger"]   = {key="Q",                          base={15,30,45,60,75},    ap=.15}
-spells["sinister"] = {key="W", range=375, color=red,    base={40,75,110,145,180}, ap=.25, adBonus=.6}
-spells["shunpo"]   = {key="E", range=700, color=yellow, base={60,85,110,135,160}, ap=.4}
-spells["lotus"]    = {key="R", range=550, color=red,    base={400,500,600},       ap=2,   adBonus=3}
+spells["blades"] = {
+   key="Q", 
+   range=675, 
+   color=violet, 
+   base={60,85,110,135,160}, 
+   ap=.45
+}
+spells["dagger"] = {
+   key="Q",
+   base={15,30,45,60,75},
+   ap=.15
+}
+spells["sinister"] = {
+   key="W", 
+   range=375, 
+   color=red,
+   base={40,75,110,145,180},
+   ap=.25,
+   adBonus=.6
+}
+spells["shunpo"] = {
+   key="E", 
+   range=700, 
+   color=yellow, 
+   base={60,85,110,135,160}, 
+   ap=.4
+}
+spells["lotus"] = {
+   key="R", 
+   range=550, 
+   color=red,
+   base={400,500,600},
+   ap=2,
+   adBonus=3
+}
 
 function getComboDamage()
    local comboDam = GetSpellDamage("shunpo") + 
-                     GetSpellDamage("blades") +
-                     GetSpellDamage("sinister")
+                    GetSpellDamage("blades") +
+                    GetSpellDamage("sinister")
    if CanUse("blades") then
       comboDam = comboDam + GetSpellDamage("dagger")
    end
    return comboDam
 end
 
-AddToggle("qFarm",  {on=true, key=112, label="Q Farm", auxLabel="{0}", args={"blades"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("steal",  {on=false, key=113, label="Secure Kills", auxLabel="{0}", args={getComboDamage}})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={"blades"}})
+-- AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 pp("Tim's Katarina")
 
@@ -35,7 +70,9 @@ local lastE = GetClock()
 function Run()
    TimTick()   
 
-   if me.dead == 1 then
+   Clean(daggers)
+
+   if IsRecalling(me) or me.dead == 1 then
       return
    end
 
@@ -47,7 +84,6 @@ function Run()
 --      end
 --   end
 
-   Clean(daggers)
          
    if KeyDown(string.byte("X")) then
       WardJump("E")
@@ -108,7 +144,7 @@ function Run()
 --
 --      end
 --   end
-   if IsOn("qFarm") and not GetWeakEnemy("MAGIC", 700) then
+   if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 700) then
       QFarm()      
    end
 end

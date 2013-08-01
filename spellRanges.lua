@@ -7,6 +7,11 @@ function rangeTick()
    if not ModuleConfig.ranges then
       return
    end
+
+   if me.dead == 1 then
+      return
+   end
+
    for name,info in pairs(spells) do
       if info.range and info.color and 
          ( not info.key or GetSpellLevel(info.key) > 0 ) 

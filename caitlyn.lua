@@ -3,6 +3,10 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Caitlyn")
+pp(" - alert for snipe")
+pp(" - try to trap to kite or chase")
+pp(" - piltover people out of AA range")
+pp(" - farming w/headshot clears with piltover")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("pp", {on=true, key=113, label="Piltover", auxLabel="{0}", args={"pp"}})
@@ -71,7 +75,7 @@ local headshot = nil
 function Run()
    TimTick()
 
-   if IsRecalling(me) then
+   if IsRecalling(me) or me.dead == 1 then
       return
    end
 
@@ -98,7 +102,10 @@ function Action()
    
    local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
    if target then
-      if IsOn("trap") and CanUse("trap") and me.mana > GetManaCost("net") + GetManaCost("trap") then
+      if IsOn("trap") and 
+         CanUse("trap") and 
+         me.mana > GetManaCost("net") + GetManaCost("trap") 
+      then
          -- trap targets that are moving mostly directly toward or away from me.
          if SSGoodTarget(target, "trap", 30) then
             CastSpellFireahead("trap", target)            
@@ -109,8 +116,13 @@ function Action()
       if AA(target) then
          return
       end
-
+   end
+   local targets = GetInRange(me, "pp", ENEMIES)
+   targets = FilterList(targets, function(item) return GetDistance(item) > spells["AA"].range)
+   target = GetWeakest("pp", targets)
+   if target then
       if IsOn("pp") and CanUse("pp") and me.mana > GetManaCost("net") + GetManaCost("pp") then
+         target =          
          if SSGoodTarget(target, "pp") then
             CastSpellFireahead("pp", target)
             return
@@ -124,15 +136,15 @@ function Action()
          return
       end
    end
+
    if IsOn("clearminions") and Alone() then
       -- check for a big clear from pp
-      if KillMinionsInLine("pp", 4, false, -100, false) then
+      if IsOn("pp") and KillMinionsInLine("pp", 4, false, -100, false) then
          return
       end
 
       -- hit the highest health minion
-      local minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       local minion = minions[#minions]
       if minion and AA(minion) then
          return

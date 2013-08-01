@@ -8,7 +8,7 @@ AddToggle("farm", {on=true, key=112, label="Waste Minions", auxLabel="{0}", args
 
 spells["lay"] = {key="Q", range=875, color=violet, base={40,60,80,100,120}, ap=.3, area=137.5}
 spells["wall"] = {key="W", range=1000, color=yellow}
-spells["defile"] = {key="E", range=550, color=yellow, base={30,50,70,90,110}, ap=.25}
+spells["defile"] = {key="E", range=550, color=yellow, base={30,50,70,90,110}, ap=.2}
 spells["ult"] = {key="R", base={250,400,55}, ap=.6}
 
 local defiling = nil

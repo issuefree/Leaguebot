@@ -55,30 +55,29 @@ function Run()
       end
    end
 
+   if Check(orb) then
+      DrawCircleObject(orb[2], 150, blue)
+      local inRange = GetInRange(orb[2], 150, GetVis(ENEMIES))
+      if #inRange > 0 then
+         CastSpellTarget("Q", me)
+      end
+   end
 
    if HotKey() then   
       UseItems()
       
       local target = GetWeakEnemy("MAGIC", spells['orb'].range)
-      if not Check(orb) and target and CanUse("orb") then
-         CastSpellXYZ(spells["orb"].key, target.x, target.y, target.z)
+      if not Check(orb) and SSGoodTarget(target) then
+         CastSpellFireahead(target, "orb")
       end
-      
-      if Check(orb) then
-         DrawCircleObject(orb[2], 150, blue)
-         local inRange = GetInRange(orb[2], 150, GetVis(ENEMIES))
-         if #inRange > 0 and CanUse("orb") then
-            CastSpellTarget("Q", me)
-         end
-      end
-      
+            
       if CanUse("spike") then
          local spell = spells["spike"]
          local enemies = GetInRange(me, spell.range, ENEMIES)
          enemies = FilterList(enemies, isFrozen)
          local target = GetWeakest(spell, enemies)
          if target then
-            CastSpellTarget(spell.key, target)
+            Cast(spell.key, target)
          end
       end
    end

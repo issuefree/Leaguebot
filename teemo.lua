@@ -4,100 +4,144 @@ require "modules"
 
 print("\nTim's Teemo")
 
-function getMaladyDamage()
-	local maladyDam = 0
-	if GetInventorySlot(ITEMS["Malady"].id) then
-		maladyDam = 15+(me.ap*.1)
-	end
-	return maladyDam
-end
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("shroom", {on=true, key=113, label="Auto Shroom"})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=112, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clear", {on=false, key=113, label="Clear Waves"})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-spells["blind"] = {key="Q", range=680, color=yellow, base={80,125,170,215,260}, ap=.8}
-spells["toxic"] = {key="E", base={10,20,30,40,50}, ap=.3}
+spells["blind"] = {
+	key="Q", 
+	range=680, 
+	color=violet, 
+	base={80,125,170,215,260}, 
+	ap=.8
+}
+spells["toxic"] = {
+	key="E", 
+	base={10,20,30,40,50}, 
+	ap=.3
+}
+spells["shroom"] = {
+	key="R",
+	range=230,
+	color=green,	
+	base={200,325,450},
+	ap=.8,
+	area=115
+}
 
 local poisons = {}
+local shrooms = {}
 
 function Run()
 	TimTick()
 	
 	Clean(poisons, "charName", "Global_poison")
+	Clean(shrooms, "charName", "Noxious Trap")
+
+   if IsRecalling(me) or me.dead == 1 then
+      return
+   end
 	
-	if HotKey() then
-		UseItems()
-		if CanUse("blind") then
-   		if EADC and GetDistance(EADC) < spells["blind"].range then
-            CastSpellTarget("Q", EADC)
-   		else
-            local target = GetWeakEnemy("MAGIC", spells["blind"].range)
-            if target then
-               CastSpellTarget("Q", target)
-            end
-         end
-      end   
-	end
-	
-	if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 750) then
-      KillWeakMinion("AA", 50)
-	end 
-	
-	if IsOn("clear") and not GetWeakEnemy("MAGIC", 1000) then
-		local nearMinions = GetInRange(me, 1000, MINIONS)
-		if #nearMinions > 0 then
-			SortByDistance(nearMinions)
-			for _,minion in ipairs(nearMinions) do
-				if not (#GetInRange(minion, 50, poisons) > 0) then
-					AttackTarget(minion)
-				end
-			end
-		end
+	if HotKey() and CanAct() then
+		Action()
 	end
 end
     
+function Action()
+	UseItems()
+
+	if CanUse("blind") then
+		local spell = spells["blind"]
+   	if EADC and GetDistance(EADC) < spell.range then
+      	Cast("blind", EADC)
+      	return
+   	else
+         local target = GetWeakEnemy("MAGIC", spell.range)
+         if target then
+            Cast("blind", target)
+            return
+         end
+      end
+   end   
+
+   -- get enemies I can throw a shroom at (shroom range + shroom boom radius)
+   -- make sure there isn't already a nearby shroom (try not to spam them)
+   -- throw the shroom at them or as far as I can in their direction
+   if IsOn("shroom") and CanUse("shroom") then
+   	local shroom = spells["shroom"]
+   	local targets = SortByDistance(GetInRange(me, shroom.range+shroom.area, ENEMIES))
+   	for _,target in ipairs(targets) do
+   		if #GetInRange(target, shroom.area*3, shrooms) == 0 then
+
+   			local dist = math.min(shroom.range, GetDistance(target))   			
+   			local point = Projection(me, target, dist)
+   			CastXYZ(shroom, point)
+   			return
+
+   		end
+   	end
+   end
+	
+	local target = GetWeakEnemy("MAGIC", spells["AA"].range)
+   if AA(target) then
+   	return
+   end
+
+	if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+      	return
+      end
+	end 
+	
+	-- hit the highest health minion in range that isn't poisoned	
+	-- if there isn't one, hit the highest health minion
+	if IsOn("clearminions") and Alone() then
+		local nearMinions = SortByHealth(GetInRange(me, "AA", MINIONS))
+
+		for _,minion in rpairs(nearMinions) do
+			if not (#GetInRange(minion, 50, poisons) > 0) then
+				if AA(minion) then
+					return
+				end
+			end
+		end
+
+		for _,minion in rpairs(nearMinions) do
+			if AA(minion) then
+				return
+			end
+		end
+	end
+
+	if IsOn("move") then
+      MoveToCursor() 
+   end
+end
+
+--BlindShot_tar.troy
+--BlindShot_mis.troy
+--Toxicshot_tar.troy
+--Toxicshot_mis.troy
+
 local function onObject(object)
-	if IsOn("clear") and GetDistance(object) < 1000 then
+	if IsOn("clearminions") and GetDistance(object) < 1000 then
 		if find(object.charName, "Global_poison") then
 			table.insert(poisons, object)
 		end 
 	end
+
+	if find(object.charName, "Noxious Trap") then
+		table.insert(shrooms, object)
+	end
 end
 
 local function onSpell(object, spell)
---	if object.name == me.name then
---		if spell.target then
---			pp(spell.name.."->"..spell.target.name)
---		else		
---			pp(spell.name)
---		end
---	end
 end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
-
-
--- some code in here for detecting auto attacks and blinds
---	for i = 1, objManager:GetMaxNewObjects(), 1 do
---		local object = objManager:GetNewObject(i)
---		if object and object ~= nil then
---			if string.find(object.charName,"Toxicshot") and GetDistance(me, object) < 500 then
---				attacked = GetClock()
---			end
---		end
---	end
---
---	-- If I attack something in the last half second and I have Q hit them again with blind to set up the attack refresh
---    local target = GetWeakEnemy('MAGIC', 500)    
---    if target ~= nil then
---    	if GetClock() - attacked < 500 and GetDistance(me, target) < 525 and CanCastSpell("Q") then 
---        	CastSpellTarget("Q", target)
---        	attacked = 0
---        end
---    end        
---BlindShot_tar.troy
---BlindShot_mis.troy
---Toxicshot_tar.troy
---Toxicshot_mis.troy

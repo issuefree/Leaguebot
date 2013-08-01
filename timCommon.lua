@@ -24,6 +24,10 @@ local function table_print (tt, indent, done)
    end
 end
 
+function time()
+   return os.clock()
+end
+
 function pp(str)
    if str == nil then
       pp("nil")
@@ -256,6 +260,7 @@ ENEMY_SPELLS = {
 
 enrage = nil
 lichbane = nil
+iceborn = nil
 -- tear of the goddess items
 tear = nil
 
@@ -433,6 +438,13 @@ function doCreateObj(object)
       lichbane = {object.charName, object}
    end
 
+   --iceborn gauntlet
+   if find(object.charName, "bluehands_buf") and 
+      GetDistance(object) < 50 
+   then
+      iceborn = {object.charName, object}
+   end
+
    --tear
    if find(object.charName, "TearoftheGoddess") and 
       GetDistance(object) < 50 
@@ -513,13 +525,23 @@ function GetVis(list)
    return FilterList(list, function(item) return item.dead == 0 and item.visible == 1 and item.x and item.y and item.z end)
 end
 
+function isDupMinion(minionTable, minion)
+  local count = 0
+  for _,m in pairs(minionTable) do
+    if minion.charName == m.charName then count = count + 1 end
+    if count > 1 then return true end
+  end
+  return false
+end
+
 local function updateMinions()
    for i,minion in rpairs(MINIONS) do
       if not minion or
          minion.dead == 1 or
          minion.x == nil or 
-         minion.y == nil or
-         not find(minion.name, "Minion")
+         minion.z == nil or
+         not find(minion.charName, "Minion") or
+         isDupMinion(MINIONS, minion)
       then
          table.remove(MINIONS,i)
       end
@@ -528,12 +550,19 @@ local function updateMinions()
       if not minion or
          minion.dead == 1 or
          minion.x == nil or 
-         minion.y == nil or
-         not find(minion.name, "Minion")
+         minion.z == nil or
+         not find(minion.charName, "Minion") or
+         isDupMinion(MYMINIONS, minion)
       then
          table.remove(MYMINIONS,i)
       end
    end
+
+      -- for i,v in ipairs(MINIONS) do
+      --    pp(GetDistance(v).." "..v.charName)
+      --    DrawCircleObject(v, 75, red)
+      -- end
+
 end
 
 local function updateCreeps()
@@ -551,6 +580,7 @@ end
 
 local function updateObjects()
    spells["AA"].range = me.range+GetDistance(GetMaxBBox(me))
+   updateMinions()
    updateCreeps()
    updateHeroes()
    Clean(RECALLS, "charName", "TeleportHome")
@@ -579,34 +609,44 @@ function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
    
    local bestT
    local bestTS = 0
+   -- local bestMinions = {}
 
    for i = 1, #minions do
       local minion = minions[i]
       bt = minion 
       tk = 0
       th = 0
-      local d = GetDistance(minion)
+      bm = {}
+      local minionD = GetDistance(minion)
+      -- table.insert(bm, min)
+      local a = AngleBetween(me, minion)
       for _,min in ipairs(minions) do
-         local a = AngleBetween(me, min)
-         local proj = {x=me.x+math.sin(a)*d, z=me.z+math.cos(a)*d}
-         if GetDistance(minion, proj) < spell.width+minionWidth then
-            if GetSpellDamage(spell, min) > min.health then 
-               tk = tk + 1
+         local d = GetDistance(min)
+         if d <= minionD then
+            local proj = {x=me.x+math.sin(a)*d, z=me.z+math.cos(a)*d}
+            -- DrawCircle(proj.x, 0, proj.z, 20, blue)
+            if GetDistance(min, proj) < spell.width/2+minionWidth then
+               if GetSpellDamage(spell, min) > min.health then 
+                  tk = tk + 1
+               end
+               th = th + 1
+               -- table.insert(bm, min)
             end
-            th = th + 1
-         end         
-      end      
-   end
-   if needKills then
-      if not bestT or tk > bestTS then
-         bestT = bt
-         bestTS = tk
+         end
       end
-   else
-      if not bestT or th + tk/2 > bestTS then
-         bestT = bt
-         bestTS = th + tk/2
+      if needKills then
+         if not bestT or tk > bestTS then
+            bestT = bt
+            bestTS = tk
+         end
+      else
+         if not bestT or th + tk/2 > bestTS then
+            bestT = bt
+            bestTS = th + tk/2
+            -- bestMinions = bm
+         end
       end
+      -- pp(bestTS)
    end
    
    if bestT and bestTS >= minHits then
@@ -614,10 +654,15 @@ function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
       local x = me.x+math.sin(a)*range
       local z = me.z+math.cos(a)*range
 
-      DrawTextObject(bestTS, bestT, 0xff00ffff)
+      -- DrawTextObject(bestTS, bestT, 0xff00ffff)
+      -- pp(bestTS)
+      -- for i,v in ipairs(bestMinions) do
+      --    DrawCircleObject(v, 75, red)
+      -- end
       DrawLineObject(me, range, spell.width, AngleBetween(me, bestT), spell.width)
+      DrawThickCircleObject(bestT, GetWidth(bestT), red, 5)
       if not drawOnly then
-         CastSpellXYZ(spell.key, x,0,z) ;
+         CastXYZ(spell.key, bestT) ;
       end
       return true
    end
@@ -639,17 +684,26 @@ function throttle(id, millis)
 end
 
 function MoveToTarget(t)
-   MoveToXYZ(t.x, t.y, t.z)
+   if CanMove() then
+      MoveToXYZ(t.x, t.y, t.z)
+   end
 end
 
 function MoveToCursor() -- Removes derping when mouse is in one position instead of myHero:MoveTo mousePos
-   local moveSqr = math.sqrt((mousePos.x - myHero.x)^2+(mousePos.z - myHero.z)^2)
-   if moveSqr < 1000 then
-      local moveX = myHero.x + 300*((mousePos.x - myHero.x)/moveSqr)
-      local moveZ = myHero.z + 300*((mousePos.z - myHero.z)/moveSqr)
-      -- pp(GetDistance(me, {x=moveX, y=me.y, z=moveZ}))
-      MoveToXYZ(moveX,myHero.y,moveZ)
-      -- DrawCircle(moveX, myHero.y, moveZ, 50, red)
+   if not CanMove() then
+      pp("Can't Move")
+      return
+   end
+   -- local moveSqr = math.sqrt((mousePos.x - myHero.x)^2+(mousePos.z - myHero.z)^2)
+   -- if moveSqr < 1000 then
+   --    local moveX = myHero.x + 300*((mousePos.x - myHero.x)/moveSqr)
+   --    local moveZ = myHero.z + 300*((mousePos.z - myHero.z)/moveSqr)
+   --    -- pp(GetDistance(me, {x=moveX, y=me.y, z=moveZ}))
+   --    MoveToXYZ(moveX,myHero.y,moveZ)
+   --    -- DrawCircle(moveX, myHero.y, moveZ, 50, red)
+   -- else
+   if GetDistance(mousePos) < 10 then
+      StopMove()
    else
       MoveToMouse()
    end
@@ -737,7 +791,7 @@ end
 returns the width of a unit
 --]]
 function GetWidth(unit)
-   local minbb = GetMinBBox(unit)
+   local minbb = GetMaxBBox(unit)
    if not minbb.x then -- for when I pass in not a real unit
       return 70
    end
@@ -1025,7 +1079,7 @@ function GetUnblocked(source, thing, ...)
 end
 
 function Alone()
-   return GetWeakEnemy("MAGIC", 1000) == nil
+   return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
 end
 
 
@@ -1151,7 +1205,7 @@ ITEMS["Blade of the Ruined King"] = {id=3153, range=500,         type="active", 
 ITEMS["Deathfire Grasp"]          = {id=3128, range=750,         type="active", color=violet}
 ITEMS["Tiamat"]                   = {id=3077, range=350,         type="active", color=red}
 ITEMS["Ravenous Hydra"]           = {id=3074, range=350,         type="active", color=red}
-ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=me.range+50, type="active"}
+ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=300, type="active"}
 ITEMS["Randuin's Omen"]           = {id=3143, range=500,         type="active", color=yellow}
 
 --Active defense
@@ -1180,12 +1234,14 @@ ITEMS["Mercurial Scimitar"] = {id=3139,            type="active"}
 ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
 
 --On Hit
-ITEMS["Malady"] = {id=3114, base={15}, ap=.1}
 ITEMS["Wit's End"] = {id=3091, base={42}}
+ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15}
+ITEMS["Kitae's Bloodrazor"]= {id=3186}
 
-ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1}
-ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=1.5}
+ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
+ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=1.5, type="P"}
 ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75}
+ITEMS["Iceborn Gauntlet"] = {id=3025, base={0}, adBase=1.25, type="P"}
 
 -- Tear
 ITEMS["Tear of the Goddess"] = {id=3070}
@@ -1300,7 +1356,7 @@ function UseItem(itemName, target)
       for _,hero in ipairs(ALLIES) do
          if hero.health/hero.maxHealth < .25 then
             CastSpellTarget(slot, hero)
-            pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
+             pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
          end
       end
    end
@@ -1308,14 +1364,17 @@ end
 
 function SortByHealth(things)
    table.sort(things, function(a,b) return a.health < b.health end)
+   return things
 end
 
 function SortByDistance(things, target)
    table.sort(things, function(a,b) return GetDistance(a, target) < GetDistance(b, target) end)
+   return things
 end
 
 function SortByAngle(things)
    table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
+   return things
 end
 
 function GetNearestIndex(target, list)
@@ -1399,9 +1458,8 @@ function GetManaCost(thing)
             return cost
          end
       end
-   else
-      return 0
-   end   
+   end
+   return 0
 end
 
 function CanUse(thing)
@@ -1499,6 +1557,11 @@ function RelativeAngle(center, o1, o2)
       ra = 2*math.pi - ra
    end
    return ra
+end
+
+function Projection(source, target, dist) -- returns a point on the line between two objects at a certain distance
+   local a = AngleBetween(source, target)   
+   return {x=source.x+math.sin(a)*dist, y=source.y, z=source.z+math.cos(a)*dist}
 end
 
 function AngleBetween(object1, object2)
@@ -1623,26 +1686,9 @@ function GetAADamage(target)
    end
    
    -- items
-   if GetInventorySlot(ITEMS["Malady"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Malady"])
-   end
-   if GetInventorySlot(ITEMS["Wit's End"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Wit's End"])
-   end
-   
-   if Check(enrage) then
-      if GetInventorySlot(ITEMS["Sheen"].id) then
-         damageP = damageP + GetSpellDamage(ITEMS["Sheen"])
-      elseif GetInventorySlot(ITEMS["Trinity Force"].id) then
-         damageP = damageP + GetSpellDamage(ITEMS["Trinity Force"])
-      end
-   end
-   
-   if Check(lichbane) then
-      if GetInventorySlot(ITEMS["Lich Bane"].id) then
-         damageM = damageM + GetSpellDamage(ITEMS["Lich Bane"])
-      end
-   end
+   local onHitDamage = GetOnHitDamage(target, true)
+   damageM = damageM + onHitDamage[1]
+   damageP = damageP + onHitDamage[2]
    
    if target then
       damage = CalcDamage(target, damageP) + CalcMagicDamage(target, damageM)
@@ -1653,9 +1699,63 @@ function GetAADamage(target)
    return math.floor(damage+.5)
 end
 
+-- if you specify a target you get % health damage
+-- if sheenIfReady is true check for sheen ready (for activated on hit abilities)
+-- if sheenIfReady is nil or false it only adds sheen if it's already on
+function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage broken down by magic,phys
+   local damageM = 0
+   local damageP = 0
+   if GetInventorySlot(ITEMS["Nashor's Tooth"].id) then
+      damageM = damageM + GetSpellDamage(ITEMS["Nashor's Tooth"])
+   end
+   if GetInventorySlot(ITEMS["Wit's End"].id) then
+      damageM = damageM + GetSpellDamage(ITEMS["Wit's End"])
+   end
+
+   local spellbladeDamage = GetSpellbladeDamage(needSpellbladeActive)
+   if spellbladeDamage then
+      damageP = damageP + spellbladeDamage
+   end
+
+   if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
+      if target then
+         damageP = damageP + target.health*.05
+      end
+   end
+
+   if GetInventorySlot(ITEMS["Kitae's Bloodrazor"].id) then
+      if target then
+         damageM = damageM + target.maxHealth*.025
+      end
+   end
+   return {damageM, damageP}
+end
+
+-- treating all as phys as it's so much easier
+function GetSpellbladeDamage(needActive)
+   return getSBDam(ITEMS["Lich Bane"], lichbane, needActive) or
+          getSBDam(ITEMS["Trinity Force"], enrage, needActive) or
+          getSBDam(ITEMS["Iceborn Gauntlet"], iceborn, needActive) or
+          getSBDam(ITEMS["Sheen"], enrage, needActive)
+end
+
+function getSBDam(item, buffObj, needActive)
+   local slot = GetInventorySlot(item.id)
+   if slot then
+      if (needActive and Check(buffObj)) or CanUse(tostring(slot)) then
+         return GetSpellDamage(item)
+      end
+   end
+   return nil
+end
+
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
-   return spell.cost[GetSpellLevel(spell.key)]
+   if type(spell.cost) == "table" then
+      return spell.cost[GetSpellLevel(spell.key)]
+   else
+      return spell.cost
+   end
 end
 
 function GetSpell(thing)
@@ -1683,7 +1783,7 @@ function GetSpellDamage(thing, target)
    end
 
    local lvl 
-   if spell.key and not (spell.key == "D" or spell.key == "F" or spell.key == "A") then
+   if spell.key and not (spell.key == "D" or spell.key == "F") then
       lvl = GetSpellLevel(spell.key)
       if lvl == 0 then
          return 0
@@ -1715,16 +1815,34 @@ function GetSpellDamage(thing, target)
    end
    if spell.bonus then
       damage = damage + spell.bonus
+   end   
+
+   local damageT = 0
+   local damageP = 0
+   local damageM = 0
+
+   if spell.type == "P" then
+      damageP = damage
+   elseif spell.type == "T" then
+      damageT = damage
+   else
+      damageM = damage
+   end
+
+   damage = 0
+
+   if spell.onHit then
+      local ohd = GetOnHitDamage(target, false)
+      damageM = damageM + ohd[1]
+      damageP = damageP + ohd[2]
    end
 
    if target then
-      if spell.type and spell.type == "T" then
-         
-      elseif spell.type and spell.type == "P" then
-         damage = CalcDamage(target, damage)
-      else
-         damage = CalcMagicDamage(target, damage)
-      end
+      damage = CalcDamage(target, damageP) +
+               CalcDamage(target, damageM) +
+               damageT
+   else
+      damage = damageT + damageP + damageM
    end
 
    return math.floor(damage)
@@ -1824,38 +1942,51 @@ function TimTick()
          DOLATERS[key] = nil
       end
    end
-
-   -- if CanAttack() then
-   --    PrintState(0, "CanAttack")
-   -- end
-   -- if CanAct() then
-   --    PrintState(1, "CanAct")
-   -- end
 end
-local attackDelayOffset = .275
 
+
+local attackDelayOffset = .275
+local minAttackTime = .6
 local aaData 
 
-local lastAttack = os.clock()
-local waitingForShot = false
-local haveShot = true
+local attackState = 0
+local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
+local lastAAState = 0
+
+local lastAttack = os.clock() -- last time I cast an attack
+local shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 function aaTick()
-   if CanAttack() then
-      PrintState(0, "A")
-   end
-   if IsAttacking() then
-      PrintState(0, "  .")
-   end
-   if JustAttacked() then
-      PrintState(0, "    J")
-   end
-   if CanAct() then
-      PrintState(0, "       M")
-   end
+   -- if CanAttack() then
+   --    setAttackState(0)
+   --    PrintState(0, "!")
+   -- end
+   -- if IsAttacking() then
+   --    setAttackState(1)
+   --    PrintState(0, "  -")
+   -- end
+   -- if waitingForAttack() then
+   --    setAttackState(2)
+   --    PrintState(0, "  --")
+   -- end
+   -- if JustAttacked() then
+   --    PrintState(0, "    :")
+   -- end
+   -- if CanAct() then
+   --    setAttackState(3)
+   --    PrintState(0, "       )")
+   -- end
+   -- if CanMove() then
+   --    setAttackState(4)
+   --    PrintState(0, "         >")
+   -- end
 
-   if not haveShot and os.clock() - lastAttack > attackDelayOffset then
-      waitingForShot = false      
+   -- PrintState(1, (1 / me.attackspeed))
+   -- PrintState(2, me.attackspeed)
+
+   -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled   
+   if not shotFired and os.clock() - lastAttack > attackDelayOffset then
+      shotFired = true
       lastAttack = 0
    end
 end
@@ -1876,53 +2007,86 @@ function CanAttack()
 end
 
 function IsAttacking()
-   return waitingForShot
+   return not shotFired
 end
 
 function JustAttacked()
-   if waitingForShot == false and not CanAttack() then
+   if shotFired and not CanAttack() then
       return true 
    end
    return false
 end
 
 function CanAct()
-    if waitingForShot == false or CanAttack() then
+    if shotFired or CanAttack() then
         return true
     end
     return false
+end
+
+-- in testing (with teemo) if I moved between attacks I couldn't attack faster than ~.66
+-- since "acting" is more important than attacking we can slow down our AA rate
+-- to act but not to move.
+function CanMove()
+    if not waitingForAttack() or CanAttack() then
+        return true
+    end
+    return false
+end   
+
+function waitingForAttack()
+   if (1 / me.attackspeed) < minAttackTime and os.clock() - lastAttack < minAttackTime then
+      return true
+   else
+      return not shotFired
+   end
 end
 
 function getNextAttackTime()
    return lastAttack + (1 / me.attackspeed)
 end
 
-function OnCreateObj(object)
-   for _, v in pairs(aaData.aaParticles) do
-      if string.find(object.charName,v) then
-         waitingForShot = false
-         haveShot = true
+function setAttackState(state)
+   if attackState == 0 and state == 0 then
+      lastAAState = os.clock()
+      return
+   end
+   if attackState == 0 and state >= 3 then      
+      return
+   end
+   if (state == 0 and attackState > 0) or
+      state > attackState 
+   then
+      attackState = state
+      local delta = os.clock() - lastAAState
+      pp(state.." "..delta.." "..attackStates[attackState+1])
+      if state == 0 then
+         lastAAState = os.clock()
       end
    end
 end
 
-function OnProcessSpell(obj,spell)
+function onObjAA(object)
+   if aaData and ListContains(object.charName, aaData.aaParticles) then
+      shotFired = true
+   end
+end
+
+function onSpellAA(obj,spell)
    if obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
       if type(spellName) == "table" then
-         if ListContains(spell.name, spellName) then
-            lastAttack = os.clock()
-            waitingForShot = true
-            haveShot = false
+         if spell.name == "" or ListContains(spell.name, spellName) then
+            lastAttack = time()
+            shotFired = false
          end
       else
-         if find(spell.name, spellName) then                       
-            lastAttack = os.clock()
-            waitingForShot = true
-            haveShot = false
+         if spell.name == "" or find(spell.name, spellName) then                       
+            lastAttack = time()
+            shotFired = false
          end
       end
-   end
+   end   
 end
 
 function GetAAData()
@@ -1932,7 +2096,7 @@ function GetAAData()
         Annie        = { projSpeed = 1.0, aaParticles = {"AnnieBasicAttack_tar", "AnnieBasicAttack_tar_frost", "AnnieBasicAttack2_mis", "AnnieBasicAttack3_mis"}, aaSpellName = "anniebasicattack", startAttackSpeed = "0.579",  },
         Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = "attack", startAttackSpeed = "0.658" },
         Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
-        Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"caitlynbasicattack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
+        Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
         Cassiopeia   = { projSpeed = 1.22, aaParticles = {"CassBasicAttack_mis"}, aaSpellName = "cassiopeiabasicattack", startAttackSpeed = "0.644" },
         Corki        = { projSpeed = 2.0, aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"}, aaSpellName = "CorkiBasicAttack", startAttackSpeed = "0.658" },
         Draven       = { projSpeed = 1.4, aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"}, aaSpellName = "dravenbasicattack", startAttackSpeed = "0.679",  },
@@ -1962,7 +2126,7 @@ function GetAAData()
         Soraka       = { projSpeed = 1.0, aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625" },
         Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
         Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
-        Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = "teemobasicattack", startAttackSpeed = "0.690" },
+        Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
         Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656",  },
         TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
         Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
@@ -1979,11 +2143,12 @@ function GetAAData()
     }
 end
 aaData = GetAAData()[myHero.name]
-if aaData then
-   AddOnCreate(OnCreateObj)
-   AddOnSpell(OnProcessSpell)
-
-   SetTimerCallback("aaTick")
+if not aaData then
+   aaData = { aaParticles = {}, aaSpellName = "attack" }
 end
+AddOnCreate(onObjAA)
+AddOnSpell(onSpellAA)
+
+SetTimerCallback("aaTick")
 
 SetTimerCallback("TimTick")

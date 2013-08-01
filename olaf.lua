@@ -4,17 +4,38 @@ require "modules"
 
 pp("\nTim's Olaf")
 
-local berserkToggleTime = GetClock()
-function getBerserkTime()
-   return math.floor(10.5 - (GetClock() - berserkToggleTime)/1000)
-end
-
-AddToggle("berserk", {on=false, key=112, label="BERSERK", auxLabel="{0}", args={getBerserkTime}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
 
-spells["axe"] = {key="Q", range=1000, color=violet, base={80,125,170,215,260}, adBonus=1, type="P"}
-spells["strikes"] = {key="W"}
-spells["swing"] = {key="E", range=325, color=yellow, base={100,160,220,280,340}, type="T"}
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+
+spells["axe"] = {
+   key="Q", 
+   range=1000, 
+   color=violet, 
+   base={80,125,170,215,260}, 
+   adBonus=1, 
+   type="P",
+   delay=2.65,
+   speed=16,
+   width=100
+}
+spells["strikes"] = {
+   key="W"
+}
+spells["swing"] = {
+   key="E", 
+   range=325, 
+   color=yellow, 
+   base={100,160,220,280,340}, 
+   type="T"
+}
+spells["ragnarok"] = {
+   key="R"   
+}
 
 --[[
 Jungling
@@ -30,21 +51,14 @@ Ganking
 function Run()
    TimTick()
    
-   if GetWeakEnemy("MAGIC", 1200) or not IsOn("berserk") then
-      berserkToggleTime = GetClock()
-   elseif GetClock() - berserkToggleTime > 10000 then
-      keyToggles["berserk"].on = false
-   end   
-   
-   if HotKey() then
-      killPlayer()
+   if IsRecalling(me) or me.dead == 1 then
+      return
+   end
+
+   if HotKey() and CanAct() then
+      Action()
    end
    
---   if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 1000) then
---      KillMinionsInLine("axe", 2, false, 50, false)
---      KillWeakMinion("AA", 50)
---   end
-      
    if IsOn("jungle") then
       local creeps = GetInRange(me, 350, CREEPS)
       for _,creep in ipairs(creeps) do
@@ -57,7 +71,7 @@ function Run()
                   local d = 60
                   local x = me.x+d*math.sin(a)
                   local z = me.z+d*math.cos(a)
-                  CastSpellXYZ("Q", x, 0, z)
+                  CastXYZ("axe", x, 0, z)
                   break
                elseif CanUse("swing") then
                   CastSpellTarget("E", creep)
@@ -68,29 +82,76 @@ function Run()
    end
 end
 
-function killPlayer()
-   local target = GetWeakEnemy("PHYSICAL", spells["axe"].range-100)
-   local targetaa = GetWeakEnemy("PHYSICAL", spells["swing"].range+50)
-   if target then
-      UseItems()
-      if CanCastSpell("Q") then        
-         CastHotkey('SPELLQ:WEAKENEMY RANGE=950 FIREAHEAD=2,16 OVERSHOOT CD')
-         return
-      end           
+function Action()   
+   UseItems()
       
-      if IsOn("berserk") then
-         if targetaa then
-            if CanUse("strikes") then
-               CastSpellTarget("W", me)
-            end
-            if CanUse("swing") then
-               CastSpellTarget("E", target)
-            end
-         end
-         AttackTarget(target)
+   if SkillShot("axe") then
+      return
+   end
+      
+   local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+100)
+   if aaTarget then
+      if CanUse("strikes") then
+         Cast("strikes", me)
+      end
+
+      if CanUse("swing") then
+         Cast("swing", aaTarget)
+         return
+      end
+
+      if AA(aaTarget) then
+         return
       end
    end
 
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         return
+      end
+      if me.health/me.maxHealth > .75 and KillWeakMinion("swing") then
+         return
+      end
+   end
+   if IsOn("clearminions") and Alone() then
+      if me.mana/me.maxMana > .75 then
+         if KillMinionsInLine("axe", 3, false, 0, false) then
+            return
+         end
+      elseif me.mana/me.maxMana > .66 then
+         if KillMinionsInLine("axe", 4, false, 0, false) then
+            return
+         end
+      elseif me.mana/me.maxMana > .5 then
+         if KillMinionsInLine("axe", 5, false, 0, false) then
+            return
+         end
+      end
+
+      if me.health/me.maxHealth > .66 then
+         if CanUse("swing") then
+            local minions = SortByHealth(GetInRange(me, "swing", MINIONS))
+            local minion = minions[#minions]
+            if minion and Cast("swing", minion) then
+               return
+            end
+         end
+      end
+      if me.health/me.maxHealth < .75 then
+         if CanUse("strikes") and #GetInRange(me, "swing", MINIONS) >= 2 then
+            Cast("strikes", me)
+         end
+      end
+
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         return
+      end
+   end
+
+   if IsOn("move") and not aaTarget then
+      MoveToCursor() 
+   end
 end
 
 local function onObject(object)

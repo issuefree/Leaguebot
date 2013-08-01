@@ -9,7 +9,7 @@ local wardTypes = {
 	sight={color=green, duration=180000, sightRange=1350, triggerRange=70},
 	vision={color=violet, duration=180000, sightRange=1350, triggerRange=70},
 	shaco={color=red, duration=60000, sightRange=690, triggerRange=300},
-	shroom={color=yellow, duration=600000, sightRange=405, triggerRange=160},
+	shroom={color=yellow, duration=600000, sightRange=405, triggerRange=115},
    yordle={color=yellow, duration=240000, sightRange=150, triggerRange=150},
    bushwhack={color=yellow, duration=240000, sightRange=0, triggerRange=150},
    sapling={color=red, duration=35000, sightRange=700, triggerRange=500}
