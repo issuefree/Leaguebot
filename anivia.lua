@@ -81,8 +81,7 @@ function Run()
          end
       end
    end
-   
-   
+
 end
 
 function isFrozen(hero)

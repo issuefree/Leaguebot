@@ -662,7 +662,7 @@ function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
       DrawLineObject(me, range, spell.width, AngleBetween(me, bestT), spell.width)
       DrawThickCircleObject(bestT, GetWidth(bestT), red, 5)
       if not drawOnly then
-         CastXYZ(spell.key, bestT) ;
+         CastXYZ(spell.key, bestT)
       end
       return true
    end
@@ -802,7 +802,7 @@ function GetInLine(width, targets, style) -- need to deluxify
    local hits = {}
    local score = 0
    
-   SortByAngle(targets)   
+   SortByAngle(targets)
          
    for pi,p in ipairs(targets) do
       local lHits = {p}
@@ -840,10 +840,64 @@ function GetInLine(width, targets, style) -- need to deluxify
    return hits
 end
 
+function KillMinionsInArea(thing, minHits, needKills, extraRange, drawOnly)
+   local spell = GetSpell(thing)
+   if not spell then return false end
+   if not CanUse(spell) then return false end
+
+   if not extraRange then extraRange = 0 end
+
+   local minions = GetInRange(me, "dark", MINIONS)
+
+   local hitScore = 0
+   local killScore = 0
+   if needKills then
+      killScore = 1
+   else
+      hitScore = 1
+      killScore = .5
+   end
+
+   local bestS = minHits - 1
+   local bestT = nil
+   local bestMinions = {}
+
+   for _,minion in ipairs(minions) do
+      local score = 0
+      local hits = GetInRange(minion, spell.area, MINIONS)
+
+      score = #hits * hitScore
+
+      for _,hit in ipairs(hits) do
+         if GetSpellDamage(thing, hit) > hit.health then
+            score = score + killScore
+         end
+      end
+
+      if score > bestS then
+         bestS = score
+         bestT = minion
+         bestMinions = hits
+      end
+   end
+
+   if bestT then
+      for _,minion in ipairs(bestMinions) do
+         DrawCircleObject(minion, GetWidth(minion), red)
+         if not drawOnly then
+            CastXYZ(spell, bestT)
+            return true
+         end
+      end
+   end
+
+   return false
+end
+
 function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    local spell = GetSpell(thing)
-   if not spell then return end
-   if not CanUse(spell) then return end
+   if not spell then return false end
+   if not CanUse(spell) then return false end
 
    if not extraRange then extraRange = 0 end
 
@@ -924,16 +978,12 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
          if not drawOnly then
             if farMinionD < spell.range then                        
                CastSpellXYZ(spell.key, x,y,z)
-            else
-               -- move 50 units toward the target spot
-               local a = AngleBetween(me, farMinion)
-               local d = 50
-               local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
-               MoveToXYZ(proj.x, me.y, proj.z)
+               return true
             end
          end
       end
    end
+   return false
 end
 
 function SkillShot(thing, purpose)
@@ -1019,6 +1069,7 @@ end
 
 function Cast(thing, target)
    local spell = GetSpell(thing)
+   if not target then target = me end
    CastSpellTarget(spell.key, target)
 end
 
@@ -1081,13 +1132,23 @@ end
 function Alone()
    return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
 end
-
+function VeryAlone()
+   return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
+end
 
 function FacingMe(target)
    local d1 = GetDistance(target)
    local x, y, z = GetFireahead(target,2,10)
    local d2 = GetDistance({x=x, y=y, z=z})
    return d2 < d1 
+end
+
+function HasBuff(target, object, buffName)
+   if find(object.charName, buffName) and
+      GetDistance(target, object) < 50
+   then
+      return true
+   end
 end
 
 function StateObj(object)
@@ -1839,7 +1900,7 @@ function GetSpellDamage(thing, target)
 
    if target then
       damage = CalcDamage(target, damageP) +
-               CalcDamage(target, damageM) +
+               CalcMagicDamage(target, damageM) +
                damageT
    else
       damage = damageT + damageP + damageM
@@ -1866,6 +1927,27 @@ function GetPeel(save, stop)
       end
    end
 end
+
+function GetWeakestEnemy(thing)
+   local type
+
+   local spell = GetSpell(thing)
+   if spell then
+      if thing.type then
+         type = thing.type
+      end
+   end
+   if type == "T" then
+      type = "TRUE"
+   elseif type == "P" then
+      type = "PHYS"
+   else 
+      type = "MAGIC"
+   end
+
+   return GetWeakEnemy(type, spell.range)
+end
+
 
 function GetWeakest(thing, list)
    if not list or #list == 0 then
@@ -1945,7 +2027,7 @@ function TimTick()
 end
 
 
-local attackDelayOffset = .275
+local attackDelayOffset = .3
 local minAttackTime = .6
 local aaData 
 
@@ -1985,7 +2067,7 @@ function aaTick()
    -- PrintState(2, me.attackspeed)
 
    -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled   
-   if not shotFired and os.clock() - lastAttack > attackDelayOffset then
+   if not shotFired and time() - lastAttack > attackDelayOffset then
       shotFired = true
       lastAttack = 0
    end
@@ -2000,7 +2082,7 @@ function AA(target)
 end
 
 function CanAttack()
-   if os.clock() > getNextAttackTime() then
+   if time() > getNextAttackTime() then
       return true
    end
    return false
@@ -2042,7 +2124,7 @@ function waitingForAttack()
    end
 end
 
-function getNextAttackTime()
+function getNextAttackTime()   
    return lastAttack + (1 / me.attackspeed)
 end
 
@@ -2068,6 +2150,7 @@ end
 
 function onObjAA(object)
    if aaData and ListContains(object.charName, aaData.aaParticles) then
+      -- pp("AAP: "..object.charName)
       shotFired = true
    end
 end
@@ -2077,12 +2160,20 @@ function onSpellAA(obj,spell)
       local spellName = aaData.aaSpellName
       if type(spellName) == "table" then
          if spell.name == "" or ListContains(spell.name, spellName) then
+            local delta = os.clock() - lastAAState
+            -- pp("AAS: "..delta.." "..spell.name)
+            setAttackState(0)
             lastAttack = time()
+            -- pp(lastAttack.." "..getNextAttackTime())
             shotFired = false
          end
       else
          if spell.name == "" or find(spell.name, spellName) then                       
+            local delta = os.clock() - lastAAState
+            -- pp("AAS: "..delta.." "..spell.name)
+            setAttackState(0)
             lastAttack = time()
+            -- pp(lastAttack.." "..getNextAttackTime())
             shotFired = false
          end
       end
@@ -2093,7 +2184,7 @@ function GetAAData()
     return {  
         Ahri         = { projSpeed = 1.6, aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, aaSpellName = "ahribasicattack", startAttackSpeed = "0.668",  },
         Anivia       = { projSpeed = 1.05, aaParticles = {"cryo_BasicAttack_mis", "cryo_BasicAttack_tar"}, aaSpellName = "aniviabasicattack", startAttackSpeed = "0.625",  },
-        Annie        = { projSpeed = 1.0, aaParticles = {"AnnieBasicAttack_tar", "AnnieBasicAttack_tar_frost", "AnnieBasicAttack2_mis", "AnnieBasicAttack3_mis"}, aaSpellName = "anniebasicattack", startAttackSpeed = "0.579",  },
+        Annie        = { projSpeed = 1.0, aaParticles = {"annie_basicattack"}, aaSpellName = "AnnieBasicAttack", startAttackSpeed = "0.579",  },
         Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = "attack", startAttackSpeed = "0.658" },
         Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
         Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
@@ -2133,7 +2224,7 @@ function GetAAData()
         Urgot        = { projSpeed = 1.3, aaParticles = {"UrgotBasicAttack_mis"}, aaSpellName = "urgotbasicattack", startAttackSpeed = "0.644" },
         Vayne        = { projSpeed = 2.0, aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" }, aaSpellName = "vaynebasicattack", startAttackSpeed = "0.658",  },
         Varus        = { projSpeed = 2.0, aaParticles = {"Attack"}, aaSpellName = "basic", startAttackSpeed = "0.658",  },
-        Veigar       = { projSpeed = 1.05, aaParticles = {"ahri_basicattack_mis"}, aaSpellName = "veigarbasicattack", startAttackSpeed = "0.625" },
+        Veigar       = { projSpeed = 1.05, aaParticles = {"permission_basicAttack_mis"}, aaSpellName = "veigarbasicattack", startAttackSpeed = "0.625" },
         Viktor       = { projSpeed = 2.25, aaParticles = {"ViktorBasicAttack_cas", "ViktorBasicAttack_mis", "ViktorBasicAttack_tar"}, aaSpellName = "viktorbasicattack", startAttackSpeed = "0.625" },
         Vladimir     = { projSpeed = 1.4, aaParticles = {"VladBasicAttack_mis", "VladBasicAttack_mis_bloodless", "VladBasicAttack_tar", "VladBasicAttack_tar_bloodless"}, aaSpellName = "vladimirbasicattack", startAttackSpeed = "0.658" },
         Xerath       = { projSpeed = 1.2, aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"}, aaSpellName = "xerathbasicattack", startAttackSpeed = "0.625" },

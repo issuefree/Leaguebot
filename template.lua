@@ -32,37 +32,77 @@ function Run()
    end
 
 	if HotKey() and CanAct() then
-		Action()
+		if Action() then
+			return
+		end
 	end
+
+	-- always stuff here
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return
+      end
+   end
 end
 
 function Action()
    UseItems()
       
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
+-- ranged
+   local target = GetWeakEnemy("PHYS", spells["AA"].range)
    if target and AA(target) then
-      return
+      return true
    end
+
+-- melee
+   -- local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
+   -- if aaTarget and AA(aaTarget) then
+   -- 	return true
+   -- end
 
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         return true
+      end
+   end
+
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
       -- hit the highest health minion
-      local minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       local minion = minions[#minions]
       if minion and AA(minion) then
-         return
+         return true
       end
    end
 
+-- ranged
    if IsOn("move") then
       MoveToCursor() 
+      return true
    end
+
+-- melee
+   -- if IsOn("move") then
+   --    if aaTarget then
+   --       MoveToTarget(aaTarget)
+   --       return true
+   --    else
+   --       MoveToCursor() 
+   --       return true
+   --    end
+   -- end
+
+   return false
 end
 
 local function onObject(object)

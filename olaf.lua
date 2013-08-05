@@ -97,34 +97,34 @@ function Action()
 
       if CanUse("swing") then
          Cast("swing", aaTarget)
-         return
+         return true
       end
 
       if AA(aaTarget) then
-         return
+         return return true
       end
    end
 
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         return true
       end
       if me.health/me.maxHealth > .75 and KillWeakMinion("swing") then
-         return
+         return true
       end
    end
    if IsOn("clearminions") and Alone() then
       if me.mana/me.maxMana > .75 then
          if KillMinionsInLine("axe", 3, false, 0, false) then
-            return
+            return true
          end
       elseif me.mana/me.maxMana > .66 then
          if KillMinionsInLine("axe", 4, false, 0, false) then
-            return
+            return true
          end
       elseif me.mana/me.maxMana > .5 then
          if KillMinionsInLine("axe", 5, false, 0, false) then
-            return
+            return true
          end
       end
 
@@ -133,7 +133,7 @@ function Action()
             local minions = SortByHealth(GetInRange(me, "swing", MINIONS))
             local minion = minions[#minions]
             if minion and Cast("swing", minion) then
-               return
+               return true
             end
          end
       end
@@ -144,13 +144,20 @@ function Action()
       end
 
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         return
+      local minion = minions[#minions]
+      if minion and AA(minion) then
+         return true
       end
    end
 
-   if IsOn("move") and not aaTarget then
-      MoveToCursor() 
+   if IsOn("move") then
+      if aaTarget then
+         MoveToTarget(aaTarget)
+         return true
+      else
+         MoveToCursor() 
+         return true
+      end
    end
 end
 
