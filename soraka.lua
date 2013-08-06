@@ -5,127 +5,196 @@ require "support"
 
 pp("Tim's Soraka")
 
-spells["starfall"]     = {key="Q", range=650,  color=red,    base={60,85,110,135,160},  ap=.4}
-spells["heal"]         = {key="W", range=750,  color=green,  base={70,140,210,280,350}, ap=.45}
-spells["infuseMana"]   = {key="E", range=725,  color=blue,   base={40,80,120,160,200},  ap=0}
-spells["infuseDamage"] = {key="E",                           base={50,100,150,200,250}, ap=.6}
-spells["wish"]         = {key="R",                           base={200,320,440},        ap=.7}
-spells["consecration"] = {         range=1000, color=yellow}
+spells["starfall"] = {
+	key="Q", 
+	range=650,  
+	color=red,    
+	base={60,85,110,135,160},
+	ap=.4,
+	cost={20,35,50,65,80}
+}
+spells["heal"] = {
+	key="W", 
+	range=750,  
+	color=green,  
+	base={70,140,210,280,350}, 
+	ap=.45,
+	cost={80,110,140,170,200}
+}
+spells["infuseMana"] = {
+	key="E", 
+	range=725,
+	color=blue,   
+	base={40,80,120,160,200}
+}
+spells["infuse"] = {
+	key="E",
+	range=725,
+	base={50,100,150,200,250}, 
+	ap=.6
+}
+spells["wish"] = {
+	key="R",
+	base={200,320,440},
+	ap=.7,
+	cost={100,175,250}	
+}
+spells["consecration"] = {
+	range=1000, 
+	color=yellow
+}
 
-AddToggle("farm",     {on=false, key=112, label="Farm Minions", auxLabel="{0} / {1}", args={"starfall", "infuseDamage"}})
-AddToggle("healing",  {on=true,  key=113, label="Heal Team", auxLabel="{0}", args={"heal"}})
-AddToggle("infusing", {on=true,  key=114, label="Infuse Team", auxLabel="{0}", args={"infuseMana"}})
-AddToggle("wish",     {on=true,  key=115, label="Wish Alert", auxLabel="{0}", args={"wish"}})
+
+
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuseDamage"}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
 	TimTick()
 
+	if me.dead == 1 then
+		return
+	end
+		
 	Wish()
-	
+
 	if IsRecalling(me) then
 		return
 	end
+   
+   -- lots of actions aren't calling CanAct() because I want to interrupt AA
 
-   if IsOn("healing") then
-	  healTeam(spells["heal"])
+   if healTeam(spells["heal"]) then
+   	return true
    end
 
+	if infuseTeam() then
+		return true
+	end
 
 	if HotKey() then
-   	local target = GetWeakEnemy('MAGIC',725,"NEARMOUSE")
-		if target then
-			if GetDistance(me, target) < 725 and CanUse("E") then CastSpellTarget("E", target) end 
+		if Action() then
+			return true
 		end
-		target = GetWeakEnemy("MAGIC", 650)
-		if target then
-			if GetDistance(me, target) < 650 and CanUse("Q") then CastSpellTarget("Q", me) end
-      end
-      
-		UseItems()
+	end
+	
+	if IsOn("lasthit") and Alone() then
+		if infuseMinion() then
+			return true
+		end
 	end
 
-	infuseTeam()
-	
-	if not GetWeakEnemy("MAGIC", 1000) then
-		Farm()
-	end
+   if HotKey() and CanAct() then -- interrupt because this is low priority stuff
+      if FollowUp() then
+         return
+      end
+   end
+
 end 
 
-function onCreateObj(object)
-	onCreateObjSupport()
+function Action()
+	UseItems()
+
+	if Cast("infuse", GetWeakestEnemy("infuse")) then
+		return true
+	end
+
+	if CanUse("starfall") then
+		local target = GetWeakestEnemy("starfall")
+		if target then
+			Cast("starfall", me) 
+			return true
+		end
+   end
+	return false		
 end
 
-function Farm()
-	if not IsOn("farm") then
-		return	
-	end
-	
-	local maxQ = GetSpellDamage("starfall")
-	local maxE = GetSpellDamage("infuseDamage")
-	local maxA = me.baseDamage + me.addDamage	
-	-- count the qfarmable minions
-	qMinions = 0
-	weakMinion = nil  -- for aa
-	strongMinion = nil -- for infuse
-	 
-	for i, minion in ipairs(MINIONS) do
-		if GetDistance(me,minion) < 650 and CalcMagicDamage(minion, maxQ) > minion.health then			
-			qMinions = qMinions+1
+function infuseMinion()
+	if not CanUse("infuse") then return false	end
+
+	local dam = GetSpellDamage("infuse")
+
+	local minions = SortByHealth(GetInRange(me, "infuse", MINIONS))
+	for _,minion in ipairs(minions) do
+		if CalcMagicDamage(minion, dam) > minion.health then
+			Cast("infuse", minion)
+			return true
 		end
-		if GetDistance(me,minion) < 725 and CalcMagicDamage(minion, maxE) > minion.health then
-			if strongMinion == nil or minion.health > strongMinion.health then
-				strongMinion = minion
+	end
+	return false
+end
+
+function FollowUp()
+	if IsOn("lasthit") and Alone() then
+		if CanUse("starfall") then
+			local dam = GetSpellDamage("starfall")
+			local minions = SortByHealth(GetInRange(me, "starfall", MINIONS))
+			local kills = 0
+			for _,minion in ipairs(minions) do
+				if CalcMagicDamage(minion, dam) > minion.health then
+					kills = kills + 1
+					if kills >= 2 then
+						Cast("starfall", me)
+						return true
+					end
+				end
 			end
 		end
-		if GetDistance(me,minion) < me.range and CalcDamage(minion, maxA) > minion.health then
-			if weakMinion == nil or minion.health < weakMinion.health then
-				weakMinion = minion
+
+		if KillWeakMinion("AA") then
+         return true
+      end		
+	end
+
+	if IsOn("clearminions") and Alone() then
+		if CanUse("starfall") then
+			if #GetInRange(me, "starfall", MINIONS) > 2 then
+				Cast("starfall", me)
+				return true
 			end
-		end 
-	end
-	
-	if qMinions > 1 then
-		if CanUse("Q") then
-			CastSpellTarget("Q", me)
-		end	
-	end
-	
-	if weakMinion then
-		AttackTarget(weakMinion)
-	end
-	
-	if strongMinion then
-		if CanUse("E") then
-			CastSpellTarget("E", strongMinion)
 		end
+
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      local minion = minions[#minions]
+      if minion and AA(minion) then
+         return true
+      end
 	end
-	
-	if qMinions == 1 then
-		if CanUse("Q") then
-			CastSpellTarget("Q", me)
-		end
-	end
+
+   local target = GetWeakestEnemy("AA")
+   if AA(target) then
+      return true
+   end
+
+   if IsOn("move") then
+      MoveToCursor() 
+      return true
+   end
+   return false
 end
 
 function infuseTeam()
-	if not IsOn("infusing") or GetSpellLevel("E") == 0 then
-		return
+	if not CanUse("infuse") then
+		return false
 	end
 	
+	local maxE = GetSpellDamage("infuseMana")
+
 	local bestInRangeT = nil
 	local bestInRangeP = 1
-	
-	local maxE = GetSpellDamage("infuseMana")
-	
-	for i = 1, objManager:GetMaxHeroes(), 1 do
-		local hero = objManager:GetHero(i)
+		
+	local heroes = GetInRange(me, "infuse", ALLIES)
+	for _,hero in ipairs(heroes) do
 		if hero.name ~= me.name and
-		   hero.team == me.team and		
-		   GetDistance(HOME, hero) > 1000 and
+			GetDistance(HOME, hero) > 1000 and
 		   hero.mana ~= 0 and 
 		   hero.mana + maxE <= hero.maxMana and
-		   GetDistance(me, hero) < 725 and
-		   not IsRecalling(hero)		    
+		   not IsRecalling(hero)
 		then			
 			if not bestInRangeT or
 			   hero.mana/hero.maxMana < bestInRangeP
@@ -137,30 +206,36 @@ function infuseTeam()
 	end
 	
 	if bestInRangeT then
-		if CanUse("E") and 
-		   (not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5) 
-		then
-			CastSpellTarget("E", bestInRangeT)
+		-- don't infuse mostly full people if there's a nearby enemy
+		if not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5 then
+			Cast("infuse", bestInRangeT)
+			return true
 		else
 			DrawCircleObject(bestInRangeT, 100, blue)
+			return false
 		end
 	end
+	return false
 end     
 
 function Wish()
-	if not CanUse("R") then
-		return
+	if not CanUse("wish") then
+		return false
 	end
 	for _,ally in ipairs(ALLIES) do
 		if ally.health/ally.maxHealth < .33 then
 			for _,enemy in ipairs(ENEMIES) do
 				if GetDistance(ally, enemy) < 1000 then
 					PlaySound("Beep")
-					return
+					return false
 				end
 			end
 		end
 	end
+	return false
+end
+
+function onCreateObj(object)
 end
 
 SetTimerCallback("Run")

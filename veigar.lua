@@ -162,6 +162,7 @@ function Action()
       end
    end
 
+   local target = GetWeakestEnemy("AA")
    if AA(target) then
       return true
    end

@@ -104,14 +104,14 @@ function Action()
    local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
 
    if aaTarget and not isSpinning() and CanUse("strike") then
-      Cast("strike")
+      Cast("strike", me)
       -- no return
    end
 
    if not isSpinning() and CanUse("judgement") and not CanUse("strike") and not Check(strike) then
       local targets = GetInRange(me, spells["judgement"].range, ENEMIES)
       if #targets > 0 then
-         Cast("judgement")         
+         Cast("judgement", me)
       end
    end
 
@@ -137,7 +137,7 @@ function FollowUp()
       -- if I'm close to the best spin spot then spin
       if not isSpinning() and CanUse("judgement") and spinT then
          if GetDistance(me, spinT) < 200 then
-            Cast("judgement")
+            Cast("judgement", me)
          end
       end
 
@@ -196,7 +196,7 @@ local function onSpell(object, spell)
       me.health / me.maxHealth < .5 and
       CanUse("courage")
    then
-      Cast("courage")
+      Cast("courage", me)
    end
 end
 

@@ -32,7 +32,9 @@ spells["trap"] = {
    base={80,125,170,215,260},
    ap=.4,   
    color=yellow,
-   cost={60,75,90,105,120}
+   cost={60,75,90,105,120},
+   delay=5,
+   speed=99
 }
 
 spells["heal"] = {
@@ -64,7 +66,9 @@ function Run()
    end
 
    if IsOn("healTeam") and not isCougar then
-      healTeam("heal")      
+      if healTeam("heal") then
+         return
+      end
    end
 
    if HotKey() and CanAct() then
@@ -79,19 +83,28 @@ function Action()
    UseItems()
    
    if not isCougar then
-      SkillShot("jav")
+      if SkillShot("jav") then
+         return true
+      end      
       
       if IsOn("trap") and CanUse("trap") then
          -- plant traps
-         local target = GetWeakEnemy("MAGIC", spells["trap"].range)
+         local target = GetWeakestEnemy("trap")
          if target then
-            local x,y,z = GetFireahead(target,5,99)
-            if GetDistance({x=x, y=y, z=z}) < spells["trap"].range then
-               CastSpellXYZ(spells["trap"].key, x,y,z)
+            if CastSpellFireahead("trap", target) then
+               return true
             end
          end
       end
+
+      local target = GetWeakestEnemy("AA")
+      if AA(target) then
+         return true
+      end
+      
    end
+
+   return false
 end
 
 function FollowUp()

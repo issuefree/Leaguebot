@@ -1,9 +1,9 @@
 require "Utils"
 require "timCommon"
 
-local cleanse = {"Stun_glb", "summoner_banish", "Global_Taunt", "Global_Fear", "Ahri_Charm_buf", "leBlanc_shackle_tar", "LuxLightBinding_tar", "RunePrison_tar", "DarkBinding_tar", "nassus_wither_tar", "Amumu_SadRobot_Ultwrap", "Amumu_Ultwrap", "maokai_elementalAdvance_root_01", "RengarEMax_tar", "VarusRHitFlash"} 
-local byAbil = concat({"AlZaharNetherGrasp_tar", "InfiniteDuress_tar", "skarner_ult_tail_tip", "SwapArrow_red"}, cleanse)
-local byItem  = concat({"summoner_banish", "mordekaiser_cotg_tar", "Fizz_UltimateMissle_Orbit", "Fizz_UltimateMissle_Orbit_Lobster"}, byAbil)
+local cleanse = {"stun", "banish", "taunt", "fear", "charm", "shackle", "binding", "prison", "wither", "ultwrap", "root", "RengarEMax", "VarusRHitFlash"} 
+local byAbil = concat({"nethergrasp", "infiniteduress", "skarner_ult_tail_tip", "SwapArrow"}, cleanse)
+local byItem  = concat({"mordekaiser_cotg_tar", "Fizz_UltimateMissle_Orbit"}, byAbil)
 
 local cleanseKey
 
@@ -14,33 +14,35 @@ elseif me.SummonerF == "SummonerBoost" then
 end
 
 local function cleanseObj(object)
-	if GetDistance(object) < 25 and ModuleConfig.cleanse then
-
+	if ModuleConfig.cleanse and GetDistance(object) < 75 then
 		if me.name == "Gangplank" and 
-		   CanCastSpell("W") and 
+		   CanUse("W") and 
 		   ListContains(object.charName, byAbil) 
 		then
-			CastSpellTarget("W", me)
+			Cast("W", me)
+			pp("Removed "..object.charName.." with oranges.")
 			return
 		end
 		
 		if me.name == "Olaf" and 
 			ListContains(object.charName, byAbil) and
-         CanCastSpell("R") 
+         CanUse("R") 
       then
-         pp("here")
-			CastSpellTarget("R", me)
+			Cast("R", me)
+			pp("Removed "..object.charName.." with Ragnarok.")
 			return
 		end
 		
 		if ListContains(object.charName, byItem) then
 			UseItem("Quicksilver Sash", me)
 			UseItem("Mercurial Scimitar", me)
+			pp("Removed "..object.charName.." with QSS.")
 			return
 		end
 		
-		if ListContains(object.charName, cleanse) then
+		if cleanseKey and ListContains(object.charName, cleanse) then
 			CastHotkey("SPELL"..cleanseKey..":WEAKALLY SMARTCAST")
+			pp("Removed "..object.charName.." with Cleanse.")
 		end
 	end
 end

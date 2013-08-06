@@ -30,9 +30,8 @@ end
 function healTeam(thing)
    
    local spell = GetSpell(thing)
-   if not spell then
-      return
-   end
+   if not spell then return false end
+   if not CanUse(spell) then return false end
       
    local maxW = GetSpellDamage(spell)
 
@@ -71,20 +70,20 @@ function healTeam(thing)
       CustomCircle(100, 4, yellow, bestOutRangeT)
    end
 
-   if CanCastSpell(spell.key) and me.dead ~= 1 then
-      -- let me know if someone oustside of range is in need
-      if bestOutRangeT and 
-         ( not bestInRangeT or
-          ( bestOutRangeP < .33 and
-            bestInRangeP > .5 ) )         
-      then
+   -- let me know if someone oustside of range is in need
+   if bestOutRangeT and 
+      ( not bestInRangeT or
+       ( bestOutRangeP < .33 and
+         bestInRangeP > .5 ) )         
+   then
 --       PlaySound("Beep")
-      end
+   end
 
-      if bestInRangeT then
-         CastSpellTarget(spell.key, bestInRangeT)
-      end
-   end                     
+   if bestInRangeT then
+      Cast(spell, bestInRangeT)
+      return true
+   end
+   return false
 end
 
 function isWounded(hero)

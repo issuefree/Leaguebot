@@ -3,6 +3,11 @@ require "timCommon"
 require "modules"
 require "support"
 
+-- Try to stick to one "action" per loop.
+-- Action function should return 
+--   true if they perform an action that takes time (most spells attacks)
+--   false if no action or the spell takes no time
+
 pp("\nTim's Template")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})

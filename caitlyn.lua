@@ -118,11 +118,10 @@ function Action()
       end
    end
    local targets = GetInRange(me, "pp", ENEMIES)
-   targets = FilterList(targets, function(item) return GetDistance(item) > spells["AA"].range)
+   targets = FilterList(targets, function(item) return GetDistance(item) > spells["AA"].range end)
    target = GetWeakest("pp", targets)
    if target then
       if IsOn("pp") and CanUse("pp") and me.mana > GetManaCost("net") + GetManaCost("pp") then
-         target =          
          if SSGoodTarget(target, "pp") then
             CastSpellFireahead("pp", target)
             return

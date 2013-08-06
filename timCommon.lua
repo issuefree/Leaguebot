@@ -95,8 +95,12 @@ function AddOnCreate(callback)
 end
 
 function AddOnSpell(callback)
-   -- table.insert(SPELL_CALLBACKS, callback)   
+   -- table.insert(SPELL_CALLBACKS, callback)
    RegisterLibraryOnProcessSpell(callback)
+end
+
+function AddOnKey(callback)
+   RegisterLibraryOnWndMsg(callback)
 end
 
 -- circle colors
@@ -987,10 +991,12 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
 end
 
 function SkillShot(thing, purpose)
+   if not CanUse(thing) then return false end
+
    local spell = GetSpell(thing)
 
    -- doesn't matter if its phys or mag, we just want to know if there's someone in range
-   if GetWeakEnemy("MAGIC", spell.range) and CanUse(spell) then
+   if GetWeakEnemy("MAGIC", spell.range) then
       -- if we don't have spell speed or delay use some sensible defaults.
       if not spell.delay then spell.delay = 2 end
       if not spell.speed then spell.speed = 20 end
@@ -1026,8 +1032,7 @@ function SkillShot(thing, purpose)
       end
       
       if target then
-         local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
-         CastSpellXYZ(spell.key, x,y,z)
+         CastSpellFireahead(spell, target)
          return true
       end
    end
@@ -1069,8 +1074,18 @@ end
 
 function Cast(thing, target)
    local spell = GetSpell(thing)
-   if not target then target = me end
+   if not spell then spell = thing end
+
+   if not CanUse(spell) then
+      return false
+   end
+
+   if not target then 
+      return false
+   end
+   
    CastSpellTarget(spell.key, target)
+   return true
 end
 
 function CastXYZ(thing, x,y,z)
@@ -1085,12 +1100,23 @@ function CastXYZ(thing, x,y,z)
    end
 end
 
-function CastSpellFireahead(thing, target)
+function CastSpellFireahead(thing, target, allowOvershoot)
    local spell = GetSpell(thing)
-   if not spell or not target then return end
+   if not spell or not target then return false end
    
+   if not spell.speed then spell.speed = 20 end
+   if not spell.delay then spell.delay = 2 end
+
    local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
-   CastSpellXYZ(spell.key, x,y,z)
+   if GetDistance({x=x, y=y, z=z}) < spell.range then
+      CastXYZ(spell, x,y,z)
+      return true
+   elseif allowOvershoot then
+      CastXYZ(spell, x,y,z)
+      return true      
+   end
+
+   return false
 end
 
 function GetUnblocked(source, thing, ...)
@@ -1271,6 +1297,7 @@ ITEMS["Randuin's Omen"]           = {id=3143, range=500,         type="active", 
 
 --Active defense
 ITEMS["Locket of the Iron Solari"] = {id=3190, range=700, type="active", color=green}
+ITEMS["Locket of the Iron Solari Aura"] = {id=3190, range=1200, type="aura", color=green}
 ITEMS["Guardian's Horn"] = {id=2051, type="active"}
 ITEMS["Zhonya's Hourglass"] = {id=3157, type="active"}
 ITEMS["Wooglet's Witchcap"] = {id=3090, type="active"}
@@ -1320,6 +1347,7 @@ function UseItem(itemName, target)
    local slot = GetInventorySlot(item.id)
    if not slot then return end   
    slot = tostring(slot)
+
    if not IsCooledDown(slot) then return end
 
    if itemName == "Entropy" or
@@ -1420,7 +1448,11 @@ function UseItem(itemName, target)
              pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
          end
       end
+
+   else
+      CastSpellTarget(slot, me)
    end
+
 end
 
 function SortByHealth(things)
@@ -1557,7 +1589,7 @@ function CanUse(thing)
          if thing == "D" or thing == "F" then
             return IsSpellReady(thing) == 1
          end
-         return IsCooledDown(thing)
+         return IsCooledDown(thing) -- should be a spell key "Q"
       end
    end
 end
