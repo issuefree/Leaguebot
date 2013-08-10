@@ -57,7 +57,7 @@ function Run()
 
    if Check(orb) then
       DrawCircleObject(orb[2], 150, blue)
-      local inRange = GetInRange(orb[2], 150, GetVis(ENEMIES))
+      local inRange = GetInRange(orb[2], 150, ENEMIES)
       if #inRange > 0 then
          CastSpellTarget("Q", me)
       end

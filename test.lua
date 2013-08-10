@@ -48,7 +48,14 @@ function concat(...)
    return resTable
 end
 
-a = "twitch_poison_counter_01"
-print(0+string.match(a, "r_(%d*)"))
+function foo()
+   return 1, 2
+end
+
+function t(a, b)
+   pp(a.." "..b)
+end
+
+t(foo())
 
 

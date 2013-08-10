@@ -90,7 +90,7 @@ function Action()
 		end
 	end
 
-   local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+100)
+   local aaTarget = GetWeakEnemy("PHYSICAL", spells["AA"].range+100)
    if aaTarget then
       if AA(aaTarget) then
          return

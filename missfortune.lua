@@ -100,8 +100,8 @@ function Run()
    if CanUse("double") and (IsOn("double") or HotKey()) then 
       local bestDT
       local bestDTA
-      for _,t in ipairs(GetInRange(me, Q.range+250, MINIONS, GetVis(ENEMIES))) do
-         local doubleTargets = GetInRange(t, 500, MINIONS, GetVis(ENEMIES)) 
+      for _,t in ipairs(GetInRange(me, Q.range+250, MINIONS, ENEMIES)) do
+         local doubleTargets = GetInRange(t, 500, MINIONS, ENEMIES) 
          local bt, bta = GetBestDouble(t, doubleTargets, ENEMIES)
          if bt then
             DrawCircleObject(t, 60, blue)

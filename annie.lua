@@ -31,7 +31,7 @@ spells["tibbers"] = {
    base={200,325,450},
    cost={125,175,225}, 
    ap=.7,
-   area=250
+   radius=250
 }
 
 local aloneRange = 2000  -- if no enemies in this range consider yourself alone
@@ -143,7 +143,7 @@ function Action()
       local bestS = 1
       local bestT = nil
       for _,enemy in ipairs(targets) do
-         local hits = GetInRange(enemy, spells["tibbers"].area, ENEMIES)
+         local hits = GetInRange(enemy, spells["tibbers"].radius, ENEMIES)
          if #hits > bestS then
             bestS = #hits
             bestT = enemy

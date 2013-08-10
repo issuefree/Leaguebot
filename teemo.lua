@@ -30,7 +30,7 @@ spells["shroom"] = {
 	color=green,	
 	base={200,325,450},
 	ap=.8,
-	area=115
+	radius=115
 }
 
 local poisons = {}
@@ -73,9 +73,9 @@ function Action()
    -- throw the shroom at them or as far as I can in their direction
    if IsOn("shroom") and CanUse("shroom") then
    	local shroom = spells["shroom"]
-   	local targets = SortByDistance(GetInRange(me, shroom.range+shroom.area, ENEMIES))
+   	local targets = SortByDistance(GetInRange(me, shroom.range+shroom.radius, ENEMIES))
    	for _,target in ipairs(targets) do
-   		if #GetInRange(target, shroom.area*3, shrooms) == 0 then
+   		if #GetInRange(target, shroom.radius*3, shrooms) == 0 then
 
    			local dist = math.min(shroom.range, GetDistance(target))   			
    			local point = Projection(me, target, dist)

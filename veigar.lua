@@ -24,14 +24,14 @@ spells["dark"] = {
    base={120,170,220,270,320}, 
    ap=1, 
    cost={70,80,90,100,110},
-   area=250
+   radius=250
 }
 spells["event"] = {
    key="E", 
    range=600, 
    color=yellow, 
    cost={80,90,100,110,120},
-   area=400
+   radius=400
 }
 spells["burst"] = {
    key="R", 
@@ -90,7 +90,7 @@ function Action()
          local delta = {x = target.x-me.x, z = target.z-me.z}
          local dist = math.sqrt(math.pow(delta.x,2)+math.pow(delta.z,2))
          dist = dist + 75
-         local eSpell = {x = target.x-(spells["event"].area/dist)*delta.x, y=target.y, z = target.z-(spells["event"].area/dist)*delta.z}
+         local eSpell = {x = target.x-(spells["event"].radius/dist)*delta.x, y=target.y, z = target.z-(spells["event"].radius/dist)*delta.z}
          CastXYZ("event", eSpell)
          return
       end
@@ -105,7 +105,7 @@ function Action()
       local bestS = 0
       local bestT = nil
       for _,nearStun in ipairs(stunnedEnemies) do
-         local hits = GetInRange(nearStun, spells["dark"].area, ENEMIES)
+         local hits = GetInRange(nearStun, spells["dark"].radius, ENEMIES)
          if #hits > bestS then
             bestS = #hits
             bestT = nearStun

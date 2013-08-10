@@ -69,7 +69,7 @@ function Run()
    
    -- lots of actions aren't calling CanAct() because I want to interrupt AA
 
-   if healTeam(spells["heal"]) then
+   if healTeam("heal") then
    	return true
    end
 
@@ -91,7 +91,7 @@ function Run()
 
    if HotKey() and CanAct() then -- interrupt because this is low priority stuff
       if FollowUp() then
-         return
+         return true
       end
    end
 
@@ -166,10 +166,10 @@ function FollowUp()
       end
 	end
 
-   local target = GetWeakestEnemy("AA")
-   if AA(target) then
-      return true
-   end
+   -- local target = GetWeakestEnemy("AA")
+   -- if AA(target) then
+   --    return true
+   -- end
 
    if IsOn("move") then
       MoveToCursor() 

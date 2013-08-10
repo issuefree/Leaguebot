@@ -6,7 +6,7 @@ pp("\nTim's Template")
 
 AddToggle("farm", {on=true, key=112, label="Waste Minions", auxLabel="{0}", args={"lay"}})
 
-spells["lay"] = {key="Q", range=875, color=violet, base={40,60,80,100,120}, ap=.3, area=137.5}
+spells["lay"] = {key="Q", range=875, color=violet, base={40,60,80,100,120}, ap=.3, radius=137.5}
 spells["wall"] = {key="W", range=1000, color=yellow}
 spells["defile"] = {key="E", range=550, color=yellow, base={30,50,70,90,110}, ap=.2}
 spells["ult"] = {key="R", base={250,400,55}, ap=.6}
@@ -48,7 +48,7 @@ function Run()
       
    end
    
-   DrawCircle(GetMousePos().x, GetMousePos().y, GetMousePos().z, spells["lay"].area, red)
+   DrawCircle(GetMousePos().x, GetMousePos().y, GetMousePos().z, spells["lay"].radius, red)
    
    if IsRecalling(me) then
       return
@@ -62,7 +62,7 @@ function Run()
       local nearMinions = GetInRange(me, spells["lay"].range, MINIONS)   
       for _,minion in ipairs(nearMinions) do
          local tK = 0
-         local vnMinions = GetInRange(minion, spells["lay"].area, nearMinions)
+         local vnMinions = GetInRange(minion, spells["lay"].radius, nearMinions)
          if #vnMinions == 1 then
             if GetSpellDamage("lay", minion)*2 > minion.health then
                if not wMinion or wMinionK < 1 then
@@ -70,8 +70,8 @@ function Run()
                   wMinionK = 1
                   local x, y, z = getLayFireAhead(wMinion)
                   wMinionX = {x=x,y=y,z=z}
-                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].area, red)
-                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].area+2, red)
+                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius, red)
+                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius+2, red)
                end
             end
          else
@@ -92,8 +92,8 @@ function Run()
       if wMinion then
 --         CastSpellTarget("Q", wMinion)
          CastSpellXYZ("Q", wMinionX.x, wMinionX.y, wMinionX.z)
---         DrawCircleObject(wMinion, spells["lay"].area, red)
-         DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].area, yellow)
+--         DrawCircleObject(wMinion, spells["lay"].radius, red)
+         DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius, yellow)
       end
    end   
 end

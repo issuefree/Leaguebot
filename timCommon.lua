@@ -99,6 +99,13 @@ function AddOnSpell(callback)
    RegisterLibraryOnProcessSpell(callback)
 end
 
+-- local function onKey(msg, key)
+--    if msg == KEY_UP then
+--       if key == 107 then         
+
+--       end
+--    end
+-- end
 function AddOnKey(callback)
    RegisterLibraryOnWndMsg(callback)
 end
@@ -525,8 +532,20 @@ function GetIntersection(list1, list2)
    return intersection
 end
 
-function GetVis(list)
-   return FilterList(list, function(item) return item.dead == 0 and item.visible == 1 and item.x and item.y and item.z end)
+function ValidTargets(list)
+   if not list then return {} end
+   return FilterList(list, 
+      function(item)
+         if not item.dead then
+            return item
+         end
+         return 
+            item.dead == 0 and 
+            item.invulnerable == 0 and 
+            item.visible == 1 and 
+            item.x and item.z 
+      end
+   )
 end
 
 function isDupMinion(minionTable, minion)
@@ -629,7 +648,7 @@ function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
          if d <= minionD then
             local proj = {x=me.x+math.sin(a)*d, z=me.z+math.cos(a)*d}
             -- DrawCircle(proj.x, 0, proj.z, 20, blue)
-            if GetDistance(min, proj) < spell.width/2+minionWidth then
+            if GetDistance(min, proj) < spell.width/2+GetWidth(min) then
                if GetSpellDamage(spell, min) > min.health then 
                   tk = tk + 1
                end
@@ -791,57 +810,130 @@ function GetCenter(targets)
    return x,y,z
 end
 
+function ToPoint(x,y,z)
+   return {x=x,y=y,z=z}
+end
+
 --[[
 returns the width of a unit
 --]]
 function GetWidth(unit)
-   local minbb = GetMaxBBox(unit)
+   local minbb = GetMinBBox(unit)
    if not minbb.x then -- for when I pass in not a real unit
+      if unit.width then
+         return unit.width
+      end
       return 70
    end
    return GetDistance(unit, minbb)
 end
 
-function GetInLine(width, targets, style) -- need to deluxify
-   local hits = {}
-   local score = 0
-   
-   SortByAngle(targets)
-         
-   for pi,p in ipairs(targets) do
-      local lHits = {p}
-      local lScore = 0
-      local pw = GetWidth(p)
-      for si,s in ipairs(targets) do
-         if s ~= p then
-            local sw = GetWidth(s)
-            local ra = RelativeAngle(me, p, s)
-            if GetOrthDist(p, s) < width + pw + sw and ra < math.pi/3 then
-               table.insert(lHits, s)
+-- returns hits, kills (if scored), score
+function GetBestArea(source, thing, hitScore, killScore, ...)
+   local spell = GetSpell(thing)
+   if not spell.radius then
+      pp("No radius set for.."..thing)
+      return {}
+   end
+
+   local targets = GetInRange(source, spell.range+spell.radius, concat(...))
+
+   local bestS = 0
+   local bestT = {}
+   local bestK = {}
+   for _,target in ipairs(targets) do
+      -- get everything that could be hit and still hit the target (a double blast radius)
+      local hits = GetInRange(target, spell.radius*2, targets)
+      local kills = {}
+      local center
+      -- trim outliers until everyone fits
+      while true do
+         center = ToPoint(GetCenter(hits))
+         SortByDistance(hits, center)         
+         if GetDistance(center, hits[#hits]) > spell.radius then
+            table.remove(hits, #hits)
+         else
+            break
+         end
+      end
+
+      center = ToPoint(GetCenter(hits))
+      if GetDistance(source, center) > spell.range then
+         hits = {}
+      end
+
+
+      local score = #hits
+
+      if killScore ~= 0 then     
+         for _,hit in ipairs(hits) do
+            if GetSpellDamage(spell, hit) > hit.health then
+               score = score + killScore
+               table.insert(kills, hit)
             end
          end
       end
-      
-      if style == "damage" then
-         for _,lHit in ipairs(lHits) do
-            lScore = lScore + GetSpellDamage("spark", lHit)
-         end
-      elseif style == "hits" then
-         lScore = lScore + 1      
-      else --if style == "kills" then
-         for _,lHit in ipairs(lHits) do
-            if GetSpellDamage("spark", lHit) > lHit.health then
-               lScore = lScore + 1
-            end 
-         end
-      end
-      if lScore > score then         
-         hits = lHits
-         score = lScore
+      if not bestT or score > bestS then
+         bestS = score
+         bestT = hits
+         bestK = kills
       end
    end
-   
+   return bestT, bestK, bestS
+end
+
+
+function GetInLine(source, thing, primary, targets)
+   local spell = GetSpell(thing)
+   SortByAngle(targets)
+
+   local hits = {primary}
+   local pw = GetWidth(primary)
+   for _,s in ipairs(targets) do
+      if s ~= p then
+         local sw = GetWidth(s)
+         local ra = RelativeAngle(source, primary, s)
+         if GetOrthDist(primary, s) < spell.width + pw + sw and 
+            ra < math.pi/3 -- why?
+         then
+            table.insert(hits, s)
+         end
+      end
+   end
    return hits
+end
+
+function GetBestLine(source, thing, hitScore, killScore, ...)
+   local spell = GetSpell(thing)
+   if not spell.width then
+      spell.width = 80
+      pp("No width set for.."..thing)
+   end
+
+   local targets = GetInRange(source, spell, concat(...))
+
+   local bestS = 0
+   local bestT = {}
+   local bestK = {}
+   for _,target in ipairs(targets) do
+      local hits = GetInLine(source, thing, target, targets)
+      local score = #hits
+
+      if killScore ~= 0 then     
+         for _,hit in ipairs(hits) do
+            if GetSpellDamage(spell, hit) > hit.health then
+               score = score + killScore
+               table.insert(kills, hit)
+            end
+         end
+      end
+      if not bestT or score > bestS then
+         bestS = score
+         bestT = hits
+         bestK = kills
+      end
+   end
+   return bestT, bestK, bestS
 end
 
 function KillMinionsInArea(thing, minHits, needKills, extraRange, drawOnly)
@@ -851,7 +943,7 @@ function KillMinionsInArea(thing, minHits, needKills, extraRange, drawOnly)
 
    if not extraRange then extraRange = 0 end
 
-   local minions = GetInRange(me, "dark", MINIONS)
+   local minions = GetInRange(me, spell, MINIONS)
 
    local hitScore = 0
    local killScore = 0
@@ -868,7 +960,7 @@ function KillMinionsInArea(thing, minHits, needKills, extraRange, drawOnly)
 
    for _,minion in ipairs(minions) do
       local score = 0
-      local hits = GetInRange(minion, spell.area, MINIONS)
+      local hits = GetInRange(minion, spell.radius, MINIONS)
 
       score = #hits * hitScore
 
@@ -991,51 +1083,65 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
 end
 
 function SkillShot(thing, purpose)
-   if not CanUse(thing) then return false end
-
    local spell = GetSpell(thing)
 
-   -- doesn't matter if its phys or mag, we just want to know if there's someone in range
-   if GetWeakEnemy("MAGIC", spell.range) then
-      -- if we don't have spell speed or delay use some sensible defaults.
-      if not spell.delay then spell.delay = 2 end
-      if not spell.speed then spell.speed = 20 end
+   if not CanUse(spell) then return false end
+   if not GetWeakestEnemy(spell) then return false end
 
-      local unblocked = GetUnblocked(me, spell, GetVis(MINIONS), GetVis(ENEMIES))
-
-      unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
-
-      local target
-      while true do
-         if #unblocked == 0 then
-            break
-         end
-
-         if purpose == "peel" then
-            target = GetPeel({ADC, APC, me}, unblocked)
-         else
-            target = GetWeakest(spell, unblocked)
-         end
-         if not target then
-            break
-         end
-         if SSGoodTarget(target, spell) then
-            break
-         end
-         for i,t in ipairs(unblocked) do
-            if t.name == target.name then
-               table.remove(unblocked, i)
-               break
-            end
-         end
-         target = nil
-      end
-      
-      if target then
-         CastSpellFireahead(spell, target)
-         return true
-      end
+   -- if we don't have spell specifics use some sensible defaults.
+   if not spell.delay then 
+      spell.delay = 2 
+      pp("No delay set for.."..thing)
    end
+   if not spell.speed then 
+      spell.speed = 20 
+      pp("No speed set for.."..thing)
+   end
+   if not spell.width then 
+      spell.width = 80 
+      pp("No width set for.."..thing)
+   end
+
+   local unblocked = GetUnblocked(me, spell, MINIONS, ENEMIES)
+
+   unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
+
+   local target
+   while #unblocked > 0 do
+      -- find the best target in the remaining unblocked
+      if purpose == "peel" then
+         target = GetPeel({ADC, APC, me}, unblocked)
+      else
+         target = GetWeakest(spell, unblocked)
+      end
+
+      -- no targets so bail out
+      if not target then
+         return false
+      end
+
+      -- Validate that the current favorite target is a good candidate for skillshot
+      if SSGoodTarget(target, spell) then
+         break
+      end
+
+      -- If it's not remove it from the unblocked list and try again
+      for i,t in ipairs(unblocked) do
+         if t.name == target.name then
+            table.remove(unblocked, i)
+            break
+         end
+      end
+      -- reset the target var for the next loop
+      target = nil
+   end
+   
+   -- blast em
+   if target then
+      CastSpellFireahead(spell, target)
+      return true
+   end
+
    return false
 end
 
@@ -1083,7 +1189,7 @@ function Cast(thing, target)
    if not target then 
       return false
    end
-   
+
    CastSpellTarget(spell.key, target)
    return true
 end
@@ -1102,7 +1208,7 @@ end
 
 function CastSpellFireahead(thing, target, allowOvershoot)
    local spell = GetSpell(thing)
-   if not spell or not target then return false end
+   if not target then return false end
    
    if not spell.speed then spell.speed = 20 end
    if not spell.delay then spell.delay = 2 end
@@ -1175,6 +1281,16 @@ function HasBuff(target, object, buffName)
    then
       return true
    end
+end
+
+-- gets the object in a valid state object or returns the original object if it isn't a state object
+function GetObj(object)
+   if not object then return nil end
+   if object.x then return object end -- userdata or simple pos objs will have this
+   if Check(object) then -- state object, return the object if it's valid
+      return object[2]
+   end
+   return nil
 end
 
 function StateObj(object)
@@ -1272,9 +1388,9 @@ function GetInRange(target, thing, ...)
       range = thing
    end
    local result = {}
-   local list = GetVis(concat(...))
+   local list = ValidTargets(concat(...))
    for _,test in ipairs(list) do
-      if target and test and test.x and test.dead == 0  and
+      if target and
          GetDistance(target, test) < range 
       then
          table.insert(result, test)
@@ -1481,6 +1597,17 @@ function GetNearestIndex(target, list)
       end
    end
    return nearInd  
+end
+
+function GetKills(thing, list)
+   local spell = GetSpell(thing)
+   local result = FilterList(list, 
+      function(item) 
+         if not item.health then return false end
+         return GetSpellDamage(spell, item) > item.health
+      end
+   )
+   return result
 end
 
 function FilterList(list, f)
@@ -1719,6 +1846,10 @@ function DrawKnockback(object2, dist)
    DrawLineObject(object2, dist, 0, angle, 0)
 end
 
+function DrawBB(t, color)
+   if not color then color = yellow end
+   DrawCircle(t.x, t.y, t.z, GetWidth(t), color)
+end
 
 function DrawThickCircle(x,y,z,radius,color,thickness)
    local count = math.floor(thickness/2)
@@ -1776,6 +1907,8 @@ function GetAADamage(target)
          damageP = 0
       end
       damageM = damageM + GetSpellDamage("stack")  
+   elseif me.name == "lux" then
+      -- would apply flare damage if I could. Handle in script
    end
    
    -- items
@@ -1947,6 +2080,7 @@ and return an enemy in [stop] that is trying to kill that ally in [save]
 --]]
 function GetPeel(save, stop)
    for _,ally in ipairs(save) do
+      SortByDistance(stop, ally)
       -- check if the target is moving "directly" toward this ally
       -- check if the target is close enough to the ally to be a threat
       for _,enemy in ipairs(stop) do
@@ -2236,7 +2370,7 @@ function GetAAData()
         KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack_mis", "KogMawBioArcaneBarrage_mis"}, aaSpellName = "kogmawbasicattack", startAttackSpeed = "0.665", },
         Leblanc      = { projSpeed = 1.7, aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"}, aaSpellName = "leblancbasicattack", startAttackSpeed = "0.625" },
         Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
-        Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack_mis", "LuxBasicAttack_tar", "LuxBasicAttack01"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
+        Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
         Malzahar     = { projSpeed = 1.5, aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"}, aaSpellName = "malzaharbasicattack", startAttackSpeed = "0.625" },
         MissFortune  = { projSpeed = 2.0, aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}, aaSpellName = "missfortunebasicattack", startAttackSpeed = "0.656" },
         Morgana      = { projSpeed = 1.6, aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"}, aaSpellName = "Morganabasicattack", startAttackSpeed = "0.579" },

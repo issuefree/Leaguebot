@@ -45,7 +45,7 @@ spells["fire"] = {
    base={55,95,135,175,215},
    ap=.6,
    cost={70,85,100,115,130},
-   area=400,
+   radius=400,
    delay=3,
    speed=99
 }
@@ -115,7 +115,7 @@ function Action()
       local targets = GetInRange(me, "fire", ENEMIES)
       local bestTargets = {}
       for _,target in ipairs(targets) do
-         local hits = GetInRange(target, spells["fire"].area, ENEMIES)
+         local hits = GetInRange(target, spells["fire"].radius, ENEMIES)
          if #hits > #bestTargets then
             bestTargets = hits
          end

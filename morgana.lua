@@ -25,7 +25,7 @@ spells["soil"] = {
    color=violet, 
    base={25,40,55,70,85}, 
    ap=.2,
-   area=300
+   radius=300
 }
 spells["shield"] = {
    key="E", 
@@ -83,7 +83,7 @@ function Run()
          if not CanUse("binding") or GetClock() - lastBinding > 1000 then            
             for _,target in ipairs(targets) do
                local x,y,z = GetFireahead(target, 2, 99)
-               if GetDistance(target, {x=x, y=y, z=z}) < W.area/4 then
+               if GetDistance(target, {x=x, y=y, z=z}) < W.radius/4 then
                   CastSpellXYZ("W", x, y, z)
                   break
                end
