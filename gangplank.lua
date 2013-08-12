@@ -2,7 +2,12 @@ require "Utils"
 require "timCommon"
 require "modules"
 
-print("\nTim's Gangplank")
+pp("\nTim's Gangplank")
+pp(" - heal up with oranges")
+pp(" - warn for good ult")
+pp(" - shoot for lasthit")
+pp(" - morale if near enemies")
+
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
@@ -15,7 +20,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 spells["gun"] = {
 	key="Q", 
 	range=625, 
-	color=yellow, 
+	color=violet, 
 	base={20,45,70,95,120}, 
 	ad=1,
 	onHit=true,
@@ -49,11 +54,7 @@ function Run()
       return
    end
 
-   if HotKey() and CanAct() then
-      Action()
-   end
-	
-	if IsOn("ult") and CanCastSpell("R") then
+	if IsOn("ult") and CanUse("barrage") then
 		for _,enemy in ipairs(ENEMIES) do
 			if enemy and enemy.health/enemy.maxHealth < .5 and #GetInRange(enemy, 500, ALLIES) > 0 then
 				PlaySound("Beep")
@@ -63,61 +64,90 @@ function Run()
 
 	if CanUse("oranges") and me.health/me.maxHealth < .5 then
 		Cast("oranges", me)
-		return
+		pp("oranges")
+		return true
 	end
 
-	if CanUse("orange") and me.health/me.maxHealth < .75 and Alone() then
+	if CanUse("oranges") and me.health/me.maxHealth < .75 and Alone() then
 		Cast("oranges", me)
-		return
+		pp("oranges")
+		return true
 	end
 	
+   if HotKey() and CanAct() then
+      if Action() then
+      	return true
+      end
+   end
+
 	if IsOn("lasthit") and Alone() then
-		KillFarMinion(spells["gun"])
-	end
-end
-
-function Action()
-	UseItems()
-
-	local target = GetWeakEnemy("PHYS", spells["gun"].range)
-	if target and CanUse("shot") then
-		Cast("gun", target)
-		return
-	end
-
-	if target and CanUse("morale") then
-		local manaThresh = 1
-		manaThresh = manaThresh - .1*#GetInRange(me, spells["morale"].range, ALLIES)
-		manaThresh = manaThresh - .05*#GetInRange(me, spells["gun"].range, ENEMIES)
-		
-		if me.mana/me.maxMana > manaThresh then
-			Cast("morale", me)
-			return
+		if KillFarMinion("gun") then
+			pp("gun far minion")
+			return true
 		end
 	end
 
-	local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range+100)
-	if AA(aaTarget) then
-		return
+   if HotKey() and CanAct() then
+	   if FollowUp() then
+	   	return true
+	   end
 	end
+end
 
+function FollowUp()
 	if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+      	pp("aa minion")
+         return true
       end
 	end		
 
 	if IsOn("clearminions") and Alone() then
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       if AA(minions[#minions]) then
-         return
+      	pp("aa minion")
+         return true
       end
    end
 
-   if IsOn("move") and not aaTarget then
-      MoveToCursor() 
+	if IsOn("move") then
+      if ValidTarget(aaTarget) then
+         MoveToTarget(aaTarget)
+         return true
+      else
+         MoveToCursor() 
+         return true
+      end
    end
 
+	return false
+end
+
+function Action()
+	UseItems()
+
+	if Cast("gun", GetWeakestEnemy("gun")) then
+		pp("gun to weakest")
+		return true
+	end
+
+	if not Alone() and CanUse("morale") then
+		local manaThresh = 1
+		manaThresh = manaThresh - .1*#GetInRange(me, spells["morale"].range, ALLIES)
+		manaThresh = manaThresh - .05*#GetInRange(me, spells["gun"].range, ENEMIES)
+		
+		if me.mana/me.maxMana > manaThresh then
+			Cast("morale", me)
+			return true
+		end
+	end
+
+	local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
+	if AA(aaTarget) then
+		return true
+	end
+
+   return false
 end
 
 SetTimerCallback("Run")

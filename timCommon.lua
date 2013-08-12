@@ -77,7 +77,23 @@ end
 local line = 0
 function PrintState(state, str)
    DrawText(str,100,100+state*15,0xFFCCEECC);
--- pp(state.."."..str)
+end
+
+local lastAction = nil
+function PrintAction(str)
+   if str == nil then 
+      lastAction = nil
+      return
+   end
+   if str ~= lastAction then
+      pp(" # "..str)
+      lastAction = str
+   end
+end
+
+
+function ClearState(state)
+   printStates[state+1] = ""
 end
 
 LOADING = true
@@ -99,16 +115,15 @@ function AddOnSpell(callback)
    RegisterLibraryOnProcessSpell(callback)
 end
 
--- local function onKey(msg, key)
---    if msg == KEY_UP then
---       if key == 107 then         
-
---       end
---    end
--- end
+local function OnKey(msg, key)
+   if msg == WM_LBUTTONUP then
+      MarkTarget()
+   end
+end
 function AddOnKey(callback)
    RegisterLibraryOnWndMsg(callback)
 end
+AddOnKey(OnKey)
 
 -- circle colors
 yellow = 0
@@ -298,6 +313,11 @@ until playerTeam ~= nil and playerTeam ~= "0"
 local function drawCommon()
    if me.dead == 1 then
       return
+   end
+
+   local mark = GetMarkedTarget()
+   if mark then
+      DrawThickCircleObject(mark, GetWidth(mark), red, 7)
    end
 end
 
@@ -611,6 +631,13 @@ local function updateObjects()
    Clean(WARDS, "name", "Ward")
    Clean(TURRETS, "name", "Turret")
    Clean(MYTURRETS, "name", "Turret")
+
+   local mark = GetMarkedTarget()
+   if mark then
+      if mark.dead == 1 or mark.visible == 0 or GetDistance(mark) > 1750 then
+         markedTarget = nil
+      end
+   end
 end
 
 function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
@@ -706,6 +733,30 @@ function throttle(id, millis)
    return true
 end
 
+markedTarget = nil
+-- "mark" the enemy closest to a right mouse click (i.e. right click to mark)
+function MarkTarget()
+   if #GetInRange(mousePos, 500, ENEMIES) == 0 then
+      markedTarget = nil
+      return
+   end
+   local targets = SortByDistance(GetInRange(mousePos, 200, ENEMIES), mousePos)
+   if targets[1] then
+      local mark = StateObj(targets[1])
+      if Check(mark) then
+         markedTarget = mark
+         return
+      end
+   end
+end
+function GetMarkedTarget()
+   if Check(markedTarget) then
+      return GetObj(markedTarget)
+   end
+   return nil
+end
+
+
 function MoveToTarget(t)
    if CanMove() then
       MoveToXYZ(t.x, t.y, t.z)
@@ -765,7 +816,8 @@ function KillWeakMinion(thing, extraRange)
 end
 
 -- find the furthest away minion that you can kill and smack it
-function KillFarMinion(spell)
+function KillFarMinion(thing)
+   local spell = GetSpell(thing)
    if not CanUse(spell) then return end
 
    local damage = GetSpellDamage(spell)
@@ -1186,7 +1238,7 @@ function Cast(thing, target)
       return false
    end
 
-   if not target then 
+   if not ValidTarget(target) then 
       return false
    end
 
@@ -1452,6 +1504,12 @@ ITEMS["Tear of the Goddess"] = {id=3070}
 ITEMS["Archangel's Staff"] = {id=3003}
 ITEMS["Manamune"] = {id=3004}
 
+function UseAutoItems()
+   UseItem("Zhonya's Hourglass")
+   UseItem("Wooglet's Witchcap")
+   UseItem("Mikael's Crucible")
+end
+
 function UseItems(target)
    for item,_ in pairs(ITEMS) do
       UseItem(item, target)
@@ -1526,8 +1584,8 @@ function UseItem(itemName, target)
    then
       -- use it if I'm at 10% and there's an enemy nearby
       -- may expand this to trigger when a spell is cast on me that will kill me
-      local target = GetWeakEnemy("MAGIC", 1000)
-      if target and me.health < me.maxHealth/10 then
+      local target = GetWeakEnemy("MAGIC", 750)
+      if target and me.health < me.maxHealth/20 then
          CastSpellTarget(slot, me)
       end
 
@@ -1682,6 +1740,15 @@ function GetManaCost(thing)
    return 0
 end
 
+function GetCD(thing)
+   local spell = GetSpell(thing)
+   local cd = math.ceil(1 - me["SpellTime"..spell.key])
+   if cd > 0 then
+      return cd
+   end
+   return 0
+end
+
 function CanUse(thing)
    if type(thing) == "table" then -- spell or item
       if thing.id then -- item
@@ -1716,14 +1783,16 @@ function CanUse(thing)
          if thing == "D" or thing == "F" then
             return IsSpellReady(thing) == 1
          end
-         return IsCooledDown(thing) -- should be a spell key "Q"
+         return GetSpellLevel(thing) > 0 and IsCooledDown(thing) -- should be a spell key "Q"
       end
    end
+   pp("Failed to get spell for "..thing)
 end
 
-local wardCastTime = GetClock() 
-function WardJump(key)
-   if not IsCooledDown(key) then
+local wardCastTime = time() 
+function WardJump(thing)
+   local spell = GetSpell(thing)
+   if not CanUse(spell) then
       return
    end
    local ward = nil
@@ -1738,17 +1807,20 @@ function WardJump(key)
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
    if not ward then 
-      if GetClock() - wardCastTime > 1000 then
+      if time() - wardCastTime > 5 then
          local wardSlot = getWardingSlot()
          if wardSlot then
-            CastSpellXYZ(wardSlot, GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
-            wardCastTime = GetClock()
+            CastXYZ(wardSlot, mousePos)
+            wardCastTime = time()
          end
          return
       end
    else
-      CastSpellTarget(key, ward)
+      -- Cast can't target wards as they're not visible
+      CastSpellTarget(spell.key, ward)
+      return true
    end
+   return false
 end
 
 function RadsToDegs(rads)
@@ -1988,7 +2060,7 @@ function GetSpell(thing)
    local spell
    if type(thing) == "table" then
       spell = thing
-   else     
+   else
       spell = spells[thing]
       if not spell then
          for _,s in pairs(spells) do
@@ -1998,7 +2070,13 @@ function GetSpell(thing)
             end
          end
       end
-   end 
+      -- couldn't find a defined spell.
+      -- make a fake spell with the thing as the key as this is almost certainly
+      -- an item or a summoner spell
+      if not spell then 
+         spell = {key=thing}         
+      end
+   end
    return spell
 end
 
@@ -2205,32 +2283,34 @@ local lastAttack = os.clock() -- last time I cast an attack
 local shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 function aaTick()
-   -- if CanAttack() then
-   --    setAttackState(0)
-   --    PrintState(0, "!")
-   -- end
-   -- if IsAttacking() then
-   --    setAttackState(1)
-   --    PrintState(0, "  -")
-   -- end
-   -- if waitingForAttack() then
-   --    setAttackState(2)
-   --    PrintState(0, "  --")
-   -- end
-   -- if JustAttacked() then
-   --    PrintState(0, "    :")
-   -- end
-   -- if CanAct() then
-   --    setAttackState(3)
-   --    PrintState(0, "       )")
-   -- end
-   -- if CanMove() then
-   --    setAttackState(4)
-   --    PrintState(0, "         >")
-   -- end
+   if ModuleConfig.debug then
+      if CanAttack() then
+         setAttackState(0)
+         PrintState(0, "!")
+      end
+      if IsAttacking() then
+         setAttackState(1)
+         PrintState(0, "  -")
+      end
+      if waitingForAttack() then
+         setAttackState(2)
+         PrintState(0, "  --")
+      end
+      if JustAttacked() then
+         PrintState(0, "    :")
+      end
+      if CanAct() then
+         setAttackState(3)
+         PrintState(0, "       )")
+      end
+      if CanMove() then
+         setAttackState(4)
+         PrintState(0, "         >")
+      end
 
-   -- PrintState(1, (1 / me.attackspeed))
-   -- PrintState(2, me.attackspeed)
+      -- PrintState(1, (1 / me.attackspeed))
+      -- PrintState(2, me.attackspeed)
+   end
 
    -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled   
    if not shotFired and time() - lastAttack > attackDelayOffset then
@@ -2383,7 +2463,7 @@ function GetAAData()
         Soraka       = { projSpeed = 1.0, aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625" },
         Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
         Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
-        Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
+          Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
         Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656",  },
         TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
         Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
@@ -2396,7 +2476,7 @@ function GetAAData()
         Xerath       = { projSpeed = 1.2, aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"}, aaSpellName = "xerathbasicattack", startAttackSpeed = "0.625" },
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
-        Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
+        Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },        
     }
 end
 aaData = GetAAData()[myHero.name]

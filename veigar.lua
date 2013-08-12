@@ -42,7 +42,7 @@ spells["burst"] = {
    cost={125,175,225}
 }
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -190,10 +190,6 @@ function FollowUp()
       end         
    end
 
-   if IsOn("move") then
-      MoveToCursor() 
-      return true
-   end
    return false
 end
 

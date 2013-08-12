@@ -46,7 +46,7 @@ function stunOn()
    end
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 -- build up and hold on to stun
 AddToggle("stoke", {on=true, key=113, label="Stoke", auxLabel="{0}", args={stunOn}})
 AddToggle("", {on=true, key=114, label=""})
@@ -194,10 +194,6 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      MoveToCursor() 
-      return true
-   end
    return false
 end
 

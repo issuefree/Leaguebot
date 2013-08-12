@@ -120,7 +120,7 @@ function Action()
       return true
    end
 
-   if aaTarget and AA(aaTarget) then
+   if AA(aaTarget) then
    	return true
    end
 
@@ -158,6 +158,7 @@ function FollowUp()
    end
 
    if IsOn("move") then
+      local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
       if aaTarget then
          MoveToTarget(aaTarget)
          return true

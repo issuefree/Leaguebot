@@ -33,8 +33,11 @@ function Run()
 	TimTick()
 
    if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
+
+   UseAutoItems()
 
 	if HotKey() and CanAct() then
 		if Action() then
@@ -56,13 +59,15 @@ function Action()
       
 -- ranged
    local target = GetWeakEnemy("PHYS", spells["AA"].range)
-   if target and AA(target) then
+   if AA(target) then
+      PrintAction("AA weak enemy")
       return true
    end
 
 -- melee
    -- local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
    -- if aaTarget and AA(aaTarget) then
+   --    PrintAction("AA weak enemy")
    -- 	return true
    -- end
 
@@ -72,6 +77,7 @@ end
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
          return true
       end
    end
@@ -80,7 +86,8 @@ function FollowUp()
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       local minion = minions[#minions]
-      if minion and AA(minion) then
+      if AA(minion) then
+         PrintAction("AA clear minions")
          return true
       end
    end

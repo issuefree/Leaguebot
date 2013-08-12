@@ -143,7 +143,7 @@ function Action()
    if aaTarget and CanUse("strike") then
       Cast("strike", me)
    end
-   if aaTarget and AA(aaTarget) then
+   if AA(aaTarget) then
       return true
    end
 
@@ -178,7 +178,7 @@ function FollowUp()
    if IsOn("clearminions") and Alone() then
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       local minion = minions[#minions]
-      if minion and AA(minion) then
+      if AA(minion) then
          return true
       end
    end

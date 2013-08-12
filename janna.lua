@@ -26,7 +26,7 @@ end
 
 function checkShield(unit, spell)
 	if not IsOn("shield") or
-      not spell.target or
+       not spell.target or
 	   find(unit.name, "Minion") or
 	   find(spell.target.name, "Minion") or
 	   IsRecalling(me) or

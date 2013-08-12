@@ -46,7 +46,7 @@ spells["consecration"] = {
 
 
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -164,17 +164,8 @@ function FollowUp()
       if minion and AA(minion) then
          return true
       end
-	end
-
-   -- local target = GetWeakestEnemy("AA")
-   -- if AA(target) then
-   --    return true
-   -- end
-
-   if IsOn("move") then
-      MoveToCursor() 
-      return true
    end
+
    return false
 end
 

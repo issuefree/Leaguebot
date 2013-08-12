@@ -8,10 +8,7 @@ pp(" - pop singularity for kill or if they try to get out")
 pp(" - SS Binding to peel from adc, apc, me or hit weakest")
 pp(" - Singularity into groups for hits/kills else at weakest")
 pp(" - Spark to hit 3 or more")
-pp(" - AA flared people or weakest")
-pp("TODO:")
-pp(" - improve lasthit")
-pp(" - clearminions")
+pp(" - AA flared")
 
 -- I'd like to find a way to use binding and singularity to peel off adc/apc
 
@@ -88,10 +85,10 @@ function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("aa", {on=false, key=112, label="Attack flared enemies", auxLabel={0}, args={"flare"}})
 AddToggle("ks", {on=true, key=113, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
 AddToggle("barrier", {on=true, key=114, label="Barrier Team"})
-AddToggle("spark", {on=false, key=115, label="Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
+AddToggle("spark", {on=false, key=115, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
@@ -160,7 +157,7 @@ function Run()
             Cast(spell, me)
             break
          end
-         local nextPos = ToPoint(GetFireahead(enemy, 2, 99))
+         local nextPos = ToPoint(GetFireahead(enemy, 4, 99))
          if GetDistance(singularity[2], nextPos) > spell.radius then
             Cast(spell, me)
             break
@@ -170,7 +167,6 @@ function Run()
       local minions = GetInRange(GetObj(singularity), spell.radius, MINIONS)
       local kills = GetKills("singularity", minions)
       if #kills > 2 then
-         pp("KILLED "..#kills.." MINIONS")
          Cast(spell, me)
       end
    end
@@ -236,19 +232,21 @@ function Action()
    end
 
    -- try to hit the loweset health target with a flare on em
-   local targets = SortByHealth(GetInRange(me, "AA", ENEMIES))
-   for _,target in ipairs(targets) do
-      if isFlared(target) then
-         AA(target)
-         return true
+   if IsOn("aa") and CanAttack() then
+      local targets = SortByHealth(FilterList(GetInRange(me, "AA", ENEMIES), isFlared)
+      for _,target in ipairs(targets) do
+         if isFlared(target) then
+            AA(target)
+            return true
+         end
       end
    end
+
    -- -- otherwise just hit the weakest guy in range
    -- local target = GetWeakestEnemy("AA")
    -- if target and AA(target) then
    --    return true
    -- end
-
 
    return false
 end
@@ -266,7 +264,6 @@ function FollowUp()
             return true
          end
       end
-
 
       for _,target in ipairs(flaredMinions) do
          local aaDam = GetAADamage(target)
@@ -297,11 +294,6 @@ function FollowUp()
          return true
       end
 
-   end
-
-   if IsOn("move") then
-      MoveToCursor() 
-      return true
    end
 
 end
