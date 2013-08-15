@@ -80,13 +80,17 @@ function PrintState(state, str)
 end
 
 local lastAction = nil
-function PrintAction(str)
+function PrintAction(str, target)
    if str == nil then 
       lastAction = nil
       return
    end
    if str ~= lastAction then
-      pp(" # "..str)
+      if target then
+         pp(" # "..str.." -> "..target.charName)
+      else
+         pp(" # "..str)
+      end
       lastAction = str
    end
 end
@@ -252,7 +256,6 @@ ENEMY_SPELLS = {
    {charName = "Nocturne", spellName = "nocturneduskbringer", spellType = "Damage"},
    {charName = "Nunu", spellName = "iceblast", spellType = "Stun"},
    {charName = "Olaf", spellName = "olafaxethrowcast", spellType = "Slow"},
-   {charName = "Olaf", spellName = "olafrecklessstrike", spellType = "Slow"},
    {charName = "Pantheon", spellName = "pantheon_throw", spellType = "Damage"},
    {charName = "Pantheon", spellName = "pantheon_leapbash", spellType = "Stun"},
    {charName = "Rammus", spellName = "puncturingtaunt", spellType = "Stun"},
@@ -1234,11 +1237,13 @@ function Cast(thing, target)
    local spell = GetSpell(thing)
    if not spell then spell = thing end
 
-   if not CanUse(spell) then
+   if not CanUse(spell) then      
+      pp("can't use "..spell.key)
       return false
    end
 
-   if not ValidTarget(target) then 
+   if not target then 
+      pp("no target for "..spell.key)
       return false
    end
 
@@ -1451,6 +1456,25 @@ function GetInRange(target, thing, ...)
    return result
 end
 
+function GetAllInRange(target, thing, ...)
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpell(thing).range
+   else
+      range = thing
+   end
+   local result = {}
+   local list = concat(...)
+   for _,test in ipairs(list) do
+      if target and
+         GetDistance(target, test) < range 
+      then
+         table.insert(result, test)
+      end
+   end
+   return result
+end
+
 ITEMS = {}
 --Active offense
 ITEMS["Entropy"]                  = {id=3184, range=me.range+50, type="active"}
@@ -1585,7 +1609,7 @@ function UseItem(itemName, target)
       -- use it if I'm at 10% and there's an enemy nearby
       -- may expand this to trigger when a spell is cast on me that will kill me
       local target = GetWeakEnemy("MAGIC", 750)
-      if target and me.health < me.maxHealth/20 then
+      if target and me.health/me.maxHealth < .20 then
          CastSpellTarget(slot, me)
       end
 
@@ -1752,7 +1776,7 @@ end
 function CanUse(thing)
    if type(thing) == "table" then -- spell or item
       if thing.id then -- item
-         return IsCooledDown(GetInventorySlot(item.id))
+         return IsCooledDown(GetInventorySlot(thing.id))
       elseif thing.key then -- spell
          if thing.key == "A" then
             return CanAttack()
@@ -1998,8 +2022,8 @@ function GetAADamage(target)
 end
 
 -- if you specify a target you get % health damage
--- if sheenIfReady is true check for sheen ready (for activated on hit abilities)
--- if sheenIfReady is nil or false it only adds sheen if it's already on
+-- if needSpellbladeActive is true check for sheen ready (for activated on hit abilities)
+-- if needSpellbladeActive is nil or false it only adds sheen if it's already on
 function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage broken down by magic,phys
    local damageM = 0
    local damageP = 0
@@ -2040,7 +2064,7 @@ end
 function getSBDam(item, buffObj, needActive)
    local slot = GetInventorySlot(item.id)
    if slot then
-      if (needActive and Check(buffObj)) or CanUse(tostring(slot)) then
+      if (needActive and Check(buffObj)) or CanUse(item) then
          return GetSpellDamage(item)
       end
    end
@@ -2463,7 +2487,7 @@ function GetAAData()
         Soraka       = { projSpeed = 1.0, aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625" },
         Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
         Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
-          Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
+        Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
         Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656",  },
         TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
         Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
@@ -2476,7 +2500,9 @@ function GetAAData()
         Xerath       = { projSpeed = 1.2, aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"}, aaSpellName = "xerathbasicattack", startAttackSpeed = "0.625" },
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
-        Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },        
+        Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
+        Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
+        Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
     }
 end
 aaData = GetAAData()[myHero.name]

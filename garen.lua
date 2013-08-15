@@ -150,20 +150,24 @@ function FollowUp()
       if not spinT or (not isSpinning() and not CanUse("judgement")) then
          -- hit the highest health minion
          local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-         local minion = minions[#minions]
-         if minion and AA(minion) then
+         if AA(minions[#minions]) then
+            PrintAction("AA clear minions")
             return true
          end
       end
    end
 
    if IsOn("move") then
-      local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if aaTarget then
-         MoveToTarget(aaTarget)
-         return true
-      else
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      if target then
+         if GetDistance(target) > spells["AA"].range then
+            PrintAction("MTT")
+            MoveToTarget(target)
+            return true
+         end
+      else        
          MoveToCursor() 
+         PrintAction("Move")
          return true
       end
    end

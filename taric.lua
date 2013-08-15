@@ -16,25 +16,32 @@ AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args=
 function Run()
 	TimTick()
 
-	if IsRecalling(me) then
-		return
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return
+   end
+
+   UseAutoItems()
+
+   if IsOn("healing") and CanUse("heal") then
+		if healTeam() then
+			return true
+		end
 	end
 
-	healTeam()
-	if IsKeyDown(hotKey) ~= 0 then	
-		useItems()
+	if HotKey() and CanAct() then
+		if Action() then
+			return
+		end
 	end
 end 
 
-function onCreateObj(object)
-	onCreateObjSupport()
+function Action()
+	UseItems()
+	return false
 end
 
 function healTeam()
-	if not IsOn("healing") then
-		return
-	end
-	
 	local maxHeal = GetSpellDamage("heal")
 
 	local bestInRangeT = nil
@@ -72,30 +79,27 @@ function healTeam()
 		DrawCircleObject(bestInRangeT, 100, green)
 	end
 	if bestOutRangeT and GetDistance(me, bestOutRangeT) > 750 then
-		DrawCircleObject(bestOutRangeT, 100, yellow)
-		DrawCircleObject(bestOutRangeT, 102, yellow)
-		DrawCircleObject(bestOutRangeT, 104, yellow)
+		DrawThickCircleObject(bestOutRangeT, 100, yellow, 4)
 	end
 
-	if CanUse("Q") then
-	
-		-- let me know if someone oustside of range is in need
-		if bestOutRangeT and 
-		   ( not bestInRangeT or
-			 ( bestOutRangeP < .33 and
-			   bestInRangeP > .5 ) )			
-		then
+	-- let me know if someone oustside of range is in need
+	if bestOutRangeT and 
+	   ( not bestInRangeT or
+		 ( bestOutRangeP < .33 and
+		   bestInRangeP > .5 ) )			
+	then
 --			PlaySound("Beep")
-		end
-			
-		if bestInRangeT then
-			CastSpellTarget("Q", bestInRangeT)
-			pp("Healing: "..bestInRangeT.name)
-		elseif me.health + maxHeal*1.4 < me.maxHealth*.75 then
-			CastSpellTarget("Q", me)
-			pp("Healing: me")
-		end
-	end		
+	end
+		
+	if bestInRangeT then
+		Cast("heal", bestInRangeT)
+		PrintAction("heal", bestInRangeT)
+		return true
+	elseif me.health + maxHeal*1.4 < me.maxHealth*.75 then
+		Cast("heal", me)
+		PrintAction("Heal", me)
+		return true
+	end
 end
 
 function useItems()

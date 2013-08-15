@@ -74,20 +74,18 @@ local headshot = nil
 
 function Run()
    TimTick()
-
-   if IsRecalling(me) or me.dead == 1 then
-      return
-   end
-
    if Check(headshot) then
       spells["headshot"].ad = 1.5
    else
       spells["headshot"].ad = 0
    end
-   if HotKey() and CanAct() then
-      Action()
+
+   if IsRecalling(me) or me.dead == 1 then
+      return
    end
-   
+
+   UseAutoItems() -- zhonya's, mikael's...
+
    if IsOn("execute") then
       local target = GetWeakEnemy("PHYSICAL", getAceRange())
       if target and target.health < GetSpellDamage("ace", target) then
@@ -95,12 +93,31 @@ function Run()
          DrawThickCircleObject(target, 100, red, 6)
       end
    end
+
+   if HotKey() and CanAct() then
+      if Action() then
+         return true
+      end
+   end   
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      PrintAction("move")
+      MoveToCursor()
+      return false   
+   end
+
 end
 
 function Action()
    UseItems()
    
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if target then
       if IsOn("trap") and 
          CanUse("trap") and 
@@ -108,51 +125,59 @@ function Action()
       then
          -- trap targets that are moving mostly directly toward or away from me.
          if SSGoodTarget(target, "trap", 30) then
+            PrintAction("It's a trap!", target)
             CastSpellFireahead("trap", target)            
-            return
+            return true
          end
       end
 
       if AA(target) then
-         return
+         PrintAction("AA", target)
+         return true
       end
    end
+
+   -- get the weakest target within pp range but out of AA range
    local targets = GetInRange(me, "pp", ENEMIES)
    targets = FilterList(targets, function(item) return GetDistance(item) > spells["AA"].range end)
-   target = GetWeakest("pp", targets)
+   local target = GetWeakest("pp", targets)
    if target then
       if IsOn("pp") and CanUse("pp") and me.mana > GetManaCost("net") + GetManaCost("pp") then
          if SSGoodTarget(target, "pp") then
+            PrintAction("PP", target)
             CastSpellFireahead("pp", target)
-            return
+            return true
          end
       end
-
    end
 
+   return false
+end
+
+function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         PrintAction("lasthit")
+         return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
       -- check for a big clear from pp
       if IsOn("pp") and KillMinionsInLine("pp", 4, false, -100, false) then
-         return
+         PrintAction("clear with PP")
+         return true
       end
 
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      if minion and AA(minion) then
-         return
+      if AA(minions[#minions]) then
+         pp("clear with AA")
+         return true
       end
    end
 
-   if IsOn("move") then
-      MoveToCursor() 
-   end
+   return false
 end
 
 local function onObject(object)

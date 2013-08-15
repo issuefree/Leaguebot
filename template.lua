@@ -39,14 +39,18 @@ function Run()
 
    UseAutoItems()
 
+   -- auto stuff that always happen
+
+   -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
 		if Action() then
 			return
 		end
 	end
 
-	-- always stuff here
+	-- auto stuff that should happen if you didn't do something more important
 
+   -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
       if FollowUp() then
          return
@@ -85,8 +89,7 @@ function FollowUp()
    if IsOn("clearminions") and Alone() then
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      if AA(minion) then
+      if AA(minions[#minions]) then
          PrintAction("AA clear minions")
          return true
       end
@@ -95,17 +98,22 @@ function FollowUp()
 -- ranged
    if IsOn("move") then
       MoveToCursor() 
-      return true
+      return false
    end
 
 -- melee
    -- if IsOn("move") then
-   --    if aaTarget then
-   --       MoveToTarget(aaTarget)
-   --       return true
-   --    else
+   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   --    if target then
+   --       if GetDistance(target) > spells["AA"].range then
+   --          MoveToTarget(target)
+   --          PrintAction("MTT")
+   --          return false
+   --       end
+   --    else        
    --       MoveToCursor() 
-   --       return true
+   --       PrintAction("Move")
+   --       return false
    --    end
    -- end
 

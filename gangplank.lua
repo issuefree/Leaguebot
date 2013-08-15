@@ -54,6 +54,8 @@ function Run()
       return
    end
 
+   UseAutoItems()
+
 	if IsOn("ult") and CanUse("barrage") then
 		for _,enemy in ipairs(ENEMIES) do
 			if enemy and enemy.health/enemy.maxHealth < .5 and #GetInRange(enemy, 500, ALLIES) > 0 then
@@ -63,14 +65,14 @@ function Run()
 	end
 
 	if CanUse("oranges") and me.health/me.maxHealth < .5 then
-		Cast("oranges", me)
-		pp("oranges")
+		PrintAction("oranges")
+		Cast("oranges", me)		
 		return true
 	end
 
 	if CanUse("oranges") and me.health/me.maxHealth < .75 and Alone() then
-		Cast("oranges", me)
-		pp("oranges")
+		PrintAction("oranges")
+		Cast("oranges", me)		
 		return true
 	end
 	
@@ -82,7 +84,7 @@ function Run()
 
 	if IsOn("lasthit") and Alone() then
 		if KillFarMinion("gun") then
-			pp("gun far minion")
+			PrintAction("gun down a minion")
 			return true
 		end
 	end
@@ -94,40 +96,12 @@ function Run()
 	end
 end
 
-function FollowUp()
-	if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-      	pp("aa minion")
-         return true
-      end
-	end		
-
-	if IsOn("clearminions") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-      	pp("aa minion")
-         return true
-      end
-   end
-
-	if IsOn("move") then
-      if ValidTarget(aaTarget) then
-         MoveToTarget(aaTarget)
-         return true
-      else
-         MoveToCursor() 
-         return true
-      end
-   end
-
-	return false
-end
-
 function Action()
 	UseItems()
 
-	if Cast("gun", GetWeakestEnemy("gun")) then
-		pp("gun to weakest")
+	local target = GetMarkedTarget() or GetWeakestEnemy("gun")
+	if Cast("gun", target) then
+		PrintAction("Shoot", target)
 		return true
 	end
 
@@ -138,16 +112,53 @@ function Action()
 		
 		if me.mana/me.maxMana > manaThresh then
 			Cast("morale", me)
+			PrintAction("morale")
 			return true
 		end
 	end
 
-	local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
-	if AA(aaTarget) then
-		return true
-	end
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   if AA(target) then
+		PrintAction("AA "..target.charName)
+	   return true
+   end
 
    return false
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      if target then
+      	if GetDistance(target) > spells["AA"].range then
+	      	PrintAction("MTT")
+	         MoveToTarget(target)
+	         return true
+	      end
+      else      	
+         MoveToCursor() 
+         PrintAction("Move")
+         return true
+      end
+   end
+
+	return false
 end
 
 SetTimerCallback("Run")

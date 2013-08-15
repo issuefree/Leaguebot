@@ -21,7 +21,7 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {2}      {1}", args={GetAADamage, strikeBonus, "strike"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}      {2}", args={GetAADamage, "strike", strikeBonus}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["strike"] = {
@@ -29,6 +29,7 @@ spells["strike"] = {
    base={30,50,70,90,110}, 
    ad=1,
    bonus=0,
+   onHit=true,
    type="P",
    cost=20
 }
@@ -72,16 +73,18 @@ function Run()
       return
    end
    
+   UseAutoItems()
+
    if HotKey() and CanAct() then
       if Action() then
-         return
+         return true
       end
-   end
-      
+   end   
    
+
    if IsOn("lasthit") and Alone() then
       if CanUse("strike") then
-         local targets = SortByDistance(GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
+         local targets = SortByDistance(GetAllInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
             if GetSpellDamage("strike", target) > target.health then
                Cast("strike", target)
@@ -92,6 +95,7 @@ function Run()
                end
                victim = target
                victimName = target.name
+               PrintAction("strike lasthit")
                return true
             end
          end
@@ -101,7 +105,7 @@ function Run()
 
    if HotKey() and CanAct() then
       if FollowUp() then
-         return
+         return true
       end
    end
 end
@@ -123,73 +127,84 @@ function Action()
       if #bestTargets > 2 then
          local x,y,z = GetCenter(bestTargets)
          CastXYZ("fire", x,y,z)
+         PrintAction("fire on area")
          return true
       end
 
-      local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if aaTarget then
-         DrawThickCircleObject(aaTarget, 100, red, 6)
+      local target = GetWeakEnemy("PHYS", spells["AA"].range*2)
+      if target then
+         DrawThickCircleObject(target, 100, red, 6)
       end
-      if aaTarget then
-         CastXYZ("fire", aaTarget)
+      if target then
+         CastXYZ("fire", target)
+         PrintAction("fire", target)
          return true
       end
 
    end
-
-   -- Whack shit
-   -- If I'm whackin shit, use strike
-   local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if aaTarget and CanUse("strike") then
-      Cast("strike", me)
-   end
-   if AA(aaTarget) then
-      return true
-   end
-
-
 
    if CanUse("wither") then
       -- hit the adc if I can
       local spell = spells["wither"]
-      if EADC and GetDistance(EADC) < spell.range then
-         Cast("wither", EADC)
-         return true
+      local target = GetMarkedTarget()
+      if not target then
+         if EADC and GetDistance(EADC) < spell.range then
+            target = EADC
+         end
       end
-      local target = GetWeakestEnemy("wither")
+      if not target then
+         target = GetWeakestEnemy("wither")
+      end
       if target then
          Cast("wither", target)
+         PrintAction("Wither", target)
          return true
       end
+   end
+
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   if target and GetDistance(target) < spells["AA"].range+50 and CanUse("strike") then
+      Cast("strike", me)
+      PrintAction("prep for AA")
+   end
+   if AA(target) then
+      PrintAction("AA "..target.charName)
+      return true
    end
 
    return false
 end
 
 function FollowUp()
-   local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetWeakEnemy("PHYS", spells["AA"].range*2)
 
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
          return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      if AA(minion) then
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
          return true
       end
    end
 
    if IsOn("move") then
-      if aaTarget then
-         MoveToTarget(aaTarget)
-         return true
-      else
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      if target then
+         if GetDistance(target) > spells["AA"].range then
+            MoveToTarget(target)
+            PrintAction("MTT")
+            return false
+         end
+      else        
          MoveToCursor() 
-         return true
+         PrintAction("Move")
+         return false
       end
    end
 
