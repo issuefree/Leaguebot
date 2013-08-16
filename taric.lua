@@ -4,6 +4,7 @@ require "modules"
 require "support"
 
 pp("Tim's Taric")
+pp(" - Heal")
 
 spells["heal"]     = {key="Q", range=750,  color=green,  base={60,100,140,180,220}, ap=.6}
 spells["shatter"]  = {key="W", range=400,  color=red,    base={60,105,150,195,240}, ap=.6}
@@ -51,21 +52,22 @@ function healTeam()
 	
 	for _,hero in ipairs(ALLIES) do
 		if GetDistance(HOME, hero) > 1000 and
-		   hero.charName ~= me.name and
+		   hero.name ~= me.name and
 		   hero.health + maxHeal < hero.maxHealth*.9 and
 		   hero.dead == 0 and
 		   hero.visible == 1 and
---		   not isWounded(hero) and 
+		   not isWounded(hero) and 
 		   not IsRecalling(hero)
 		then
-			if GetDistance(me, hero) < 750 then			
+			local dist = GetDistance(hero)
+			if dist < 750 then
 				if not bestInRangeT or
 				   hero.health/hero.maxHealth < bestInRangeP
-				then				
+				then
 					bestInRangeT = hero
 					bestInRangeP = hero.health/hero.maxHealth
 				end
-			elseif GetDistance(me, hero) < 1000 then
+			elseif dist < 1000 then
 				if not bestOutRangeT or
 				   hero.health/hero.maxHealth < bestOutRangeP
 				then				
@@ -85,15 +87,16 @@ function healTeam()
 	-- let me know if someone oustside of range is in need
 	if bestOutRangeT and 
 	   ( not bestInRangeT or
-		 ( bestOutRangeP < .33 and
-		   bestInRangeP > .5 ) )			
+		  ( bestOutRangeP < .33 and
+		    bestInRangeP > .5 ) 
+		)
 	then
 --			PlaySound("Beep")
 	end
 		
 	if bestInRangeT then
 		Cast("heal", bestInRangeT)
-		PrintAction("heal", bestInRangeT)
+		PrintAction("Heal", bestInRangeT)
 		return true
 	elseif me.health + maxHeal*1.4 < me.maxHealth*.75 then
 		Cast("heal", me)

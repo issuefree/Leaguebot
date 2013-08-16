@@ -118,6 +118,7 @@ function Run()
 
 
    if me.dead == 1 then
+      PrintAction("dead")
       return true
    end
 
@@ -129,7 +130,9 @@ function Run()
       return true
    end
 
+
    if IsRecalling(me) then
+      PrintAction("Recalling")
       return true
    end
 
@@ -142,6 +145,7 @@ function Run()
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
             CastXYZ("spark", target)
+            PrintAction("KS", target)
             return true
          end
       end
@@ -155,11 +159,13 @@ function Run()
       for _,enemy in ipairs(enemies) do
          if GetSpellDamage("singularity", enemy) > enemy.health then
             Cast(spell, me)
+            PrintAction("Pop to kill", enemy)
             break
          end
          local nextPos = ToPoint(GetFireahead(enemy, 4, 99))
          if GetDistance(singularity[2], nextPos) > spell.radius then
             Cast(spell, me)
+            PrintAction("Pop escapees")
             break
          end
       end
@@ -168,6 +174,7 @@ function Run()
       local kills = GetKills("singularity", minions)
       if #kills > 2 then
          Cast(spell, me)
+         PrintAction("Pop to kill "..#kills.." minions")
       end
    end
 
@@ -192,9 +199,11 @@ function Action()
    -- peel if necessary, else hit someone weak
    if CanUse("binding") then
       if SkillShot("binding", "peel") then
+         PrintAction("Binding to peel")
          return true
       end
       if SkillShot("binding") then
+         PrintAction("Binding")
          return true
       end
    end
@@ -205,6 +214,7 @@ function Action()
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
          CastXYZ("singularity", GetCenter(hits))
+         PrintAction("Singularity for AoE")
          return true
       end
 
@@ -212,6 +222,7 @@ function Action()
       local target = GetWeakestEnemy("singularity")
       if target then
          CastSpellFireahead("singularity", target)
+         PrintAction("Singularity", target)
          return true
       end
    end
@@ -226,6 +237,7 @@ function Action()
          LineBetween(me, center, spells["spark"].width)
          if IsOn("spark") then
             CastXYZ("spark", center)
+            PrintAction("Spark for AoE")
             return true
          end
       end
@@ -237,6 +249,7 @@ function Action()
       for _,target in ipairs(targets) do
          if isFlared(target) then
             AA(target)
+            PrintAction("AA for flare", target)
             return true
          end
       end
@@ -261,6 +274,7 @@ function FollowUp()
          local hits, kills, score = GetBestArea(me, "singularity", 0, 1, MINIONS)
          if #kills >= 3 then
             CastXYZ("singularity", GetCenter(hits))
+            PrintAction("Singularity for lasthits: "..#kills)
             return true
          end
       end
@@ -270,11 +284,13 @@ function FollowUp()
          local flareDam = GetSpellDamage("flare", target)
          if aaDam + flareDam > target.health then
             AA(target)
+            PrintAction("AA flared for lasthit")
             return true
          end
       end
 
       if KillWeakMinion("AA") then
+         PrintAction("AA for lasthit")
          return true
       end
    end
@@ -283,14 +299,15 @@ function FollowUp()
       if CanUse("singularity") then
          local hits, kills, score = GetBestArea(me, "singularity", 1, 1, MINIONS)
          if score >= 7 then
-            pp("hit: "..#hits.." killed "..#kills.." score "..score)
             CastXYZ("singularity", GetCenter(hits))
+            PrintAction("Singularity for clear")
             return true
          end
       end
 
       for _,target in rpairs(flaredMinions) do
          AA(target)
+         PrintAction("AA flared minion for clear")
          return true
       end
 
@@ -313,8 +330,6 @@ function checkBarrier(unit, spell)
       GetDistance(spell.target) < W.range and
       spell.target.team == me.team
    then
-      pp(unit.name.." : "..spell.name.." -> "..spell.target.name)
-      
       -- don't bother shielding people near full health
       if spell.target.health / spell.target.maxHealth > .85 then
          return
@@ -337,6 +352,7 @@ function checkBarrier(unit, spell)
          end
       end
       CastSpellFireahead("barrier", target)
+      PrintAction("Shield", target)
    end
 end
 
@@ -347,6 +363,7 @@ function KillSteal(target)
    end
    if ValidTarget(target) and target.health < GetSpellDamage("spark", target) then
       CastXYZ("spark", target)
+      PrintAction("KS", target)
       return true
    end
    return false

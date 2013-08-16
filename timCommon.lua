@@ -87,7 +87,7 @@ function PrintAction(str, target)
    end
    if str ~= lastAction then
       if target then
-         pp(" # "..str.." -> "..target.charName)
+         pp(" # "..str.." -> "..target.name)
       else
          pp(" # "..str)
       end
@@ -1781,9 +1781,10 @@ function CanUse(thing)
          if thing.key == "A" then
             return CanAttack()
          end
-         if me.mana > GetManaCost(thing) then             
+         if me.mana >= GetManaCost(thing) then             
             return CanUse(thing.key)
          else
+            pp(debug.traceback())
             return false
          end
       else  -- spells without keys are always ready

@@ -223,6 +223,12 @@ local function onObject(object)
 end
 
 local function onSpell(object, spell)
+   if spell.target and spell.target.name == me.name and
+      me.health / me.maxHealth < .5 and
+      CanUse("might")
+   then
+      Cast("might", me)
+   end
 end
 
 AddOnCreate(onObject)

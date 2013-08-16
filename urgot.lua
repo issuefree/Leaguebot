@@ -55,11 +55,16 @@ function Run()
    updateCharges()
 
    if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
 
+   UseAutoItems()
+
    if HotKey() and CanAct() then
-      Action()
+      if Action() then
+         return true
+      end
    end           
    
 end
@@ -74,11 +79,11 @@ function Action()
    if target then
       if IsOn("capacitor") and CanUse("capacitor") then
          CastSpellTarget(spells["capacitor"].key, me)
-         return
+         return true
       end
       if CanUse("hunter") then
          CastSpellXYZ(spells["hunter"].key, target.x, target.y, target.z)
-         return
+         return true
       end
    end
 
@@ -86,24 +91,24 @@ function Action()
       local target = GetWeakEnemy("MAGIC", spells["charge"].range)
       if target then
          CastSpellFireahead("charge", target)
-         return
+         return true
       end
    end
 
    local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
    if target then
       if AA(target) then
-         return
+         return true
       end
    end
 
    if SkillShot("hunter") then
-      return
+      return true
    end
 
    if IsOn("lasthit") and Alone() then
       if lastHit() then
-         return
+         return true
       end
    end
 
@@ -123,13 +128,15 @@ function Action()
       local minion = minions[#minions]
       -- hit the highest health minion
       if AA(minion) then
-         return
+         return true
       end
    end
 
    if IsOn("move") then
-      MoveToCursor() 
+      MoveToCursor()
+      return false
    end
+   return false
 end
 
 function lastHit()

@@ -3,6 +3,11 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Garen")
+pp(" - if justice will kill, use justice (probably worth chasing)")
+pp(" - If my target is in 2x aa range then activate strike to catch and smack em")
+pp(" -   don't activate if I'm spinning")
+pp(" - If someone targets me and I'm < 50% activate courage")
+pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
@@ -39,13 +44,12 @@ local spinT
 function Run()
 	TimTick()
 
-   if isSpinning() then
-      PrintState(1, "SPIN")
-   end
-
    if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
+
+   UseAutoItems()
 
    spinT = nil
    -- highlight best spin location within 3x spin range
@@ -91,20 +95,29 @@ function Action()
    -- If someone targets me and I'm < 50% activate courage
    -- If strike is on cooldown and I have >= 2 enemies in range, activate spin
 
+   if CanUse("courage") and 
+      #GetInRange(me, spells["AA"].range*2, ENEMIES) >= 2 
+   then
+      Cast("courage", me)
+      PrintAction("Courage")
+   end
+
    if CanUse("justice") then
       local targets = SortByDistance(GetInRange(me, spells["justice"].range*1.5, ENEMIES))
       for _,target in ipairs(targets) do
          if target.health < getJusticeDam(target) then
             Cast("justice", target)
+            PrintAction("Justice", target)
             return true            
          end
       end
    end
 
-   local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
 
-   if aaTarget and not isSpinning() and CanUse("strike") then
+   if target and not isSpinning() and CanUse("strike") and not Check(strike) then
       Cast("strike", me)
+      PrintAction("Strike up", target)
       -- no return
    end
 
@@ -112,15 +125,18 @@ function Action()
       local targets = GetInRange(me, spells["judgement"].range, ENEMIES)
       if #targets > 0 then
          Cast("judgement", me)
+         PrintAction("spin to win")
       end
    end
 
-   if aaTarget and isSpinning() then
-      MoveToTarget(aaTarget)
+   if target and isSpinning() then
+      MoveToTarget(target)
+      PrintAction("Spin to target", target)
       return true
    end
 
-   if AA(aaTarget) then
+   if AA(target) then
+      PrintAction("AA", target)
    	return true
    end
 
