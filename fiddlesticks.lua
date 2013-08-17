@@ -6,8 +6,8 @@ pp("\nTim's Fiddlesticks")
 pp(" - dark wind on weakest")
 pp(" - pause while draining")
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("drain", {on=false, key=113, label="Drain"})
+AddToggle("offense", {on=false, key=112, label="Offensive stance"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -46,24 +46,35 @@ spells["crow"] = {
 -- beep for good crowstorm
 -- auto zhonias
 
-local drainObj = nil
+local drain = nil
+local drainCastTime = 0
+
+local function isDraining()
+   if Check(drain) then
+      return true
+   end
+   if time() - drainCastTime < 1 then
+      return true
+   end
+   return false
+end
 
 function Run()
 	TimTick()
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
-      return
+      return true
    end
 
    UseAutoItems()
 
-   if Check(drain) then
+   if isDraining() then
       PrintAction("Draining")
-      return
+      return true
    end
 
-	if HotKey() and CanAct() then
+	if HotKey() then
 		if Action() then
 			return
 		end
@@ -83,20 +94,42 @@ end
 function Action()
    UseItems()
    
-   if Cast("wind", GetWeakestEnemy("wind")) then
-      PrintAction("Wind Harass")
-      return true
+   --[[
+   I want something like...
+   Fear if I can. I want to target EADC and EAPC if they're in range otherwise whoever is weak
+   Drain if I can. I should probably try to target whatever I feared but weak will probably do.
+      I think I want this over wind as wind is longer range and I probably just feared them.
+   --]]
+   if IsOn("offense") then      
+      if CanUse("fear") then
+         local target = GetMarkedTarget() or 
+                        GetWeakest("fear", GetInRange(me, "fear", {EADC, EAPC})) or 
+                        GetWeakestEnemy("fear")
+
+         if target then
+            Cast("fear", target)
+            PrintAction("Fear", target)
+            return true
+         end
+      end
+
+      if CanUse("drain") then
+         -- might update this to target feared guys first
+         local target = GetWeakestEnemy("drain", 100)
+         if target and Cast("drain", target) then
+            PrintAction("Drain", target)
+            return true
+         end
+      end
    end
 
--- seems better to use manually
-   -- if IsOn("drain") and CanUse("drain") and 
-   --    GetCD("fear") >= 3 and GetCD("wind") >= 3
-   -- then
-   --    if Cast("drain", GetWeakestEnemy("drain")) then
-   --       PrintAction("Drain weakest")
-   --       return true
-   --    end
-   -- end
+   if CanUse("wind") then
+      local target = GetWeakestEnemy("wind")
+      if target and Cast("wind", target) then
+         PrintAction("Wind Harass", target)
+         return true
+      end
+   end
 
    return false
 end
@@ -135,6 +168,11 @@ local function onObject(object)
 end
 
 local function onSpell(object, spell)
+   if object.charName == me.charName and
+      find(spell.name, "DrainChannel")
+   then
+      drainCastTime = time()
+   end
 end
 
 AddOnCreate(onObject)

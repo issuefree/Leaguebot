@@ -78,7 +78,8 @@ function Action()
    local target = GetWeakest("hunter", GetInRange(me, spells["hunter"].lockedRange, chargedEnemies))
    if target then
       if IsOn("capacitor") and CanUse("capacitor") then
-         CastSpellTarget(spells["capacitor"].key, me)
+         Cast("capacitor", me)
+         PrintAction("Capacitor for slow")
          return true
       end
       if CanUse("hunter") then
@@ -91,15 +92,15 @@ function Action()
       local target = GetWeakEnemy("MAGIC", spells["charge"].range)
       if target then
          CastSpellFireahead("charge", target)
+         PrintAction("Drop a charge", target)
          return true
       end
    end
 
    local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target then
-      if AA(target) then
-         return true
-      end
+   if AA(target) then
+      PrintAction("AA", target)
+      return true
    end
 
    if SkillShot("hunter") then

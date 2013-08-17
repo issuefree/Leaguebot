@@ -80,6 +80,7 @@ function PrintState(state, str)
 end
 
 local lastAction = nil
+local lastActionTime = 0
 function PrintAction(str, target)
    if str == nil then 
       lastAction = nil
@@ -1172,7 +1173,7 @@ function SkillShot(thing, purpose)
 
       -- no targets so bail out
       if not target then
-         return false
+         return nil
       end
 
       -- Validate that the current favorite target is a good candidate for skillshot
@@ -1194,10 +1195,10 @@ function SkillShot(thing, purpose)
    -- blast em
    if target then
       CastSpellFireahead(spell, target)
-      return true
+      return target
    end
 
-   return false
+   return nil
 end
 
 function SSGoodTarget(target, thing, maxAngle)
@@ -1237,8 +1238,9 @@ function Cast(thing, target)
    local spell = GetSpell(thing)
    if not spell then spell = thing end
 
-   if not CanUse(spell) then      
+   if not CanUse(spell) then
       pp("can't use "..spell.key)
+      pp(debug.traceback())
       return false
    end
 
@@ -2197,7 +2199,11 @@ function GetPeel(save, stop)
    end
 end
 
-function GetWeakestEnemy(thing)
+function GetWeakestEnemy(thing, extraRange)
+   if not extraRange then
+      extraRange = 0
+   end
+
    local type
 
    local spell = GetSpell(thing)
@@ -2214,7 +2220,7 @@ function GetWeakestEnemy(thing)
       type = "MAGIC"
    end
 
-   return GetWeakEnemy(type, spell.range)
+   return GetWeakEnemy(type, spell.range+extraRange)
 end
 
 
@@ -2238,10 +2244,12 @@ function GetWeakest(thing, list)
    local wScore
    
    for _,target in ipairs(list) do
-      local tScore = target.health / CalculateDamage(target, 100, type)
-      if weakest == nil or tScore < wScore then
-         weakest = target
-         wScore = tScore
+      if target then
+         local tScore = target.health / CalculateDamage(target, 100, type)
+         if weakest == nil or tScore < wScore then
+            weakest = target
+            wScore = tScore
+         end
       end
    end
    

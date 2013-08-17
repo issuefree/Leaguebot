@@ -89,7 +89,7 @@ function Run()
       end
    end
    
-   if IsOn("fastWalk") and CanCastSpell("E") and not GetWeakEnemy("MAGIC", 1500) then
+   if IsOn("fastWalk") and CanUse("violet") and not GetWeakEnemy("MAGIC", 1500) then
       if GetDistance(HOME) > 1000 and me.mana/me.maxMana > .9 then
          CastSpellTarget("E", me)
       elseif CanChargeTear() and me.mana/me.maxMana > .75 then
