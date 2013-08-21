@@ -64,16 +64,17 @@ function Action()
 -- ranged
    local target = GetWeakEnemy("PHYS", spells["AA"].range)
    if AA(target) then
-      PrintAction("AA weak enemy")
+      PrintAction("AA", target)
       return true
    end
 
 -- melee
-   -- local aaTarget = GetWeakEnemy("PHYS", spells["AA"].range*2)
-   -- if aaTarget and AA(aaTarget) then
-   --    PrintAction("AA weak enemy")
-   -- 	return true
+   -- local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
    -- end
+
 
    return false
 end

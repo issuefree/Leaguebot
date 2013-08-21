@@ -61,7 +61,7 @@ function UseItem(itemName, target)
    local slot = GetInventorySlot(item.id)
    if not slot then return end   
    slot = tostring(slot)
-   if not CanCastSpell(slot) then return end
+   if not CanUse(slot) then return end
 
    if itemName == "Entropy" or
       itemName == "Bilgewater Cutlass" or

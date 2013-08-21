@@ -145,21 +145,6 @@ function Action()
 	   return true
    end
 
-   if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-      	if GetDistance(target) > spells["AA"].range then
-	         MoveToTarget(target)
-	      	PrintAction("MTT")
-	         return false
-	      end
-      else      	
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
-      end
-   end
-
 	return false
 end
 
@@ -195,23 +180,26 @@ function FollowUp()
       end
    end
 
-	return false
-end
+   if IsOn("move") then
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      if target then
+      	if GetDistance(target) > spells["AA"].range then
+	         MoveToTarget(target)
+	      	PrintAction("MTT")
+	         return false
+	      end
+      else      	
+         MoveToCursor() 
+         PrintAction("Move")
+         return false
+      end
+   end
 
-function DrawTarget()
-	if CanCastSpell("Q") then
-		if target then
-			CustomCircle(100,6,2,target)
-	    end
-	elseif targetaa then
-		CustomCircle(100,6,2,targetaa)
-	end
+  	return false
 end
 
 local function onObject(object)
-   if find(object.charName,"jaxdodger") and 
-      GetDistance(object) < 75 
-   then
+   if HasBuff(me, object, "jaxdodger") then
       counter = StateObj(object)
    end   
    if find(object.charName,"armsmaster_empower") and 

@@ -1336,10 +1336,11 @@ end
 
 function HasBuff(target, object, buffName)
    if find(object.charName, buffName) and
-      GetDistance(target, object) < 50
+      GetDistance(target, object) < 75
    then
       return true
    end
+   return false
 end
 
 -- gets the object in a valid state object or returns the original object if it isn't a state object

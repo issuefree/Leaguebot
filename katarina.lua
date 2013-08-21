@@ -327,7 +327,7 @@ function QFarm()
       end
    end
 
-   if CanCastSpell("Q") then
+   if CanUse("blades") then
    
       local nearTargets = {}
       local initialTargets = {}
