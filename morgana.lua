@@ -94,43 +94,6 @@ function Run()
    end
 end
 
-local function checkShield(object, spell)
-   if IsOn("shield") and
-      spell.target and
---      IsRecalling(me) or
-      object.team ~= me.team and
-      CanUse("shield") and
-      GetDistance(spell.target) < E.range and
-      not find(spell.name, "Minion") and
-      not find(object.name, "Minion") and
-      spell.target.team == me.team
-   then
-      local target
-      for _,ally in ipairs(ALLIES) do
-         if spell.target.name == ally.name then
-            target = ally
-            break
-         end
-      end
-      
-      if not target then
-         return
-      end
-   
-      for _,eSpell in ipairs(ENEMY_SPELLS) do
-         if find(eSpell.spellName, spell.name) and eSpell.spellType == "Stun" then
-            pp(object.name.." : "..spell.name.." -> "..spell.target.name)
-            CastSpellTarget("E", target)
-            return
-         end 
-      end
-   end
-   
-   if object.name == me.name and find(spell.name, "darkbinding") then
-      lastBinding = GetClock()
-   end
-end
-
 local function onObject(object)
    if find(object.charName, "DarkBinding") then
       if IsOn("soil") and CanUse("soil") then
@@ -144,8 +107,14 @@ local function onObject(object)
    end 
 end
 
-local function onSpell(object, spell)
-   checkShield(object, spell)
+local function onSpell(unit, spell)
+   if IsOn("shield") then
+      CheckShield("shield", unit, spell, "MAGIC")
+   end
+   
+   if object.name == me.name and find(spell.name, "darkbinding") then
+      lastBinding = GetClock()
+   end
 end
 
 AddOnCreate(onObject)

@@ -1,4 +1,4 @@
-require "Utils"
+ require "Utils"
 require "timCommon"
 require "modules"
 require "support"
@@ -6,7 +6,13 @@ require "support"
 pp("Tim's Taric")
 pp(" - Heal")
 
-spells["heal"]     = {key="Q", range=750,  color=green,  base={60,100,140,180,220}, ap=.6}
+spells["heal"] = {
+	key="Q",
+	range=750,
+	color=green,
+	base={60,100,140,180,220}, 
+	ap=.6
+}
 spells["shatter"]  = {key="W", range=400,  color=red,    base={60,105,150,195,240}, ap=.6}
 spells["radiance"] = {key="R", range=400,  color=red,    base={171,285,399},        ap=.7}
 spells["aura"]     = {key="W", range=1000, color=yellow}
@@ -21,8 +27,6 @@ function Run()
       PrintAction("Recalling or dead")
       return
    end
-
-   UseAutoItems()
 
    if IsOn("healing") and CanUse("heal") then
 		if healTeam() then

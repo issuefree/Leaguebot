@@ -42,29 +42,30 @@ pcViolet = nil
 function Run()
    TimTick()
    
-
-   if IsRecalling(me) then
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
-   
+
    if HotKey() then
       UseItems()
    end
      
    if IsOn("healTeam") and CanUse("green") then
-      local spell = spells["green"]
-      local closeAllies = GetInRange(me, spell.range, ALLIES)
+      local closeAllies = GetInRange(me, "green", ALLIES)
       local count = 0
       for _,hero in ipairs(closeAllies) do
          if not IsRecalling(hero) then
             if hero.health + GetSpellDamage(spell) < hero.maxHealth*.66 then
-               CastSpellTarget(spell.key, me)
+               Cast("green", me)
+               PrintAction("Heal", hero)
                break
             end            
             if hero.health + GetSpellDamage(spell) < hero.maxHealth*.9 then
                count = count + 1
                if count >= 2 then
-                  CastSpellTarget(spell.key, me)
+                  Cast("green", me)
+                  PrintAction("Heal")
                   break
                end
             end
@@ -72,28 +73,26 @@ function Run()
       end
    end
    
-   if IsOn("lastHit") and not GetWeakEnemy("MAGIC", 750) then
-      local spell = spells["blue"]
-      local minionRays = 2 -- - #GetInRange(me, spell.range, ENEMIES)
-      local targets = GetInRange(me, spell.range, MINIONS)
-      SortByDistance(targets)
+   if IsOn("lastHit") and Alone() then
+      local minionRays = 2
+      local targets = SortByDistance(GetInRange(me, "blue", MINIONS))
       for _,minion in ipairs(targets) do
          if minionRays <= 0 then
             break
          end
          if minion.health < GetSpellDamage(spell, minion) then
-            CastSpellTarget("Q", minion)
+            Cast("blue", minion)
             break
          end
          minionRays = minionRays - 1
       end
    end
    
-   if IsOn("fastWalk") and CanUse("violet") and not GetWeakEnemy("MAGIC", 1500) then
+   if IsOn("fastWalk") and CanUse("violet") and Alone() then
       if GetDistance(HOME) > 1000 and me.mana/me.maxMana > .9 then
-         CastSpellTarget("E", me)
+         Cast("violet", me)
       elseif CanChargeTear() and me.mana/me.maxMana > .75 then
-         CastSpellTarget("E", me)
+         Cast("violet", me)
       end
    end
    

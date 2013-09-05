@@ -1,7 +1,7 @@
 require "Utils"
 require "timCommon"
 require "modules"
---require "support"
+require "support"
 
 pp("\nTim's Janna")
 
@@ -24,23 +24,11 @@ function Run()
 	end
 end 
 
-function checkShield(unit, spell)
-	if not IsOn("shield") or
-       not spell.target or
-	   find(unit.name, "Minion") or
-	   find(spell.target.name, "Minion") or
-	   IsRecalling(me) or
-	   not CanUse("eye") or
-	   unit.team == me.team or
-	   GetDistance(spell.target) > 800 or
-	   spell.target.team ~= me.team
-	then
-		return
+local function onSpell(unit, spell)
+	if IsOn("shield") then
+		CheckShield("eye", unit, spell)
 	end
-
-	pp(unit.name.." : "..spell.name.." -> "..spell.target.name)
-	CastSpellTarget("E", spell.target)
 end
 
-AddOnSpell(checkShield)
+AddOnSpell(onSpell)
 SetTimerCallback("Run")

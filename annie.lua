@@ -1,6 +1,7 @@
 require "Utils"
 require "timCommon"
 require "modules"
+require "support"
 
 pp("\nTim's Annie")
 
@@ -10,7 +11,8 @@ spells["dis"] = {
    color=violet, 
    base={85,125,165,205,245}, 
    cost={60,65,70,75,80},
-   ap=.7
+   ap=.7,
+   cost={85,125,165,205,245}
 }
 spells["inc"] = {
    key="W", 
@@ -19,10 +21,13 @@ spells["inc"] = {
    base={80,130,180,230,280},
    cost={70,80,90,100,110}, 
    ap=.75, 
-   cone=45
+   cone=45,
+   cost={80,130,180,230,280}
 }
 spells["shield"] = {
-   key="E"
+   key="E",
+   range=50,
+   cost=20
 }
 spells["tibbers"] = {
    key="R", 
@@ -31,11 +36,10 @@ spells["tibbers"] = {
    base={200,325,450},
    cost={125,175,225}, 
    ap=.7,
-   radius=250
+   radius=250,
+   cost=100
 }
 
-local aloneRange = 2000  -- if no enemies in this range consider yourself alone
-local nearRange = 900    -- if no enemies in this range consider them not "near"
 
 local stun = nil
 function stunOn()
@@ -54,13 +58,19 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "dis", "inc"}})
 
+local tibbersObj = nil
+local tibbers = nil
+local tibbersHasTarget = false
+local tibbersRange = 300
+
 function Run()
    TimTick()
    
-
    if IsRecalling(me) or me.dead == 1 then
       return
    end
+
+   autoTibbers()   
 
    if HotKey() and CanAct() then
       if Action() then
@@ -75,6 +85,7 @@ function Run()
       me.mana / me.maxMana > .25 
    then
       Cast("shield", me)
+      PrintAction("Shield for stoke")
       return
    end
    
@@ -84,11 +95,13 @@ function Run()
    if IsOn("lasthit") then
       if VeryAlone() then
          if KillWeakMinion("dis") then
+            PrintAction("Disintigrate for lasthit")
             return
          end
       elseif Alone() then
          if IsOn("stoke") and not Check(stun) then
             if KillWeakMinion("dis") then
+               PrintAction("Distintigrate for lasthit")
                return
             end
          end         
@@ -100,15 +113,18 @@ function Run()
    if IsOn("lasthit") then
       if VeryAlone() then
          if KillMinionsInCone(spells["inc"], 2, 0, false) then
+            PrintAction("Incinerate 2")
             return
          end
       elseif Alone() then
          if IsOn("stoke") and not Check(stun) then
             if KillMinionsInCone(spells["inc"], 2, 0, Check(stun)) then
+               PrintAction("Incinerate 2")
                return
             end
          else
             if KillMinionsInCone(spells["inc"], 3, 0, false) then
+               PrintAction("Incinerate 3")
                return
             end
          end
@@ -122,6 +138,33 @@ function Run()
    end
 end
 
+function autoTibbers()
+   -- SpellNameR when not tibbers is "InfernalGuardian"
+   -- SpellNameR when tibbers is "infernalguardianguide"
+   if Check(tibbersObj) then
+      tibbers = GetObj(tibbersObj)
+      DrawCircleObject(tibbers, tibbersRange, red)
+
+      tibbersHasTarget = false
+      -- find the closest target to tibbers
+      local target = SortByDistance(GetInRange(tibbers, 1000, ENEMIES))[1]
+      if target then
+         tibbersHasTarget = true
+         tibbersAttack(target)
+      end      
+   else
+      tibbers = nil
+   end
+end
+
+function tibbersAttack(target)
+   if GetDistance(tibbers, target) > tibbersRange then
+      CastSpellTarget("R", target)
+      PrintAction("Tibbers CHARGE", target)
+   else
+      PrintAction("Tibbers ATTACK", target)      
+   end
+end
 
 function Action()
    UseItems() 
@@ -138,50 +181,40 @@ function Action()
 
 -- check for finish offs with tibbers. (handle the one target left kill case)
 
-   if CanUse("tibbers") then
-      local targets = SortByHealth(GetInRange(me, "tibbers", ENEMIES))
-      local bestS = 1
-      local bestT = nil
-      for _,enemy in ipairs(targets) do
-         local hits = GetInRange(enemy, spells["tibbers"].radius, ENEMIES)
-         if #hits > bestS then
-            bestS = #hits
-            bestT = enemy
-         end
-      end
-      if bestT then
-         Cast("tibbers", bestT)
+   if CanUse("tibbers") and me.SpellNameR == "InfernalGuardian" then
+      local hits, kills, score = GetBestArea(me, "tibbers", 1, 3, ENEMIES)
+      if score >= 3 then
+         CastXYZ("tibbers", GetCenter(hits))
+         PrintAction("Tibbers for AoE")
          return true
       end
    end
 
    if CanUse("inc") then
-      local target = GetWeakEnemy("MAGIC", spells["inc"].range)
+      local target = GetMarkedTarget() or GetWeakestEnemy("inc")
       if target then
          Cast("inc", target)
+         PrintAction("Incinerate", target)
          return true
       end
    end
 
    if CanUse("dis") then
-      local target = GetWeakEnemy("MAGIC", spells["dis"].range)
+      local target = GetMarkedTarget() or GetWeakestEnemy("dis")
       if target then
          Cast("dis", target)
+         PrintAction("Disintigrate", target)
          return true
       end
    end
 
    if CanUse("tibbers") then
-      local target = GetWeakEnemy("MAGIC", spells["tibbers"].range)
+      local target = GetWeakestEnemy("tibbers")
       if target and target.health < GetSpellDamage("tibbers", target) then
          Cast("tibbers", target)
+         PrintAction("Tibbers for execute", target)
          return true
       end
-   end
-
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target and AA(target) then
-      return true
    end
 
    return false
@@ -190,6 +223,7 @@ end
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
+         PrintAction("AA for lasthit")
          return true
       end
    end
@@ -198,20 +232,29 @@ function FollowUp()
 end
 
 
-
 local function onObject(object)
    if find(object.charName,"StunReady") and 
       GetDistance(object) < 50 
    then
       stun = StateObj(object)
    end
+
+   if object.charName == "Tibbers" and object.team == me.team then
+      tibbersObj = StateObj(object)
+   end
+
 end
 
-local function onSpell(object, spell)
-   if find(object.name, "Minion") then return end
-   if object.team == me.team then return end
-   if spell.target and spell.target.name == me.name and CanUse("shield") then
-      Cast("shield", me)
+local function onSpell(unit, spell)
+   CheckShield("shield", unit, spell)   
+
+   if tibbers and 
+      unit.name == me.name and 
+      spell.target and
+      spell.target.team ~= me.team and
+      not tibbersHasTarget
+   then
+      tibbersAttack(spell.target)
    end
 end
 

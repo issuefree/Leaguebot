@@ -16,13 +16,6 @@ AddToggle("execute", {on=true, key=115, label="AutoExecute", auxLabel="{0}", arg
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-function getAceRange()   
-   if GetSpellLevel("R") == 1 then return 2000 end
-   if GetSpellLevel("R") == 2 then return 2500 end
-   if GetSpellLevel("R") == 3 then return 3000 end
-   return 0
-end
-
 spells["pp"] = {
    key="Q", 
    range=1200, 
@@ -59,7 +52,7 @@ spells["recoil"] = {
 }
 spells["ace"] = {
    key="R", 
-   range=getAceRange, 
+   range={2000, 2500, 3000},
    color=red, 
    base={250,475,700}, 
    type="P",
@@ -84,10 +77,8 @@ function Run()
       return
    end
 
-   UseAutoItems() -- zhonya's, mikael's...
-
    if IsOn("execute") then
-      local target = GetWeakEnemy("PHYSICAL", getAceRange())
+      local target = GetWeakEnemy("PHYSICAL", GetSpellRange("ace"))
       if target and target.health < GetSpellDamage("ace", target) then
          PlaySound("Beep")
          DrawThickCircleObject(target, 100, red, 6)
@@ -105,13 +96,6 @@ function Run()
          return true
       end
    end
-
-   if IsOn("move") then
-      PrintAction("move")
-      MoveToCursor()
-      return false   
-   end
-
 end
 
 function Action()
@@ -121,7 +105,7 @@ function Action()
    if target then
       if IsOn("trap") and 
          CanUse("trap") and 
-         me.mana > GetManaCost("net") + GetManaCost("trap") 
+         me.mana > GetSpellCost("net") + GetSpellCost("trap") 
       then
          -- trap targets that are moving mostly directly toward or away from me.
          if SSGoodTarget(target, "trap", 30) then
@@ -139,10 +123,10 @@ function Action()
 
    -- get the weakest target within pp range but out of AA range
    local targets = GetInRange(me, "pp", ENEMIES)
-   targets = FilterList(targets, function(item) return GetDistance(item) > spells["AA"].range end)
+   targets = FilterList(targets, function(item) return GetDistance(item) > GetSpellRange("AA") end)
    local target = GetWeakest("pp", targets)
    if target then
-      if IsOn("pp") and CanUse("pp") and me.mana > GetManaCost("net") + GetManaCost("pp") then
+      if IsOn("pp") and CanUse("pp") and me.mana > GetSpellCost("net") + GetSpellCost("pp") then
          if SSGoodTarget(target, "pp") then
             PrintAction("PP", target)
             CastSpellFireahead("pp", target)
@@ -175,6 +159,12 @@ function FollowUp()
          pp("clear with AA")
          return true
       end
+   end
+
+   if IsOn("move") then
+      PrintAction("move")
+      MoveToCursor()
+      return false   
    end
 
    return false

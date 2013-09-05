@@ -73,8 +73,6 @@ function Run()
       return
    end
    
-   UseAutoItems()
-
    if HotKey() and CanAct() then
       if Action() then
          return true

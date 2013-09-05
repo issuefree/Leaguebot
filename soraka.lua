@@ -100,7 +100,10 @@ end
 function Action()
 	UseItems()
 
-	if Cast("infuse", GetWeakestEnemy("infuse")) then
+	if CanUse("infuse") then
+		local target = GetMarkedTarget() or GetWeakestEnemy("infuse")
+		Cast("infuse", target)
+		PrintAction("Infuse", target)
 		return true
 	end
 
@@ -108,6 +111,7 @@ function Action()
 		local target = GetWeakestEnemy("starfall")
 		if target then
 			Cast("starfall", me) 
+			PrintAction("Starfall")
 			return true
 		end
    end

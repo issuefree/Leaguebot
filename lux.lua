@@ -85,7 +85,7 @@ function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
 end
 
-AddToggle("aa", {on=false, key=112, label="Attack flared enemies", auxLabel={0}, args={"flare"}})
+AddToggle("aa", {on=false, key=112, label="Attack flared enemies"}) --, auxLabel={0}, args={"flare"}})
 AddToggle("ks", {on=true, key=113, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
 AddToggle("barrier", {on=true, key=114, label="Barrier Team"})
 AddToggle("spark", {on=false, key=115, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
@@ -245,7 +245,7 @@ function Action()
 
    -- try to hit the loweset health target with a flare on em
    if IsOn("aa") and CanAttack() then
-      local targets = SortByHealth(FilterList(GetInRange(me, "AA", ENEMIES), isFlared)
+      local targets = SortByHealth(FilterList(GetInRange(me, "AA", ENEMIES), isFlared))
       for _,target in ipairs(targets) do
          if isFlared(target) then
             AA(target)

@@ -4,6 +4,7 @@ local modules = {}
 ModuleConfig = scriptConfig("Module Config", "modules")
 
 function loadModule(module)
+	pp("Loading: "..module)
 	local chunk,msg = loadfile(module)      -- loads/compiles the lua chunk
 	if (chunk ~= nil) then
 		chunk()
@@ -11,7 +12,6 @@ function loadModule(module)
 end
 
 --loadModule("clones.lua")
---loadModule("showskillshots.lua")
 
 loadModule("spellRanges.lua")
 loadModule("smite.lua")

@@ -26,7 +26,8 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 --   ap=.7,
 --   delay=2,
 --   speed=12,
---   width=80
+--   width=80,
+--   cost={10,20,30,40,50}
 --}
 
 function Run()
@@ -37,12 +38,11 @@ function Run()
       return
    end
 
-   UseAutoItems()
-
    -- auto stuff that always happen
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
+      UseItems()
 		if Action() then
 			return
 		end
@@ -59,8 +59,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-      
 -- ranged
    local target = GetWeakEnemy("PHYS", spells["AA"].range)
    if AA(target) then
@@ -99,6 +97,7 @@ function FollowUp()
 -- ranged
    if IsOn("move") then
       MoveToCursor() 
+      PrintAction("Move")
       return false
    end
 

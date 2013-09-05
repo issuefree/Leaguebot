@@ -31,7 +31,8 @@ spells["roar"] = {
    range=575, 
    color=green,  
    base={60,90,120,150,180},  
-   ap=.2
+   ap=.2,
+   cost={40,50,60,70,80}
 }
 
 local wantHealPercent  = .8 -- top off
@@ -46,15 +47,14 @@ function Run()
       return
    end
 
-   UseAutoItems()
-
-
    if CanUse("headbutt") then
       local target = GetWeakestEnemy("headbutt")   
       if target then
          DrawKnockback(target, 650)
       end
    end
+
+   heal()
 
    if HotKey() then
       if Action() then
@@ -71,7 +71,7 @@ function Action()
    -- knockup anything in range
    if CanUse("pulverize") then
       local target = GetWeakestEnemy("pulverize")
-      if Cast("pulverize", target) then
+      if target and Cast("pulverize", target) then
          PrintAction("Pulverize", target)
          return true
       end
@@ -120,8 +120,8 @@ function heal()
          end
       end
       if healScore > 1 then
-         CastSpellTarget(spell.key, me)
-         PrintAction("Heal. score: "..healScore)
+         Cast("roar", me)
+         PrintAction("Heal", healScore)
          return true
       end
    end

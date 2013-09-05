@@ -70,6 +70,7 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion(spells["strike"]) then
+         PrintAction("Strike for lasthit")
          return
       end
    end
@@ -92,7 +93,8 @@ function Action()
          dist = dist + 75
          local eSpell = {x = target.x-(spells["event"].radius/dist)*delta.x, y=target.y, z = target.z-(spells["event"].radius/dist)*delta.z}
          CastXYZ("event", eSpell)
-         return
+         PrintAction("Event Horizon")
+         return true
       end
    end
       
@@ -113,7 +115,8 @@ function Action()
       end
       if bestT then
          CastXYZ("dark", bestT)
-         return
+         PrintAction("Dark Matter stunned")
+         return true
       end
    end
 
@@ -135,8 +138,9 @@ function Action()
       for _,enemy in ipairs(GetInRange(me, spell.range*1.5 ,ENEMIES)) do
          local tDam = CalcMagicDamage(enemy, burstBase + enemy.ap)
          -- one hit kill in range. kill it.
-         if tDam > enemy.health and GetDistance(enemy < spell.range) then
+         if tDam > enemy.health and GetDistance(enemy) < spell.range then
             Cast("burst", enemy)
+            PrintAction("Burst for execute", enemy)
             return true
          end
 
@@ -149,45 +153,37 @@ function Action()
          end
          if bestT and GetDistance(bestT) < spell.range then
             Cast("burst", bestT)
+            PrintAction("Burst for damage", enemy)
             return true
          end
       end
    end
 
    if CanUse("strike") then
-      local target = GetWeakestEnemy("strike")
+      local target = GetMarkedTarget() or GetWeakestEnemy("strike")
       if target then
          Cast("strike", target)
+         PrintAction("Strike", target)
          return true
       end
    end
 
-   local target = GetWeakestEnemy("AA")
-   if AA(target) then
-      return true
-   end
-   
    return false
 end
 
 function FollowUp()
    if IsOn("lasthit") and not CanUse("strike") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         PrintAction("AA for lasthit")
+         return true
       end
    end
 
    if IsOn("clearminions") then
       if KillMinionsInArea("dark", 2, false, 0, false) then
+         PrintAction("Dark Matter for clear")
          return true
       end
-
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      if minion and AA(minion) then
-         return
-      end         
    end
 
    return false

@@ -9,8 +9,22 @@ pp(" - clear w/overload/flux depending on mana")
 
 local attackObject = "ManaLeach_mis"
 
-spells["overload"] = {key="Q", range=600, color=violet, base={60,85,110,135,160}, ap=.4, mana=.065}
-spells["prison"]   = {key="W", range=600, color=red,    base={60,95,130,165,200}, ap=.6, mana=.045}
+spells["overload"] = {
+   key="Q", 
+   range=600, 
+   color=violet, 
+   base={60,85,110,135,160}, 
+   ap=.4, 
+   mana=.065
+}
+spells["prison"] = {
+   key="W", 
+   range=600, 
+   color=red,    
+   base={60,95,130,165,200}, 
+   ap=.6, 
+   mana=.045
+}
 spells["flux"]     = {key="E", range=600, color=violet, base={50,70,90,110,130},  ap=.35, mana=.01}
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})

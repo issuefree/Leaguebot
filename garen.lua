@@ -49,8 +49,6 @@ function Run()
       return
    end
 
-   UseAutoItems()
-
    spinT = nil
    -- highlight best spin location within 3x spin range
    if CanUse("judgement") then
@@ -72,6 +70,7 @@ function Run()
 
 
 	if HotKey() and CanAct() then
+      UseItems()
 		if Action() then
          return
       end
@@ -87,7 +86,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
    
    -- if justice will kill, use justice (probably worth chasing)
    -- If my target is in 2x aa range then activate strike to catch and smack em
@@ -145,6 +143,7 @@ end
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
+         PrintAction("AA for lasthit")
          return true
       end
    end
@@ -154,6 +153,7 @@ function FollowUp()
       if not isSpinning() and CanUse("judgement") and spinT then
          if GetDistance(me, spinT) < 200 then
             Cast("judgement", me)
+            PrintAction("Spin to clear")
          end
       end
 

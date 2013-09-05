@@ -22,6 +22,7 @@ local function CheckCC(object, list)
 		return true
 	end
 	return false
+end
 
 local function cleanseObj(object)
 	if not ModuleConfig.cleanse then return end
@@ -42,10 +43,19 @@ local function cleanseObj(object)
 			return
 		end
 		
-		if CheckCC(object, byItem) then
+		local item = ITEMS["Quicksilver Sash"]
+		local slot = GetInventorySlot(item.id)
+		if slot and CheckCC(object, byItem) then
 			UseItem("Quicksilver Sash", me)
-			UseItem("Mercurial Scimitar", me)
 			pp("Removed "..object.charName.." with QSS.")
+			return
+		end
+
+		local item = ITEMS["Mercurial Scimitar"]
+		local slot = GetInventorySlot(item.id)
+		if slot and CheckCC(object, byItem) then
+			UseItem("Mercurial Scimitar", me)
+			pp("Removed "..object.charName.." with MS.")
 			return
 		end
 		
@@ -58,19 +68,17 @@ local function cleanseObj(object)
 
 	local item = ITEMS["Mikael's Crucible"]
 	local slot = GetInventorySlot(item.id)
-	if slot and CanUse(slot) then
+	if slot then
 		if CheckCC(object, byItem) then
 			if GetDistance(ADC, object) < 75 then
 				UseItem("Mikael's Crucible", ADC)
 				pp("Mikael's ADC "..ADC.charName.." : "..object.charName)
 				return
-				end
 			end
 			if GetDistance(APC, object) < 75 then
 				UseItem("Mikael's Crucible", APC)
 				pp("Mikael's APC "..APC.charName.." : "..object.charName)
 				return
-				end
 			end
 		end
 	end

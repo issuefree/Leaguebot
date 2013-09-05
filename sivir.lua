@@ -1,6 +1,7 @@
 require "Utils"
 require "timCommon"
 require "modules"
+require "support"
 
 print("\nTim's Sivir")
 
@@ -17,30 +18,39 @@ spells["boomerang"] = {
    type="P",
    delay=2.5,
    speed=13,
-   width=80
+   width=80,
+   cost={70,80,90,100,110}
 }
 spells["ricochet"] = {
-   key="W"
+   key="W",
+   cost=40
 }
 spells["shield"] = {
-   key="E"   
+   key="E",
+   range=10,
+   cost=75   
 }
 spells["hunt"] = {
-   key="R"
+   key="R",
+   cost=100
 }
 
 function Run()
 	TimTick()	
 
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return
+   end
 
    local spell = GetSpell("boomerang")
 
-   local hits = GetInLine(me, "boomerang", targets[1], targets)
-   for _,t in ipairs(hits) do
-      DrawBB(t, red)      
-   end
-   local c = ToPoint(GetCenter(hits))
-   DrawLineObject(me, spell.range, blue, AngleBetween(me, c), spell.width)
+   -- local hits = GetInLine(me, "boomerang", targets[1], targets)
+   -- for _,t in ipairs(hits) do
+   --    DrawBB(t, red)      
+   -- end
+   -- local c = ToPoint(GetCenter(hits))
+   -- DrawLineObject(me, spell.range, blue, AngleBetween(me, c), spell.width)
 
 
    if HotKey() and CanAct() then
@@ -50,7 +60,7 @@ function Run()
       end
    end
 
-   if IsOn("lasthit") and not GetWeakEnemy("PHYSICAL", 950) then
+   if IsOn("lasthit") and Alone() then
       KillWeakMinion("AA", 100)
    end
 end
@@ -67,16 +77,11 @@ end
 --    GetInLine(spell.width, enemiesFireahead, )
 -- end
 
-function checkBlock(unit, spell)
-   if CanUse("E") and spell.target and spell.target.name == me.name then
-      for _,s in ipairs(ENEMY_SPELLS) do
-         if find(spell.name, s.spellName) then
-      		Cast("E", me)
-      		break
-         end
-      end
+local function onSpell(unit, spell)
+   if IsOn("block") then
+      CheckShield("shield", unit, spell, "SPELL")
    end
 end
 
-AddOnSpell(checkBlock)
+AddOnSpell(onSpell)
 SetTimerCallback("Run")

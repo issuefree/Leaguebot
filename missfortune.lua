@@ -17,7 +17,8 @@ spells["double"] = {
    color=violet, 
    base={25,60,95,130,165},
    ad=.75,
-   type="P"
+   type="P",
+   cost=50
 }
 spells["rain"] = {
    key="E", 
@@ -25,7 +26,8 @@ spells["rain"] = {
    color=yellow, 
    base={90,145,195,255,310}, 
    ap=.8,
-   area=200
+   radius=200,
+   cost=50
 }
 spells["bullet"] = {
    key="R", 
@@ -33,7 +35,8 @@ spells["bullet"] = {
    color=red, 
    base={520,760,1000}, 
    adBonus=2.8,
-   ap=1.6
+   ap=1.6,
+   cost=100
 }
 
 local Q = spells["double"]
@@ -76,31 +79,26 @@ end
 
 function Run()
    TimTick()
-   if me.dead == 1 then
+
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
-   if IsRecalling(me) then
-      return
-   end 
+
    if Check(bulletTime) then
-      return
+      CHANNELLING = true
+      return true
    end
-   if HotKey() then
+   CHANNELLING = false
+
+   if HotKey() and CanAct() then
       UseItems()
    end
---   local t = GetMousePos()
---   t.y = me.y
---   local t2 = {x=t.x+250, y=t.y, z=t.z+150}
---   local t3 = {x=t.x-250, y=t.y, z=t.z+150}
---   
---   DrawCircle(t.x, t.y, t.z, 20, blue)
---   DrawCircle(t2.x, t2.y, t2.z, 20, red)
---   DrawCircle(t3.x, t3.y, t3.z, 20, red)
    
    if CanUse("double") and (IsOn("double") or HotKey()) then 
       local bestDT
       local bestDTA
-      for _,t in ipairs(GetInRange(me, Q.range+250, MINIONS, ENEMIES)) do
+      for _,t in ipairs(GetInRange(me, GetSpellRange("double")+250, MINIONS, ENEMIES)) do
          local doubleTargets = GetInRange(t, 500, MINIONS, ENEMIES) 
          local bt, bta = GetBestDouble(t, doubleTargets, ENEMIES)
          if bt then
@@ -113,17 +111,17 @@ function Run()
             end
          end
       end
-      if bestDT and GetDistance(bestDT) < Q.range and CanUse("double") then
-         CastSpellTarget("Q", bestDT)
+      if bestDT and GetDistance(bestDT) < GetSpellRange("double") and CanUse("double") then
+         Cast("double", bestDT)
+         PrintAction("Double", bestDT)
+         return true
       end
    end
 
-   local near = GetWeakEnemy("PHYS", 850)
-   if IsOn("farm") and not near then
+   if IsOn("farm") and Alone() then
       KillWeakMinion("AA")
       if CanUse("double") then
-         local minions = GetInRange(me, Q.range, MINIONS)
-         SortByHealth(minions)
+         local minions = SortByHealth(GetInRange(me, "double", MINIONS))
          local lowMinions = FilterList(
             GetInRange(me, Q.range+500, MINIONS), 
                function(item) 
@@ -133,8 +131,9 @@ function Run()
          for _,t in ipairs(minions) do
             local bta = GetBestDouble(t, minions, lowMinions)
             if bta then
-               CastSpellTarget("Q", t)
-               break
+               Cast("double", t)
+               PrintAction("Double for lasthit")
+               return true
             end
          end
       end
@@ -144,7 +143,7 @@ end
 
 local function onObject(object)
    if find(object.charName, "missFortune_bulletTime") then
-      bulletTime = {object.charName, object}
+      bulletTime = StateObj(object)
    end 
 end
 

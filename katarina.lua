@@ -95,6 +95,13 @@ function Run()
       spinning = false 
    end
 
+   if spinning then
+      CHANNELLING = true
+   else
+      CHANNELLING = false
+   end
+
+
    if IsOn("steal") and target and not spinning then 
       killSteal() 
    end

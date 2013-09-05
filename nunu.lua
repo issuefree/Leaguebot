@@ -77,7 +77,7 @@ function Action()
 	if IsOn("blast") then
 		local spell = GetSpell("iceblast")
 		if CanUse("iceblast") then
-			if GetDistance(EADC) < spell.range then
+			if EADC and GetDistance(EADC) < spell.range then
 				Cast("iceblast", EADC)
 				return
 			else

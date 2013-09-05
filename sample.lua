@@ -101,6 +101,7 @@ objManager:GetMaxHeroes() returns number
 objManager:GetMaxObjects() returns number
 objManager:GetMaxCreatures() returns number
 objManager:GetMaxNewObjects() returns number
+objManager:GetMaxDelObjects() returns number
 
 -----------[Unit]-----------
 GetMinBBox(Unit) returns pos
@@ -140,6 +141,8 @@ Unit.gold
 Unit.SpellNameQ
 Unit.SpellTimeQ
 Unit.SpellLevelQ
+Unit.InventorySlot1
+Unit.InventoryCharges1
 
 ]]--
 print("sample loaded")

@@ -3,13 +3,19 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Pantheon")
+pp(" - Don't interrupt channels")
+pp(" - Spear if they're approaching")
+pp(" - Dive if they're out of aa range")
+pp(" - Strike if they're near")
+pp(" - Spear if they're running")
+pp(" - Spear to lasthit far minions if I have mana")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("dive", {on=false, key=113, label="Dive"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "spear"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["spear"] = {
@@ -17,7 +23,7 @@ spells["spear"] = {
   range=602, 
   color=violet, 
   base={65,105,145,185,225}, 
-  bonusAd=1.4,
+  adBonus=1.4,
   type="P",
   cost=45
 }
@@ -34,7 +40,7 @@ spells["strike"] = {
   range=598, 
   color=red, 
   base={78,138,198,258,318}, 
-  bonusAd=3.6,
+  adBonus=3.6,
   type="P",
   cost={45,50,55,60,65}
 }
@@ -51,22 +57,42 @@ spells["skyfall"] = {
 local strike = nil
 local strikeTime = 0
 
+local skyfall = nil
+local skyfallTime = 0
+
 local function isStriking()
    if Check(strike) then
+      CHANNELLING = true
       return true
    end
    if time() - strikeTime < 1 then
+      CHANNELLING = true
       return true
    end
+   CHANNELLING = false
    return false
 end
+
+local function isSkyfall()
+   if Check(skyfall) then
+      CHANNELLING = true
+      return true
+   end
+   if time() - skyfallTime < 1 then
+      CHANNELLING = true
+      return true
+   end
+   CHANNELLING = false
+   return false
+end
+
 
 function Run()
    TimTick()
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
-      return
+      return true
    end
 
    if isStriking() then
@@ -74,11 +100,11 @@ function Run()
       return true
    end
 
-   UseAutoItems()
+   if isSkyfall() then
+      PrintAction("Skyfalling")
+      return true
+   end
 
-   -- auto stuff that always happen
-
-   -- high priority hotkey actions, e.g. killing enemies
    if HotKey() and CanAct() then
       if Action() then
          return
@@ -90,7 +116,7 @@ function Run()
       if IsOn("lasthit") and CanUse("spear") and me.mana/me.maxMana > .75 then
          local minions = SortByHealth(GetInRange(me, "spear", MINIONS))
          for _,minion in ipairs(minions) do
-            if GetDistance(minion) > spells["AA"].range and
+            if (GetDistance(minion) > spells["AA"].range or JustAttacked()) and
                GetSpellDamage("spear", minion) > minion.health
             then
                Cast("spear", minion)
@@ -114,9 +140,9 @@ function Action()
 
    if CanUse("spear") then
       local target = GetMarkedTarget() or GetWeakestEnemy("spear")
-      if target then
+      if target and FacingMe(target) then
          Cast("spear", target)
-         PrintAction("Spear", target)
+         PrintAction("Spear first", target)
          return true
       end
    end
@@ -138,6 +164,15 @@ function Action()
       if target then
          Cast("strike", target)
          PrintAction("Strike", target)
+         return true
+      end
+   end
+
+   if CanUse("spear") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("spear")
+      if target then
+         Cast("spear", target)
+         PrintAction("Spear followup", target)
          return true
       end
    end
@@ -192,6 +227,11 @@ local function onObject(object)
    then
       strike = StateObj(object)
    end   
+   if find(object.charName,"pantheon_grandskyfall_cas") and 
+      GetDistance(object) < 150
+   then
+      skyfall = StateObj(object)
+   end   
 end
 
 local function onSpell(object, spell)
@@ -199,6 +239,11 @@ local function onSpell(object, spell)
       find(spell.name, "Heartseeker")
    then
       strikeTime = time()
+   end
+   if object.charName == me.charName and
+      find(spell.name, "GrandSkyfall")
+   then
+      skyfallTime = time()
    end
 end
 

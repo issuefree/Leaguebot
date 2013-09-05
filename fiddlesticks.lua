@@ -51,11 +51,14 @@ local drainCastTime = 0
 
 local function isDraining()
    if Check(drain) then
+      CHANNELLING = true
       return true
    end
    if time() - drainCastTime < 1 then
+      CHANNELLING = true
       return true
    end
+   CHANNELLING = false
    return false
 end
 
@@ -66,8 +69,6 @@ function Run()
       PrintAction("Recalling or dead")
       return true
    end
-
-   UseAutoItems()
 
    if isDraining() then
       PrintAction("Draining")
@@ -104,7 +105,7 @@ function Action()
       if CanUse("fear") then
          local target = GetMarkedTarget() or 
                         GetWeakest("fear", GetInRange(me, "fear", {EADC, EAPC})) or 
-                        GetWeakestEnemy("fear")
+                        GetWeakestEnemy("fear", 100)
 
          if target then
             Cast("fear", target)
@@ -115,7 +116,7 @@ function Action()
 
       if CanUse("drain") then
          -- might update this to target feared guys first
-         local target = GetWeakestEnemy("drain", 100)
+         local target = GetMarkedTarget() or GetWeakestEnemy("drain", 100)
          if target and Cast("drain", target) then
             PrintAction("Drain", target)
             return true

@@ -4,16 +4,17 @@ require "modules"
 
 pp("\nTim's Ashe")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
 
-function getHawkRange()   
-   if GetSpellLevel("E") == 1 then return 2500 end
-   if GetSpellLevel("E") == 2 then return 3250 end
-   if GetSpellLevel("E") == 3 then return 4000 end
-   if GetSpellLevel("E") == 4 then return 4750 end
-   if GetSpellLevel("E") == 3 then return 5500 end
-   return 0
-end
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+
+spells["frost"] = {
+   key="Q"
+}
 
 spells["volley"] = {
    key="W", 
@@ -28,7 +29,7 @@ spells["volley"] = {
 
 spells["hawkshot"] = {
    key="E", 
-   range=getHawkRange, 
+   range={2500,3250,4000,4750,5500},
    color=blue
 }
 
@@ -44,50 +45,107 @@ spells["arrow"] = {
    area=250
 }
 
+local frost = nil
+local frostTime = 0
+
 function Run()
 	TimTick()
+
    if IsRecalling(me) or me.dead == 1 then
       return
    end
 
-  if HotKey() and CanAct() then
-    Action()
-  end
+   if Alone() then
+      if Check(frost) and time() - frostTime > 1 then
+         frostTime = time()
+         Cast("frost", me)
+         PrintAction("Frost OFF")
+      end
+   end
+
+   if HotKey() and CanAct() then
+      if Action() then
+         return true
+      end
+   end   
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
 end
 
 function Action()
    UseItems()
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target and AA(target) then
-      return
+
+   if CanUse("volley") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("volley")
+      if target then
+         Cast("volley", target)
+         PrintAction("Volley", target)
+         return true
+      end
    end
 
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if target then
+      if not Check(frost) and time() - frostTime > 1 and
+         GetDistance(target) < GetSpellRange("AA") 
+      then
+         Cast("frost", me)
+         frostTime = time()
+         PrintAction("Frost ON")
+      end      
+
+      if AA(target) then
+         PrintAction("AA", target)
+         return true
+      end
+   end
+
+   return false
+end
+
+function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         PrintAction("lasthit")
+         return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
       -- hit the highest health minion
-      local minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
-      local minion = minions[#minions]
-      if minion and AA(minion) then
-         return
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA for clear")
+         return true
       end
    end
 
    if IsOn("move") then
-      MoveToCursor() 
+      PrintAction("move")
+      MoveToCursor()
+      return false   
    end
+
+   return false
 end
    
 
 local function onObject(object)
+   if find(object.charName,"iceSparkle") and 
+      GetDistance(object) < 75
+   then
+      frost = StateObj(object)
+   end   
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
+   if unit.name == me.name and find(spell.name, "FrostShot") then
+      frostTime = time()
+   end
 end
 
 AddOnCreate(onObject)

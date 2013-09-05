@@ -16,12 +16,7 @@ function rangeTick()
       if info.range and info.color and 
          ( not info.key or GetSpellLevel(info.key) > 0 ) 
       then
-         local range
-         if type(info.range) == "number" then
-            range = info.range 
-         else
-            range = info.range()           
-         end
+         local range = GetSpellRange(info)
          local time 
          if info.key == "Q" then
             time = me.SpellTimeQ - 2

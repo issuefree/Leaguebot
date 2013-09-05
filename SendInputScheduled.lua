@@ -165,7 +165,7 @@ end
 --     breaking the intent of block #2
 ]]--
 function M.block_input(flag, timeout, on_async_key_change)
-    --print('\nblock_input')
+    --printtext('\nblock_input')
     local t
     if flag then 
         if timeout==nil then timeout=10*1000 end
@@ -180,7 +180,7 @@ end
 function M.tick()
     local now = os.clock()
     local dt = (now - M._lasttick)*1000
-    --print('dt', dt, '#M._buffer', #M._buffer)
+    --printtext('dt', dt, '#M._buffer', #M._buffer)
     -- loop all, if wait encountered and still waiting then break
     -- this still allows previously scheduled press holdtimes to work because the up event will be before the wait
     -- presses scheduled after the wait have not even started yet
@@ -190,7 +190,7 @@ function M.tick()
         t = M._buffer[i]
         remove = false
         t.countdown = t.countdown - dt        
-        --print('new countdown', t.countdown)
+        --printtext('new countdown', t.countdown)
         if t.wait then
             if t.countdown > 0 then
                 break
@@ -199,17 +199,17 @@ function M.tick()
             end
         else
             if t.countdown > 0 then
-                --print('waiting', t.countdown)
+                --printtext('waiting', t.countdown)
                 -- pass
             else
-                --print('running', t.countdown)
+                --printtext('running', t.countdown)
                 t.fn(unpack(t.args))
                 remove = true
             end
         end
         if remove then
             table.remove(M._buffer, i)
-            --print('remaining #', #M._buffer)
+            --printtext('remaining #', #M._buffer)
         else
             i = i + 1
         end
@@ -254,7 +254,7 @@ function M._insert(t)
 end
 
 function M._begin_block_input(timeout, on_async_key_change)
-    print('\n_begin_block_input')
+    -- printtext('\n_begin_block_input')
     local now = os.clock()
     M._input_blocked_at = now
     M.disable_max_buffer() -- always schedule the timeout
@@ -269,7 +269,7 @@ function M._begin_block_input(timeout, on_async_key_change)
 end
 
 function M._end_block_input()
-    print('\n_end_block_input')
+    -- printtext('\n_end_block_input')
     local context = table.remove(M._block_context)
     local after
     if context ~= nil and context.on_async_key_change ~= nil then
@@ -288,7 +288,7 @@ end
 
 -- only ends if block_start matches _input_blocked_at
 function M._timeout_block_input(block_start)
-    print('\n_timeout_block_input')
+    -- printtext('\n_timeout_block_input')
     if block_start == M._input_blocked_at then
         winapi.block_input(false)
     end
@@ -305,7 +305,7 @@ if _run_test and _console_mode then
     function GetScreenX() return 1280 end
     function GetScreenY() return 1024 end
     require 'SKeys'
-    print('testing...')
+    printtext('testing...')
     local p = winapi.spawn_process('notepad')
     p:wait_for_input_idle()
     local w = winapi.find_window_match('Untitled')
@@ -317,7 +317,7 @@ if _run_test and _console_mode then
     M.key_press(SKeys.H)
     M.key_up(SKeys.LShift)
     M.tick()
-    print('H done')
+    printtext('H done')
 
     if true then
         M.key_press(SKeys.E, 800)

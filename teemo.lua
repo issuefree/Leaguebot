@@ -17,7 +17,8 @@ spells["blind"] = {
 	range=680, 
 	color=violet, 
 	base={80,125,170,215,260}, 
-	ap=.8
+	ap=.8,
+	cost={70,80,90,100,110}
 }
 spells["toxic"] = {
 	key="E", 
@@ -30,7 +31,8 @@ spells["shroom"] = {
 	color=green,	
 	base={200,325,450},
 	ap=.8,
-	radius=115
+	radius=115,
+	cost={75,100,125}
 }
 
 local poisons = {}
@@ -58,12 +60,14 @@ function Action()
 		local spell = spells["blind"]
    	if EADC and GetDistance(EADC) < spell.range then
       	Cast("blind", EADC)
-      	return
+      	PrintAction("Blind ADC", EADC)
+      	return true
    	else
          local target = GetWeakEnemy("MAGIC", spell.range)
          if target then
             Cast("blind", target)
-            return
+            PrintAction("Blind", target)
+            return true
          end
       end
    end   
@@ -80,20 +84,22 @@ function Action()
    			local dist = math.min(shroom.range, GetDistance(target))   			
    			local point = Projection(me, target, dist)
    			CastXYZ(shroom, point)
-   			return
-
+   			PrintAction("Plant a Shroom")
+   			return true
    		end
    	end
    end
 	
 	local target = GetWeakEnemy("MAGIC", spells["AA"].range)
    if AA(target) then
-   	return
+   	PrintAction("AA", target)
+   	return true
    end
 
 	if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-      	return
+      	PrintAction("AA for lasthit")
+      	return true
       end
 	end 
 	
@@ -105,14 +111,9 @@ function Action()
 		for _,minion in rpairs(nearMinions) do
 			if not (#GetInRange(minion, 50, poisons) > 0) then
 				if AA(minion) then
-					return
+					PrintAction("AA for clear")
+					return true
 				end
-			end
-		end
-
-		for _,minion in rpairs(nearMinions) do
-			if AA(minion) then
-				return
 			end
 		end
 	end

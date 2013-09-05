@@ -3,7 +3,7 @@ require "timCommon"
 local showWardsFromSpells = true
 local showTimerRadius = 100
 local showVisionRangeKey = 18
-local showSameTeam = true
+local showSameTeam = false
 
 local wardTypes = {
 	sight={color=green, duration=180000, sightRange=1350, triggerRange=70},

@@ -54,28 +54,23 @@ function Run()
       return
    end
 
-   UseAutoItems()
+	-- if IsOn("ult") and CanUse("barrage") then
+	-- 	for _,enemy in ipairs(ENEMIES) do
+	-- 		if enemy and enemy.health/enemy.maxHealth < .5 and #GetInRange(enemy, 500, ALLIES) > 0 then
+	-- 			PlaySound("Beep")
+	-- 		end
+	-- 	end
+	-- end
 
-	if IsOn("ult") and CanUse("barrage") then
-		for _,enemy in ipairs(ENEMIES) do
-			if enemy and enemy.health/enemy.maxHealth < .5 and #GetInRange(enemy, 500, ALLIES) > 0 then
-				PlaySound("Beep")
-			end
-		end
-	end
-
-	if CanUse("oranges") and me.health/me.maxHealth < .5 then
+	if CanUse("oranges") abd
+		( me.health/me.maxHealth < .5 or 
+		  me.health/me.maxHealth < .75 and Alone() )
+	then
 		PrintAction("oranges")
 		Cast("oranges", me)		
 		return true
 	end
 
-	if CanUse("oranges") and me.health/me.maxHealth < .75 and Alone() then
-		PrintAction("oranges")
-		Cast("oranges", me)		
-		return true
-	end
-	
    if HotKey() and CanAct() then
       if Action() then
       	return true
@@ -99,10 +94,12 @@ end
 function Action()
 	UseItems()
 
-	local target = GetMarkedTarget() or GetWeakestEnemy("gun")
-	if Cast("gun", target) then
-		PrintAction("Shoot", target)
-		return true
+	if CanUse("gun") then
+		local target = GetMarkedTarget() or GetWeakestEnemy("gun")
+		if target and Cast("gun", target) then
+			PrintAction("Shoot", target)
+			return true
+		end
 	end
 
 	if not Alone() and CanUse("morale") then

@@ -59,8 +59,6 @@ function Run()
       return
    end
 
-   UseAutoItems()
-
    if HotKey() and CanAct() then
       if Action() then
          return true
@@ -104,6 +102,7 @@ function Action()
    end
 
    if SkillShot("hunter") then
+      PrintAction("Hunter SS")
       return true
    end
 

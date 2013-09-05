@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=template.lua
+LALT LOADSCRIPT=morde.lua
  
  
  

@@ -1,3 +1,4 @@
+require "spell_shot"
 local function table_print (tt, indent, done)
    done = done or {}
    indent = indent or 0
@@ -37,6 +38,7 @@ function pp(str)
       printtext(str.."\n")
    end
 end
+
 
 function merge(table1, table2)
    local resTable = {}
@@ -88,7 +90,13 @@ function PrintAction(str, target)
    end
    if str ~= lastAction then
       if target then
-         pp(" # "..str.." -> "..target.name)
+         if type(target) == "string" or
+            type(target) == "number"
+         then
+            pp(" # "..str.." : "..target)
+         else
+            pp(" # "..str.." -> "..target.name)
+         end
       else
          pp(" # "..str)
       end
@@ -106,13 +114,22 @@ LOADING = true
 OBJECT_CALLBACKS = {}
 SPELL_CALLBACKS = {}
 
+ACTIVE_SKILL_SHOTS = {}
+function addSkillShot(spellShot)
+   table.insert(ACTIVE_SKILL_SHOTS, spellShot)
+end
+
 function IsCooledDown(key)
    return me["SpellTime"..key] >= 1
 end
 
+function AddOnTick(callback)
+   RegisterLibraryOnTick(callback)
+end
+
 function AddOnCreate(callback)
-   -- table.insert(OBJECT_CALLBACKS, callback)
-   RegisterLibraryOnCreateObj(callback)
+   table.insert(OBJECT_CALLBACKS, callback)
+   -- RegisterLibraryOnCreateObj(callback)
 end
 
 function AddOnSpell(callback)
@@ -192,101 +209,6 @@ MajorCreepNames = {
 
 CreepNames = concat(MinorCreepNames, BigCreepNames, MajorCreepNames)
 
-ENEMY_SPELLS = {
-   {charName = "Akali", spellName = "akalimota", spellType = "Damage"},
-   {charName = "Alistar", spellName = "headbutt", spellType = "Stun"},
-   {charName = "Amumu", spellName = "bandagetoss", spellType = "Stun"},
-   {charName = "Anivia", spellName = "flashfrost", spellType = "Stun"},
-   {charName = "Anivia", spellName = "frostbite", spellType = "Damage"},
-   {charName = "Annie", spellName = "disintigrate", spellType = "Stun"},
-   {charName = "Annie", spellName = "infernalguardian", spellType = "Stun"},   
-   {charName = "Ahri", spellName = "ahriseduce", spellType = "Stun"},   
-   {charName = "Ashe", spellName = "volley", spellType = "Slow"},
-   {charName = "Blitzcrank", spellName = "rocketgrab", spellType = "Stun"},   
-   {charName = "Brand", spellName = "brandblaze", spellType = "Damage"},   
-   {charName = "Brand", spellName = "brandconflagration", spellType = "Damage"},   
-   {charName = "Brand", spellName = "brandwildfire", spellType = "Damage"},   
-   {charName = "Caitlyn", spellName = "caitlynpiltoverpeacemaker", spellType = "Damage"},   
-   {charName = "Caitlyn", spellName = "caitlynentrapment", spellType = "Slow"},   
-   {charName = "Caitlyn", spellName = "caitlynaceinthehole", spellType = "Damage"},   
-   {charName = "Chogath", spellName = "rupture", spellType = "Damage"},   
-   {charName = "Chogath", spellName = "feralscream", spellType = "Damage"},   
-   {charName = "Chogath", spellName = "feast", spellType = "Damage"},   
-   {charName = "Corki", spellName = "missilebarrage", spellType = "Damage"},   
-   {charName = "Darius", spellName = "dariusaxegrabcone", spellType = "Stun"},
-   {charName = "Darius", spellName = "dariusexecute", spellType = "Damage"},
-   {charName = "Draven", spellName = "dravendoubleshot", spellType = "Slow"},
-   {charName = "Draven", spellName = "dravenrcast", spellType = "Damage"},
-   {charName = "Dr. Mundo", spellName = "infectedcleavermissilecast", spellType = "Slow"},
-   {charName = "Fiddlesticks", spellName = "terrify", spellType = "Stun"},
-   {charName = "Fiddlesticks", spellName = "drain", spellType = "Damage"},
-   {charName = "Fizz", spellName = "fizzmarinerdoom", spellType = "Damage"},
-   {charName = "Galio", spellName = "galioresolutesmite", spellType = "Damage"},
-   {charName = "Gangplank", spellName = "parley", spellType = "Damage"},
-   {charName = "Garen", spellName = "garenjustice", spellType = "Silence"},
-   {charName = "Graves", spellName = "gravesclustershot", spellType = "Damage"},
-   {charName = "Graves", spellName = "graveschargeshot", spellType = "Damage"},
-   {charName = "Heimerdinger", spellName = "hextechmicrorockets", spellType = "Damage"},
-   {charName = "Irelia", spellName = "ireliaequilibriumstrike", spellType = "Stun"},
-   {charName = "Janna", spellName = "sowthewind", spellType = "Slow"},
-   {charName = "Jayce", spellName = "jayceshockblast", spellType = "Damage"},
-   {charName = "Karthus", spellName = "fallenone", spellType = "Damage"},
-   {charName = "Kassadin", spellName = "nulllance", spellType = "Damage"},
-   {charName = "Kassadin", spellName = "forcepulse", spellType = "Damage"},
-   {charName = "Kayle", spellName = "judicatorreckoning", spellType = "Slow"},
-   {charName = "LeBlanc", spellName = "leblancchaosorb", spellType = "Slow"},
-   {charName = "LeBlanc", spellName = "leblancsoulshackle", spellType = "Slow"},
-   {charName = "LeeSin", spellName = "blindmonkqone", spellType = "Damage"},
-   {charName = "Leona", spellName = "leonasolarflare", spellType = "Stun"},
-   {charName = "Lulu", spellName = "luluw", spellType = "Slow"},
-   {charName = "Lux", spellName = "luxlightbinding", spellType = "Stun"},
-   {charName = "Malphite", spellName = "ufslash", spellType = "Stun"},
-   {charName = "Malphite", spellName = "seismicshard", spellType = "Slow"},
-   {charName = "Malzahar", spellName = "alzaharnethergrasp", spellType = "Stun"},
-   {charName = "Malzahar", spellName = "alzaharmaleficvisions", spellType = "Damage"},
-   {charName = "Maoki", spellName = "maokaitrunkline", spellType = "Stun"},
-   {charName = "Maoki", spellName = "maokaiunstablegrowth", spellType = "Stun"},
-   {charName = "MasterYi", spellName = "alphastrike", spellType = "Damage"},
-   {charName = "MissFortune", spellName = "missfortunericochetshot", spellType = "Damage"},
-   {charName = "Mordekaiser", spellName = "mordekaiserchildrenofthegrave", spellType = "Damage"},
-   {charName = "Morgana", spellName = "darkbinding", spellType = "Stun"},
-   {charName = "Nasus", spellName = "wither", spellType = "Stun"},
-   {charName = "Nautilus", spellName = "nautilusanchordrag", spellType = "Stun"},
-   {charName = "Nautilus", spellName = "nautilusgrandline", spellType = "Stun"},
-   {charName = "Nidalee", spellName = "javelintoss", spellType = "Damage"},
-   {charName = "Nocturne", spellName = "nocturneduskbringer", spellType = "Damage"},
-   {charName = "Nunu", spellName = "iceblast", spellType = "Stun"},
-   {charName = "Olaf", spellName = "olafaxethrowcast", spellType = "Slow"},
-   {charName = "Pantheon", spellName = "pantheon_throw", spellType = "Damage"},
-   {charName = "Pantheon", spellName = "pantheon_leapbash", spellType = "Stun"},
-   {charName = "Rammus", spellName = "puncturingtaunt", spellType = "Stun"},
-   {charName = "Rengar", spellName = "rengarE", spellType = "Stun"},
-   {charName = "Ryze", spellName = "runeprison", spellType = "Stun"},
-   {charName = "Ryze", spellName = "overload", spellType = "Damage"},
-   {charName = "Shen", spellName = "shenshadowdash", spellType = "Stun"},
-   {charName = "Sion", spellName = "crypticgaze", spellType = "Stun"},
-   {charName = "Skarner", spellName = "skarnerimpale", spellType = "Stun"},
-   {charName = "Sona", spellName = "sonacrescendo", spellType = "Stun"},
-   {charName = "Taric", spellName = "dazzle", spellType = "Stun"},
-   {charName = "Teemo", spellName = "blindingdart", spellType = "Damage"},
-   {charName = "Tristana", spellName = "detonatingshot", spellType = "Damage"},
-   {charName = "Tristana", spellName = "bustershot", spellType = "Damage"},
-   {charName = "Tryndamere", spellName = "mockingshout", spellType = "Slow"},
-   {charName = "Twisted Fate", spellName = "redcard", spellType = "Slow"},
-   {charName = "Twisted Fate", spellName = "yellowcard", spellType = "Stun"},    
-   {charName = "Twisted Fate", spellName = "wildcards", spellType = "Stun"},    
-   {charName = "Twitch", spellName = "TwitchVenomCask", spellType = "Slow"},    
-   {charName = "Varus", spellName = "varusr", spellType = "Stun"},    
-   {charName = "Vayne", spellName = "VayneCondemn", spellType = "Stun"},    
-   {charName = "Veigar", spellName = "veigarbalefulstrike", spellType = "Damage"},    
-   {charName = "Veigar", spellName = "veigareventhorizon", spellType = "Stun"},    
-   {charName = "Veigar", spellName = "veigarprimordialburst", spellType = "Damage"},    
-   {charName = "Volibear", spellName = "volibearq", spellType = "Stun"},    
-   {charName = "Vi", spellName = "assaultandbattery", spellType = "Stun"},
-   {charName = "Xerath", spellName = "xeratharcanopulse", spellType = "Damage"},
-   {charName = "Zyra", spellName = "ZyraGraspingRoots", spellType = "Stun"}
-}
-
 
 enrage = nil
 lichbane = nil
@@ -299,7 +221,6 @@ keyToggles = {}
 toggleOrder = {}
 
 spells["AA"] = {range=me.range+GetDistance(GetMinBBox(me)), base={0}, ad=1, type="P", color=red} 
-
 
 -- stuns roots fears taunts?
 ccNames = {"Stun_glb", "summoner_banish", "Global_Taunt", "Global_Fear", "Ahri_Charm_buf", "leBlanc_shackle_tar", "LuxLightBinding_tar", "RunePrison_tar", "DarkBinding_tar", "Amumu_SadRobot_Ultwrap", "Amumu_Ultwrap", "maokai_elementalAdvance_root_01", "VarusRHitFlash"}
@@ -322,6 +243,19 @@ local function drawCommon()
    local mark = GetMarkedTarget()
    if mark then
       DrawThickCircleObject(mark, GetWidth(mark), red, 7)
+   end
+
+   for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
+      if spellShot.time < time() then
+         table.remove(ACTIVE_SKILL_SHOTS, i)
+      else
+         if spellShot.spell.isline then
+            LineBetween(spellShot.startPoint, spellShot.endPoint, spellShot.spell.radius)
+         else
+            local p = spellShot.endPoint
+            DrawThickCircle(p.x,p.y,p.z, spellShot.spell.radius, blue, 4)
+         end
+      end
    end
 end
 
@@ -487,10 +421,8 @@ function doCreateObj(object)
       tear = {object.charName, object}
    end
    
-   
-      
    for i, callback in ipairs(OBJECT_CALLBACKS) do
-      callback(object, LOADING)
+      callback(object)
    end
 end 
 
@@ -651,7 +583,7 @@ function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
 
    if not extraRange then extraRange = 0 end
 
-   local range = spell.range+extraRange
+   local range = GetSpellRange(spell)+extraRange
 
    local minionWidth = 50
 
@@ -767,9 +699,8 @@ function MoveToTarget(t)
    end
 end
 
-function MoveToCursor() -- Removes derping when mouse is in one position instead of myHero:MoveTo mousePos
+function MoveToCursor()
    if not CanMove() then
-      pp("Can't Move")
       return
    end
    -- local moveSqr = math.sqrt((mousePos.x - myHero.x)^2+(mousePos.z - myHero.z)^2)
@@ -796,7 +727,7 @@ function KillWeakMinion(thing, extraRange)
    if not extraRange then extraRange = 0 end
    -- find a weak minion
    local wMinion
-   for _,minion in ipairs(GetInRange(me, spell.range+extraRange, MINIONS)) do
+   for _,minion in ipairs(GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)) do
       if not wMinion or minion.health < wMinion.health then
          wMinion = minion
       end
@@ -827,7 +758,7 @@ function KillFarMinion(thing)
    local damage = GetSpellDamage(spell)
 
    local wMinion, wMinionD
-   for _,minion in ipairs(GetInRange(me, spell.range, MINIONS)) do
+   for _,minion in ipairs(GetInRange(me, GetSpellRange(spell), MINIONS)) do
       if GetSpellDamage(spell, minion) > minion.health then
          local minionD = GetDistance(minion)
          if not wMinionD or minionD > wMinionD then
@@ -892,7 +823,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
       return {}
    end
 
-   local targets = GetInRange(source, spell.range+spell.radius, concat(...))
+   local targets = GetInRange(source, GetSpellRange(spell)+spell.radius, concat(...))
 
    local bestS = 0
    local bestT = {}
@@ -914,7 +845,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
       end
 
       center = ToPoint(GetCenter(hits))
-      if GetDistance(source, center) > spell.range then
+      if GetDistance(source, center) > GetSpellRange(spell) then
          hits = {}
       end
 
@@ -1061,7 +992,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    local minionAngles = {}
 
    -- clean out the ones I can't kill and get the angles   
-   for i,minion in ipairs(GetInRange(me, spell.range+extraRange, MINIONS)) do
+   for i,minion in ipairs(GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)) do
       if CalcMagicDamage(minion, wDam) > minion.health then
          table.insert(minionAngles, {AngleBetween(minion, me), minion})
       end
@@ -1128,7 +1059,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
          
          -- execute
          if not drawOnly then
-            if farMinionD < spell.range then                        
+            if farMinionD < GetSpellRange(spell) then                        
                CastSpellXYZ(spell.key, x,y,z)
                return true
             end
@@ -1215,7 +1146,7 @@ function SSGoodTarget(target, thing, maxAngle)
    -- up speed by 20% so we don't get quite so much leading
    local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
    
-   if GetDistance({x=x, y=y, z=z}) > spell.range then
+   if GetDistance({x=x, y=y, z=z}) > GetSpellRange(spell) then
 --      pp(target.name.." target leaving range")
       return false
    end
@@ -1273,7 +1204,7 @@ function CastSpellFireahead(thing, target, allowOvershoot)
    if not spell.delay then spell.delay = 2 end
 
    local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
-   if GetDistance({x=x, y=y, z=z}) < spell.range then
+   if GetDistance({x=x, y=y, z=z}) < GetSpellRange(spell) then
       CastXYZ(spell, x,y,z)
       return true
    elseif allowOvershoot then
@@ -1320,6 +1251,9 @@ function GetUnblocked(source, thing, ...)
    return unblocked
 end
 
+function Engaged()
+   return GetWeakEnemy("MAGIC", 300 ) ~= nil
+end
 function Alone()
    return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
 end
@@ -1443,7 +1377,7 @@ end
 function GetInRange(target, thing, ...)
    local range
    if type(thing) ~= "number" then
-      range = GetSpell(thing).range
+      range = GetSpellRange(thing)
    else
       range = thing
    end
@@ -1462,7 +1396,7 @@ end
 function GetAllInRange(target, thing, ...)
    local range
    if type(thing) ~= "number" then
-      range = GetSpell(thing).range
+      range = GetSpellRange(thing)
    else
       range = thing
    end
@@ -1480,10 +1414,10 @@ end
 
 ITEMS = {}
 --Active offense
-ITEMS["Entropy"]                  = {id=3184, range=me.range+50, type="active"}
-ITEMS["Bilgewater Cutlass"]       = {id=3144, range=500,         type="active", color=violet}
+ITEMS["Entropy"]                  = {id=3184, range=me.range+GetDistance(GetMaxBBox(me)), type="active"}
+ITEMS["Bilgewater Cutlass"]       = {id=3144, range=450,         type="active", color=violet}
 ITEMS["Hextech Gunblade"]         = {id=3146, range=700,         type="active", color=violet}
-ITEMS["Blade of the Ruined King"] = {id=3153, range=500,         type="active", color=violet}
+ITEMS["Blade of the Ruined King"] = {id=3153, range=450,         type="active", color=violet}
 ITEMS["Deathfire Grasp"]          = {id=3128, range=750,         type="active", color=violet}
 ITEMS["Tiamat"]                   = {id=3077, range=350,         type="active", color=red}
 ITEMS["Ravenous Hydra"]           = {id=3074, range=350,         type="active", color=red}
@@ -1496,6 +1430,8 @@ ITEMS["Locket of the Iron Solari Aura"] = {id=3190, range=1200, type="aura", col
 ITEMS["Guardian's Horn"] = {id=2051, type="active"}
 ITEMS["Zhonya's Hourglass"] = {id=3157, type="active"}
 ITEMS["Wooglet's Witchcap"] = {id=3090, type="active"}
+ITEMS["Seraph's Embrace"] = {id=3040, type="active"}
+
 
 --Aura offense
 ITEMS["Abyssal Scepter"] = {id=3001, range=700, type="aura", color=violet}
@@ -1534,7 +1470,9 @@ ITEMS["Manamune"] = {id=3004}
 function UseAutoItems()
    UseItem("Zhonya's Hourglass")
    UseItem("Wooglet's Witchcap")
+   UseItem("Seraph's Embrace")
    UseItem("Mikael's Crucible")
+   UseItem("Locket of the Iron Solari")
 end
 
 function UseItems(target)
@@ -1607,7 +1545,8 @@ function UseItem(itemName, target)
       end
 
    elseif itemName == "Zhonya's Hourglass" or 
-          itemName == "Wooglet's Witchcap"
+          itemName == "Wooglet's Witchcap" or
+          itemName == "Seraph's Embrace"
    then
       -- use it if I'm at 10% and there's an enemy nearby
       -- may expand this to trigger when a spell is cast on me that will kill me
@@ -1651,7 +1590,7 @@ function UseItem(itemName, target)
       end
 
    else
-      CastSpellTarget(slot, me)
+      -- CastSpellTarget(slot, me)
    end
 
 end
@@ -1752,20 +1691,6 @@ local function getWardingSlot()
    end
 end
 
-function GetManaCost(thing)
-   local spell = GetSpell(thing)
-   if spell.cost then
-      if type(spell.cost) == "number" then
-         return spell.cost
-      else
-         local cost = spell.cost[GetSpellLevel(spell.key)]
-         if cost then 
-            return cost
-         end
-      end
-   end
-   return 0
-end
 
 function GetCD(thing)
    local spell = GetSpell(thing)
@@ -1784,10 +1709,9 @@ function CanUse(thing)
          if thing.key == "A" then
             return CanAttack()
          end
-         if me.mana >= GetManaCost(thing) then             
+         if me.mana >= GetSpellCost(thing) then             
             return CanUse(thing.key)
          else
-            pp(debug.traceback())
             return false
          end
       else  -- spells without keys are always ready
@@ -1801,7 +1725,7 @@ function CanUse(thing)
       end
       if spells[thing] then -- passed in the name of a spell
          if spells[thing].key then
-            return CanUse(spells[thing].key)
+            return CanUse(spells[thing])
          else
             return true -- a defined spell without a key prob auto attack
          end
@@ -1930,7 +1854,11 @@ function LineBetween(object1, object2, thickness)
    end
 
    local angle = AngleBetween(object1, object2) 
-   DrawLineObject(object1, GetDistance(object1, object2), 0, angle, thickness)
+   if type(object1) == "table" then
+      DrawLine(object1.x,object1.y,object1.z, GetDistance(object1, object2), 0, angle, thickness)
+   else
+      DrawLineObject(object1, GetDistance(object1, object2), 0, angle, thickness)
+   end
 end
 
 function DrawKnockback(object2, dist)
@@ -2007,8 +1935,12 @@ function GetAADamage(target)
          damageP = 0
       end
       damageM = damageM + GetSpellDamage("stack")  
-   elseif me.name == "lux" then
+   elseif me.name == "Lux" then
       -- would apply flare damage if I could. Handle in script
+   elseif me.name == "KogMaw" then
+      if target then
+         damageM = damageM + spells["barrage"].healthPerc*target.maxHealth
+      end
    end
    
    -- items
@@ -2077,11 +2009,32 @@ end
 
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
-   if type(spell.cost) == "table" then
-      return spell.cost[GetSpellLevel(spell.key)]
-   else
-      return spell.cost
+   if spell.cost then
+      if type(spell.cost) == "table" then
+         return spell.cost[GetSpellLevel(spell.key)] or 0
+      elseif type(spell.cost) == "number" then
+         return spell.cost or 0
+      else
+         return spell.cost() or 0
+      end
    end
+   return 0
+end
+
+function GetSpellRange(thing)
+   local spell = GetSpell(thing)
+   if type(spell.range) == "table" then
+      local lvl = GetSpellLevel(spell.key)
+      if lvl == 0 then
+         return 0
+      end
+      return spell.range[GetSpellLevel(spell.key)]
+   elseif type(spell.range) == "number" then
+      return spell.range
+   else
+      return spell.range()
+   end
+   return 0
 end
 
 function GetSpell(thing)
@@ -2200,6 +2153,13 @@ function GetPeel(save, stop)
    end
 end
 
+function GetHPerc(target)
+   return target.health/target.maxHealth
+end
+function GetMPerc(target)
+   return target.mana/target.maxMana
+end
+
 function GetWeakestEnemy(thing, extraRange)
    if not extraRange then
       extraRange = 0
@@ -2221,7 +2181,9 @@ function GetWeakestEnemy(thing, extraRange)
       type = "MAGIC"
    end
 
-   return GetWeakEnemy(type, spell.range+extraRange)
+   return 
+      GetWeakEnemy(type, GetSpellRange(spell)) or
+      GetWeakEnemy(type, GetSpellRange(spell)+extraRange)
 end
 
 
@@ -2267,10 +2229,76 @@ function DoIn(f, millis, key)
    end
 end
 
-function OnProcessSpell(object, spell)
+CHANNELLING = false
+
+function OnProcessSpell(unit, spell)
+   if ModuleConfig.ass then
+      if me.dead == 0 and
+         not Engaged() and
+         not CHANNELLING
+      then
+         local spellShot = SpellShotTarget(unit, spell, me)
+         if spellShot then
+            BlockingMove(spellShot.safePoint)
+            addSkillShot(spellShot)
+            PrintAction("Dodge "..unit.name.."'s "..spell.name)
+         end
+      end
+   end
+   
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
-   --    callback(object, spell)
+   --    callback(unit, spell)
    -- end   
+end
+AddOnSpell(OnProcessSpell)
+
+local send = require 'SendInputScheduled'
+local function makeStateMatch(changes)
+   for scode,flag in pairs(changes) do    
+      -- if flag then pp('went down') else pp('went up') end
+      local vk = winapi.map_virtual_key(scode, 3)
+      local is_down = winapi.get_async_key_state(vk)
+      if flag then -- went down
+         if is_down then
+            send.wait(60)
+            send.key_down(scode)
+            send.wait(60)
+         else
+            -- up before, up after, down during, we don't care
+         end            
+      else -- went up
+         if is_down then
+            -- down before, down after, up during, we don't care
+         else
+            send.wait(60)
+            send.key_up(scode)
+            send.wait(60)
+         end
+      end
+   end
+end
+
+local blockAndMove = nil
+local blockTimeout = .25
+local blockStart = 0
+function BlockingMove(move_dest)
+   blockStart = time()
+
+   -- send.block_input(true, blockTimeout*1000, makeStateMatch)
+   MoveToXYZ(move_dest.x, 0, move_dest.z)
+
+   -- blockAndMove = function()
+   --    DrawCircle(move_dest.x, move_dest.y, move_dest.z, 75, green)
+   --    if time() - blockStart > blockTimeout or 
+   --       GetDistance(move_dest)<75 
+   --    then
+   --       blockAndMove = nil
+   --       send.block_input(false)
+   --    end
+   -- end
+end
+function Unblock()
+   send.block_input(false)
 end
 
 -- Common stuff that should happen every time
@@ -2296,17 +2324,25 @@ function TimTick()
    updateObjects()
    drawCommon()
    
+   if ModuleConfig.ass then
+      if blockAndMove then 
+         blockAndMove() 
+      end
+      send.tick()
+   end
+
    for key,doLater in pairs(DOLATERS) do
       if doLater[1] < GetClock() then
          doLater[2]()
          DOLATERS[key] = nil
       end
    end
+   UseAutoItems()
 end
 
 
 local attackDelayOffset = .3
-local minAttackTime = .6
+local minAttackTime = .75
 local aaData 
 
 local attackState = 0
@@ -2430,7 +2466,9 @@ end
 
 function onObjAA(object)
    if aaData and ListContains(object.charName, aaData.aaParticles) then
-      -- pp("AAP: "..object.charName)
+      if ModuleConfig.debug then
+         pp("AAP: "..object.charName)
+      end
       shotFired = true
    end
 end
@@ -2465,7 +2503,7 @@ function GetAAData()
         Ahri         = { projSpeed = 1.6, aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, aaSpellName = "ahribasicattack", startAttackSpeed = "0.668",  },
         Anivia       = { projSpeed = 1.05, aaParticles = {"cryo_BasicAttack_mis", "cryo_BasicAttack_tar"}, aaSpellName = "aniviabasicattack", startAttackSpeed = "0.625",  },
         Annie        = { projSpeed = 1.0, aaParticles = {"annie_basicattack"}, aaSpellName = "AnnieBasicAttack", startAttackSpeed = "0.579",  },
-        Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = "attack", startAttackSpeed = "0.658" },
+        Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = {"attack", "frostarrow"}, startAttackSpeed = "0.658" },
         Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
         Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
         Cassiopeia   = { projSpeed = 1.22, aaParticles = {"CassBasicAttack_mis"}, aaSpellName = "cassiopeiabasicattack", startAttackSpeed = "0.644" },
@@ -2481,7 +2519,7 @@ function GetAAData()
         Karthus      = { projSpeed = 1.25, aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"}, aaSpellName = "karthusbasicattack", startAttackSpeed = "0.625" },
         Kayle        = { projSpeed = 1.8, aaParticles = {"RighteousFury_nova"}, aaSpellName = "KayleBasicAttack", startAttackSpeed = "0.638",  }, -- Kayle doesn't have a particle when auto attacking without E buff..
         Kennen       = { projSpeed = 1.35, aaParticles = {"KennenBasicAttack_mis"}, aaSpellName = "kennenbasicattack", startAttackSpeed = "0.690" },
-        KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack_mis", "KogMawBioArcaneBarrage_mis"}, aaSpellName = "kogmawbasicattack", startAttackSpeed = "0.665", },
+        KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage", "KogMawSpatter"}, aaSpellName = {"kogmawbasicattack", "KogMawBioArcaneBarrageAttack"}, startAttackSpeed = "0.665", },
         Leblanc      = { projSpeed = 1.7, aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"}, aaSpellName = "leblancbasicattack", startAttackSpeed = "0.625" },
         Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
         Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
@@ -2512,6 +2550,7 @@ function GetAAData()
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
         Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
+        Warwick      = { aaParticles = {"globalhit_bloodslash", "GlobalLifeSteal_buf"}, aaSpellName = "attack"},
         Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
     }
 end

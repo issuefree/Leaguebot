@@ -58,8 +58,6 @@ local empower = nil
 function Run()
 	TimTick()
 
-   UseAutoItems()
-
 	if IsKeyDown(string.byte("X")) == 1 then
 		WardJump("leap")
 		PrintAction("Wardjump")
@@ -210,7 +208,8 @@ local function onObject(object)
 
 end
 
-local function onSpell(object, spell)
+
+local function onSpell(unit, spell)
    if spell.target and spell.target.name == me.name and
       me.health / me.maxHealth < .5 and
       CanUse("might")
