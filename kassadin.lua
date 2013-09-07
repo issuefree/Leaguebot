@@ -45,9 +45,6 @@ end
 AddToggle("execute", {on=false, key=112, label="Execute", auxLabel="{0}", args={getExecuteLabel}})
 
 function Run()
-	TimTick()
-
-
 	if IsKeyDown(hotKey) ~= 0 then
 		if IsOn("execute") then
 			local qDam = 0

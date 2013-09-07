@@ -41,8 +41,6 @@ spells["intervention"] = {
 local fury = nil
 
 function Run()
-   TimTick()
-
    -- if Check(fury) then
    --    PrintState(0, "FURY")
    -- else

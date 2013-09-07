@@ -41,8 +41,6 @@ local nearRange = 1000    -- if no enemies in this range consider them not "near
 local lastAttack = GetClock()
 
 function Run()
-   TimTick()
-
    if IsRecalling(me) then
       return
    end

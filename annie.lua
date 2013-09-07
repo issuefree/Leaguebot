@@ -64,8 +64,6 @@ local tibbersHasTarget = false
 local tibbersRange = 300
 
 function Run()
-   TimTick()
-   
    if IsRecalling(me) or me.dead == 1 then
       return
    end

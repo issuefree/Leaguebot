@@ -96,8 +96,6 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions", auxLabel="{
 local singularity
 
 function Run()
-   TimTick()
-
    updateFlares()
 
    -- local targets = TestTargets()
@@ -270,13 +268,8 @@ function FollowUp()
 
    if IsOn("lasthit") and Alone() then
       -- lasthit with singularity if it kills 3 minions or more
-      if CanUse("singularity") then
-         local hits, kills, score = GetBestArea(me, "singularity", 0, 1, MINIONS)
-         if #kills >= 3 then
-            CastXYZ("singularity", GetCenter(hits))
-            PrintAction("Singularity for lasthits: "..#kills)
-            return true
-         end
+      if KillMinionsInArea("singularity", 3) then
+         return true
       end
 
       for _,target in ipairs(flaredMinions) do

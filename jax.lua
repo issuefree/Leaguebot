@@ -56,8 +56,6 @@ local counter = nil
 local empower = nil
 
 function Run()
-	TimTick()
-
 	if IsKeyDown(string.byte("X")) == 1 then
 		WardJump("leap")
 		PrintAction("Wardjump")

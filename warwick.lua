@@ -45,7 +45,6 @@ Q minions if I have lots of mana or am low on health.
 ]]
 
 function Run()
-	TimTick()
    updateThirstDamage()
 
    if IsRecalling(me) or me.dead == 1 then

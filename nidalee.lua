@@ -49,8 +49,6 @@ spells["heal"] = {
 local isCougar = false
 
 function Run()
-   TimTick()
-   
    if isCougar then
       PrintState(0, "RAWR")
    end

@@ -29,8 +29,6 @@ spells["card"] = nil
 spells["stack"] = nil
 
 function Run()
-	TimTick()
-	
 	if selecting then
 	  PrintState(1, "SELECTING")
 	else

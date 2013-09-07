@@ -40,7 +40,6 @@ spells["maelstrom"] = {
 }
 
 function Run()
-	TimTick()
 	if HotKey() then
 		UseItems()
 	end

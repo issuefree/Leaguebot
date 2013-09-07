@@ -27,8 +27,6 @@ spells["pix"] = {
 AddToggle("shield", {on=true, key=112, label="Auto Shield", auxLabel="{0}", args={"eye"}})
 
 function Run()
-	TimTick()
-
 	if IsRecalling(me) then
 		return
 	end

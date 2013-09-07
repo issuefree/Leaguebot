@@ -54,8 +54,6 @@ local stuns = {}
 local stunnedEnemies = {}
 
 function Run()
-   TimTick()      
-   
    updateStuns()
 
    if IsRecalling(me) or me.dead == 1 then
@@ -180,8 +178,7 @@ function FollowUp()
    end
 
    if IsOn("clearminions") then
-      if KillMinionsInArea("dark", 2, false, 0, false) then
-         PrintAction("Dark Matter for clear")
+      if HitMinionsInArea("dark", 3) then
          return true
       end
    end

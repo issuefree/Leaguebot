@@ -46,8 +46,6 @@ spells["feast"] = {
 }
 
 function Run()
-	TimTick()
-	
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -82,13 +80,8 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       -- lasthit with rupture if it kills 2 minions or more
-      if CanUse("rupture") then
-         local hits, kills, score = GetBestArea(me, "rupture", 0, 1, MINIONS)
-         if #kills >= 2 then
-            CastXYZ("rupture", GetCenter(hits))
-            PrintAction("Rupture for lasthits: "..#kills)
-            return true
-         end
+      if KillMinionsInArea("rupture", 2) then
+         return true
       end
    end
 

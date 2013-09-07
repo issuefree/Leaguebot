@@ -39,8 +39,6 @@ local poisons = {}
 local shrooms = {}
 
 function Run()
-	TimTick()
-	
 	Clean(poisons, "charName", "Global_poison")
 	Clean(shrooms, "charName", "Noxious Trap")
 

@@ -18,8 +18,6 @@ local function getLayFireAhead(target)
 end
 
 function Run()
-   TimTick()
-      
    local target = GetWeakEnemy("MAGIC", 90000) 
    if target and CanUse("ult") and GetSpellDamage("ult", target) > target.health then
       PlaySound("Beep")

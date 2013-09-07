@@ -13,8 +13,6 @@ spells["monsoon"] = {key="R", range=800, color=green, base={280,440,600}, ap=1.4
 AddToggle("shield", {on=true, key=112, label="Auto Shield", auxLabel="{0}", args={"eye"}})
 
 function Run()
-	TimTick()
-
 	if IsRecalling(me) then
 		return
 	end

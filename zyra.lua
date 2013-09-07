@@ -45,7 +45,6 @@ spells["strangle"] = {
 
 
 function Run()
-	TimTick()
 	if HotKey() then
 		UseItems()
 	end

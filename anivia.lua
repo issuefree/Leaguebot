@@ -46,7 +46,6 @@ local orb
 local freezes = {}
 
 function Run()
-   TimTick()
    Clean(freezes, "charName", "Global_Freeze")
 
    for _,hero in ipairs(ENEMIES) do

@@ -44,7 +44,6 @@ spells["cask"] = {
 
 
 function Run()
-   TimTick()
    if HotKey() then
       UseItems()
    end

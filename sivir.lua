@@ -36,8 +36,6 @@ spells["hunt"] = {
 }
 
 function Run()
-	TimTick()	
-
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return

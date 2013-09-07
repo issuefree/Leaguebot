@@ -48,8 +48,6 @@ spells["barrage"] = {
 }
 
 function Run()
-	TimTick()
-			
    if IsRecalling(me) or me.dead == 1 then
       return
    end

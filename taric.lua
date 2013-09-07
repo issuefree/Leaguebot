@@ -21,8 +21,6 @@ spells["stun"]     = {key="E", range=625,  color=violet,    base={150,195,240}, 
 AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
 
 function Run()
-	TimTick()
-
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return

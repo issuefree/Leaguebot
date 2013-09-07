@@ -31,8 +31,6 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 --}
 
 function Run()
-	TimTick()
-
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return

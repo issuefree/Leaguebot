@@ -55,8 +55,6 @@ local R = spells["shackles"]
 local lastBinding = GetClock()
 
 function Run()
-   TimTick()
-   
 --   local testTarget = GetMousePos()
 --   local testFA = {x=testTarget.x + 500, y = testTarget.y, z = testTarget.z}
 --   

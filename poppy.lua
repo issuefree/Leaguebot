@@ -12,8 +12,6 @@ spells["collision"] = {key="E", range=300, base={75,125,175,225,275}, ap=.4}
 spells["immunity"] =  {key="R", range=900, color=blue}
 
 function Run()
-   TimTick()
-   
    if HotKey() then
       UseItems()     
       checkCharge()

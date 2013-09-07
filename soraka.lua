@@ -55,8 +55,6 @@ AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}",
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
-	TimTick()
-
 	if me.dead == 1 then
 		return
 	end

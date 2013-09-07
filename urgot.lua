@@ -50,8 +50,6 @@ local charges = {}
 local chargedEnemies = {}
 
 function Run()
-   TimTick()   
-
    updateCharges()
 
    if IsRecalling(me) or me.dead == 1 then

@@ -42,8 +42,6 @@ spells["expunge"] = {
 local poisons = {}
 
 function Run()
-	TimTick()
-
    drawPoisons()
 
 	if HotKey() and CanAct() then

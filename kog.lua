@@ -3,6 +3,13 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Kog")
+pp(" - spittle weak people")
+pp(" - slow weak people")
+pp(" - if someone is in range of aa + barrage range turn it on")
+pp(" - aa people")
+pp(" - artillery people based on mana/their health")
+pp(" - lasthit ooze >= 3 if mana > .5 and very alone")
+pp(" - lasthit artillery >= 2 if no stacks and alone")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
@@ -28,7 +35,7 @@ spells["barrage"] = {
 }
 spells["ooze"] = {
   key="E", 
-  range=1000, 
+  range=1300, 
   color=yellow, 
   base={60,110,160,210,260}, 
   ap=.7,
@@ -39,7 +46,7 @@ spells["ooze"] = {
 }
 spells["artillery"] = {
   key="R", 
-  range={1400, 1800, 2200},
+  range={1200, 1500, 1800},
   color=green, 
   base={80,120,160},
   ap=.3,
@@ -81,8 +88,6 @@ local function updateSpells()
 end
 
 function Run()
-	TimTick()
-
    updateSpells()
 
    if Check(artillery) then
@@ -95,17 +100,22 @@ function Run()
    end
 
 	if HotKey() and CanAct() then
+      UseItems()
 		if Action() then
 			return
 		end
 	end
 
+   if IsOn("lasthit") and VeryAlone() then
+      if me.mana/me.maxMana > .5 then         
+         if KillMinionsInLine("ooze", 3) then
+            return true
+         end
+      end
+   end
    if IsOn("lasthit") and Alone() then
-      if CanUse("artillery") and artilleryCount == 0 then
-         local hits, kills, score = GetBestArea(me, "artillery", 0, 1, MINIONS)
-         if #kills >= 2 then
-            CastXYZ("artillery", GetCenter(hits))
-            PrintAction("Artillery for lasthits", #kills)
+      if artilleryCount == 0 then
+         if KillMinionsInArea("artillery", 2) then
             return true
          end
       end
@@ -119,16 +129,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-
-   --[[
-   spittle weak people
-   slow weak people
-   if someone is in range of aa + barrage range turn it on
-   aa people
-   artillery people based on mana/their health
-   ]]
-
    if CanUse("spittle") then
       local target = GetMarkedTarget() or GetWeakestEnemy("spittle")
       if target then
@@ -166,9 +166,6 @@ function Action()
          ( GetDistance(target) > spells["AA"].range or
            JustAttacked() )
       then
-         PrintState(1, GetMPerc(me))
-         PrintState(2, tManaP)      
-         PrintState(3, GetHPerc(target))
          if artilleryCount == 0 or 
             GetMPerc(me) > .5 or
             GetSpellDamage(artillery, target) > target.health or

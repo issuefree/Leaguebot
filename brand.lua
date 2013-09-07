@@ -60,7 +60,6 @@ spells["pyro"] = {
 
 
 function Run()
-	TimTick()
 	if HotKey() then
 		UseItems()
 	end

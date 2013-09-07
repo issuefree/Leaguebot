@@ -54,7 +54,6 @@ AddToggle("butcher", {on=true,  key=114, label="Butcher minions", auxLabel="{0}"
 local burningAgony = nil
 
 function Run()
-	TimTick()
 	updateObjects()
 
 	if GetWeakEnemy("MAGIC", 1200) or not IsOn("berserk") then

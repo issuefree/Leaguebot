@@ -66,7 +66,6 @@ spells["headshot"] = {
 local headshot = nil 
 
 function Run()
-   TimTick()
    if Check(headshot) then
       spells["headshot"].ad = 1.5
    else
@@ -148,9 +147,10 @@ function FollowUp()
 
    if IsOn("clearminions") and Alone() then
       -- check for a big clear from pp
-      if IsOn("pp") and KillMinionsInLine("pp", 4, false, -100, false) then
-         PrintAction("clear with PP")
-         return true
+      if IsOn("pp") then
+         if HitMinionsInLine("pp", 4) then
+            return true
+         end
       end
 
       -- hit the highest health minion

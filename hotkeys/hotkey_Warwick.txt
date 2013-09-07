@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=template.lua
+LALT LOADSCRIPT=warwick.lua

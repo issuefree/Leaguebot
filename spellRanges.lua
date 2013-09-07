@@ -27,10 +27,29 @@ function rangeTick()
          elseif info.key == "R" then
             time = me.SpellTimeR - 2
          end
-         if time and time < -1 then
-            DrawCircleObject(me, range/(-time*-time), info.color)
+
+         if name == "AA" then
+            if CanAttack() then
+               DrawCircleObject(me, range, info.color)
+               DrawCircleObject(me, range-2, info.color)
+               DrawCircleObject(me, range-4, info.color)
+            elseif IsAttacking() then
+               DrawCircleObject(me, range, yellow)
+            elseif os.clock() - getNextAttackTime() < 0 then
+               time = os.clock() - getNextAttackTime() - 1
+               DrawCircleObject(me, range/(-time*-time), info.color)
+               DrawCircleObject(me, range, yellow)
+               -- DrawCircleObject(me, range-4, info.color)
+            else
+               DrawCircleObject(me, range, yellow)
+               DrawCircleObject(me, range-2, yellow)
+            end
          else
-            DrawCircleObject(me, range, info.color)
+            if time and time < -1 then
+               DrawCircleObject(me, range/(-time*-time), info.color)
+            else
+               DrawCircleObject(me, range, info.color)
+            end
          end
       end   
    end

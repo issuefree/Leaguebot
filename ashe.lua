@@ -49,8 +49,6 @@ local frost = nil
 local frostTime = 0
 
 function Run()
-	TimTick()
-
    if IsRecalling(me) or me.dead == 1 then
       return
    end

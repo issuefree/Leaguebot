@@ -21,7 +21,8 @@ spells["axe"] = {
    type="P",
    delay=2.65,
    speed=16,
-   width=100
+   width=80,
+   overShoot=150
 }
 spells["strikes"] = {
    key="W"
@@ -49,14 +50,22 @@ Ganking
 ]]--
 
 function Run()
-   TimTick()
-   
    if IsRecalling(me) or me.dead == 1 then
       return
    end
 
    if HotKey() and CanAct() then
       Action()
+   end
+
+   if IsOn("lasthit") then
+      if me.health/me.maxHealth > .75 and KillWeakMinion("swing") then
+         PrintAction("Swing for lasthit")
+         return true
+      end
+      if KillMinionsInLine("axe", 2) then
+         return true
+      end
    end
    
    if IsOn("jungle") then
@@ -101,7 +110,7 @@ function Action()
       end
 
       if AA(aaTarget) then
-         return return true
+         return true
       end
    end
 
@@ -109,34 +118,22 @@ function Action()
       if KillWeakMinion("AA") then
          return true
       end
-      if me.health/me.maxHealth > .75 and KillWeakMinion("swing") then
-         return true
-      end
    end
    if IsOn("clearminions") and Alone() then
       if me.mana/me.maxMana > .75 then
-         if KillMinionsInLine("axe", 3, false, 0, false) then
+         if HitMinionsInLine("axe", 3) then
             return true
          end
       elseif me.mana/me.maxMana > .66 then
-         if KillMinionsInLine("axe", 4, false, 0, false) then
+         if HitMinionsInLine("axe", 4) then
             return true
          end
       elseif me.mana/me.maxMana > .5 then
-         if KillMinionsInLine("axe", 5, false, 0, false) then
+         if HitMinionsInLine("axe", 5) then
             return true
          end
       end
 
-      if me.health/me.maxHealth > .66 then
-         if CanUse("swing") then
-            local minions = SortByHealth(GetInRange(me, "swing", MINIONS))
-            local minion = minions[#minions]
-            if minion and Cast("swing", minion) then
-               return true
-            end
-         end
-      end
       if me.health/me.maxHealth < .75 then
          if CanUse("strikes") and #GetInRange(me, "swing", MINIONS) >= 2 then
             Cast("strikes", me)

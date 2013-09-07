@@ -576,80 +576,37 @@ local function updateObjects()
    end
 end
 
-function KillMinionsInLine(thing, minHits, needKills, extraRange, drawOnly)
+function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
-   if not spell then return false end
-   if not CanUse(spell) then return false end
+   if not spell or not CanUse(spell) then return false end
 
-   if not extraRange then extraRange = 0 end
-
-   local range = GetSpellRange(spell)+extraRange
-
-   local minionWidth = 50
-
-   local minions = GetInRange(me, range, MINIONS)
-   if #minions == 0 then
-      return false
+   local hits, kills, score = GetBestLine(me, thing, 0, 1, MINIONS)
+   if #kills >= killsNeeded then
+      local point = ToPoint(GetCenter(hits))
+      if spell.overShoot then
+         point = Projection(me, point, GetDistance(point)+spell.overShoot)
+      end
+      DrawCircle(point.x, point.y, point.z, 50, yellow)
+      CastXYZ(thing, point)
+      PrintAction(thing.." for kills", #hits)
+      return true
    end
-   SortByDistance(minions)
-   
-   local bestT
-   local bestTS = 0
-   -- local bestMinions = {}
+   return false
+end
 
-   for i = 1, #minions do
-      local minion = minions[i]
-      bt = minion 
-      tk = 0
-      th = 0
-      bm = {}
-      local minionD = GetDistance(minion)
-      -- table.insert(bm, min)
-      local a = AngleBetween(me, minion)
-      for _,min in ipairs(minions) do
-         local d = GetDistance(min)
-         if d <= minionD then
-            local proj = {x=me.x+math.sin(a)*d, z=me.z+math.cos(a)*d}
-            -- DrawCircle(proj.x, 0, proj.z, 20, blue)
-            if GetDistance(min, proj) < spell.width/2+GetWidth(min) then
-               if GetSpellDamage(spell, min) > min.health then 
-                  tk = tk + 1
-               end
-               th = th + 1
-               -- table.insert(bm, min)
-            end
-         end
-      end
-      if needKills then
-         if not bestT or tk > bestTS then
-            bestT = bt
-            bestTS = tk
-         end
-      else
-         if not bestT or th + tk/2 > bestTS then
-            bestT = bt
-            bestTS = th + tk/2
-            -- bestMinions = bm
-         end
-      end
-      -- pp(bestTS)
-   end
+function HitMinionsInLine(thing, hitsNeeded)
+   local spell = GetSpell(thing)
+   if not spell or not CanUse(spell) then return false end
    
-   if bestT and bestTS >= minHits then
-      local a = AngleBetween(me, bestT)
-      local x = me.x+math.sin(a)*range
-      local z = me.z+math.cos(a)*range
-
-      -- DrawTextObject(bestTS, bestT, 0xff00ffff)
-      -- pp(bestTS)
-      -- for i,v in ipairs(bestMinions) do
-      --    DrawCircleObject(v, 75, red)
-      -- end
-      DrawLineObject(me, range, spell.width, AngleBetween(me, bestT), spell.width)
-      DrawThickCircleObject(bestT, GetWidth(bestT), red, 5)
-      if not drawOnly then
-         CastXYZ(spell.key, bestT)
+   local hits, kills, score = GetBestLine(me, thing, 1, 1, MINIONS)
+   if #hits >= hitsNeeded then
+      local point = ToPoint(GetCenter(hits))
+      if spell.overShoot then
+         point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
+      DrawCircle(point.x, point.y, point.z, 50, yellow)
+      CastXYZ(thing, point)
+      PrintAction(thing.." for hits", #hits)
       return true
    end
    return false
@@ -905,6 +862,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    for _,target in ipairs(targets) do
       local hits = GetInLine(source, thing, target, targets)
       local score = #hits
+      local kills = {}
 
       if killScore ~= 0 then     
          for _,hit in ipairs(hits) do
@@ -923,57 +881,28 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    return bestT, bestK, bestS
 end
 
-function KillMinionsInArea(thing, minHits, needKills, extraRange, drawOnly)
+function KillMinionsInArea(thing, killsNeeded)
    local spell = GetSpell(thing)
-   if not spell then return false end
-   if not CanUse(spell) then return false end
+   if not spell or not CanUse(spell) then return false end
 
-   if not extraRange then extraRange = 0 end
-
-   local minions = GetInRange(me, spell, MINIONS)
-
-   local hitScore = 0
-   local killScore = 0
-   if needKills then
-      killScore = 1
-   else
-      hitScore = 1
-      killScore = .5
+   local hits, kills, score = GetBestArea(me, thing, 0, 1, MINIONS)
+   if #kills >= killsNeeded then
+      CastXYZ(thing, GetCenter(hits))
+      PrintAction(thing.." for kills", #kills)
+      return true
    end
+   return false
+end
+function HitMinionsInArea(thing, hitsNeeded)
+   local spell = GetSpell(thing)
+   if not spell or not CanUse(spell) then return false end
 
-   local bestS = minHits - 1
-   local bestT = nil
-   local bestMinions = {}
-
-   for _,minion in ipairs(minions) do
-      local score = 0
-      local hits = GetInRange(minion, spell.radius, MINIONS)
-
-      score = #hits * hitScore
-
-      for _,hit in ipairs(hits) do
-         if GetSpellDamage(thing, hit) > hit.health then
-            score = score + killScore
-         end
-      end
-
-      if score > bestS then
-         bestS = score
-         bestT = minion
-         bestMinions = hits
-      end
+   local hits, kills, score = GetBestArea(me, thing, 1, 1, MINIONS)
+   if #hits >= hitsNeeded then
+      CastXYZ(thing, GetCenter(hits))
+      PrintAction(thing.." for hits", #hits)
+      return true
    end
-
-   if bestT then
-      for _,minion in ipairs(bestMinions) do
-         DrawCircleObject(minion, GetWidth(minion), red)
-         if not drawOnly then
-            CastXYZ(spell, bestT)
-            return true
-         end
-      end
-   end
-
    return false
 end
 
@@ -2342,7 +2271,7 @@ end
 
 
 local attackDelayOffset = .3
-local minAttackTime = .75
+local minAttackTime = .66
 local aaData 
 
 local attackState = 0
@@ -2440,7 +2369,7 @@ function waitingForAttack()
    end
 end
 
-function getNextAttackTime()   
+function getNextAttackTime()
    return lastAttack + (1 / me.attackspeed)
 end
 
@@ -2465,7 +2394,9 @@ function setAttackState(state)
 end
 
 function onObjAA(object)
-   if aaData and ListContains(object.charName, aaData.aaParticles) then
+   if aaData and ListContains(object.charName, aaData.aaParticles) 
+      and GetDistance(object) < GetSpellRange("AA")
+   then
       if ModuleConfig.debug then
          pp("AAP: "..object.charName)
       end
@@ -2479,7 +2410,9 @@ function onSpellAA(obj,spell)
       if type(spellName) == "table" then
          if spell.name == "" or ListContains(spell.name, spellName) then
             local delta = os.clock() - lastAAState
-            -- pp("AAS: "..delta.." "..spell.name)
+            if ModuleConfig.debug then               
+               pp("AAS: "..delta.." "..spell.name)
+            end
             setAttackState(0)
             lastAttack = time()
             -- pp(lastAttack.." "..getNextAttackTime())
@@ -2488,7 +2421,9 @@ function onSpellAA(obj,spell)
       else
          if spell.name == "" or find(spell.name, spellName) then                       
             local delta = os.clock() - lastAAState
-            -- pp("AAS: "..delta.." "..spell.name)
+            if ModuleConfig.debug then               
+               pp("AAS: "..delta.." "..spell.name)
+            end
             setAttackState(0)
             lastAttack = time()
             -- pp(lastAttack.." "..getNextAttackTime())
@@ -2519,7 +2454,7 @@ function GetAAData()
         Karthus      = { projSpeed = 1.25, aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"}, aaSpellName = "karthusbasicattack", startAttackSpeed = "0.625" },
         Kayle        = { projSpeed = 1.8, aaParticles = {"RighteousFury_nova"}, aaSpellName = "KayleBasicAttack", startAttackSpeed = "0.638",  }, -- Kayle doesn't have a particle when auto attacking without E buff..
         Kennen       = { projSpeed = 1.35, aaParticles = {"KennenBasicAttack_mis"}, aaSpellName = "kennenbasicattack", startAttackSpeed = "0.690" },
-        KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage", "KogMawSpatter"}, aaSpellName = {"kogmawbasicattack", "KogMawBioArcaneBarrageAttack"}, startAttackSpeed = "0.665", },
+        KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"}, aaSpellName = {"kogmawbasicattack", "KogMawBioArcaneBarrageAttack"}, startAttackSpeed = "0.665", },
         Leblanc      = { projSpeed = 1.7, aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"}, aaSpellName = "leblancbasicattack", startAttackSpeed = "0.625" },
         Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
         Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
@@ -2550,13 +2485,14 @@ function GetAAData()
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
         Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
-        Warwick      = { aaParticles = {"globalhit_bloodslash", "GlobalLifeSteal_buf"}, aaSpellName = "attack"},
+        Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
+        Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
         Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
     }
 end
 aaData = GetAAData()[myHero.name]
 if not aaData then
-   aaData = { aaParticles = {}, aaSpellName = "attack" }
+   aaData = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack" }
 end
 AddOnCreate(onObjAA)
 AddOnSpell(onSpellAA)

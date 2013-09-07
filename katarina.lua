@@ -68,8 +68,6 @@ local lastQ = GetClock()
 local lastE = GetClock()
 
 function Run()
-   TimTick()   
-
    Clean(daggers)
 
    if IsRecalling(me) or me.dead == 1 then

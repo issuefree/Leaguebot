@@ -51,8 +51,6 @@ end
 local maxChainDist = 1200
 
 function Run()
-	TimTick()
-
 	if isMed() or IsRecalling(me) then
 		return
 	end

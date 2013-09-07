@@ -26,8 +26,6 @@ spells["barrage"] = {key="R", range=99999, base={350, 500, 650}, ad=1, ap=.9}
 
 
 function Run()
-   TimTick()  
-
    -- TODO something with ult
 --   local target = GetWeakEnemy("MAGIC", 99999)
 --   if target then
