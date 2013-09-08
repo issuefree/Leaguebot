@@ -30,25 +30,19 @@ function rangeTick()
 
          if name == "AA" then
             if CanAttack() then
-               DrawCircleObject(me, range, info.color)
-               DrawCircleObject(me, range-2, info.color)
-               DrawCircleObject(me, range-4, info.color)
+               Circle(me, range, info.color, 4)
             elseif IsAttacking() then
-               DrawCircleObject(me, range, yellow)
+
             elseif os.clock() - getNextAttackTime() < 0 then
                time = os.clock() - getNextAttackTime() - 1
-               DrawCircleObject(me, range/(-time*-time), info.color)
-               DrawCircleObject(me, range, yellow)
-               -- DrawCircleObject(me, range-4, info.color)
-            else
-               DrawCircleObject(me, range, yellow)
-               DrawCircleObject(me, range-2, yellow)
+               Circle(me, range/(-time*-time), info.color)
+               Circle(me, range, red)
             end
          else
             if time and time < -1 then
-               DrawCircleObject(me, range/(-time*-time), info.color)
+               Circle(me, range/(-time*-time), info.color)
             else
-               DrawCircleObject(me, range, info.color)
+               Circle(me, range, info.color, 2)
             end
          end
       end   
@@ -61,7 +55,7 @@ function rangeTick()
          while ranges[range] do
             range = range+1
          end
-         DrawCircleObject(me, range, item.color)
+         Circle(me, range, item.color)
          ranges[range] = true
       end
    end 

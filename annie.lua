@@ -141,7 +141,7 @@ function autoTibbers()
    -- SpellNameR when tibbers is "infernalguardianguide"
    if Check(tibbersObj) then
       tibbers = GetObj(tibbersObj)
-      DrawCircleObject(tibbers, tibbersRange, red)
+      Circle(tibbers, tibbersRange, red)
 
       tibbersHasTarget = false
       -- find the closest target to tibbers

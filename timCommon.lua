@@ -1,5 +1,10 @@
 require "spell_shot"
-local function table_print (tt, indent, done)
+require "telemetry"
+require "drawing"
+require "items"
+require "autoAttackUtil"
+
+local function table_print(tt, indent, done)
    done = done or {}
    indent = indent or 0
    if type(tt) == "table" then
@@ -15,8 +20,7 @@ local function table_print (tt, indent, done)
          elseif "number" == type(key) then
             table.insert(sb, string.format("\"%s\"\n", tostring(value)))
          else
-            table.insert(sb, string.format(
-            "%s = \"%s\"\n", tostring (key), tostring(value)))
+            table.insert(sb, string.format("%s = \"%s\"\n", tostring (key), tostring(value)))
          end
       end
       return table.concat(sb)
@@ -34,8 +38,13 @@ function pp(str)
       pp("nil")
    elseif type(str) == "table" then
       pp(table_print(str, 2))
+   elseif type(str) == "userdata" then
+      if str.charName then
+         pp(str.charName..": "..str.id)
+         pp("  ("..math.floor(str.x+.5)..","..math.floor(str.z+.5)..")")
+      end
    else
-      printtext(str.."\n")
+      printtext(tostring(str).."\n")
    end
 end
 
@@ -147,13 +156,6 @@ function AddOnKey(callback)
 end
 AddOnKey(OnKey)
 
--- circle colors
-yellow = 0
-green  = 1
-red    = 2
-blue   = 3
-violet = 4
-
 -- globals for convenience
 me = GetSelf()
 hotKey = GetScriptKey()
@@ -242,7 +244,7 @@ local function drawCommon()
 
    local mark = GetMarkedTarget()
    if mark then
-      DrawThickCircleObject(mark, GetWidth(mark), red, 7)
+      Circle(mark, GetWidth(mark), red, 7)
    end
 
    for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
@@ -252,8 +254,7 @@ local function drawCommon()
          if spellShot.spell.isline then
             LineBetween(spellShot.startPoint, spellShot.endPoint, spellShot.spell.radius)
          else
-            local p = spellShot.endPoint
-            DrawThickCircle(p.x,p.y,p.z, spellShot.spell.radius, blue, 4)
+            Circle(spellShot.endPoint, spellShot.spell.radius, blue, 4)
          end
       end
    end
@@ -536,12 +537,6 @@ local function updateMinions()
          table.remove(MYMINIONS,i)
       end
    end
-
-      -- for i,v in ipairs(MINIONS) do
-      --    pp(GetDistance(v).." "..v.charName)
-      --    DrawCircleObject(v, 75, red)
-      -- end
-
 end
 
 local function updateCreeps()
@@ -562,6 +557,7 @@ local function updateObjects()
    updateMinions()
    updateCreeps()
    updateHeroes()
+   CleanPersistedObjects()
    Clean(RECALLS, "charName", "TeleportHome")
    Clean(CCS)
    Clean(WARDS, "name", "Ward")
@@ -576,6 +572,22 @@ local function updateObjects()
    end
 end
 
+function GetGolem()
+   for _,creep in ipairs(SortByDistance(CREEPS)) do
+      if find(creep.name, "AncientGolem") then
+         return creep
+      end
+   end
+end
+function GetLizard()
+   for _,creep in ipairs(SortByDistance(CREEPS)) do
+      if find(creep.name, "LizardElder") then
+         return creep
+      end
+   end
+end
+
+
 function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
@@ -586,7 +598,7 @@ function KillMinionsInLine(thing, killsNeeded)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
-      DrawCircle(point.x, point.y, point.z, 50, yellow)
+      Circle(point, 50, yellow)
       CastXYZ(thing, point)
       PrintAction(thing.." for kills", #hits)
       return true
@@ -604,7 +616,7 @@ function HitMinionsInLine(thing, hitsNeeded)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
-      DrawCircle(point.x, point.y, point.z, 50, yellow)
+      Circle(point, 50, yellow)
       CastXYZ(thing, point)
       PrintAction(thing.." for hits", #hits)
       return true
@@ -627,7 +639,7 @@ function throttle(id, millis)
 end
 
 markedTarget = nil
--- "mark" the enemy closest to a right mouse click (i.e. right click to mark)
+-- "mark" the enemy closest to a mouse click (i.e. click to mark)
 function MarkTarget()
    if #GetInRange(mousePos, 500, ENEMIES) == 0 then
       markedTarget = nil
@@ -666,7 +678,6 @@ function MoveToCursor()
    --    local moveZ = myHero.z + 300*((mousePos.z - myHero.z)/moveSqr)
    --    -- pp(GetDistance(me, {x=moveX, y=me.y, z=moveZ}))
    --    MoveToXYZ(moveX,myHero.y,moveZ)
-   --    -- DrawCircle(moveX, myHero.y, moveZ, 50, red)
    -- else
    if GetDistance(mousePos) < 10 then
       StopMove()
@@ -731,45 +742,6 @@ function KillFarMinion(thing)
          CastSpellTarget(spell.key, wMinion)
       end
    end
-end
-
---[[
-Returns the x,y,z of the center of the targes
---]]
-function GetCenter(targets)
-   local x = 0
-   local y = 0
-   local z = 0
-         
-   for _,t in ipairs(targets) do
-      x = x + t.x
-      y = y + t.y
-      z = z + t.z
-   end
-   
-   x = x / #targets
-   y = y / #targets
-   z = z / #targets
-   
-   return x,y,z
-end
-
-function ToPoint(x,y,z)
-   return {x=x,y=y,z=z}
-end
-
---[[
-returns the width of a unit
---]]
-function GetWidth(unit)
-   local minbb = GetMinBBox(unit)
-   if not minbb.x then -- for when I pass in not a real unit
-      if unit.width then
-         return unit.width
-      end
-      return 70
-   end
-   return GetDistance(unit, minbb)
 end
 
 -- returns hits, kills (if scored), score
@@ -982,7 +954,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
          local z = (minionAngles[bestAngleI][2].z + minionAngles[bestAngleJ][2].z)/2
          
          -- draw the target cone and the target spot  
-         DrawCircle(x,y,z,25,yellow)
+         Circle(ToPoint(x,y,z), 25, yellow)
          LineBetween(me, minionAngles[bestAngleI][2])
          LineBetween(me, minionAngles[bestAngleJ][2])
          
@@ -1117,8 +1089,7 @@ function CastXYZ(thing, x,y,z)
    local spell = GetSpell(thing)
    if not spell then return end
    if x and not y and not z then
-      local t = x
-      DrawThickCircle(t.x,t.y,t.z, 100, red, 5)
+      DrawThickCircle(x, 100, red, 5)
       CastSpellXYZ(spell.key, t.x,t.y,t.z)      
    else
       CastSpellXYZ(spell.key, x,y,z)      
@@ -1190,39 +1161,126 @@ function VeryAlone()
    return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
 end
 
-function FacingMe(target)
-   local d1 = GetDistance(target)
-   local x, y, z = GetFireahead(target,2,10)
-   local d2 = GetDistance({x=x, y=y, z=z})
-   return d2 < d1 
-end
-
-function HasBuff(target, object, buffName)
-   if find(object.charName, buffName) and
-      GetDistance(target, object) < 75
-   then
-      return true
-   end
-   return false
-end
-
 -- gets the object in a valid state object or returns the original object if it isn't a state object
-function GetObj(object)
-   if not object then return nil end
-   if object.x then return object end -- userdata or simple pos objs will have this
+function GetObj(sObj)
+   if not sObj then return nil end
+   if sObj.x then return sObj end -- userdata or simple pos objs will have this
    if Check(object) then -- state object, return the object if it's valid
       return object[2]
    end
    return nil
 end
 
-function StateObj(object)
-   return {object.charName, object}
+--[[
+I need to persist objects to do:
+   Does an object exist and where is it
+      Tracking projectiles
+         Is my barrel near anything?
+         Is my singularity up?
+         Am I draining someone?
+   Do I have a buff?
+      Is my stun up?
+      Is sheen up?      
+   Does a target have a buff?
+      Does a target have a flare?
+      Are they poisoned?
+      Are they stunned?
+]]
+
+P = {}
+pOn = {}
+PData = {}
+-- find an object and persist it
+function Persist(name, object, charName)
+   if object and (not charName or find(object.charName, charName)) then
+      P[name] = object
+      PData[name] = {}
+      PData[name].cn = object.charName
+   end
 end
 
-function Check(object)
-   if not object or not object[1] or not object[2] then return false end
-   if object[1] == object[2].charName or object[1] == object[2].name then
+-- find an object only near me and persist it
+function PersistBuff(name, object, charName, dist)
+   if not dist then
+      dist = 50
+   end
+   if object and find(object.charName, charName) then
+      if GetDistance(object) < dist then
+         P[name] = object
+         PData[name] = {}
+         PData[name].cn = object.cn
+      else
+         pp("Found "..name.." at distance "..math.floor(GetDistance(object)))
+      end
+   end
+end
+
+function PersistOnTargets(name, object, charName, ...)
+   if object and find(object.charName, charName) then
+      local target = SortByDistance(GetInRange(object, 75, concat(...)))[1]
+      if target then
+         if not pOn[name] then
+            pOn[name] = {}
+         end
+         Persist(name..object.id, object)
+         PData[name..object.id].unit = target
+         table.insert(pOn[name], name..object.id)
+         -- pp("Persisting "..name.." on "..target.charName.." as "..name..object.id)
+      end
+   end
+end
+
+-- check if a given target has the named buff
+function HasBuff(buffName, target)
+   if not pOn[buffName] then return false end
+   for _,pKey in ipairs(pOn[buffName]) do
+      local pd = PData[pKey]
+      if pd and pd.unit.charName == target.charName then
+         return true
+      end
+   end
+   return false
+end
+
+function GetWithBuff(buffName, ...)
+   return FilterList(concat(...),
+      function(item)
+         return HasBuff(buffName, item)
+      end
+   )
+end
+
+function CleanPersistedObjects()
+   for name,obj in pairs(P) do
+      if not obj or 
+         not obj.id or not obj.id == PData[name].id or
+         not obj.x or not obj.z or
+         not obj.charName
+      then
+         P[name] = nil
+         PData[name] = nil
+      end
+   end
+   for name,pList in pairs(pOn) do
+      for i,pKey in rpairs(pList) do
+         if not P[pKey] then
+            table.remove(pList, i)
+            -- pp("Clean "..pKey)
+         end
+      end
+   end
+end
+
+function StateObj(object)
+   return {
+      obj=object,
+      objCN=object.charName
+   }
+end
+
+function Check(sObj)
+   if not sObj or not sObj.obj then return false end
+   if sObj.objCN == sObj.obj.charName then
       return true
    end
    return false 
@@ -1340,61 +1398,6 @@ function GetAllInRange(target, thing, ...)
    end
    return result
 end
-
-ITEMS = {}
---Active offense
-ITEMS["Entropy"]                  = {id=3184, range=me.range+GetDistance(GetMaxBBox(me)), type="active"}
-ITEMS["Bilgewater Cutlass"]       = {id=3144, range=450,         type="active", color=violet}
-ITEMS["Hextech Gunblade"]         = {id=3146, range=700,         type="active", color=violet}
-ITEMS["Blade of the Ruined King"] = {id=3153, range=450,         type="active", color=violet}
-ITEMS["Deathfire Grasp"]          = {id=3128, range=750,         type="active", color=violet}
-ITEMS["Tiamat"]                   = {id=3077, range=350,         type="active", color=red}
-ITEMS["Ravenous Hydra"]           = {id=3074, range=350,         type="active", color=red}
-ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=300, type="active"}
-ITEMS["Randuin's Omen"]           = {id=3143, range=500,         type="active", color=yellow}
-
---Active defense
-ITEMS["Locket of the Iron Solari"] = {id=3190, range=700, type="active", color=green}
-ITEMS["Locket of the Iron Solari Aura"] = {id=3190, range=1200, type="aura", color=green}
-ITEMS["Guardian's Horn"] = {id=2051, type="active"}
-ITEMS["Zhonya's Hourglass"] = {id=3157, type="active"}
-ITEMS["Wooglet's Witchcap"] = {id=3090, type="active"}
-ITEMS["Seraph's Embrace"] = {id=3040, type="active"}
-
-
---Aura offense
-ITEMS["Abyssal Scepter"] = {id=3001, range=700, type="aura", color=violet}
-ITEMS["Frozen Heart"]    = {id=3110, range=700, type="aura", color=blue}
-
---Aura Defense
-ITEMS["Mana Manipulator"]     = {id=3037, range=1200, type="aura", color=blue}
-ITEMS["Aegis of Legion"]      = {id=3105, range=1200, type="aura", color=green}
-ITEMS["Banner of Command"]    = {id=3060, range=1000, type="aura", color=yellow}
-ITEMS["Emblem of Valor"]      = {id=3097, range=1200, type="aura", color=green}
-ITEMS["Runic Bulwark"]        = {id=3107, range=1200, type="aura", color=green}
-ITEMS["Shard of True Ice"]    = {id=3092, range=1200, type="aura", color=blue}
-ITEMS["Will of the Ancients"] = {id=3152, range=1200, type="aura", color=yellow}
-ITEMS["Zeke's Herald"]        = {id=3050, range=1200, type="aura", color=yellow}
-
---Active cleanse
-ITEMS["Quicksilver Sash"]   = {id=3140,            type="active"}
-ITEMS["Mercurial Scimitar"] = {id=3139,            type="active"}
-ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
-
---On Hit
-ITEMS["Wit's End"] = {id=3091, base={42}}
-ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15}
-ITEMS["Kitae's Bloodrazor"]= {id=3186}
-
-ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
-ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=1.5, type="P"}
-ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75}
-ITEMS["Iceborn Gauntlet"] = {id=3025, base={0}, adBase=1.25, type="P"}
-
--- Tear
-ITEMS["Tear of the Goddess"] = {id=3070}
-ITEMS["Archangel's Staff"] = {id=3003}
-ITEMS["Manamune"] = {id=3004}
 
 function UseAutoItems()
    UseItem("Zhonya's Hourglass")
@@ -1702,126 +1705,6 @@ function WardJump(thing)
       return true
    end
    return false
-end
-
-function RadsToDegs(rads)
-   return rads*180/math.pi
-end
-
-
---[[
-returns the orthoganal component of the distance between two objects
---]]
-function GetOrthDist(t1, t2)
-   local angleT = AngleBetween(t1, t2) - AngleBetween(me, t1)
-   if math.min(10, angleT) == 10 then
-      return 0
-   end   
-   local h = GetDistance(t1, t2)
-   local d = h*math.sin(angleT)
-   return math.abs(d)   
-end
-
-function RelativeAngle(center, o1, o2)
-   local a1 = AngleBetween(center, o1)
-   local a2 = AngleBetween(center, o2)
-   local ra = math.abs(a1-a2)
-   if ra > math.pi then
-      ra = 2*math.pi - ra
-   end
-   return ra
-end
-
-function Projection(source, target, dist) -- returns a point on the line between two objects at a certain distance
-   local a = AngleBetween(source, target)   
-   return {x=source.x+math.sin(a)*dist, y=source.y, z=source.z+math.cos(a)*dist}
-end
-
-function AngleBetween(object1, object2)
-   if not object1 or not object2 then
-      pp(debug.traceback())
-   end 
-   local a = object2.x - object1.x
-   local b = object2.z - object1.z  
-   
-   local angle = math.atan(a/b)
-   
-   if b < 0 then
-      angle = angle+math.pi
-   end
-   return angle
-end
-
--- angle of approach of attacker to target
--- 0 should be dead on, 180 should be dead away
-function ApproachAngle(attacker, target)
-   local x,y,z = GetFireahead(attacker, 2, 20)
-   local aa = RadsToDegs(math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, {x=x, y=y,z=z}) ))
-   if aa > 180 then
-      aa = 360 - aa
-   end
-   if aa == nil then
-      aa = 0
-   end
-   return aa
-end
-
--- gives the targets relative vector
--- 0 means dead on or dead away
--- 90 means perpendicular
-function ApproachAngleRel(attacker, target)
-   local aa = ApproachAngle(attacker, target)
-   if aa > 90 then
-      aa = math.abs(aa - 180)
-   end
-   return aa
-end
-
-function LineBetween(object1, object2, thickness)
-   if not thickness then
-      thickness = 0
-   end
-
-   local angle = AngleBetween(object1, object2) 
-   if type(object1) == "table" then
-      DrawLine(object1.x,object1.y,object1.z, GetDistance(object1, object2), 0, angle, thickness)
-   else
-      DrawLineObject(object1, GetDistance(object1, object2), 0, angle, thickness)
-   end
-end
-
-function DrawKnockback(object2, dist)
-   local a = object2.x - me.x
-   local b = object2.z - me.z 
-   
-   local angle = math.atan(a/b)
-   
-   if b < 0 then
-      angle = angle+math.pi
-   end
-   
-   DrawLineObject(object2, dist, 0, angle, 0)
-end
-
-function DrawBB(t, color)
-   if not color then color = yellow end
-   DrawCircle(t.x, t.y, t.z, GetWidth(t), color)
-end
-
-function DrawThickCircle(x,y,z,radius,color,thickness)
-   local count = math.floor(thickness/2)
-   repeat
-      DrawCircle(x,y,z,radius+count,color)
-      count = count-2
-   until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
-end
-
-function DrawThickCircleObject(object,radius,color,thickness)
-   local count = math.floor(thickness/2)
-   repeat
-      DrawCircleObject(object,radius+count,color)
-      count = count-2
-   until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
 end
 
 function CalculateDamage(target, damage, dType)
@@ -2217,7 +2100,7 @@ function BlockingMove(move_dest)
    MoveToXYZ(move_dest.x, 0, move_dest.z)
 
    -- blockAndMove = function()
-   --    DrawCircle(move_dest.x, move_dest.y, move_dest.z, 75, green)
+   --    Circle(move_dest, 75, green)
    --    if time() - blockStart > blockTimeout or 
    --       GetDistance(move_dest)<75 
    --    then
@@ -2269,55 +2152,6 @@ function TimTick()
    UseAutoItems()
 end
 
-
-local attackDelayOffset = .3
-local minAttackTime = .66
-local aaData 
-
-local attackState = 0
-local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
-local lastAAState = 0
-
-local lastAttack = os.clock() -- last time I cast an attack
-local shotFired = true -- have I seen the projectile or waited long enough that it should show
-
-function aaTick()
-   if ModuleConfig.debug then
-      if CanAttack() then
-         setAttackState(0)
-         PrintState(0, "!")
-      end
-      if IsAttacking() then
-         setAttackState(1)
-         PrintState(0, "  -")
-      end
-      if waitingForAttack() then
-         setAttackState(2)
-         PrintState(0, "  --")
-      end
-      if JustAttacked() then
-         PrintState(0, "    :")
-      end
-      if CanAct() then
-         setAttackState(3)
-         PrintState(0, "       )")
-      end
-      if CanMove() then
-         setAttackState(4)
-         PrintState(0, "         >")
-      end
-
-      -- PrintState(1, (1 / me.attackspeed))
-      -- PrintState(2, me.attackspeed)
-   end
-
-   -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled   
-   if not shotFired and time() - lastAttack > attackDelayOffset then
-      shotFired = true
-      lastAttack = 0
-   end
-end
-
 function AA(target)
    if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
@@ -2325,178 +2159,5 @@ function AA(target)
    end
    return false
 end
-
-function CanAttack()
-   if time() > getNextAttackTime() then
-      return true
-   end
-   return false
-end
-
-function IsAttacking()
-   return not shotFired
-end
-
-function JustAttacked()
-   if shotFired and not CanAttack() then
-      return true 
-   end
-   return false
-end
-
-function CanAct()
-    if shotFired or CanAttack() then
-        return true
-    end
-    return false
-end
-
--- in testing (with teemo) if I moved between attacks I couldn't attack faster than ~.66
--- since "acting" is more important than attacking we can slow down our AA rate
--- to act but not to move.
-function CanMove()
-    if not waitingForAttack() or CanAttack() then
-        return true
-    end
-    return false
-end   
-
-function waitingForAttack()
-   if (1 / me.attackspeed) < minAttackTime and os.clock() - lastAttack < minAttackTime then
-      return true
-   else
-      return not shotFired
-   end
-end
-
-function getNextAttackTime()
-   return lastAttack + (1 / me.attackspeed)
-end
-
-function setAttackState(state)
-   if attackState == 0 and state == 0 then
-      lastAAState = os.clock()
-      return
-   end
-   if attackState == 0 and state >= 3 then      
-      return
-   end
-   if (state == 0 and attackState > 0) or
-      state > attackState 
-   then
-      attackState = state
-      local delta = os.clock() - lastAAState
-      pp(state.." "..delta.." "..attackStates[attackState+1])
-      if state == 0 then
-         lastAAState = os.clock()
-      end
-   end
-end
-
-function onObjAA(object)
-   if aaData and ListContains(object.charName, aaData.aaParticles) 
-      and GetDistance(object) < GetSpellRange("AA")
-   then
-      if ModuleConfig.debug then
-         pp("AAP: "..object.charName)
-      end
-      shotFired = true
-   end
-end
-
-function onSpellAA(obj,spell)
-   if obj ~= nil and obj.name == myHero.name then
-      local spellName = aaData.aaSpellName
-      if type(spellName) == "table" then
-         if spell.name == "" or ListContains(spell.name, spellName) then
-            local delta = os.clock() - lastAAState
-            if ModuleConfig.debug then               
-               pp("AAS: "..delta.." "..spell.name)
-            end
-            setAttackState(0)
-            lastAttack = time()
-            -- pp(lastAttack.." "..getNextAttackTime())
-            shotFired = false
-         end
-      else
-         if spell.name == "" or find(spell.name, spellName) then                       
-            local delta = os.clock() - lastAAState
-            if ModuleConfig.debug then               
-               pp("AAS: "..delta.." "..spell.name)
-            end
-            setAttackState(0)
-            lastAttack = time()
-            -- pp(lastAttack.." "..getNextAttackTime())
-            shotFired = false
-         end
-      end
-   end   
-end
-
-function GetAAData()
-    return {  
-        Ahri         = { projSpeed = 1.6, aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, aaSpellName = "ahribasicattack", startAttackSpeed = "0.668",  },
-        Anivia       = { projSpeed = 1.05, aaParticles = {"cryo_BasicAttack_mis", "cryo_BasicAttack_tar"}, aaSpellName = "aniviabasicattack", startAttackSpeed = "0.625",  },
-        Annie        = { projSpeed = 1.0, aaParticles = {"annie_basicattack"}, aaSpellName = "AnnieBasicAttack", startAttackSpeed = "0.579",  },
-        Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = {"attack", "frostarrow"}, startAttackSpeed = "0.658" },
-        Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
-        Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
-        Cassiopeia   = { projSpeed = 1.22, aaParticles = {"CassBasicAttack_mis"}, aaSpellName = "cassiopeiabasicattack", startAttackSpeed = "0.644" },
-        Corki        = { projSpeed = 2.0, aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"}, aaSpellName = "CorkiBasicAttack", startAttackSpeed = "0.658" },
-        Draven       = { projSpeed = 1.4, aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"}, aaSpellName = "dravenbasicattack", startAttackSpeed = "0.679",  },
-        Ezreal       = { projSpeed = 2.0, aaParticles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}, aaSpellName = "ezrealbasicattack", startAttackSpeed = "0.625" },
-        FiddleSticks = { projSpeed = 1.75, aaParticles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"}, aaSpellName = "fiddlesticksbasicattack", startAttackSpeed = "0.625" },
-        Graves       = { projSpeed = 3.0, aaParticles = {"Graves_BasicAttack_mis",}, aaSpellName = "gravesbasicattack", startAttackSpeed = "0.625" },
-        Heimerdinger = { projSpeed = 1.4, aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"}, aaSpellName = "heimerdingerbasicAttack", startAttackSpeed = "0.625" },
-        Janna        = { projSpeed = 1.2, aaParticles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"}, aaSpellName = "jannabasicattack", startAttackSpeed = "0.625" },
-        Jayce        = { projSpeed = 2.2, aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"}, aaSpellName = "jaycebasicattack", startAttackSpeed = "0.658",  },
-        Karma        = { projSpeed = nil, aaParticles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"}, aaSpellName = "karmabasicattack", startAttackSpeed = "0.658",  },
-        Karthus      = { projSpeed = 1.25, aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"}, aaSpellName = "karthusbasicattack", startAttackSpeed = "0.625" },
-        Kayle        = { projSpeed = 1.8, aaParticles = {"RighteousFury_nova"}, aaSpellName = "KayleBasicAttack", startAttackSpeed = "0.638",  }, -- Kayle doesn't have a particle when auto attacking without E buff..
-        Kennen       = { projSpeed = 1.35, aaParticles = {"KennenBasicAttack_mis"}, aaSpellName = "kennenbasicattack", startAttackSpeed = "0.690" },
-        KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"}, aaSpellName = {"kogmawbasicattack", "KogMawBioArcaneBarrageAttack"}, startAttackSpeed = "0.665", },
-        Leblanc      = { projSpeed = 1.7, aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"}, aaSpellName = "leblancbasicattack", startAttackSpeed = "0.625" },
-        Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
-        Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
-        Malzahar     = { projSpeed = 1.5, aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"}, aaSpellName = "malzaharbasicattack", startAttackSpeed = "0.625" },
-        MissFortune  = { projSpeed = 2.0, aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}, aaSpellName = "missfortunebasicattack", startAttackSpeed = "0.656" },
-        Morgana      = { projSpeed = 1.6, aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"}, aaSpellName = "Morganabasicattack", startAttackSpeed = "0.579" },
-        Nidalee      = { projSpeed = 1.7, aaParticles = {"nidalee_javelin_mis"}, aaSpellName = "nidaleebasicattack", startAttackSpeed = "0.670" },
-        Orianna      = { projSpeed = 1.4, aaParticles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"}, aaSpellName = "oriannabasicattack", startAttackSpeed = "0.658" },
-        Quinn        = { projSpeed = 1.85, aaParticles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"}, aaSpellName = "QuinnBasicAttack", startAttackSpeed = "0.668" },  --Quinn's critical attack has the same particle name as his basic attack.
-        Ryze         = { projSpeed = 2.4, aaParticles = {"ManaLeach_mis"}, aaSpellName = {"RyzeBasicAttack"}, startAttackSpeed = "0.625" },
-        Sivir        = { projSpeed = 1.4, aaParticles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"}, aaSpellName = "sivirbasicattack", startAttackSpeed = "0.658" },
-        Sona         = { projSpeed = 1.6, aaParticles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"}, aaSpellName = "sonabasicattack", startAttackSpeed = "0.644" },
-        Soraka       = { projSpeed = 1.0, aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625" },
-        Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
-        Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
-        Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
-        Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656",  },
-        TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
-        Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
-        Urgot        = { projSpeed = 1.3, aaParticles = {"UrgotBasicAttack_mis"}, aaSpellName = "urgotbasicattack", startAttackSpeed = "0.644" },
-        Vayne        = { projSpeed = 2.0, aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" }, aaSpellName = "vaynebasicattack", startAttackSpeed = "0.658",  },
-        Varus        = { projSpeed = 2.0, aaParticles = {"Attack"}, aaSpellName = "basic", startAttackSpeed = "0.658",  },
-        Veigar       = { projSpeed = 1.05, aaParticles = {"permission_basicAttack_mis"}, aaSpellName = "veigarbasicattack", startAttackSpeed = "0.625" },
-        Viktor       = { projSpeed = 2.25, aaParticles = {"ViktorBasicAttack_cas", "ViktorBasicAttack_mis", "ViktorBasicAttack_tar"}, aaSpellName = "viktorbasicattack", startAttackSpeed = "0.625" },
-        Vladimir     = { projSpeed = 1.4, aaParticles = {"VladBasicAttack_mis", "VladBasicAttack_mis_bloodless", "VladBasicAttack_tar", "VladBasicAttack_tar_bloodless"}, aaSpellName = "vladimirbasicattack", startAttackSpeed = "0.658" },
-        Xerath       = { projSpeed = 1.2, aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"}, aaSpellName = "xerathbasicattack", startAttackSpeed = "0.625" },
-        Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
-        Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
-        Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
-        Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
-        Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
-        Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
-        Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
-    }
-end
-aaData = GetAAData()[myHero.name]
-if not aaData then
-   aaData = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack" }
-end
-AddOnCreate(onObjAA)
-AddOnSpell(onSpellAA)
-
-SetTimerCallback("aaTick")
 
 SetTimerCallback("TimTick")

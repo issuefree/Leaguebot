@@ -204,7 +204,7 @@ function infuseTeam()
 			Cast("infuse", bestInRangeT)
 			return true
 		else
-			DrawCircleObject(bestInRangeT, 100, blue)
+			Circle(bestInRangeT, 100, blue)
 			return false
 		end
 	end

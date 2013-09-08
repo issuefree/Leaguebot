@@ -21,7 +21,7 @@ function TestTick()
    updateTargets()
 	
    for _,t in ipairs(targets) do
-      DrawBB(t, yellow)
+      Circle(t, nil, yellow)
    end
 end
 

@@ -34,9 +34,9 @@ end
 function drawWards()
 	for i,ward in ipairs(wards) do 
 		local timer = string.format(math.ceil((ward.tick+ward.duration-GetClock())/1000))
-		DrawCircle(ward.x, ward.y, ward.z, ward.triggerRange, ward.color)
+		Circle(ward, ward.triggerRange, ward.color)
 		if showVisionRange then					
-			DrawCircle(ward.x, ward.y, ward.z ,ward.sightRange, ward.color)
+			Circle(ward, ward.sightRange, ward.color)
 		end
 		if GetDistance({x=ward.x, z=ward.z},GetMousePos()) < showTimerRadius then
 			if ward.source == "onload" then

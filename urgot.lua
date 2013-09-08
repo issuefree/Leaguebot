@@ -158,7 +158,7 @@ function updateCharges()
 
    Clean(charges, "charName", "UrgotCorrosiveDebuff")
    for _,charge in ipairs(charges) do
-      DrawCircleObject(charge, 85, green)
+      Circle(charge, 85, green)
 
       for _,enemy in ipairs(ENEMIES) do
          if GetDistance(charge, enemy) < 50 then

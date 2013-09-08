@@ -51,35 +51,13 @@ spells["spark"] = {
    base={300,400,500}, 
    ap=.75,
    delay=6,
-   speed=99,
+   speed=0,
    width=75
 }
 spells["flare"] = {
    base={10},
    lvl=10
 }
-
-local flares = {}
-local flaredEnemies = {}
-
-function updateFlares()
-   flaredEnemies = {}
-
-   Clean(flares, "charName", "LuxDebuff")
-   for _,flare in ipairs(flares) do
-      for _,enemy in ipairs(ValidTargets(concat(ENEMIES, MINIONS))) do
-         if GetDistance(flare, enemy) < 50 then
-            flaredEnemies[enemy.charName] = enemy
-            DrawBB(enemy, red)
-            break
-         end
-      end
-   end
-end
-
-function isFlared(object)
-   return flaredEnemies[object.charName]
-end
 
 function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
@@ -96,30 +74,23 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions", auxLabel="{
 local singularity
 
 function Run()
-   updateFlares()
-
-   -- local targets = TestTargets()
-
-   -- local hits, score = GetBestArea(me, "singularity", 1, 0, targets)
-   -- pp(score)
-
-   -- local center = ToPoint(GetCenter(hits))
-   -- DrawBB(center, violet)
-   -- center.width = GetSpell("singularity").radius
-   -- DrawBB(center, violet)
-
-   -- for _,hit in ipairs(hits) do
-   --    -- DrawText(math.floor(GetDistance(hit, center)), hit.x*.7-GetWorldX()+1300, GetWorldY()-hit.z*.7+400, 0xFFCCEECC)
-   --    hit.width = 65
-   --    DrawBB(hit, red)
-   -- end
-
-
    if me.dead == 1 then
       PrintAction("dead")
       return true
    end
 
+   -- local tcreep
+
+   -- for _,creep in ipairs(SortByDistance(CREEPS)) do
+   --    if find(creep.name, "YoungLizard") then
+   --       tcreep = creep
+   --       break
+   --    end
+   -- end
+
+   -- Circle(tcreep)
+
+   Circle(P.singularity, nil, blue)
 
    if KillSteal(GetObj(BARON)) then
       return true
@@ -139,21 +110,22 @@ function Run()
       local spell = GetSpell("spark")
       local target = GetWeakestEnemy("spark")
       if target and target.health < GetSpellDamage("spark", target) then
-         PlaySound("Beep")
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
-            CastXYZ("spark", target)
-            PrintAction("KS", target)
-            return true
+            if SSGoodTarget(target, spell) then
+               CastSpellFireahead("spark", target)
+               PrintAction("KS", target)
+               return true
+            end
          end
       end
    end
 
    -- if anyone tries to get out of my singularity pop it
    -- don't return, this is free
-   if Check(singularity) then
+   if P.singularity and activeSingularity() then
       local spell = GetSpell("singularity")
-      local enemies = GetInRange(GetObj(singularity), spell.radius, ENEMIES)
+      local enemies = GetInRange(P.singularity, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
          if GetSpellDamage("singularity", enemy) > enemy.health then
             Cast(spell, me)
@@ -161,14 +133,14 @@ function Run()
             break
          end
          local nextPos = ToPoint(GetFireahead(enemy, 4, 99))
-         if GetDistance(singularity[2], nextPos) > spell.radius then
+         if GetDistance(P.singularity, nextPos) > spell.radius then
             Cast(spell, me)
             PrintAction("Pop escapees")
             break
          end
       end
 
-      local minions = GetInRange(GetObj(singularity), spell.radius, MINIONS)
+      local minions = GetInRange(P.singularity, spell.radius, MINIONS)
       local kills = GetKills("singularity", minions)
       if #kills > 2 then
          Cast(spell, me)
@@ -183,6 +155,12 @@ function Run()
       end
    end
    
+   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() then
+      -- lasthit with singularity if it kills 3 minions or more
+      if KillMinionsInArea("singularity", 3) then
+         return true
+      end
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -243,13 +221,13 @@ function Action()
 
    -- try to hit the loweset health target with a flare on em
    if IsOn("aa") and CanAttack() then
-      local targets = SortByHealth(FilterList(GetInRange(me, "AA", ENEMIES), isFlared))
-      for _,target in ipairs(targets) do
-         if isFlared(target) then
-            AA(target)
-            PrintAction("AA for flare", target)
-            return true
-         end
+      local targets = GetInRange(me, "AA", ENEMIES)
+      targets = GetWithBuff("flare", targets)
+      local target = SortByHealth(targets)[1]
+      if target then
+         AA(target)
+         PrintAction("AA for flare", target)
+         return true
       end
    end
 
@@ -264,14 +242,9 @@ end
 
 function FollowUp()
    local aaMinions = SortByHealth(GetInRange(me, "AA", MINIONS))
-   local flaredMinions = FilterList(aaMinions, isFlared)
+   local flaredMinions = GetWithBuff("flare", aaMinions)
 
    if IsOn("lasthit") and Alone() then
-      -- lasthit with singularity if it kills 3 minions or more
-      if KillMinionsInArea("singularity", 3) then
-         return true
-      end
-
       for _,target in ipairs(flaredMinions) do
          local aaDam = GetAADamage(target)
          local flareDam = GetSpellDamage("flare", target)
@@ -349,6 +322,7 @@ function checkBarrier(unit, spell)
    end
 end
 
+-- for baron and dragon
 function KillSteal(target)
    if not target then return false end
    if #GetInRange(target, 1000, ENEMIES) < 2 then
@@ -364,13 +338,8 @@ end
 
 
 local function onObject(object)
-   if object and object.charName and find(object.charName, "LuxLightstrike_mis") then
-      singularity = StateObj(object)
-   end
-   
-   if object and object.charName and find(object.charName, "LuxDebuff") then
-      table.insert(flares, object)
-   end 
+   Persist("singularity", object, "LuxLightstrike_mis")
+   PersistOnTargets("flare", object, "LuxDebuff", MINIONS, ENEMIES)   
 end
 
 local function onSpell(object, spell)

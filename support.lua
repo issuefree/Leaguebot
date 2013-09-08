@@ -43,10 +43,10 @@ function healTeam(thing)
       end
    end
    if bestInRangeT then
-      DrawCircleObject(bestInRangeT, 100, green)
+      Circle(bestInRangeT, 100, green)
    end
    if bestOutRangeT and GetDistance(me, bestOutRangeT) > spell.range then
-      CustomCircle(100, 4, yellow, bestOutRangeT)
+      Circle(bestOutRangeT, 100, yellow, 4)
    end
 
    if bestInRangeT then

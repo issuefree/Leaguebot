@@ -50,12 +50,12 @@ function Run()
 
    for _,hero in ipairs(ENEMIES) do
       if isFrozen(hero) then
-         DrawCircleObject(hero, 100, blue)
+         Circle(hero, nil, blue)
       end
    end
 
    if Check(orb) then
-      DrawCircleObject(orb[2], 150, blue)
+      Circle(orb[2], 150, blue)
       local inRange = GetInRange(orb[2], 150, ENEMIES)
       if #inRange > 0 then
          CastSpellTarget("Q", me)

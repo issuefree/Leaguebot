@@ -100,9 +100,9 @@ function Run()
          local doubleTargets = GetInRange(t, 500, MINIONS, ENEMIES) 
          local bt, bta = GetBestDouble(t, doubleTargets, ENEMIES)
          if bt then
-            DrawCircleObject(t, 60, blue)
+            Circle(t, 60, blue)
             LineBetween(t, bt)
-            DrawCircle(bt.x, bt.y, bt.z, 45, yellow)
+            Circle(bt, 45, yellow)
             if not bestDT or bta < bestDTA then
                bestDT = t
                bestDTA = bta

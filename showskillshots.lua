@@ -251,7 +251,7 @@ function Skillshots()
             local color = skillshotArray[i].color
             if skillshotArray[i].isline == false then
                for number, point in pairs(skillshotArray[i].skillshotpoint) do
-                  DrawCircle(point.x, point.y, point.z, radius, color)
+                  Circle(point, radius, color)
                end
             else
                startVector = Vector(skillshotArray[i].p1x,skillshotArray[i].p1y,skillshotArray[i].p1z)

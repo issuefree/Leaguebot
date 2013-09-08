@@ -300,11 +300,11 @@ function QFarm()
    local shunpoRange = GetInRange(me, spells["shunpo"].range, MINIONS)
    for _,minion in ipairs(shunpoRange) do
       if minion.health < GetSpellDamage("shunpo", minion) then
-         DrawThickCircleObject(minion, 75, red, 2)
+         Circle(minion, 75, red, 2)
       elseif #GetInRange(minion, 50, daggers) > 0 and 
          minion.health < (GetSpellDamage("shunpo", minion) + GetSpellDamage("dagger", minion))
       then 
-         DrawThickCircleObject(minion, 75, red, 2)
+         Circle(minion, 75, red, 2)
       end      
    end
 
@@ -375,19 +375,19 @@ function QFarm()
       
       if bestKillTargets then
          PrintState(0, "Farm score: "..bestKills)
-         DrawCircleObject(bestKillTargets[1], 90, violet)
+         Circle(bestKillTargets[1], 90, violet)
          for i,t in ipairs(bestKillTargets) do
             local bkti = bestKillTargets[i]
             if i > 1 then
                LineBetween(bestKillTargets[i-1], bkti)
             end
             if not find(bkti.charName, "Minion") then
-               DrawCircleObject(bkti, 80, green)
+               Circle(bkti, 80, green)
             end
             if bestKillDeaths[i] then
-               DrawThickCircleObject(bkti, 70, red, 3)
+               Circle(bkti, 70, red, 3)
             else
-               DrawCircleObject(bkti, 70, yellow)                        
+               Circle(bkti, 70, yellow)                        
             end
          end
          if GetDistance(bestKillTargets[1]) < 675 then

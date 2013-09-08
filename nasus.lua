@@ -129,7 +129,7 @@ function Action()
 
       local target = GetWeakEnemy("PHYS", spells["AA"].range*2)
       if target then
-         DrawThickCircleObject(target, 100, red, 6)
+         Circle(target, 100, red, 6)
       end
       if target then
          CastXYZ("fire", target)

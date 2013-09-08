@@ -91,7 +91,7 @@ function Run()
    updateSpells()
 
    if Check(artillery) then
-      DrawThickCircleObject(GetObj(artillery), spells["artillery"].radius, green, 4)
+      Circle(GetObj(artillery), spells["artillery"].radius, green, 4)
    end
 
    if IsRecalling(me) or me.dead == 1 then

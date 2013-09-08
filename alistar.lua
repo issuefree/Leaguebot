@@ -110,10 +110,10 @@ function heal()
          else
             if p <= needHealPercent then
                healScore = healScore - 3
-               DrawBB(ally, red)
+               Circle(ally, nil, yellow)
             elseif p <= shouldHealPercent then
                healScore = healScore - 1
-               DrawBB(ally, red)
+               Circle(ally, nil, red)
             end
          end
       end

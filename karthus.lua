@@ -46,7 +46,7 @@ function Run()
       
    end
    
-   DrawCircle(GetMousePos().x, GetMousePos().y, GetMousePos().z, spells["lay"].radius, red)
+   Circle(GetMousePos(), spells["lay"].radius, red)
    
    if IsRecalling(me) then
       return
@@ -68,8 +68,7 @@ function Run()
                   wMinionK = 1
                   local x, y, z = getLayFireAhead(wMinion)
                   wMinionX = {x=x,y=y,z=z}
-                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius, red)
-                  DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius+2, red)
+                  Circle(wMinionX, spells["lay"].radius, red, 2)
                end
             end
          else
@@ -91,7 +90,7 @@ function Run()
 --         CastSpellTarget("Q", wMinion)
          CastSpellXYZ("Q", wMinionX.x, wMinionX.y, wMinionX.z)
 --         DrawCircleObject(wMinion, spells["lay"].radius, red)
-         DrawCircle(wMinionX.x, wMinionX.y, wMinionX.z, spells["lay"].radius, yellow)
+         Circle(wMinionX, spells["lay"].radius, yellow)
       end
    end   
 end

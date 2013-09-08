@@ -80,7 +80,7 @@ function Run()
       local target = GetWeakEnemy("PHYSICAL", GetSpellRange("ace"))
       if target and target.health < GetSpellDamage("ace", target) then
          PlaySound("Beep")
-         DrawThickCircleObject(target, 100, red, 6)
+         Circle(target, 100, red, 6)
       end
    end
 

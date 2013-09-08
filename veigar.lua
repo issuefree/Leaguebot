@@ -193,7 +193,7 @@ function updateStuns()
    for _,stun in ipairs(stuns) do
       for _,enemy in ipairs(ENEMIES) do
          if GetDistance(stun, enemy) < 100 then
-            DrawThickCircleObject(enemy, GetWidth(enemy), red, 5)
+            Circle(enemy, GetWidth(enemy), red, 5)
             table.insert(stunnedEnemies, enemy)
             break
          end

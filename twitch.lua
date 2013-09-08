@@ -55,9 +55,9 @@ function drawPoisons()
       local count = 0+string.match(p.charName, "r_(%d*)")
       for i=1,count do
          if i%2 == 0 then
-            DrawCircleObject(p, 85+(i*2), green)
+            Circle(p, 85+(i*2), green)
          else
-            DrawCircleObject(p, 85+(i*2), yellow)
+            Circle(p, 85+(i*2), yellow)
          end
       end
    end

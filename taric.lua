@@ -80,10 +80,10 @@ function healTeam()
 		end
 	end
 	if bestInRangeT then
-		DrawCircleObject(bestInRangeT, 100, green)
+		Circle(bestInRangeT, 100, green)
 	end
 	if bestOutRangeT and GetDistance(me, bestOutRangeT) > 750 then
-		DrawThickCircleObject(bestOutRangeT, 100, yellow, 4)
+		Circle(bestOutRangeT, 100, yellow, 4)
 	end
 
 	-- let me know if someone oustside of range is in need
