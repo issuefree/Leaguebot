@@ -50,14 +50,34 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "strike"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-local stuns = {}
-local stunnedEnemies = {}
-
 function Run()
-   updateStuns()
+
+   local ccs = GetWithBuff("cc", ENEMIES)
+   for _,v in ipairs(ccs) do
+      Circle(v)
+   end
 
    if IsRecalling(me) or me.dead == 1 then
       return
+   end
+
+
+   if CanUse("dark") then
+      local stunnedEnemies = GetWithBuff("cc", GetInRange(me, spells["dark"].range+50, ENEMIES))
+      local bestS = 0
+      local bestT = nil
+      for _,nearStun in ipairs(stunnedEnemies) do
+         local hits = GetInRange(nearStun, spells["dark"].radius, ENEMIES)
+         if #hits > bestS then
+            bestS = #hits
+            bestT = nearStun
+         end
+      end
+      if bestT then
+         CastXYZ("dark", bestT)
+         PrintAction("Dark Matter stunned")
+         return true
+      end
    end
 
    if HotKey() and CanAct() then
@@ -100,23 +120,6 @@ function Action()
    -- I think I want to do this by looking for the stun obj and throwing darks at it
    -- This might even catch other people's stuns.   
 
-   if CanUse("dark") then
-      local stunnedEnemies = GetInRange(me, spells["dark"].range+50, stunnedEnemies)
-      local bestS = 0
-      local bestT = nil
-      for _,nearStun in ipairs(stunnedEnemies) do
-         local hits = GetInRange(nearStun, spells["dark"].radius, ENEMIES)
-         if #hits > bestS then
-            bestS = #hits
-            bestT = nearStun
-         end
-      end
-      if bestT then
-         CastXYZ("dark", bestT)
-         PrintAction("Dark Matter stunned")
-         return true
-      end
-   end
 
    if CanUse("burst") then
       -- if there aren't any of those lets find a good target
@@ -186,31 +189,7 @@ function FollowUp()
    return false
 end
 
-function updateStuns()
-   stunnedEnemies = {}
-
-   Clean(stuns, "charName", "LOC_Stun")
-   for _,stun in ipairs(stuns) do
-      for _,enemy in ipairs(ENEMIES) do
-         if GetDistance(stun, enemy) < 100 then
-            Circle(enemy, GetWidth(enemy), red, 5)
-            table.insert(stunnedEnemies, enemy)
-            break
-         end
-      end      
-   end
-end
-
-
 local function onObject(object)
-   if find(object.charName, "LOC_Stun") then
-      for _,enemy in ipairs(ENEMIES) do
-         if GetDistance(object, enemy) < 100 then
-            table.insert(stuns, object)
-            break
-         end
-      end
-   end
 end
 
 local function onSpell(object, spell)

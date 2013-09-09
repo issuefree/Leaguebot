@@ -11,8 +11,6 @@ spells["wall"] = {key="W", range=1000, color=yellow}
 spells["defile"] = {key="E", range=550, color=yellow, base={30,50,70,90,110}, ap=.2}
 spells["ult"] = {key="R", base={250,400,55}, ap=.6}
 
-local defiling = nil
-
 local function getLayFireAhead(target)
    return GetFireahead(target,5,999)
 end
@@ -35,12 +33,12 @@ function Run()
       end
       
       target = GetWeakEnemy("MAGIC", spells["defile"].range-50)      
-      if target and not Check(defiling) and CanUse("defile") then
+      if target and not P.defiling and CanUse("defile") then
          CastSpellTarget("E", me)
       end
       
       target = GetWeakEnemy("MAGIC", spells["defile"].range+50)
-      if target and Check(defiling) then
+      if target and P.defiling then
          CastSpellTarget("E", me)
       end
       
@@ -96,9 +94,7 @@ function Run()
 end
 
 local function onObject(object)
-   if find(object.charName, "Defile_glow") and GetDistance(object) < 100 then
-      defiling = {object.charName, object}
-   end
+   PersistBuff("defiling", object, "Defile_glow", 100)
 end
 
 local function onSpell(object, spell)

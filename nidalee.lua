@@ -19,10 +19,9 @@ spells["jav"] = {
    color=violet, 
    base={55,95,140,185,230}, 
    ap=.65,
-   type="M",
    cost={50,60,70,80,90},
    width=80,
-   delay=2,
+   delay=2.5,
    speed=13
 }
 
@@ -34,7 +33,7 @@ spells["trap"] = {
    color=yellow,
    cost={60,75,90,105,120},
    delay=5,
-   speed=99
+   speed=0
 }
 
 spells["heal"] = {
@@ -58,30 +57,30 @@ function Run()
    end
    
    if HotKey() and CanAct() then
+      UseItems()
       if Action() then
-         return
+         return true
       end
    end
 
    if IsOn("healTeam") and not isCougar then
       if healTeam("heal") then
-         return
+         return true
       end
    end
 
    if HotKey() and CanAct() then
       if FollowUp() then
-         return
+         return true
       end
    end
    
 end
 
-function Action()
-   UseItems()
-   
+function Action()   
    if not isCougar then
       if SkillShot("jav") then
+         PrintAction("Jav")
          return true
       end      
       
@@ -90,6 +89,7 @@ function Action()
          local target = GetWeakestEnemy("trap")
          if target then
             if CastSpellFireahead("trap", target) then
+               PrintAction("It's a trap")
                return true
             end
          end
@@ -97,6 +97,7 @@ function Action()
 
       local target = GetWeakestEnemy("AA")
       if AA(target) then
+         PrintAction("AA", target)
          return true
       end
       
@@ -109,6 +110,7 @@ function FollowUp()
    if not isCougar then
       if IsOn("lasthit") and Alone() then
          if KillWeakMinion("AA") then
+            PrintAction("AA lasthit")            
             return true
          end
       end
@@ -118,6 +120,7 @@ function FollowUp()
          local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
          local minion = minions[#minions]
          if minion and AA(minion) then
+            PrintAction("AA clear minions")
             return true
          end
       end
@@ -125,6 +128,7 @@ function FollowUp()
    -- ranged
       if IsOn("move") then
          MoveToCursor() 
+         PrintAction("Move")
          return true
       end
    end

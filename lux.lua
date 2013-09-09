@@ -22,7 +22,8 @@ spells["binding"] = {
    ap=.7,
    delay=2.65,
    speed=12,
-   width=80
+   width=80,
+   cost={50,60,70,80,90}
 }
 spells["barrier"] = {
    key="W", 
@@ -32,7 +33,8 @@ spells["barrier"] = {
    ap=.35,
    delay=2,
    speed=14,
-   width=80
+   width=80,
+   cost=60
 }
 spells["singularity"] = {
    key="E", 
@@ -42,7 +44,8 @@ spells["singularity"] = {
    ap=.6,
    delay=2.65,
    speed=13,
-   radius=350
+   radius=350,
+   cost={70,85,100,115,130}
 }
 spells["spark"] = {
    key="R", 
@@ -52,7 +55,8 @@ spells["spark"] = {
    ap=.75,
    delay=6,
    speed=0,
-   width=75
+   width=75,
+   cost=100
 }
 spells["flare"] = {
    base={10},
@@ -92,10 +96,10 @@ function Run()
 
    Circle(P.singularity, nil, blue)
 
-   if KillSteal(GetObj(BARON)) then
+   if KillSteal(P.BARON) then
       return true
    end
-   if KillSteal(GetObj(DRAGON)) then
+   if KillSteal(P.DRAGON) then
       return true
    end
 
@@ -112,7 +116,7 @@ function Run()
       if target and target.health < GetSpellDamage("spark", target) then
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
-            if SSGoodTarget(target, spell) then
+            if IsGoodFireahead(target, spell) then
                CastSpellFireahead("spark", target)
                PrintAction("KS", target)
                return true
@@ -297,7 +301,7 @@ function checkBarrier(unit, spell)
       spell.target.team == me.team
    then
       -- don't bother shielding people near full health
-      if spell.target.health / spell.target.maxHealth > .85 then
+      if spell.target.health,spell.target.maxHealth > .85 then
          return
       end
       
@@ -310,7 +314,7 @@ function checkBarrier(unit, spell)
          target = unit
          local minPH = 2
          for _,ally in ipairs(GetInRange(me, W.range, ALLIES)) do
-            local lMinPH = ally.health / ally.maxHealth
+            local lMinPH = ally.health,ally.maxHealth
             if lMinPH < minPH then
                target = ally
                minPH = lMinPH

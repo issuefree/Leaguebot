@@ -194,7 +194,6 @@ function FollowUp()
       if target then
          if GetDistance(target) > spells["AA"].range then
             MoveToTarget(target)
-            PrintAction("MTT")
             return false
          end
       else        

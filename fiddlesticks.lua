@@ -50,7 +50,7 @@ local drain = nil
 local drainCastTime = 0
 
 local function isDraining()
-   if Check(drain) then
+   if P.drain then
       CHANNELLING = true
       return true
    end
@@ -159,11 +159,7 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if find(object.charName,"Drain.troy") and 
-      GetDistance(object) < 75 
-   then
-      drain = StateObj(object)
-   end
+  PersistBuff("drain", object, "Drain.troy")
 end
 
 local function onSpell(object, spell)

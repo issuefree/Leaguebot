@@ -38,7 +38,6 @@ spells["justice"] = {
   missing={3.5,3,2.5}
 }
 
-local strike
 local spinT
 
 function Run()
@@ -111,13 +110,13 @@ function Action()
 
    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
 
-   if target and not isSpinning() and CanUse("strike") and not Check(strike) then
+   if target and not isSpinning() and CanUse("strike") and not P.strike then
       Cast("strike", me)
       PrintAction("Strike up", target)
       -- no return
    end
 
-   if not isSpinning() and CanUse("judgement") and not CanUse("strike") and not Check(strike) then
+   if not isSpinning() and CanUse("judgement") and not CanUse("strike") and not P.strike then
       local targets = GetInRange(me, spells["judgement"].range, ENEMIES)
       if #targets > 0 then
          Cast("judgement", me)
@@ -175,7 +174,6 @@ function FollowUp()
       local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
       if target then
          if GetDistance(target) > spells["AA"].range then
-            PrintAction("MTT")
             MoveToTarget(target)
             return true
          end
@@ -205,9 +203,7 @@ function isSpinning()
 end
 
 local function onObject(object)
-   if HasBuff(me, object, "garen_decisiveStrike_indicator") then
-      strike = StateObj(object)
-   end
+   PersistBuff("strike", object, "garen_decisiveStrike_indicator")
 end
 
 local function onSpell(object, spell)

@@ -22,10 +22,12 @@ spells["axe"] = {
    delay=2.65,
    speed=16,
    width=80,
-   overShoot=150
+   overShoot=150,
+   cost={55,60,65,70,75}
 }
 spells["strikes"] = {
-   key="W"
+   key="W",
+   cost={40,45,50,55,60}
 }
 spells["swing"] = {
    key="E", 
@@ -35,7 +37,8 @@ spells["swing"] = {
    type="T"
 }
 spells["ragnarok"] = {
-   key="R"   
+   key="R",
+   cost={100,75,50}
 }
 
 --[[
@@ -94,11 +97,14 @@ end
 function Action()   
    UseItems()
       
-   if SkillShot("axe") then
+   if CanUse("axe") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("axe")
+      if target and IsGoodFireahead(target, "axe") then
+         CastSpellFireahead("axe", target)
       return
    end
       
-   local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+100)
+   local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+50)
    if aaTarget then
       if CanUse("strikes") then
          Cast("strikes", me)
@@ -149,10 +155,9 @@ function Action()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
       if target then
          if GetDistance(target) > spells["AA"].range then
-            PrintAction("MTT")
             MoveToTarget(target)
             return true
          end

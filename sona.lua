@@ -71,7 +71,7 @@ function Run()
       end
    end
    
-   if IsOn("lastHit") and Alone() then
+   if IsOn("lastHit") and Alone() and CanUse("blue") then
       local minionRays = 2
       local targets = SortByDistance(GetInRange(me, "blue", MINIONS))
       for _,minion in ipairs(targets) do

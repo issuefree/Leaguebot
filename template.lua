@@ -33,7 +33,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
-      return
+      return true
    end
 
    -- auto stuff that always happen
@@ -42,7 +42,7 @@ function Run()
 	if HotKey() and CanAct() then
       UseItems()
 		if Action() then
-			return
+			return true
 		end
 	end
 
@@ -51,7 +51,7 @@ function Run()
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
       if FollowUp() then
-         return
+         return true
       end
    end
 end
@@ -101,11 +101,10 @@ function FollowUp()
 
 -- melee
    -- if IsOn("move") then
-   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
    --    if target then
    --       if GetDistance(target) > spells["AA"].range then
    --          MoveToTarget(target)
-   --          PrintAction("MTT")
    --          return false
    --       end
    --    else        

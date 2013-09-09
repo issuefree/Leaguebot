@@ -1,121 +1,42 @@
+require "basicUtils"
 require "spell_shot"
 require "telemetry"
 require "drawing"
 require "items"
 require "autoAttackUtil"
+require "persist"
+require "spellUtils"
+require "toggles"
 
-local function table_print(tt, indent, done)
-   done = done or {}
-   indent = indent or 0
-   if type(tt) == "table" then
-      local sb = {}
-      for key, value in pairs (tt) do
-         table.insert(sb, string.rep (" ", indent)) -- indent it
-         if type (value) == "table" and not done [value] then
-            done [value] = true
-            table.insert(sb, "{\n");
-            table.insert(sb, table_print (value, indent + 2, done))
-            table.insert(sb, string.rep (" ", indent)) -- indent it
-            table.insert(sb, "}\n");
-         elseif "number" == type(key) then
-            table.insert(sb, string.format("\"%s\"\n", tostring(value)))
-         else
-            table.insert(sb, string.format("%s = \"%s\"\n", tostring (key), tostring(value)))
-         end
-      end
-      return table.concat(sb)
-   else
-      return tt .. "\n"
-   end
-end
-
-function time()
-   return os.clock()
-end
-
-function pp(str)
-   if str == nil then
-      pp("nil")
-   elseif type(str) == "table" then
-      pp(table_print(str, 2))
-   elseif type(str) == "userdata" then
-      if str.charName then
-         pp(str.charName..": "..str.id)
-         pp("  ("..math.floor(str.x+.5)..","..math.floor(str.z+.5)..")")
-      end
-   else
-      printtext(tostring(str).."\n")
-   end
-end
-
-
-function merge(table1, table2)
-   local resTable = {}
-   for k,v in pairs(table1) do
-      resTable[k] = v
-   end
-   for k,v in pairs(table2) do
-      resTable[k] = v
-   end
-   return resTable
-end
-
-function concat(...)
-   local resTable = {}
-   for _,tablex in ipairs(GetVarArg(...)) do
-      if type(tablex) == "table" then
-         for _,v in ipairs(tablex) do
-            table.insert(resTable, v)
-         end
-      else
-         table.insert(resTable, tablex)
-      end      
-   end
-   return resTable
-end
-
-function rpairs(t)
-   return prev, t, table.getn(t)+1
-end
-
-function prev(t, i)
-   if i == 1 then
-      return nil
-   end
-   return i-1, t[i-1]
-end
-
-local line = 0
-function PrintState(state, str)
-   DrawText(str,100,100+state*15,0xFFCCEECC);
-end
+ModuleConfig = scriptConfig("Module Config", "modules")
 
 local lastAction = nil
-local lastActionTime = 0
+local lastActionTime = time()
 function PrintAction(str, target)
    if str == nil then 
       lastAction = nil
       return
    end
    if str ~= lastAction then
+      local ttl = math.floor((time() - lastActionTime)*100)/100
+      local out = " # "..str
       if target then
          if type(target) == "string" or
             type(target) == "number"
          then
-            pp(" # "..str.." : "..target)
+            out = out.." : "..target
          else
-            pp(" # "..str.." -> "..target.name)
+            out = out.." -> "..target.name
          end
-      else
-         pp(" # "..str)
       end
+      local spaces = ""
+      for i=1, 50-string.len(out), 1 do
+         spaces = spaces.." "
+      end
+      pp(out..spaces.."+"..ttl)
+      lastActionTime = time()
       lastAction = str
    end
-end
-
-
-function ClearState(state)
-   printStates[state+1] = ""
 end
 
 LOADING = true
@@ -126,10 +47,6 @@ SPELL_CALLBACKS = {}
 ACTIVE_SKILL_SHOTS = {}
 function addSkillShot(spellShot)
    table.insert(ACTIVE_SKILL_SHOTS, spellShot)
-end
-
-function IsCooledDown(key)
-   return me["SpellTime"..key] >= 1
 end
 
 function AddOnTick(callback)
@@ -157,75 +74,15 @@ end
 AddOnKey(OnKey)
 
 -- globals for convenience
-me = GetSelf()
 hotKey = GetScriptKey()
 playerTeam = ""
 
--- common spell defs
-spells = {}
-
--- simple attempt to grab high priority targets
-ADC = nil
-APC = nil
-
-EADC = nil
-EAPC = nil
 
 -- do fireahead calculations with a speedup to account for player direction changes
 SS_FUDGE = 1.33
 
--- object arrays
-MINIONS = {}
-MYMINIONS = {}
-CREEPS = {}
-ALLIES = {}
-ENEMIES = {}
-RECALLS = {}
-TURRETS = {}
-MYTURRETS = {}
-CCS = {}
-WARDS = {}
-
-DRAGON = {}
-BARON = {}
-
-
--- name field
-MinorCreepNames = {
-   "wolf", 
-   "YoungLizard", 
-   "LesserWraith",
-   "SmallGolem"
-}
-BigCreepNames = {
-   "GiantWolf", 
-   "Wraith", 
-   "Golem"
-}
-MajorCreepNames = {
-   "AncientGolem", 
-   "LizardElder",
-   "Dragon",
-   "Worm"
-}
-
-CreepNames = concat(MinorCreepNames, BigCreepNames, MajorCreepNames)
-
-
-enrage = nil
-lichbane = nil
-iceborn = nil
--- tear of the goddess items
-tear = nil
-
--- globals for the toggle menus
-keyToggles = {}
-toggleOrder = {}
-
 spells["AA"] = {range=me.range+GetDistance(GetMinBBox(me)), base={0}, ad=1, type="P", color=red} 
 
--- stuns roots fears taunts?
-ccNames = {"Stun_glb", "summoner_banish", "Global_Taunt", "Global_Fear", "Ahri_Charm_buf", "leBlanc_shackle_tar", "LuxLightBinding_tar", "RunePrison_tar", "DarkBinding_tar", "Amumu_SadRobot_Ultwrap", "Amumu_Ultwrap", "maokai_elementalAdvance_root_01", "VarusRHitFlash"}
 
 repeat
    if string.format(me.team) == "100" then
@@ -242,9 +99,8 @@ local function drawCommon()
       return
    end
 
-   local mark = GetMarkedTarget()
-   if mark then
-      Circle(mark, GetWidth(mark), red, 7)
+   if P.markedTarget then
+      Circle(P.markedTarget, nil, red, 7)
    end
 
    for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
@@ -278,149 +134,12 @@ function SaveConfig(name, config)
    file:close()
 end
 
-function AddToggle(key, value)
-   keyToggles[key] = value
-   table.insert(toggleOrder, key)
-end
-
-function IsOn(key)
-   return keyToggles[key].on
-end
-
-function GetMousePos()
-   return {x=GetCursorWorldX(), y=GetCursorWorldY(), z=GetCursorWorldZ()}
-end
-
-local pressed = {}
-local function checkToggles()
-   for _,toggle in pairs(keyToggles) do      
-      local key = toggle.key     
-      if IsKeyDown(key) == 1 then
-         pressed[key] = true
-      elseif IsKeyDown(key) == 0 then
-         if pressed[key] == true then 
-            toggle.on = not toggle.on 
-            pressed[key] = false
-         end
-      end
-   end
-   DrawToggles()
-end
-
-local labelX = 280
-local labelY = 960
-function DrawToggles()
-   for i,key in ipairs(toggleOrder) do
-      local val = keyToggles[key]
-      local label = val.label
-      local auxLabel = val.auxLabel
-      if val.args then
-         for a,v in ipairs(val.args) do
-            local arg = expandToggleArg(val.args[a])           
-            label = string.gsub(label, "{"..(a-1).."}", arg)
-            auxLabel = string.gsub(auxLabel, "{"..(a-1).."}", arg)
-         end
-      end
-      if val.on then
-         DrawText(label,labelX,labelY+(i-1)*15,0xFF00EE00);
-         if auxLabel then        
-            DrawText(auxLabel,labelX+150,labelY+(i-1)*15,0xFF00EE00);
-         end
-      else
-         DrawText(label,labelX,labelY+(i-1)*15,0xFFFFFF00);
-         if auxLabel then
-            DrawText(auxLabel,labelX+150,labelY+(i-1)*15,0xFFFFFF00);
-         end
-      end
-   end   
-end
-
-function expandToggleArg(arg)
-   if type(arg) == "string" then
-      return GetSpellDamage(arg) 
-   elseif type(arg) == "function" then
-      return arg()
-   end
-end
-
 function doCreateObj(object)
    if not (object and object.x and object.z) then
       return
    end
 
-   -- find minions
-   if ( ( find(object.name, "Blue_Minion") and playerTeam == "Red" ) or 
-        ( find(object.name, "Red_Minion") and playerTeam == "Blue" ) )
-   then
-      table.insert(MINIONS, object)
-   end
-
-   -- find minions
-   if ( ( find(object.name, "Blue_Minion") and playerTeam == "Blue" ) or 
-        ( find(object.name, "Red_Minion") and playerTeam == "Red" ) )
-   then
-      table.insert(MYMINIONS, object)
-   end
-
-   if ListContains(object.name, CreepNames, true) then
-      if object.name == "Dragon" then         
-         DRAGON = {object.name, object}
-      end
-      if object.name == "Worm" then
-         BARON = {object.name, object}
-      end
-      table.insert(CREEPS, object)
-   end
-
-   if ( find(object.name, "OrderTurret") or
-        find(object.name, "ChaosTurret") )
-   then
-      if object.team ~= me.team then        
-         table.insert(TURRETS, object)
-      else
-         table.insert(MYTURRETS, object)
-      end
-   end
-
-   if find(object.charName, "TeleportHome") then
-      table.insert(RECALLS, object)
-   end
-
-   if ListContains(object.charName, ccNames) then
-      table.insert(CCS, object)
-   end
-
-   if find(object.name, "Ward") then
-      table.insert(WARDS, object)
-   end
-
-   --sheen / trinity
-   if find(object.charName, "enrage_buf") and 
-      GetDistance(object) < 50 
-   then
-      enrage = {object.charName, object}
-   end   
-
-   --lich bane
-   if find(object.charName, "purplehands_buf") and 
-      GetDistance(object) < 50 
-   then
-      lichbane = {object.charName, object}
-   end
-
-   --iceborn gauntlet
-   if find(object.charName, "bluehands_buf") and 
-      GetDistance(object) < 50 
-   then
-      iceborn = {object.charName, object}
-   end
-
-   --tear
-   if find(object.charName, "TearoftheGoddess") and 
-      GetDistance(object) < 50 
-   then
-      tear = {object.charName, object}
-   end
+   createForPersist(object)
    
    for i, callback in ipairs(OBJECT_CALLBACKS) do
       callback(object)
@@ -442,53 +161,6 @@ function IsMinion(object)
    return find(object.name, "Minion")
 end
 
-local function updateHeroes()
-   ALLIES = {}
-   ENEMIES = {}
-   ADC = nil
-   APC = nil
-   EADC = nil
-   EAPC = nil
-   for i = 1, objManager:GetMaxHeroes(), 1 do
-      local hero = objManager:GetHero(i)
-      if hero.team == me.team then
-         table.insert(ALLIES, hero)
-      else
-         table.insert(ENEMIES, hero)
-      end
-   end   
-   ADC = getADC(ALLIES)
-   APC = getAPC(ALLIES)
-
-   EADC = getADC(ENEMIES)
-   EAPC = getAPC(ENEMIES)
-
-   if ADC then
-      DrawText("ADC:"..ADC.name, 10, 910, 0xFF00FF00)
-   end
-   if APC then
-      DrawText("APC:"..APC.name, 10, 925, 0xFF00FF00)
-   end
-   if EADC then
-      DrawText("ADC:"..EADC.name, 150, 910, 0xFFFF0000)
-   end
-   if EAPC then
-      DrawText("APC:"..EAPC.name, 150, 925, 0xFFFF0000)
-   end
-end
-
-function GetIntersection(list1, list2)
-   local intersection = {}
-   for _,v1 in ipairs(list1) do
-      for _,v2 in ipairs(list2) do
-         if v1 == v2 then
-            table.insert(intersection, v1)
-         end
-      end
-   end
-   return intersection
-end
-
 function ValidTargets(list)
    if not list then return {} end
    return FilterList(list, 
@@ -505,69 +177,11 @@ function ValidTargets(list)
    )
 end
 
-function isDupMinion(minionTable, minion)
-  local count = 0
-  for _,m in pairs(minionTable) do
-    if minion.charName == m.charName then count = count + 1 end
-    if count > 1 then return true end
-  end
-  return false
-end
-
-local function updateMinions()
-   for i,minion in rpairs(MINIONS) do
-      if not minion or
-         minion.dead == 1 or
-         minion.x == nil or 
-         minion.z == nil or
-         not find(minion.charName, "Minion") or
-         isDupMinion(MINIONS, minion)
-      then
-         table.remove(MINIONS,i)
-      end
-   end
-   for i,minion in rpairs(MYMINIONS) do
-      if not minion or
-         minion.dead == 1 or
-         minion.x == nil or 
-         minion.z == nil or
-         not find(minion.charName, "Minion") or
-         isDupMinion(MYMINIONS, minion)
-      then
-         table.remove(MYMINIONS,i)
-      end
-   end
-end
-
-local function updateCreeps()
-   for i,unit in rpairs(CREEPS) do
-      if not unit or
-         unit.dead == 1 or
-         unit.x == nil or 
-         unit.y == nil or
-         not ListContains(unit.name, CreepNames)
-      then
-         table.remove(CREEPS,i)
-      end
-   end
-end
-
 local function updateObjects()
-   spells["AA"].range = me.range+GetDistance(GetMaxBBox(me))
-   updateMinions()
-   updateCreeps()
-   updateHeroes()
-   CleanPersistedObjects()
-   Clean(RECALLS, "charName", "TeleportHome")
-   Clean(CCS)
-   Clean(WARDS, "name", "Ward")
-   Clean(TURRETS, "name", "Turret")
-   Clean(MYTURRETS, "name", "Turret")
-
    local mark = GetMarkedTarget()
    if mark then
       if mark.dead == 1 or mark.visible == 0 or GetDistance(mark) > 1750 then
-         markedTarget = nil
+         P.markedTarget = nil
       end
    end
 end
@@ -614,7 +228,7 @@ function HitMinionsInLine(thing, hitsNeeded)
    if #hits >= hitsNeeded then
       local point = ToPoint(GetCenter(hits))
       if spell.overShoot then
-         point = Projection(me, point, GetDistance(point)+spell.overShoot)
+         point = OverShoot(me, point, spell.overShoot)         
       end
       Circle(point, 50, yellow)
       CastXYZ(thing, point)
@@ -638,33 +252,26 @@ function throttle(id, millis)
    return true
 end
 
-markedTarget = nil
 -- "mark" the enemy closest to a mouse click (i.e. click to mark)
 function MarkTarget()
-   if #GetInRange(mousePos, 500, ENEMIES) == 0 then
-      markedTarget = nil
+   if #GetInRange(GetMousePos(), 500, ENEMIES) == 0 then
+      P.markedTarget = nil
       return
    end
-   local targets = SortByDistance(GetInRange(mousePos, 200, ENEMIES), mousePos)
+   local targets = SortByDistance(GetInRange(mousePos, 200, ENEMIES), GetMousePos())
    if targets[1] then
-      local mark = StateObj(targets[1])
-      if Check(mark) then
-         markedTarget = mark
-         return
-      end
+      Persist("markedTarget", targets[1])
    end
 end
 function GetMarkedTarget()
-   if Check(markedTarget) then
-      return GetObj(markedTarget)
-   end
-   return nil
+   return P.markedTarget
 end
 
 
 function MoveToTarget(t)
    if CanMove() then
       MoveToXYZ(t.x, t.y, t.z)
+      PrintAction("MTT", t)
    end
 end
 
@@ -1009,7 +616,7 @@ function SkillShot(thing, purpose)
       end
 
       -- Validate that the current favorite target is a good candidate for skillshot
-      if SSGoodTarget(target, spell) then
+      if IsGoodFireahead(target, spell) then
          break
       end
 
@@ -1033,8 +640,11 @@ function SkillShot(thing, purpose)
    return nil
 end
 
-function SSGoodTarget(target, thing, maxAngle)
+function IsGoodFireahead(target, thing, maxAngle)
    local spell = GetSpell(thing)
+   if not spell.speed then spell.speed = 20 end
+   if not spell.delay then spell.delay = 2 end
+
    if not target or not spell then
 --      pp("no target")
       return false
@@ -1045,14 +655,17 @@ function SSGoodTarget(target, thing, maxAngle)
    end
 
    -- up speed by 20% so we don't get quite so much leading
-   local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
+   local point = ToPoint(GetFireahead(target,spell.delay,spell.speed*SS_FUDGE))
+   if spell.overShoot then
+      point = OverShoot(me, point, spell.overShoot)
+   end
    
-   if GetDistance({x=x, y=y, z=z}) > GetSpellRange(spell) then
+   if GetDistance(point) > GetSpellRange(spell) then
 --      pp(target.name.." target leaving range")
       return false
    end
    
-   if GetDistance(target, {x=x, y=y, z=z}) < 150 then
+   if GetDistance(target, point) < 150 then
 --      pp(target.name.." target not moving KILLIT")
       return true
    end
@@ -1066,54 +679,7 @@ function SSGoodTarget(target, thing, maxAngle)
    return false   
 end
 
-function Cast(thing, target)
-   local spell = GetSpell(thing)
-   if not spell then spell = thing end
 
-   if not CanUse(spell) then
-      pp("can't use "..spell.key)
-      pp(debug.traceback())
-      return false
-   end
-
-   if not target then 
-      pp("no target for "..spell.key)
-      return false
-   end
-
-   CastSpellTarget(spell.key, target)
-   return true
-end
-
-function CastXYZ(thing, x,y,z)
-   local spell = GetSpell(thing)
-   if not spell then return end
-   if x and not y and not z then
-      DrawThickCircle(x, 100, red, 5)
-      CastSpellXYZ(spell.key, t.x,t.y,t.z)      
-   else
-      CastSpellXYZ(spell.key, x,y,z)      
-   end
-end
-
-function CastSpellFireahead(thing, target, allowOvershoot)
-   local spell = GetSpell(thing)
-   if not target then return false end
-   
-   if not spell.speed then spell.speed = 20 end
-   if not spell.delay then spell.delay = 2 end
-
-   local x,y,z = GetFireahead(target,spell.delay,spell.speed*SS_FUDGE)
-   if GetDistance({x=x, y=y, z=z}) < GetSpellRange(spell) then
-      CastXYZ(spell, x,y,z)
-      return true
-   elseif allowOvershoot then
-      CastXYZ(spell, x,y,z)
-      return true      
-   end
-
-   return false
-end
 
 function GetUnblocked(source, thing, ...)
    local spell = GetSpell(thing)
@@ -1151,152 +717,6 @@ function GetUnblocked(source, thing, ...)
    return unblocked
 end
 
-function Engaged()
-   return GetWeakEnemy("MAGIC", 300 ) ~= nil
-end
-function Alone()
-   return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
-end
-function VeryAlone()
-   return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
-end
-
--- gets the object in a valid state object or returns the original object if it isn't a state object
-function GetObj(sObj)
-   if not sObj then return nil end
-   if sObj.x then return sObj end -- userdata or simple pos objs will have this
-   if Check(object) then -- state object, return the object if it's valid
-      return object[2]
-   end
-   return nil
-end
-
---[[
-I need to persist objects to do:
-   Does an object exist and where is it
-      Tracking projectiles
-         Is my barrel near anything?
-         Is my singularity up?
-         Am I draining someone?
-   Do I have a buff?
-      Is my stun up?
-      Is sheen up?      
-   Does a target have a buff?
-      Does a target have a flare?
-      Are they poisoned?
-      Are they stunned?
-]]
-
-P = {}
-pOn = {}
-PData = {}
--- find an object and persist it
-function Persist(name, object, charName)
-   if object and (not charName or find(object.charName, charName)) then
-      P[name] = object
-      PData[name] = {}
-      PData[name].cn = object.charName
-   end
-end
-
--- find an object only near me and persist it
-function PersistBuff(name, object, charName, dist)
-   if not dist then
-      dist = 50
-   end
-   if object and find(object.charName, charName) then
-      if GetDistance(object) < dist then
-         P[name] = object
-         PData[name] = {}
-         PData[name].cn = object.cn
-      else
-         pp("Found "..name.." at distance "..math.floor(GetDistance(object)))
-      end
-   end
-end
-
-function PersistOnTargets(name, object, charName, ...)
-   if object and find(object.charName, charName) then
-      local target = SortByDistance(GetInRange(object, 75, concat(...)))[1]
-      if target then
-         if not pOn[name] then
-            pOn[name] = {}
-         end
-         Persist(name..object.id, object)
-         PData[name..object.id].unit = target
-         table.insert(pOn[name], name..object.id)
-         -- pp("Persisting "..name.." on "..target.charName.." as "..name..object.id)
-      end
-   end
-end
-
--- check if a given target has the named buff
-function HasBuff(buffName, target)
-   if not pOn[buffName] then return false end
-   for _,pKey in ipairs(pOn[buffName]) do
-      local pd = PData[pKey]
-      if pd and pd.unit.charName == target.charName then
-         return true
-      end
-   end
-   return false
-end
-
-function GetWithBuff(buffName, ...)
-   return FilterList(concat(...),
-      function(item)
-         return HasBuff(buffName, item)
-      end
-   )
-end
-
-function CleanPersistedObjects()
-   for name,obj in pairs(P) do
-      if not obj or 
-         not obj.id or not obj.id == PData[name].id or
-         not obj.x or not obj.z or
-         not obj.charName
-      then
-         P[name] = nil
-         PData[name] = nil
-      end
-   end
-   for name,pList in pairs(pOn) do
-      for i,pKey in rpairs(pList) do
-         if not P[pKey] then
-            table.remove(pList, i)
-            -- pp("Clean "..pKey)
-         end
-      end
-   end
-end
-
-function StateObj(object)
-   return {
-      obj=object,
-      objCN=object.charName
-   }
-end
-
-function Check(sObj)
-   if not sObj or not sObj.obj then return false end
-   if sObj.objCN == sObj.obj.charName then
-      return true
-   end
-   return false 
-end
-
-function Clean(list, field, value)
-   for i, obj in rpairs(list) do
-      if field and value then
-         if not find(obj[field], value) then
-            table.remove(list,i)
-         end
-      elseif not obj or not obj.x or not obj.z then
-         table.remove(list,i)
-      end
-   end
-end
 
 function HotKey()
    return IsKeyDown(hotKey) ~= 0
@@ -1309,30 +729,6 @@ function IsRecalling(hero)
       end
    end
    return false
-end
-
-function find(source, target)
-   if not source then
-      return false
-   end
-   if string.len(target) == 0 then
-      return false
-   end
-   return string.find(string.lower(source), string.lower(target))
-end
-
-function copy(orig)
-   local orig_type = type(orig)
-   local copy
-   if orig_type == 'table' then
-      copy = {}
-      for orig_key, orig_value in pairs(orig) do
-         copy[orig_key] = orig_value
-      end
-   else -- number, string, boolean, etc
-      copy = orig
-   end
-   return copy
 end
 
 function getADC(list)
@@ -1499,15 +895,15 @@ function UseItem(itemName, target)
       local target = ADC
       if target and target.name ~= me.name and 
          GetDistance(target, me) < crucibleRange and
-         #GetInRange(target, 50, CCS) > 0
+         HasBuff("cc", target)
       then 
          CastSpellTarget(slot, target)
          pp("uncc adc "..target.name) 
       else
          target = APC
          if target and target.name ~= me.name and 
-         GetDistance(target, me) < crucibleRange and
-         #GetInRange(target, 50, CCS) > 0
+            GetDistance(target, me) < crucibleRange and
+            HasBuff("cc", target)
          then 
             CastSpellTarget(slot, target)
             pp("uncc apc "..target.name)
@@ -1525,21 +921,6 @@ function UseItem(itemName, target)
       -- CastSpellTarget(slot, me)
    end
 
-end
-
-function SortByHealth(things)
-   table.sort(things, function(a,b) return a.health < b.health end)
-   return things
-end
-
-function SortByDistance(things, target)
-   table.sort(things, function(a,b) return GetDistance(a, target) < GetDistance(b, target) end)
-   return things
-end
-
-function SortByAngle(things)
-   table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
-   return things
 end
 
 function GetNearestIndex(target, list)
@@ -1566,35 +947,11 @@ function GetKills(thing, list)
    return result
 end
 
-function FilterList(list, f)
-   local res = {}
-   for _,item in ipairs(list) do
-      if f(item) then
-         table.insert(res, item)
-      end
-   end
-   return res
-end
-
-function ListContains(item, list, exact)
-   if type(item) ~= "string" then
-      exact = true
-   end
-   for _,test in pairs(list) do
-      if exact then
-         if item == test then return true end
-      else
-         if find(item, test) then return true end
-      end
-   end
-   return false
-end
-
 function CanChargeTear()
    if ( GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
         GetInventorySlot(ITEMS["Archangel's Staff"].id) or
         GetInventorySlot(ITEMS["Manamune"].id) ) and 
-      not Check(tear) 
+      not P.tear
    then
       return true
    end
@@ -1621,56 +978,6 @@ local function getWardingSlot()
    if wardSlot and IsCooledDown(wardSlot) then
       return wardSlot
    end
-end
-
-
-function GetCD(thing)
-   local spell = GetSpell(thing)
-   local cd = math.ceil(1 - me["SpellTime"..spell.key])
-   if cd > 0 then
-      return cd
-   end
-   return 0
-end
-
-function CanUse(thing)
-   if type(thing) == "table" then -- spell or item
-      if thing.id then -- item
-         return IsCooledDown(GetInventorySlot(thing.id))
-      elseif thing.key then -- spell
-         if thing.key == "A" then
-            return CanAttack()
-         end
-         if me.mana >= GetSpellCost(thing) then             
-            return CanUse(thing.key)
-         else
-            return false
-         end
-      else  -- spells without keys are always ready
-         return true
-      end
-   elseif type(thing) == "number" then -- item id
-      return IsCooledDown(GetInventorySlot(thing))
-   else -- string
-      if thing == "AA" then
-         return CanAttack()
-      end
-      if spells[thing] then -- passed in the name of a spell
-         if spells[thing].key then
-            return CanUse(spells[thing])
-         else
-            return true -- a defined spell without a key prob auto attack
-         end
-      elseif ITEMS[thing] then  -- passed in the name of an item
-         return IsCooledDown(GetInventorySlot(ITEMS[thing].id))
-      else -- other string must be a slot
-         if thing == "D" or thing == "F" then
-            return IsSpellReady(thing) == 1
-         end
-         return GetSpellLevel(thing) > 0 and IsCooledDown(thing) -- should be a spell key "Q"
-      end
-   end
-   pp("Failed to get spell for "..thing)
 end
 
 local wardCastTime = time() 
@@ -1767,182 +1074,6 @@ function GetAADamage(target)
    end
    damage = damage + damageT
    return math.floor(damage+.5)
-end
-
--- if you specify a target you get % health damage
--- if needSpellbladeActive is true check for sheen ready (for activated on hit abilities)
--- if needSpellbladeActive is nil or false it only adds sheen if it's already on
-function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage broken down by magic,phys
-   local damageM = 0
-   local damageP = 0
-   if GetInventorySlot(ITEMS["Nashor's Tooth"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Nashor's Tooth"])
-   end
-   if GetInventorySlot(ITEMS["Wit's End"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Wit's End"])
-   end
-
-   local spellbladeDamage = GetSpellbladeDamage(needSpellbladeActive)
-   if spellbladeDamage then
-      damageP = damageP + spellbladeDamage
-   end
-
-   if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
-      if target then
-         damageP = damageP + target.health*.05
-      end
-   end
-
-   if GetInventorySlot(ITEMS["Kitae's Bloodrazor"].id) then
-      if target then
-         damageM = damageM + target.maxHealth*.025
-      end
-   end
-   return {damageM, damageP}
-end
-
--- treating all as phys as it's so much easier
-function GetSpellbladeDamage(needActive)
-   return getSBDam(ITEMS["Lich Bane"], lichbane, needActive) or
-          getSBDam(ITEMS["Trinity Force"], enrage, needActive) or
-          getSBDam(ITEMS["Iceborn Gauntlet"], iceborn, needActive) or
-          getSBDam(ITEMS["Sheen"], enrage, needActive)
-end
-
-function getSBDam(item, buffObj, needActive)
-   local slot = GetInventorySlot(item.id)
-   if slot then
-      if (needActive and Check(buffObj)) or CanUse(item) then
-         return GetSpellDamage(item)
-      end
-   end
-   return nil
-end
-
-function GetSpellCost(thing)
-   local spell = GetSpell(thing)
-   if spell.cost then
-      if type(spell.cost) == "table" then
-         return spell.cost[GetSpellLevel(spell.key)] or 0
-      elseif type(spell.cost) == "number" then
-         return spell.cost or 0
-      else
-         return spell.cost() or 0
-      end
-   end
-   return 0
-end
-
-function GetSpellRange(thing)
-   local spell = GetSpell(thing)
-   if type(spell.range) == "table" then
-      local lvl = GetSpellLevel(spell.key)
-      if lvl == 0 then
-         return 0
-      end
-      return spell.range[GetSpellLevel(spell.key)]
-   elseif type(spell.range) == "number" then
-      return spell.range
-   else
-      return spell.range()
-   end
-   return 0
-end
-
-function GetSpell(thing)
-   local spell
-   if type(thing) == "table" then
-      spell = thing
-   else
-      spell = spells[thing]
-      if not spell then
-         for _,s in pairs(spells) do
-            if thing == s.key then
-               spell = s
-               break
-            end
-         end
-      end
-      -- couldn't find a defined spell.
-      -- make a fake spell with the thing as the key as this is almost certainly
-      -- an item or a summoner spell
-      if not spell then 
-         spell = {key=thing}         
-      end
-   end
-   return spell
-end
-
-function GetSpellDamage(thing, target)
-   local spell = GetSpell(thing)
-   if not spell or not spell.base then
-      return 0
-   end
-
-   local lvl 
-   if spell.key and not (spell.key == "D" or spell.key == "F") then
-      lvl = GetSpellLevel(spell.key)
-      if lvl == 0 then
-         return 0
-      end
-   else 
-      lvl = 1
-   end
-
-
-   local damage = spell.base[lvl]
-
-   if spell.ap then 
-      damage = damage + spell.ap*me.ap
-   end
-   if spell.ad then
-      damage = damage + spell.ad*(me.baseDamage+me.addDamage)
-   end 
-   if spell.adBonus then
-      damage = damage + spell.adBonus*me.addDamage
-   end 
-   if spell.adBase then
-      damage = damage + spell.adBase*me.baseDamage
-   end
-   if spell.mana then
-      damage = damage + spell.mana*me.maxMana
-   end
-   if spell.lvl then
-      damage = damage + me.selflevel*spell.lvl
-   end
-   if spell.bonus then
-      damage = damage + spell.bonus
-   end   
-
-   local damageT = 0
-   local damageP = 0
-   local damageM = 0
-
-   if spell.type == "P" then
-      damageP = damage
-   elseif spell.type == "T" then
-      damageT = damage
-   else
-      damageM = damage
-   end
-
-   damage = 0
-
-   if spell.onHit then
-      local ohd = GetOnHitDamage(target, false)
-      damageM = damageM + ohd[1]
-      damageP = damageP + ohd[2]
-   end
-
-   if target then
-      damage = CalcDamage(target, damageP) +
-               CalcMagicDamage(target, damageM) +
-               damageT
-   else
-      damage = damageT + damageP + damageM
-   end
-
-   return math.floor(damage)
 end
 
 --[[
@@ -2057,7 +1188,7 @@ function OnProcessSpell(unit, spell)
          end
       end
    end
-   
+
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
    --    callback(unit, spell)
    -- end   
@@ -2132,6 +1263,8 @@ function TimTick()
       LOADING = false
    end
    
+   spells["AA"].range = me.range+GetDistance(GetMaxBBox(me))
+
    checkToggles()
    updateObjects()
    drawCommon()

@@ -18,13 +18,14 @@ spells["frost"] = {
 
 spells["volley"] = {
    key="W", 
-   range=1200, 
+   range=1100, 
    color=violet, 
    base={40,50,60,70,80}, 
    ad=1,
-   delay=2,
+   delay=2.5,
    speed=20,
-   cone=57.5
+   cone=57.5,
+   cost=60
 }
 
 spells["hawkshot"] = {
@@ -35,26 +36,27 @@ spells["hawkshot"] = {
 
 spells["arrow"] = {
    key="R", 
-   range=1600, 
-   color=violet, 
    base={250,425,600}, 
    ap=1,
    delay=2,
    speed=16,
    width=160,
-   area=250
+   radius=250,
+   cost=150
 }
 
-local frost = nil
 local frostTime = 0
 
 function Run()
+
+   Circle(P.frost)
+
    if IsRecalling(me) or me.dead == 1 then
       return
    end
 
    if Alone() then
-      if Check(frost) and time() - frostTime > 1 then
+      if P.frost and time() - frostTime > .5 then
          frostTime = time()
          Cast("frost", me)
          PrintAction("Frost OFF")
@@ -88,7 +90,7 @@ function Action()
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if target then
-      if not Check(frost) and time() - frostTime > 1 and
+      if not P.frost and time() - frostTime > .5 and
          GetDistance(target) < GetSpellRange("AA") 
       then
          Cast("frost", me)
@@ -133,11 +135,7 @@ end
    
 
 local function onObject(object)
-   if find(object.charName,"iceSparkle") and 
-      GetDistance(object) < 75
-   then
-      frost = StateObj(object)
-   end   
+   PersistBuff("frost", object, "iceSparkle", 125)
 end
 
 local function onSpell(unit, spell)

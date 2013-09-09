@@ -41,9 +41,8 @@ spells["tibbers"] = {
 }
 
 
-local stun = nil
 function stunOn()
-   if Check(stun) then
+   if P.stun then
       return "ON"
    else
       return "off"
@@ -58,8 +57,6 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "dis", "inc"}})
 
-local tibbersObj = nil
-local tibbers = nil
 local tibbersHasTarget = false
 local tibbersRange = 300
 
@@ -78,7 +75,7 @@ function Run()
    
    -- if i don't have stun and I have mana and I'm alone, stack stun with shield
    if IsOn("stoke") and Alone() and
-      not Check(stun) and 
+      not P.stun and 
       CanUse("shield") and
       me.mana / me.maxMana > .25 
    then
@@ -94,13 +91,13 @@ function Run()
       if VeryAlone() then
          if KillWeakMinion("dis") then
             PrintAction("Disintigrate for lasthit")
-            return
+            return true
          end
       elseif Alone() then
-         if IsOn("stoke") and not Check(stun) then
+         if IsOn("stoke") and not P.stun then
             if KillWeakMinion("dis") then
-               PrintAction("Distintigrate for lasthit")
-               return
+               PrintAction("Disintigrate for lasthit")
+               return true
             end
          end         
       end
@@ -115,8 +112,8 @@ function Run()
             return
          end
       elseif Alone() then
-         if IsOn("stoke") and not Check(stun) then
-            if KillMinionsInCone(spells["inc"], 2, 0, Check(stun)) then
+         if IsOn("stoke") and not P.stun then
+            if KillMinionsInCone(spells["inc"], 2, 0, P.stun) then
                PrintAction("Incinerate 2")
                return
             end
@@ -139,13 +136,12 @@ end
 function autoTibbers()
    -- SpellNameR when not tibbers is "InfernalGuardian"
    -- SpellNameR when tibbers is "infernalguardianguide"
-   if Check(tibbersObj) then
-      tibbers = GetObj(tibbersObj)
-      Circle(tibbers, tibbersRange, red)
+   if P.tibbers then
+      Circle(P.tibbers, tibbersRange, red)
 
       tibbersHasTarget = false
       -- find the closest target to tibbers
-      local target = SortByDistance(GetInRange(tibbers, 1000, ENEMIES))[1]
+      local target = SortByDistance(GetInRange(P.tibbers, 1000, ENEMIES))[1]
       if target then
          tibbersHasTarget = true
          tibbersAttack(target)
@@ -156,7 +152,7 @@ function autoTibbers()
 end
 
 function tibbersAttack(target)
-   if GetDistance(tibbers, target) > tibbersRange then
+   if GetDistance(P.tibbers, target) > tibbersRange then
       CastSpellTarget("R", target)
       PrintAction("Tibbers CHARGE", target)
    else
@@ -231,22 +227,17 @@ end
 
 
 local function onObject(object)
-   if find(object.charName,"StunReady") and 
-      GetDistance(object) < 50 
-   then
-      stun = StateObj(object)
-   end
+   PersistBuff("stun", object, "StunReady")
 
-   if object.charName == "Tibbers" and object.team == me.team then
-      tibbersObj = StateObj(object)
+   if object.team == me.team then
+      Persist("tibbers", object, "Tibbers")
    end
-
 end
 
 local function onSpell(unit, spell)
    CheckShield("shield", unit, spell)   
 
-   if tibbers and 
+   if P.tibbers and 
       unit.name == me.name and 
       spell.target and
       spell.target.team ~= me.team and

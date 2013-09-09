@@ -74,7 +74,7 @@ local function updateSpells()
    local spell = spells["barrage"]
    local lvl = GetSpellLevel(spell.key)
    if lvl > 0 then      
-      if Check(barrage) then
+      if P.barrage then
          spells["barrage"].healthPerc = (lvl+1+(me.ap*.01))/100
          
          spells["AA"].range = getBarrageRange()
@@ -90,9 +90,7 @@ end
 function Run()
    updateSpells()
 
-   if Check(artillery) then
-      Circle(GetObj(artillery), spells["artillery"].radius, green, 4)
-   end
+   Circle(P.artillery, spells["artillery"].radius, green, 4)
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -215,14 +213,8 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if find(object.charName,"KogMaw_Fossile_Eye_Glow") and 
-      GetDistance(object) < 75
-   then
-      barrage = StateObj(object)
-   end   
-   if find(object.charName,"KogMawLivingArtillery_cas") then
-      artillery = StateObj(object)      
-   end
+   PersistBuff("barrage", object, "KogMaw_Fossile_Eye_Glow")
+   Persist("artillery", object, "KogMawLivingArtillery_cas")
 end
 
 local function onSpell(object, spell)

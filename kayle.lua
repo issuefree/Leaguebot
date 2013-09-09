@@ -38,10 +38,8 @@ spells["intervention"] = {
 -- intervention is hard to use safely, might try something like
 --   if someone is under 25% and becomes the target of an enemy ability intervene
 
-local fury = nil
-
 function Run()
-   -- if Check(fury) then
+   -- if P.fury then
    --    PrintState(0, "FURY")
    -- else
    --    PrintState(0, "no")
@@ -69,7 +67,7 @@ function Run()
       local spell = spells["fury"]
       local target = GetWeakEnemy(type, spell.range)
       if target then
-         if Check(fury) then
+         if P.fury then
             --AttackTarget(target)
          elseif CanUse(spell) then
             CastSpellTarget(spell.key, me)
@@ -80,11 +78,7 @@ function Run()
 end
 
 local function onObject(object)
-   if find(object.charName,"RighteousFuryHalo") and 
-      GetDistance(object) < 50 
-   then
-      fury = {object.charName, object}
-   end
+   PersistBuff("fury", object, "RighteousFuryHalo")
 end
 
 local function onSpell(object, spell)

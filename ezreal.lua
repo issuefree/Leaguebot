@@ -16,13 +16,40 @@ spells["shot"] = {
    ad=1, 
    ap=.2,
    delay=2,
-   speed=17, 
-   type="P"
+   speed=20, 
+   type="P",
+   cost={28,31,34,37,40}
 }
-spells["flux"]    = {key="W", range=900, color=yellow, base={70,115,160,205,250}, ap=.8}
-spells["arrow"]   = {key="E", range=475+750, color=violet, base={75,125,175,225,275}, ap=.75}
-spells["shift"]   = {key="E", range=475, color=green}
-spells["barrage"] = {key="R", range=99999, base={350, 500, 650}, ad=1, ap=.9}
+spells["flux"] = {
+   key="W", 
+   range=900, 
+   color=yellow, 
+   base={70,115,160,205,250}, 
+   ap=.8,
+   cost={50,60,70,80,90}
+}
+spells["arrow"] = {
+   key="E", 
+   range=475+750, 
+   color=violet, 
+   base={75,125,175,225,275}, 
+   ap=.75
+}
+spells["shift"] = {
+   key="E", 
+   range=475, 
+   color=green,
+   cost=90
+}
+spells["barrage"] = {
+   key="R", 
+   base={350,500,650}, 
+   ad=1, 
+   ap=.9,
+   delay=12,
+   speed=20,
+   cost=100
+}
 
 
 function Run()

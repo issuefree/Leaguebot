@@ -5,7 +5,6 @@ require "modules"
 print("\nTim's Twisted Fate")
 
 local card = "Blue"
-local cardSelected = nil
 local selecting = false
 local gating = false
 
@@ -39,7 +38,7 @@ function Run()
 	  return
 	end
 	
-	if not Check(cardSelected) then
+	if not P.cardSelected then
       spells["card"] = nil
    end
 	
@@ -88,7 +87,7 @@ function onCreateObj(object)
 		if find(object.charName, "Card_"..card) then
 			CastSpellTarget("W", me)
          spells["card"] = spells[string.lower(card)]
-         cardSelected = {object.charName, object}
+         Persist("cardSelected", object)
 			selecting = false
 		end	
 	end

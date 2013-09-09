@@ -39,8 +39,9 @@ spells["strike"] = {
   key="E", 
   range=598, 
   color=red, 
-  base={78,138,198,258,318}, 
-  adBonus=3.6,
+  base={39,69,99,129,159}, 
+  adBonus=1.8,
+  cone=60,
   type="P",
   cost={45,50,55,60,65}
 }
@@ -54,14 +55,11 @@ spells["skyfall"] = {
   radius=1000
 }
 
-local strike = nil
 local strikeTime = 0
-
-local skyfall = nil
 local skyfallTime = 0
 
 local function isStriking()
-   if Check(strike) then
+   if P.strike then
       CHANNELLING = true
       return true
    end
@@ -74,7 +72,7 @@ local function isStriking()
 end
 
 local function isSkyfall()
-   if Check(skyfall) then
+   if P.skyfall then
       CHANNELLING = true
       return true
    end
@@ -108,6 +106,12 @@ function Run()
          return
       end
    end
+
+   if VeryAlone() and IsOn("lasthit") then
+      if KillMinionsInCone("strike", 3, true, true) then
+         PrintAction("Strike for lasthits")
+      end
+   end    
 
    if Alone() then
       -- auto stuff that should happen if you didn't do something more important
@@ -206,7 +210,6 @@ function FollowUp()
       if target then
          if GetDistance(target) > spells["AA"].range then
             MoveToTarget(target)
-            PrintAction("MTT")
             return false
          end
       else        
@@ -220,16 +223,8 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if find(object.charName,"pantheon_heartseeker_cas2") and 
-      GetDistance(object) < 150
-   then
-      strike = StateObj(object)
-   end   
-   if find(object.charName,"pantheon_grandskyfall_cas") and 
-      GetDistance(object) < 150
-   then
-      skyfall = StateObj(object)
-   end   
+   PersistBuff("strike", object, "pantheon_heartseeker_cas2", 150)
+   PersistBuff("skyfall", object, "pantheon_grandskyfall_cas", 150)
 end
 
 local function onSpell(object, spell)

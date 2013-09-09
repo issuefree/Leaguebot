@@ -1,3 +1,5 @@
+require "timCommon"
+
 ssers = {
    blitz = {
       spell = {type="line", range=925, key="Q", block=true, width=80}
@@ -70,4 +72,4 @@ end
 ModuleConfig:addParam("ass", "AntiSkillShot", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("ass")
 
-SetTimerCallback("assTick")
+AddOnTick(assTick)

@@ -53,21 +53,3 @@ function Circle(target, radius, color, thickness)
 		end
 	end
 end
-
-
-function DrawThickCircle(x,y,z,radius,color,thickness)
-   local count = math.floor(thickness/2)
-   repeat
-      DrawCircle(x,y,z,radius+count,color)
-      count = count-2
-   until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
-end
-
-function DrawThickCircleObject(object,radius,color,thickness)
-   local count = math.floor(thickness/2)
-   repeat
-      DrawCircleObject(object,radius+count,color)
-      count = count-2
-   until count == (math.floor(thickness/2)-(math.floor(thickness/2)*2))-2
-end
-

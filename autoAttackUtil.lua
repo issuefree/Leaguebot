@@ -1,3 +1,6 @@
+require "basicUtils"
+require "telemetry"
+
 local attackDelayOffset = .3
 local minAttackTime = .66
 

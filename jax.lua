@@ -52,22 +52,24 @@ spells["might"] = {
 	cost=100
 }
 
-local counter = nil
-local empower = nil
-
 function Run()
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return
+   end
+
 	if IsKeyDown(string.byte("X")) == 1 then
 		WardJump("leap")
 		PrintAction("Wardjump")
 		return
 	end
 
-	if Check(counter) and GetWeakestEnemy("counter") and CanUse("counter") then
+	if P.counter and GetWeakestEnemy("counter") and CanUse("counter") then
 		PrintAction("stun")
 		Cast("counter", me)
 	end
 
-	if JustAttacked() and CanUse("empower") and not Check(empower) then
+	if JustAttacked() and CanUse("empower") and not P.empower then
 	   if GetWeakestEnemy("AA") or #GetAllInRange(me, spells["AA"].range+50, CREEPS) > 0 then
 			PrintAction("Whap")
 			Cast("empower", me)
@@ -87,7 +89,6 @@ function Run()
       end
    end
 
-	PrintAction()
 end
 
 -- jump to good targets
@@ -116,12 +117,12 @@ function Action()
 	   	GetDistance(target) < spells["leap"].range and
 	   	GetDistance(target) > spells["AA"].range
 	   then
-	   	if CanUse("counter") and not Check(counter) then
+	   	if CanUse("counter") and not P.counter then
 	   		Cast("counter", me)
 	   		PrintAction("prep counter")
 	   	end
-	   	if CanUse("empower") and not Check(empower) then
-	   		Cast("Empower the leap", me)
+	   	if CanUse("empower") and not P.empower then
+	   		Cast("empower", me)
 	   		PrintAction("start empower")
 	   	end
 	   	Cast("leap", target)
@@ -130,7 +131,7 @@ function Action()
 	   end
 	end
 
-	if GetWeakestEnemy("counter") and CanUse("counter") and not Check(counter) then
+	if GetWeakestEnemy("counter") and CanUse("counter") and not P.counter then
 		Cast("counter", me)
 		PrintAction("start counter")
 	end
@@ -181,7 +182,6 @@ function FollowUp()
       if target then
       	if GetDistance(target) > spells["AA"].range then
 	         MoveToTarget(target)
-	      	PrintAction("MTT")
 	         return false
 	      end
       else      	
@@ -195,25 +195,18 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if HasBuff(me, object, "jaxdodger") then
-      counter = StateObj(object)
-   end   
-   if find(object.charName,"armsmaster_empower") and 
-      GetDistance(object) < 150 
-   then
-      empower = StateObj(object)
-   end   
-
+	PersistBuff("counter", object, "jaxdodger")
+	PersistBuff("empower", object, "armsmaster_empower", 150)
 end
 
 
 local function onSpell(unit, spell)
-   if spell.target and spell.target.name == me.name and
-      me.health / me.maxHealth < .5 and
-      CanUse("might")
-   then
-      Cast("might", me)
-   end
+   -- if spell.target and spell.target.name == me.name and
+   --    me.health / me.maxHealth < .5 and
+   --    CanUse("might")
+   -- then
+   --    Cast("might", me)
+   -- end
 end
 
 AddOnCreate(onObject)

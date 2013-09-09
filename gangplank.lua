@@ -142,7 +142,6 @@ function FollowUp()
       local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
       if target then
       	if GetDistance(target) > spells["AA"].range then
-	      	PrintAction("MTT")
 	         MoveToTarget(target)
 	         return true
 	      end

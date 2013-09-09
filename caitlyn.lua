@@ -63,10 +63,8 @@ spells["headshot"] = {
    ad=0
 }
 
-local headshot = nil 
-
 function Run()
-   if Check(headshot) then
+   if P.headshot then
       spells["headshot"].ad = 1.5
    else
       spells["headshot"].ad = 0
@@ -107,7 +105,7 @@ function Action()
          me.mana > GetSpellCost("net") + GetSpellCost("trap") 
       then
          -- trap targets that are moving mostly directly toward or away from me.
-         if SSGoodTarget(target, "trap", 30) then
+         if IsGoodFireahead(target, "trap", 30) then
             PrintAction("It's a trap!", target)
             CastSpellFireahead("trap", target)            
             return true
@@ -126,7 +124,7 @@ function Action()
    local target = GetWeakest("pp", targets)
    if target then
       if IsOn("pp") and CanUse("pp") and me.mana > GetSpellCost("net") + GetSpellCost("pp") then
-         if SSGoodTarget(target, "pp") then
+         if IsGoodFireahead(target, "pp") then
             PrintAction("PP", target)
             CastSpellFireahead("pp", target)
             return true
@@ -171,12 +169,7 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if find(object.charName, "headshot_rdy") and 
-      GetDistance(object) < 50 
-   then      
-      headshot = StateObj(object)
-   end
-
+   PersistBuff("headshot", object, "headshot_rdy")
 end
 
 local function onSpell(unit, spell)

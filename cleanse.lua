@@ -46,7 +46,7 @@ local function cleanseObj(object)
 		local item = ITEMS["Quicksilver Sash"]
 		local slot = GetInventorySlot(item.id)
 		if slot and CheckCC(object, byItem) then
-			UseItem("Quicksilver Sash", me)
+			CastSpellTarget(slot, me)
 			pp("Removed "..object.charName.." with QSS.")
 			return
 		end
@@ -54,7 +54,7 @@ local function cleanseObj(object)
 		local item = ITEMS["Mercurial Scimitar"]
 		local slot = GetInventorySlot(item.id)
 		if slot and CheckCC(object, byItem) then
-			UseItem("Mercurial Scimitar", me)
+			CastSpellTarget(slot, me)
 			pp("Removed "..object.charName.." with MS.")
 			return
 		end

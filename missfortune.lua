@@ -83,7 +83,7 @@ function Run()
       return
    end
 
-   if Check(bulletTime) then
+   if P.bulletTime then
       CHANNELLING = true
       return true
    end
@@ -140,9 +140,7 @@ function Run()
 end
 
 local function onObject(object)
-   if find(object.charName, "missFortune_bulletTime") then
-      bulletTime = StateObj(object)
-   end 
+   Persist("bulletTime", object, "missFortune_bulletTime")
 end
 
 local function onSpell(object, spell)

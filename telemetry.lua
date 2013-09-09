@@ -1,3 +1,5 @@
+require "basicUtils"
+
 function GetDistance(p1, p2)
     p2 = p2 or myHero
     if not p1 or not p1.x or not p2.x then
@@ -56,6 +58,10 @@ end
 function Projection(source, target, dist) -- returns a point on the line between two objects at a certain distance
    local a = AngleBetween(source, target)   
    return {x=source.x+math.sin(a)*dist, y=source.y, z=source.z+math.cos(a)*dist}
+end
+
+function OverShoot(source, target, dist)
+   Projection(source, target, GetDistance(target)+overShoot)
 end
 
 function RelativeAngle(center, o1, o2)
@@ -127,4 +133,33 @@ function FacingMe(target)
    local x, y, z = GetFireahead(target,2,10)
    local d2 = GetDistance({x=x, y=y, z=z})
    return d2 < d1 
+end
+
+function GetMousePos()
+   return {x=GetCursorWorldX(), y=GetCursorWorldY(), z=GetCursorWorldZ()}
+end
+
+function Engaged()
+   return GetWeakEnemy("MAGIC", 300 ) ~= nil
+end
+function Alone()
+   return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
+end
+function VeryAlone()
+   return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
+end
+
+function SortByHealth(things)
+   table.sort(things, function(a,b) return a.health < b.health end)
+   return things
+end
+
+function SortByDistance(things, target)
+   table.sort(things, function(a,b) return GetDistance(a, target) < GetDistance(b, target) end)
+   return things
+end
+
+function SortByAngle(things)
+   table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
+   return things
 end
