@@ -106,11 +106,8 @@ function Action()
    local target = GetWeakEnemy('MAGIC',spells["event"].range+100)
    if target then
       if CanUse("event") then
-         local delta = {x = target.x-me.x, z = target.z-me.z}
-         local dist = math.sqrt(math.pow(delta.x,2)+math.pow(delta.z,2))
-         dist = dist + 75
-         local eSpell = {x = target.x-(spells["event"].radius/dist)*delta.x, y=target.y, z = target.z-(spells["event"].radius/dist)*delta.z}
-         CastXYZ("event", eSpell)
+         local point = Projection(me, target, GetDistance(target)-75)
+         CastXYZ("event", point)
          PrintAction("Event Horizon")
          return true
       end

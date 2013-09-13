@@ -27,7 +27,7 @@ function Run()
    end
 
    if IsOn("healing") and CanUse("heal") then
-		if healTeam() then
+		if doHeal() then
 			return true
 		end
 	end
@@ -44,7 +44,7 @@ function Action()
 	return false
 end
 
-function healTeam()
+function doHeal()
 	local maxHeal = GetSpellDamage("heal")
 
 	local bestInRangeT = nil
@@ -105,10 +105,6 @@ function healTeam()
 		PrintAction("Heal", me)
 		return true
 	end
-end
-
-function useItems()
-	UseItems()
 end
 
 SetTimerCallback("Run")

@@ -6,7 +6,7 @@ pp("\nTim's Fiddlesticks")
 pp(" - dark wind on weakest")
 pp(" - pause while draining")
 
-AddToggle("offense", {on=false, key=112, label="Offensive stance"})
+AddToggle("offense", {on=true, key=112, label="Offensive stance"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -15,31 +15,31 @@ AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0}", args=
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["fear"] = {
-  key="Q", 
-  range=575, 
-  color=violet,
-  cost={65,75,85,95,105}
+   key="Q", 
+   range=575, 
+   color=violet,
+   cost={65,75,85,95,105}
 }
 spells["drain"] = {
-  key="W", 
-  range=475,
-  color=green,
-  cost={80,90,100,110,120}
+   key="W", 
+   range=475,
+   color=green,
+   cost={80,90,100,110,120}
 }
 spells["wind"] = {
-  key="E", 
-  range=750, 
-  color=red, 
-  base={65,85,105,125,145},
-  ap=.45,
-  cost={50,70,90,110,130}
+   key="E", 
+   range=750, 
+   color=red, 
+   base={65,85,105,125,145},
+   ap=.45,
+   cost={50,70,90,110,130}
 }
 spells["crow"] = {
-  key="R", 
-  range=800, 
-  color=yellow,
-  cost={150,200,250},
-  radius=600
+   key="R", 
+   range=800, 
+   color=yellow,
+   cost={150,200,250},
+   radius=600
 }
 
 -- block spells while drain is on

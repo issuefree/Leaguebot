@@ -51,16 +51,13 @@ spells["grave"] = {
   cost=0
 }
 
-local childObj = nil
-local child = nil
-
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
    end
 
-   autoChild()
+   autocotg()
 
 	if HotKey() and CanAct() then
       UseItems()
@@ -84,33 +81,28 @@ function Run()
       end
    end
 end
-function autoChild()
-   -- SpellNameR when not tibbers is "InfernalGuardian"
-   -- SpellNameR when tibbers is "infernalguardianguide"
-   if Check(childObj) then
-      child = GetObj(childObj)
-
+function autocotg()
+   -- SpellNameR changes name when cotg is up
+   if P.cotg then
       -- find the closest target to tibbers
-      local target = SortByDistance(GetInRange(child, 1000, ENEMIES))[1]
+      local target = SortByDistance(GetInRange(P.cotg, 1000, ENEMIES))[1]
       if target then
-         childAttack(target)
+         cotgAttack(target)
       end      
-   else
-      child = nil
    end
 end
 
-local lastChildAttack = 0
-function childAttack(target)
-   if time() - lastChildAttack > 1.5 then
+local lastcotgAttack = 0
+function cotgAttack(target)
+   if time() - lastcotgAttack > 1.5 then
       CastSpellTarget("R", target)
-      lastChildAttack = time()
-      PrintAction("Child Attack", target)
+      lastcotgAttack = time()
+      PrintAction("cotg Attack", target)
    end
 end
 
 function Action()
-   if CanUse("grave") and not Check(childObj) then      
+   if CanUse("grave") and not P.cotg then      
       local target = GetMarkedTarget() or GetWeakEnemy("MAGIC", spells["grave"].range)
       if target then
          local spell = spells["grave"]
@@ -182,7 +174,6 @@ function FollowUp()
       if target then
          if GetDistance(target) > spells["AA"].range then
             MoveToTarget(target)
-            PrintAction("MTT")
             return false
          end
       else        
@@ -196,9 +187,7 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if find(object.charName, "mordekaiser_cotg_ring") then
-      childObj = StateObj(object)         
-   end
+   Persist("cotg", object, "mordekaiser_cotg_ring")
 end
 
 local function onSpell(object, spell)
