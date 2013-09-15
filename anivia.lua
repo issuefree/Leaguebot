@@ -3,24 +3,35 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Anivia")
+pp(" - Orb people")
+pp(" - Detonate orb when it's near people")
+pp(" - Spike chilled people")
+pp(" - Storm for aoe")
+pp(" - Storm for minion clear")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["orb"] = {
    key="Q", 
    range=1100, 
-   color=violet, 
+   color=blue, 
    base={60,90,120,150,180}, 
    ap=.5,
-   delay=2,
-   speed=8,
+   delay=2.5,
+   speed=8.5,
    width=80,
-   area=75
+   radius=150
 }
 spells["wall"] = {
    key="W", 
    range=1000, 
-   color=blue
+   color=yellow
 }
 spells["spike"] = {
    key="E", 
@@ -32,56 +43,118 @@ spells["spike"] = {
 spells["storm"] = {
    key="R", 
    range=625, 
-   color=yellow, 
+   color=red, 
    base={80,120,160}, 
-   ap=.25
+   ap=.25,
+   radius=400
 }
 
--- throw orb at people.
--- stun them.
--- spike people who are "frosted"
---   either detect this or spike people hit by orb or ult.
-
 function Run()
-   for _,hero in ipairs(ENEMIES) do
-      if isFrozen(hero) then
-         Circle(hero, nil, blue)
-      end
+   for _,t in ipairs(GetWithBuff("freeze", ENEMIES)) do
+      Circle(hero, nil, blue, 3)
+   end
+
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
    end
 
    if P.orb then
-      Circle(P.orb, 150, blue)
-      local inRange = GetInRange(orb[2], 150, ENEMIES)
-      if #inRange > 0 then
-         CastSpellTarget("Q", me)
+      Circle(P.orb, spells["orb"].radius, blue)
+      if CanUse("orb") then
+         local inRange = GetInRange(P.orb, spells["orb"].radius, ENEMIES)
+         if #inRange > 0 then
+            Cast("orb", me)
+            PrintAction("Detonate orb", inRange[1])
+         end
       end
    end
 
    if HotKey() then   
       UseItems()
-      
-      local target = GetWeakEnemy("MAGIC", spells['orb'].range)
-      if not P.orb and IsGoodFireahead(target, "orb") then
-         CastSpellFireahead(target, "orb")
+      if Action() then
+         return true
       end
-            
-      if CanUse("spike") then
-         local spell = spells["spike"]
-         local enemies = GetInRange(me, spell.range, ENEMIES)
-         enemies = GetWithBuff("freeze", enemies)
-         local target = GetWeakest(spell, enemies)
-         if target then
-            Cast(spell.key, target)
-         end
+   end      
+
+   if IsOn("clearminions") and CanUse("storm") and Alone() and not P.storm then
+      local hits = GetBestArea(me, "storm", 1, 0, MINIONS)
+      if (GetMPerc(me) > .33 and #hits >= 4) or
+         (GetMPerc(me) > .66 and #hits >= 3)
+      then
+         CastXYZ("storm", GetCenter(hits))
+         PrintAction("Storm for clear "..#hits)
+      end
+   end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
       end
    end
 
 end
 
+function Action()
+   if CanUse("spike") then
+      local target = GetWeakestEnemy("spike")
+      if target and WillKill("spike", target) then
+         Cast("spike", target)
+         PrintAction("Spike for execute", target)
+         return true
+      end
+
+      local enemies = GetInRange(me, "spike", ENEMIES)
+      enemies = GetWithBuff("freeze", enemies)
+      local target = GetWeakest("spike", enemies)
+      if target then
+         Cast("spike", target)
+         PrintAction("Spike chilled", target)
+         return true
+      end
+   end
+
+   if CanUse("orb") then
+      local target = GetWeakEnemy("MAGIC", spells['orb'].range)
+      if not P.orb and IsGoodFireahead(target, "orb") then
+         CastSpellFireahead("orb", target)
+         PrintAction("Orb", target)
+         return true
+      end
+   end
+
+   if CanUse("storm") and not P.storm then
+      local hits = GetBestArea(me, "storm", 1, 0, ENEMIES)
+      if #hits > 0 then
+         CastXYZ("storm", GetCenter(hits))
+         PrintAction("Storm", #hits)
+      end
+   end
+   return false
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
+         return true
+      end
+   end
+   return false
+end
+
 local function onObject(object)
---   if GetDistance(me, object) then
---      pp(object.)
    Persist("orb", object, "cryo_FlashFrost_mis")
+   Persist("storm", object, "cryo_storm_green_team")
    PersistOnTargets("freeze", object, "Global_Freeze", ENEMIES)
 end
 
