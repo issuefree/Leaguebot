@@ -49,8 +49,11 @@ function CastSpellFireahead(thing, target)
    local point = ToPoint(GetFireahead(target,spell.delay,spell.speed*SS_FUDGE))
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
-   end
+   end   
    if GetDistance(point) < GetSpellRange(spell) then
+      if IsWall(point.x, point.y, point.z) == 1 then
+         pp("Casting "..thing.." into wall.")
+      end
       CastXYZ(spell, point)
       return true
    end
@@ -281,4 +284,8 @@ function getSBDam(item, buff, needActive)
       end
    end
    return nil
+end
+
+function WillKill(thing, target)
+   return GetSpellDamage(thing, target) > target.health
 end
