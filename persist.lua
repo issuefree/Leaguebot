@@ -4,7 +4,13 @@ require "basicUtils"
 MINIONS = {}
 MYMINIONS = {}
 
-CREEPS = {}
+CREEPS = {} -- all creeps
+MINORCREEPS = {} -- minor creeps (little wolves, lizards)
+BIGCREEPS = {} -- Big wolf and big wraith and big golem
+MAJORCREEPS = {}
+
+DRAGON = {}
+BARON = {}
 
 RECALLS = {}
 TURRETS = {}
@@ -12,8 +18,6 @@ MYTURRETS = {}
 
 WARDS = {}
 
-DRAGON = {}
-BARON = {}
 
 ALLIES = {}
 ENEMIES = {}
@@ -207,17 +211,24 @@ local function updateMinions()
    end
 end
 
-local function updateCreeps()
-   for i,unit in rpairs(CREEPS) do
+local function cleanCreeps(list, names)
+   for i,unit in rpairs(list) do
       if not unit or
          unit.dead == 1 or
          unit.x == nil or 
          unit.y == nil or
-         not ListContains(unit.name, CreepNames)
+         not ListContains(unit.name, names)
       then
-         table.remove(CREEPS,i)
+         table.remove(list,i)
       end
    end
+end
+
+local function updateCreeps()
+   cleanCreeps(CREEPS, CreepNames)
+   cleanCreeps(MINORCREEPS, MinorCreepNames)
+   cleanCreeps(BIGCREEPS, BigCreepNames)
+   cleanCreeps(MAJORCREEPS, MajorCreepNames)
 end
 
 local function updateHeroes()
@@ -270,14 +281,23 @@ function createForPersist(object)
       table.insert(MYMINIONS, object)
    end
 
-   if ListContains(object.name, CreepNames, true) then
+   if ListContains(object.name, MinorCreepNames, true) then
+      table.insert(MINORCREEPS, object)
+      table.insert(CREEPS, object)
+   end
+   if ListContains(object.name, BigCreepNames, true) then
+      table.insert(BIGCREEPS, object)
+      table.insert(CREEPS, object)
+   end
+   if ListContains(object.name, MajorCreepNames, true) then
+      table.insert(MAJORCREEPS, object)
+      table.insert(CREEPS, object)
       if object.name == "Dragon" then
          Persist("DRAGON", object)
       end
       if object.name == "Worm" then
          Persist("BARON", object)
       end
-      table.insert(CREEPS, object)
    end
 
    if ( find(object.name, "OrderTurret") or
