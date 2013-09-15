@@ -94,7 +94,7 @@ function PersistBuff(name, object, charName, dist)
          PData[name] = {}
          PData[name].cn = object.charName
       elseif GetDistance(object) < 500 then
-         pp("Found "..name.." at distance "..math.floor(GetDistance(object)))
+         -- pp("Found "..name.." at distance "..math.floor(GetDistance(object)))
       end
    end
 end
@@ -110,6 +110,7 @@ function PersistOnTargets(name, object, charName, ...)
          PData[name..object.id].unit = target
          table.insert(pOn[name], name..object.id)
          -- pp("Persisting "..name.." on "..target.charName.." as "..name..object.id)
+         return target
       end
    end
 end
