@@ -58,6 +58,7 @@ function GetAAData()
         Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
         Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
         Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
+        Amumu        = { aaParticles = {"SadMummyBasicAttack"}, aaSpellName = "attack"},
         Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
     }
 end
