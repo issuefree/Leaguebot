@@ -3,6 +3,8 @@ require "timCommon"
 require "modules"
 
 pp("\nTim's Amumu")
+pp(" - Despair and Tantrum in the jungle")
+pp(" - Despair and Tantrum enemies")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
