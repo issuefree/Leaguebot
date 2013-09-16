@@ -141,7 +141,7 @@ function autoTibbers()
 
       tibbersHasTarget = false
       -- find the closest target to tibbers
-      local target = SortByDistance(GetInRange(P.tibbers, 1000, ENEMIES))[1]
+      local target = SortByDistance(GetInRange(P.tibbers, 1000, ENEMIES), P.tibbers)[1]
       if target then
          tibbersHasTarget = true
          tibbersAttack(target)
