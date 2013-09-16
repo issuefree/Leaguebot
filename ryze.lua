@@ -11,21 +11,35 @@ local attackObject = "ManaLeach_mis"
 
 spells["overload"] = {
    key="Q", 
-   range=600, 
+   range=602, 
    color=violet, 
    base={60,85,110,135,160}, 
    ap=.4, 
-   mana=.065
+   mana=.065,
+   cost=60
 }
 spells["prison"] = {
    key="W", 
-   range=600, 
+   range=601, 
    color=red,    
    base={60,95,130,165,200}, 
    ap=.6, 
-   mana=.045
+   mana=.045,
+   cost={60,70,80,90,100}
 }
-spells["flux"]     = {key="E", range=600, color=violet, base={50,70,90,110,130},  ap=.35, mana=.01}
+spells["flux"] = {
+   key="E", 
+   range=600, 
+   color=violet, 
+   base={50,70,90,110,130},  
+   ap=.35, 
+   mana=.01,
+   cost={80,90,100,110,120}
+}
+spells["power"] = {
+   key="R",
+   radius=200
+}
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
@@ -35,102 +49,114 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "overload"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-local aloneRange = 1750  -- if no enemies in this range consider yourself alone
-local nearRange = 1000    -- if no enemies in this range consider them not "near"
-
-local lastAttack = GetClock()
-
 function Run()
-   if IsRecalling(me) then
-      return
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
    end
    
-	if HotKey() and CanAct() then
-      Action()
-   end
-end
-
-function Action()
-   UseItems()
-
-
-   local target = GetWeakEnemy('MAGIC', spells["prison"].range)
-   if target and CanUse("prison") then
-      Cast("prison", target)
-      return
-   end
-
-   target = GetWeakEnemy("MAGIC", spells["overload"].range)
-   if target and CanUse("overload") then
-      Cast("overload", target)
-      return
-   end
-
-   target = GetWeakEnemy("MAGIC", spells["flux"].range)
-   if target and CanUse("flux") then
-      Cast("flux", target)
-      return
-   end
-   
-   target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target and AA(target) then
-      return
+   if HotKey() then
+      UseItems()
+      if Action() then
+         return true
+      end
    end
 
    if IsOn("lasthit") and Alone() then
-      local mp = me.mana/me.maxMana
-      if ( CanChargeTear() and mp > .33 ) or
-         mp > .66
+      if ( CanChargeTear() and GetMPerc(me) > .66 ) or
+         GetMPerc(me) > .8
       then
          if KillWeakMinion("overload") then
-            return
+            PrintAction("Overload for lasthit")
+            return true
          end
       end
+   end
 
+   if HotKey() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+end
+
+function Action()   
+   if CanUse("prison") then
+      local target = GetWeakestEnemy("prison", 50)
+      if target then
+         CheckPower(target)
+         Cast("prison", target)
+         PrintAction("Prison", target)
+         return true
+      end
+   end
+
+   if CanUse("overload") then
+      local target = GetWeakestEnemy("overload", 50)
+      if target then
+         CheckPower(target)
+         Cast("overload", target)
+         PrintAction("Overload", target)
+         return true
+      end
+   end
+
+   if CanUse("flux") then
+      local target = GetWeakestEnemy("flux", 50)
+      if target then
+         CheckPower(target)
+         Cast("flux", target)
+         PrintAction("Flux", target)
+         return true
+      end
+   end
+
+   return false   
+end
+
+function CheckPower(target)
+   if CanUse("power") then
+      if #GetInRange(target, spells["power"].radius, ENEMIES) > 0 then
+         Cast("power", me)
+         PrintAction("Power UP")
+      end
+   end
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
-         return
+         PrintAction("AA lasthit")
+         return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
-      local minions = GetInRange(me, "overload", MINIONS)
-      minions = FilterList(minions, function(item) return item.team ~= me.team end)
-      SortByHealth(minions)
-
+      local minions = SortByHealth(GetInRange(me, "overload", MINIONS))
       local minion = minions[#minions]
 
-      local mp = me.mana/me.maxMana
-      if ( CanChargeTear() and mp > .5 ) or
-         mp > .75
+      if ( CanChargeTear() and GetMPerc(me) > .5 ) or
+         GetMPerc(me) > .75
       then
          if #GetInRange(minion, 200, minions) > 0 and CanUse("flux") then
             Cast("flux", minion)
-            return
-         end
-         if minion and CanUse("overload") then
-            Cast("overload", minion)
-            return
+            PrintAction("Flux for clear")
+            return true
          end
       end
 
-      local minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
-      local minion = minions[#minions]      
-      -- hit the highest health minion
-      if minion and AA(minion) then
-         return
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
+         return true
       end
    end
 
-   if IsOn("move") then
-      MoveToCursor() 
-   end
+   return false
 end
 
 local function onObject(object)
-   if find(object.charName, attackObject) then
-      lastAttack = GetClock()
-   end
 end
 
 local function onSpell(object, spell)
