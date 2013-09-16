@@ -388,7 +388,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
 
       local score = #hits
 
-      if killScore ~= 0 then     
+      if killScore ~= 0 then
          for _,hit in ipairs(hits) do
             if GetSpellDamage(spell, hit) > hit.health then
                score = score + killScore
@@ -616,7 +616,7 @@ function SkillShot(thing, purpose)
       end
 
       -- Validate that the current favorite target is a good candidate for skillshot
-      if IsGoodFireahead(target, spell) then
+      if IsGoodFireahead(spell, target) then
          break
       end
 
@@ -640,7 +640,7 @@ function SkillShot(thing, purpose)
    return nil
 end
 
-function IsGoodFireahead(target, thing, maxAngle)
+function IsGoodFireahead(thing, target, maxAngle)
    local spell = GetSpell(thing)
    if not spell.speed then spell.speed = 20 end
    if not spell.delay then spell.delay = 2 end
@@ -723,12 +723,7 @@ function HotKey()
 end
 
 function IsRecalling(hero)
-   for _, recall in ipairs(RECALLS) do
-      if GetDistance(hero, recall) == 0 then
-         return true
-      end
-   end
-   return false
+   return HasBuff("recall", hero)
 end
 
 function getADC(list)
@@ -948,14 +943,13 @@ function GetKills(thing, list)
 end
 
 function CanChargeTear()
-   if ( GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
-        GetInventorySlot(ITEMS["Archangel's Staff"].id) or
-        GetInventorySlot(ITEMS["Manamune"].id) ) and 
-      not P.tear
-   then
-      return true
+   local slot = GetInventorySlot(ITEMS["Tear of the Goddess"].id) or
+                GetInventorySlot(ITEMS["Archangel's Staff"].id) or
+                GetInventorySlot(ITEMS["Manamune"].id)   
+   if not slot then
+      return false
    end
-   return false
+   return IsCooledDown(slot)
 end
 
 local function getWardingSlot()
