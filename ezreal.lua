@@ -4,8 +4,13 @@ require "modules"
 
 pp("\nTim's Ezreal")
 
-AddToggle("farm", {on=true, key=112, label="Farm", auxLabel="{0} / {1}", args={GetAADamage, "shot"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("harrass", {on=true, key=113, label="Harrass"})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Farm", auxLabel="{0} / {1}", args={GetAADamage, "shot"}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["shot"] = {
    key="Q", 
@@ -59,70 +64,94 @@ function Run()
 --      Circle(GetFireahead(target, 1.2, 20),100, red )
 --   end
   
-   if HotKey() then
-      UseItems()
-      if combo() then
-         return
-      end
-   end           
-   
-   if IsOn("harrass") then
-      if SkillShot("shot") then
-         return
-      end
-   end
-   
-   local nearEnemy = GetWeakEnemy("MAGIC", 1100)
-   if IsOn("farm") and not nearEnemy then
-      lastHit()
-   end
-   
-end
-
-function lastHit()
-   if KillWeakMinion("AA", 50) then
-      return true
-   end
-   if CanUse("shot") then
-      for _,minion in ipairs(GetUnblocked(me, "shot", MINIONS)) do
-         if GetSpellDamage("shot", minion) > minion.health and
---            ( GetDistance(minion) > spells["AA"].range+50 or                 
---              GetSpellDamage("AA", minion) < minion.health ) 
-            GetDistance(minion) > spells["AA"].range+50 
-         then
-            LineBetween(me, minion, spells["shot"].width)
-            CastSpellXYZ("Q", minion.x, minion.y, minion.z)
-            return true
-         end   
-      end
-   end
-   return false
-end
-
-function combo()
-   -- flux enemy if flux is over level 1 (waste of mana at low levels)
-   local target 
-   target = GetWeakEnemy("PHYSICAL", spells["flux"].range)
-   if GetSpellLevel("W") > 1 and target and CanUse("flux") then
-      local x,y,z = GetFireahead(target,2,14)
-      if GetDistance({x=x, y=y, z=z}) < spells["flux"].range then
-         CastSpellXYZ('W', x, y, z)
+   if IsOn("harrass") and CanUse("shot") then
+      local target = SkillShot("shot")
+      if target then
+         PrintAction("Shot", target)
          return true
-      end            
+      end
+   end
+
+   if HotKey() and CanAct() then
+      UseItems()
+      if Action() then
+         return true
+      end
    end
    
-   -- mystic shot   
-   if SkillShot("shot") then
+   if IsOn("lasthit") and Alone() then
+      if CanUse("shot") then
+         for _,minion in ipairs(GetUnblocked(me, "shot", MINIONS)) do
+            if WillKill("shot", minion) and
+               ( JustAttacked() or
+                 GetDistance(minion) > spells["AA"].range )
+            then
+               CastXYZ("shot", minion)
+               PrintAction("Shot for lasthit")
+               return true
+            end
+         end
+      end
+   end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+   
+end
+
+function Action()
+   local minFluxLevel = 0
+   -- flux enemy if flux is over level 1 (waste of mana at low levels)
+   if CanUse("flux") and GetSpellLevel("W") > minFluxLevel then
+      local target = GetWeakestEnemy("flux")
+      if target and IsGoodFireahead("flux", target) then
+         CastSpellFireahead("flux", target)
+         return true
+      end
+   end
+   
+   if CanUse("shot") then -- in case harass is off
+      local target = SkillShot("shot")
+      if target then
+         PrintAction("Shot", target)
+         return true
+      end
+   end
+
+   local target = GetWeakEnemy("PHYS", spells["AA"].range)
+   if AA(target) then
+      PrintAction("AA", target)
       return true
    end
 
-   -- attack
-   target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target and CanUse("AA") then
-      AttackTarget(target)
-      return true
-   end
    return false
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      MoveToCursor() 
+      PrintAction("Move")
+      return false
+   end
 end
 
 local function onObject(object)
