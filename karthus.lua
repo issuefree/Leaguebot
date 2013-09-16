@@ -13,7 +13,7 @@ spells["lay"] = {
    base={40,60,80,100,120}, 
    ap=.3, 
    radius=137.5,
-   delay=5,
+   delay=4,
    speed=0,
    cost={20,26,32,38,44}
 }
@@ -116,7 +116,7 @@ function Action()
 
    if CanUse("lay") then
       local target = GetWeakestEnemy("lay")
-      if target then
+      if target and IsGoodFireahead("lay", target) then
          CastSpellFireahead("lay", target)
          PrintAction("Lay", target)
          return true
