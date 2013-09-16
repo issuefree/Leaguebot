@@ -12,12 +12,12 @@ MAJORCREEPS = {}
 DRAGON = {}
 BARON = {}
 
-RECALLS = {}
 TURRETS = {}
 MYTURRETS = {}
 
 WARDS = {}
 
+tearTimes = {}
 
 ALLIES = {}
 ENEMIES = {}
@@ -97,10 +97,12 @@ function PersistBuff(name, object, charName, dist)
          P[name] = object
          PData[name] = {}
          PData[name].cn = object.charName
+         return true
       elseif GetDistance(object) < 500 then
          -- pp("Found "..name.." at distance "..math.floor(GetDistance(object)))
       end
    end
+   return false
 end
 
 function PersistOnTargets(name, object, charName, ...)
@@ -310,9 +312,7 @@ function createForPersist(object)
       end
    end
 
-   if find(object.charName, "TeleportHome") then
-      table.insert(RECALLS, object)
-   end
+   PersistOnTargets("recall", object, "TeleportHome", ENEMIES, ALLIES)
 
    if ListContains(object.charName, ccNames) then
       PersistOnTargets("cc", object, object.charName, ENEMIES, ALLIES)
@@ -331,15 +331,15 @@ function createForPersist(object)
    --iceborn gauntlet
    PersistBuff("iceborn", object, "bluehands_buf", 100)
 
-   --tear
-   PersistBuff("tear", object, "TearoftheGoddess", 100)
+   -- --tear
+   -- PersistBuff("tear", object, "TearoftheGoddess", 100)
+
 end
 
 function persistTick()
    updateMinions()
    updateCreeps()
    updateHeroes()
-   Clean(RECALLS, "charName", "TeleportHome")
    Clean(WARDS, "name", "Ward")
    Clean(TURRETS, "name", "Turret")
    Clean(MYTURRETS, "name", "Turret")
