@@ -13,7 +13,7 @@ pp(" - minion farming")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("capacitor", {on=true, key=113, label="Capacitor"})
-AddToggle("", {on=true, key=114, label=""})
+AddToggle("tear", {on=true, key=114, label="Charge tear"})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "hunter"}})
@@ -41,55 +41,107 @@ spells["charge"] = {
    base={75,130,185,240,295}, 
    bonusAd=.6,
    type="P",
-   delay=2,
-   speed=20,
+   delay=2.5,
+   speed=15,
    width=300
 }
 
-local charges = {}
-local chargedEnemies = {}
+local chargeTime = 0
 
 function Run()
-   updateCharges()
+
+   for i,t in ipairs(tearTimes) do
+      PrintState(i+1, t)
+   end
+
+   PrintState(4, GetCD("1"))
+
+   for _,enemy in ipairs(GetWithBuff("charge", ENEMIES)) do
+      Circle(enemy, nil, green, 3)
+   end
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
-      return
+      return true
    end
 
    if HotKey() and CanAct() then
+      UseItems()
       if Action() then
          return true
       end
    end           
-   
+
+   if CanUse("hunter") and Alone() then
+      if GetMPerc(me) > .66 or
+         ( GetMPerc(me) > .33 and CanChargeTear())
+      then
+         local minion = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))[1]
+         if minion and WillKill("hunter", minion) then
+            -- LineBetween(me, minion, spell.width)
+            CastXYZ("hunter", minion)
+            return true
+         end
+      end
+   end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   if IsOn("tear") and CanUse("hunter") and CanChargeTear() and VeryAlone() and GetMPerc(me) > .75 then
+      local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
+      if minion then
+         CastXYZ("hunter", minion)
+      else
+         CastXYZ("hunter", GetMousePos())
+      end
+      PrintAction("Hunter for charge")
+      return true
+   end
+
 end
 
 function Action()
-   UseItems()
 
    -- if I have a charged enemy just hit it. It may not be as ideal
    -- as hitting a very weak guy with a skill shot but I could miss
    -- that one and it's only 5 seconds...
-   local target = GetWeakest("hunter", GetInRange(me, spells["hunter"].lockedRange, chargedEnemies))
-   if target then
-      if IsOn("capacitor") and CanUse("capacitor") then
-         Cast("capacitor", me)
-         PrintAction("Capacitor for slow")
-         return true
-      end
-      if CanUse("hunter") then
-         CastSpellXYZ(spells["hunter"].key, target.x, target.y, target.z)
+   if CanUse("hunter") then
+      local target = GetWeakest("hunter", GetInRange(me, spells["hunter"].lockedRange, GetWithBuff("charge", ENEMIES)))
+      if target then
+         if IsOn("capacitor") and CanUse("capacitor") then
+            Cast("capacitor", me)
+            PrintAction("Capacitor for slow")
+         end
+         
+         CastXYZ("hunter", target)
+         PrintAction("Hunter charged", target)
          return true
       end
    end
 
    if CanUse("charge") then
-      local target = GetWeakEnemy("MAGIC", spells["charge"].range)
-      if target then
+      local target = GetMarkedTarget() or GetWeakestEnemy("charge")
+      if target and IsGoodFireahead("charge", target) then
          CastSpellFireahead("charge", target)
+         chargeTime = time()
          PrintAction("Drop a charge", target)
          return true
+      end
+   end
+
+   if CanUse("hunter") then
+      if time() - chargeTime < .5 then
+         PrintAction("Waiting for charge to land "..time()-chargeTime)
+      else
+         local target = SkillShot("hunter")
+         if target then
+            PrintAction("Hunter SS", target)
+            return true
+         end
       end
    end
 
@@ -99,85 +151,49 @@ function Action()
       return true
    end
 
-   if SkillShot("hunter") then
-      PrintAction("Hunter SS")
-      return true
-   end
 
+   return false
+end
+
+function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if lastHit() then
+      if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
          return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
-      local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
-      local mp = me.mana/me.maxMana
-      if ( CanChargeTear() and mp > .33 ) or
-         mp > .66
-      then
-         if minion and CanUse("hunter") then
-            CastXYZ("hunter", minion)
-            return
+      if CanUse("hunter") then
+         local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
+         local mp = GetMPerc(me)
+         if ( CanChargeTear() and mp > .33 ) or
+            mp > .66
+         then
+            if minion then
+               CastXYZ("hunter", minion)
+               PrintAction("Hunter for clear")
+               return
+            end
          end
       end
       
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      -- hit the highest health minion
-      if AA(minion) then
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
          return true
       end
    end
 
    if IsOn("move") then
-      MoveToCursor()
+      MoveToCursor() 
+      PrintAction("Move")
       return false
-   end
-   return false
-end
-
-function lastHit()
-   if KillWeakMinion("AA") then
-      return true
-   end
-   local spell = spells["hunter"]
-   if CanUse(spell) then
-      local minion = SortByHealth(GetUnblocked(me, spell, GetInRange(me, spell, MINIONS)))[1]
-      if minion and GetSpellDamage(spell, minion) > minion.health then
-         -- LineBetween(me, minion, spell.width)
-         CastXYZ("hunter", minion)
-         return true
-      end
-   end
-   return false
-end
-
-function updateCharges()
-   chargedEnemies = {}
-
-   Clean(charges, "charName", "UrgotCorrosiveDebuff")
-   for _,charge in ipairs(charges) do
-      Circle(charge, 85, green)
-
-      for _,enemy in ipairs(ENEMIES) do
-         if GetDistance(charge, enemy) < 50 then
-            table.insert(chargedEnemies, enemy)
-            break
-         end
-      end      
    end
 end
 
 local function onObject(object)
-   if find(object.charName, "UrgotCorrosiveDebuff") then
-      for _,enemy in ipairs(ENEMIES) do
-         if GetDistance(object, enemy) < 50 then
-            table.insert(charges, object)
-            break
-         end
-      end
-   end 
+   PersistOnTargets("charge", object, "UrgotCorrosiveDebuff", ENEMIES)
 end
 
 local function onSpell(object, spell)
