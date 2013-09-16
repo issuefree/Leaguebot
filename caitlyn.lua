@@ -105,7 +105,7 @@ function Action()
          me.mana > GetSpellCost("net") + GetSpellCost("trap") 
       then
          -- trap targets that are moving mostly directly toward or away from me.
-         if IsGoodFireahead(target, "trap", 30) then
+         if IsGoodFireahead("trap", target, 30) then
             PrintAction("It's a trap!", target)
             CastSpellFireahead("trap", target)            
             return true
@@ -124,7 +124,7 @@ function Action()
    local target = GetWeakest("pp", targets)
    if target then
       if IsOn("pp") and CanUse("pp") and me.mana > GetSpellCost("net") + GetSpellCost("pp") then
-         if IsGoodFireahead(target, "pp") then
+         if IsGoodFireahead("pp", target) then
             PrintAction("PP", target)
             CastSpellFireahead("pp", target)
             return true

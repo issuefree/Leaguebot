@@ -116,7 +116,7 @@ function Run()
       if target and target.health < GetSpellDamage("spark", target) then
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
-            if IsGoodFireahead(target, spell) then
+            if IsGoodFireahead(spell, target) then
                CastSpellFireahead("spark", target)
                PrintAction("KS", target)
                return true

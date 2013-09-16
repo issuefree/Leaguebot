@@ -99,7 +99,7 @@ function Action()
       
    if CanUse("axe") then
       local target = GetMarkedTarget() or GetWeakestEnemy("axe")
-      if target and IsGoodFireahead(target, "axe") then
+      if target and IsGoodFireahead("axe", target) then
          CastSpellFireahead("axe", target)
       return
    end
