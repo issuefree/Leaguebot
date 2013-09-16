@@ -99,9 +99,11 @@ function CheckShield(thing, unit, spell, type)
          end
       end
 
-      Cast(shield, spell.target)
+      if type ~= "CHECK" then
+         Cast(shield, spell.target)
+      end
       PrintAction("["..spell.target.name.."] - "..unit.name.."'s "..spell.name)
-      return true
+      return spell.target
    end
 
    local allies = GetInRange(me, shield, ALLIES)
@@ -112,9 +114,11 @@ function CheckShield(thing, unit, spell, type)
             return false
          end
 
-         Cast(shield, ally)
+         if type ~= "CHECK" then
+            Cast(shield, ally)
+         end
          PrintAction("("..ally.name..") - "..unit.name.."'s "..spell.name)
-         return true
+         return ally
       end
    end
    return false
