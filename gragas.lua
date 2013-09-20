@@ -1,11 +1,16 @@
 require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
-pp("\nTim's Template")
+pp("\nTim's Gragas")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["barrel"] = {
   key="Q", 
@@ -15,7 +20,8 @@ spells["barrel"] = {
   ap=.9,
   delay=2,
   speed=12,
-  area=375
+  radius=333,
+  cost={80,90,100,110,120}
 }
 spells["rage"] = {
   key="W"
@@ -29,7 +35,8 @@ spells["slam"] = {
   ad=.66,
   delay=2,
   speed=9,
-  area=150
+  area=150,
+  cost=75
 }
 spells["cask"] = {
   key="R", 
@@ -38,21 +45,97 @@ spells["cask"] = {
   base={200,325,450}, 
   ap=1,
   delay=2,
-  speed=9,
-  area=400
+  speed=30,
+  radius=400,
+  cost={100,125,150}
 }
 
 
 function Run()
-   if HotKey() then
+   if P.barrel then
+      Circle(P.barrel)
+   end
+
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
+   end
+
+   if P.barrel and isBarrelActive() then
+      if #GetInRange(P.barrel, spells["barrel"].radius, ENEMIES) > 0 then
+         Cast("barrel", me, true)
+         PrintAction("BOOM")
+      end
+
+      local minions = GetInRange(P.barrel, spells["barrel"].radius, MINIONS)
+      local kills = GetKills("barrel", minions)
+      if #kills > 2 then
+         Cast("barrel", me, true)
+         PrintAction("Pop to kill "..#kills.." minions")
+      end
+
+   end
+
+   if HotKey() and CanAct() then
       UseItems()
+      if Action() then
+         return true
+      end
+   end
+
+   if IsOn("lasthit") and CanUse("barrel") and not P.barrel and VeryAlone() then
+      -- lasthit with barrel if it kills 3 minions or more
+      if KillMinionsInArea("barrel", 3) then
+         PrintAction("Barrel for lasthit")
+         return true
+      end
+   end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
    end
 end
 
-local function onObject(object)
+function Action()
+   if CanUse("barrel") and not isBarrelActive() then
+
+      local target = GetWeakestEnemy("barrel")
+      if target and IsGoodFireahead("barrel", target) then
+         CastFireahead("barrel", target)
+         PrintAction("Barrel weak", target)
+         return true
+      end
+
+      local targets = SortByDistance(GetInRange(me, "barrel", ENEMIES))
+      for _,target in ipairs(targets) do
+         if IsGoodFireahead("barrel", target) then
+            CastFireahead("barrel", target)
+            PrintAction("Barrel close", target)
+            return true
+         end
+      end 
+
+   end
 end
 
-local function onSpell(object, spell)
+function FollowUp()
+end
+
+function isBarrelActive()
+   return me.SpellNameQ == "gragasbarrelrolltoggle"
+end
+
+local function onObject(object)
+  Persist("barrel", object, "gragas_barrelfoam")
+end
+
+local function onSpell(unit, spell)
+   if find(spell.name, "GragasDrunkenRage") and unit.team == me.team then
+      CHANNELLING = true
+      DoIn(function() CHANNELLING = false end, 1000, "DrunkenRage")
+   end
 end
 
 AddOnCreate(onObject)
