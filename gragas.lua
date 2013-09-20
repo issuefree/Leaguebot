@@ -14,13 +14,13 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["barrel"] = {
   key="Q", 
-  range=1100, 
+  range=1050, 
   color=violet, 
   base={85,135,185,235,285}, 
   ap=.9,
   delay=2,
   speed=12,
-  radius=333,
+  radius=325,
   cost={80,90,100,110,120}
 }
 spells["rage"] = {

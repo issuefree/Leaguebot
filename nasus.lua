@@ -45,10 +45,10 @@ spells["fire"] = {
    color=violet,
    base={55,95,135,175,215},
    ap=.6,
-   cost={70,85,100,115,130},
    radius=400,
-   delay=3,
-   speed=99
+   delay=4,
+   speed=0,
+   cost={70,85,100,115,130}
 }
 spells["fury"] = {
    key="R", 
@@ -164,7 +164,7 @@ function Action()
       PrintAction("prep for AA")
    end
    if AA(target) then
-      PrintAction("AA "..target.charName)
+      PrintAction("AA "..target.name)
       return true
    end
 

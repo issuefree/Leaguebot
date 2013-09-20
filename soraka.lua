@@ -56,12 +56,14 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
 	if me.dead == 1 then
+		PrintAction("Dead")
 		return
 	end
 		
 	Wish()
 
 	if IsRecalling(me) then
+		PrintAction("Recalling")
 		return
 	end
    

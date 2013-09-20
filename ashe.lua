@@ -48,9 +48,6 @@ spells["arrow"] = {
 local frostTime = 0
 
 function Run()
-
-   Circle(P.frost)
-
    if IsRecalling(me) or me.dead == 1 then
       return
    end
