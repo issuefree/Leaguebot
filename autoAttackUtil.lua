@@ -4,6 +4,10 @@ require "telemetry"
 local attackDelayOffset = .3
 local minAttackTime = .66
 
+function GetAARange()
+  return me.range + 100
+end
+
 function GetAAData()
     return {  
         Ahri         = { projSpeed = 1.6, aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, aaSpellName = "ahribasicattack", startAttackSpeed = "0.668",  },
