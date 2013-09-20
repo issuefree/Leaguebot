@@ -61,7 +61,7 @@ function Projection(source, target, dist) -- returns a point on the line between
 end
 
 function OverShoot(source, target, dist)
-   Projection(source, target, GetDistance(target)+overShoot)
+   return Projection(source, target, GetDistance(source, target)+dist)
 end
 
 function RelativeAngle(center, o1, o2)
