@@ -81,7 +81,13 @@ playerTeam = ""
 -- do fireahead calculations with a speedup to account for player direction changes
 SS_FUDGE = 1.33
 
-spells["AA"] = {range=me.range+GetDistance(GetMinBBox(me)), base={0}, ad=1, type="P", color=red} 
+spells["AA"] = {
+   range=me.range+GetAARange(), 
+   base={0}, 
+   ad=1, 
+   type="P", 
+   color=red
+}
 
 
 repeat
@@ -297,7 +303,9 @@ end
 -- find lowest health minion in range and smack it if it will die
 function KillWeakMinion(thing, extraRange)
    local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return nil end
+   if not spell or not CanUse(spell) then 
+      return nil 
+   end
    
    if not extraRange then extraRange = 0 end
    -- find a weak minion
@@ -577,7 +585,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    return false
 end
 
-function SkillShot(thing, purpose)
+function SkillShot(thing, purpose, nonBlocking)
    local spell = GetSpell(thing)
 
    if not CanUse(spell) then return false end
@@ -597,17 +605,21 @@ function SkillShot(thing, purpose)
       pp("No width set for.."..thing)
    end
 
-   local unblocked = GetUnblocked(me, spell, MINIONS, ENEMIES)
-
-   unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
+   local targets = {}
+   if not nonBlocking then
+      local unblocked = GetUnblocked(me, spell, MINIONS, ENEMIES)
+      targets = FilterList(unblocked, function(item) return not IsMinion(item) end)
+   else
+      targets = GetInRange(me, spell, ENEMIES)
+   end
 
    local target
-   while #unblocked > 0 do
+   while #targets > 0 do
       -- find the best target in the remaining unblocked
       if purpose == "peel" then
-         target = GetPeel({ADC, APC, me}, unblocked)
+         target = GetPeel({ADC, APC, me}, targets)
       else
-         target = GetWeakest(spell, unblocked)
+         target = GetWeakest(spell, targets)
       end
 
       -- no targets so bail out
@@ -621,9 +633,9 @@ function SkillShot(thing, purpose)
       end
 
       -- If it's not remove it from the unblocked list and try again
-      for i,t in ipairs(unblocked) do
+      for i,t in ipairs(targets) do
          if t.name == target.name then
-            table.remove(unblocked, i)
+            table.remove(targets, i)
             break
          end
       end
@@ -633,7 +645,7 @@ function SkillShot(thing, purpose)
    
    -- blast em
    if target then
-      CastSpellFireahead(spell, target)
+      CastFireahead(spell, target)
       return target
    end
 
@@ -1166,13 +1178,24 @@ function DoIn(f, millis, key)
    end
 end
 
+CHANNELBUFFER = false
 CHANNELLING = false
+
+function StartChannel(timeout)
+   if not timeout then timeout = .5 end
+   CHANNELBUFFER = true
+   DoIn(function() CHANNELBUFFER = false end, timeout, "ChannelBuffer")
+end
+
+function IsChannelling(object)
+   return CHANNELBUFFER or object
+end
 
 function OnProcessSpell(unit, spell)
    if ModuleConfig.ass then
       if me.dead == 0 and
          not Engaged() and
-         not CHANNELLING
+         not IsChannelling()
       then
          local spellShot = SpellShotTarget(unit, spell, me)
          if spellShot then
@@ -1257,7 +1280,7 @@ function TimTick()
       LOADING = false
    end
    
-   spells["AA"].range = me.range+GetDistance(GetMaxBBox(me))
+   spells["AA"].range = GetAARange()
 
    checkToggles()
    updateObjects()
