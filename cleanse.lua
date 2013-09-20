@@ -1,7 +1,9 @@
 require "Utils"
 require "timCommon"
 
-local cleanse = {"stun", "banish", "taunt", "fear", "charm", "shackle", "binding", "prison", "wither", "ultwrap", "root", "RengarEMax", "VarusRHitFlash"} 
+local cleanse = {"stun", "banish", 
+-- "taunt", 
+"fear", "charm", "shackle", "binding", "prison", "wither", "ultwrap", "root", "RengarEMax", "VarusRHitFlash"} 
 local byAbil = concat({"nethergrasp", "infiniteduress", "skarner_ult_tail_tip", "SwapArrow"}, cleanse)
 local byItem  = concat({"mordekaiser_cotg_tar", "Fizz_UltimateMissle_Orbit"}, byAbil)
 
