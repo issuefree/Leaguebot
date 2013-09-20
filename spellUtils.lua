@@ -9,11 +9,11 @@ function IsCooledDown(key)
    return me["SpellTime"..key] >= 1
 end
 
-function Cast(thing, target)
+function Cast(thing, target, force)
    local spell = GetSpell(thing)
    if not spell then spell = thing end
 
-   if not CanUse(spell) then
+   if not force and not CanUse(spell) then
       pp("can't use "..spell.key)
       pp(debug.traceback())
       return false
@@ -39,7 +39,7 @@ function CastXYZ(thing, x,y,z)
    end
 end
 
-function CastSpellFireahead(thing, target)
+function CastFireahead(thing, target)
    if not target then return false end
 
    local spell = GetSpell(thing)   
@@ -273,13 +273,13 @@ function GetSpellbladeDamage(needActive)
    return getSBDam(ITEMS["Lich Bane"], P.lichbane, needActive) or
           getSBDam(ITEMS["Trinity Force"], P.enrage, needActive) or
           getSBDam(ITEMS["Iceborn Gauntlet"], P.iceborn, needActive) or
-          getSBDam(ITEMS["Sheen"], enrage, P.needActive)
+          getSBDam(ITEMS["Sheen"], P.enrage, needActive)
 end
 
 function getSBDam(item, buff, needActive)
    local slot = GetInventorySlot(item.id)
    if slot then
-      if (needActive and buff) or CanUse(item) then
+      if buff or (not needActive and CanUse(item)) then
          return GetSpellDamage(item)
       end
    end
