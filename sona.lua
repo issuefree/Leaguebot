@@ -106,9 +106,11 @@ function Run()
       end
 
       if CanUse("blue") and not CanUse("violet") and VeryAlone() then
-         if GetMPerc(me) > .75 and CanChargeTear() then
-            Cast("blue", me)
-            return true
+         if #GetInRange(me, "blue", CREEPS, MINIONS) == 0 then
+            if GetMPerc(me) > .75 and CanChargeTear() then
+               Cast("blue", me)
+               return true
+            end
          end
       end
    end
