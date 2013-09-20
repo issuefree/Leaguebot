@@ -16,8 +16,9 @@ spells["binding"] = {
    base={80,135,190,245,300}, 
    ap=.9,
    delay=2,
-   speed=20,
-   width=90
+   speed=12,
+   width=90,
+   cost={50,60,70,80,90}
 }
 spells["soil"] = {
    key="W", 
@@ -25,21 +26,24 @@ spells["soil"] = {
    color=violet, 
    base={25,40,55,70,85}, 
    ap=.2,
-   radius=300
+   radius=300,
+   cost={70,85,100,115,130}
 }
 spells["shield"] = {
    key="E", 
    range=750, 
    color=blue, 
    base={95,160,225,290,355}, 
-   ap=.7
+   ap=.7,
+   cost=50
 }
 spells["shackles"] = {
    key="R", 
    range=600, 
    color=red, 
    base={175,250,325}, 
-   ap=.7
+   ap=.7,
+   cost=100
 }
 
 local Q = spells["binding"]
@@ -78,12 +82,13 @@ function Run()
       
       local targets = GetInRange(me, W.range, ENEMIES)
       if #targets > 0 and CanUse("soil") and IsOn("soil") then
-         if not CanUse("binding") or GetClock() - lastBinding > 1000 then            
+         if not CanUse("binding") then            
             for _,target in ipairs(targets) do
-               local x,y,z = GetFireahead(target, 2, 99)
-               if GetDistance(target, {x=x, y=y, z=z}) < W.radius/4 then
-                  CastSpellXYZ("W", x, y, z)
-                  break
+               local point = ToPoint(GetFireahead(target, 2.5, 0))
+               if GetDistance(target, point) < W.radius/4 then
+                  CastXYZ("soil", point)
+                  PrintAction("Soil unmoving target", target)
+                  return true
                end
             end
          end 
@@ -97,7 +102,8 @@ local function onObject(object)
       if IsOn("soil") and CanUse("soil") then
          for _,enemy in ipairs(ENEMIES) do
             if GetDistance(object, enemy) < 50 then
-               CastSpellTarget("W", object)
+               Cast("soil", object)
+               PrintAction("Soil", object)
                break
             end
          end
@@ -110,7 +116,7 @@ local function onSpell(unit, spell)
       CheckShield("shield", unit, spell, "MAGIC")
    end
    
-   if object.name == me.name and find(spell.name, "darkbinding") then
+   if unit.name == me.name and find(spell.name, "darkbinding") then
       lastBinding = GetClock()
    end
 end
