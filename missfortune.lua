@@ -8,16 +8,28 @@ function doubleUpDam()
    return GetSpellDamage("double")*1.2
 end
 
-AddToggle("farm", {on=false, key=112, label="Auto Farm"})
-AddToggle("double", {on=false, key=113, label="DoubleUp Enemies", auxLabel="{0}", args={doubleUpDam}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+-- AddToggle("double", {on=false, key=113, label="DoubleUp Enemies", auxLabel="{0}", args={doubleUpDam}})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["double"] = {
    key="Q", 
    range=spells["AA"].range, 
    color=violet, 
-   base={25,60,95,130,165},
-   ad=.75,
+   base={30,72,114,156,198},
+   ad=.9,
    type="P",
+   cost={70,75,80,85,90},
+   radius=500
+}
+spells["impure"] = {
+   key="W",
+   base={6,8,10,12,14},
+   ap=.05,
    cost=50
 }
 spells["rain"] = {
@@ -27,7 +39,7 @@ spells["rain"] = {
    base={90,145,195,255,310}, 
    ap=.8,
    radius=200,
-   cost=50
+   cost=80
 }
 spells["bullet"] = {
    key="R", 
@@ -38,12 +50,6 @@ spells["bullet"] = {
    ap=1.6,
    cost=100
 }
-
-local Q = spells["double"]
-local E = spells["rain"]
-local R = spells["bullet"]
-
-local bulletTime
 
 function GetBestDouble(target, targets, goodTargets)
    if not goodTargets then
@@ -83,21 +89,50 @@ function Run()
       return
    end
 
-   if P.bulletTime then
+   if IsChannelling(P.bulletTime) then
       CHANNELLING = true
       return true
+   end
+   if CHANNELLING then
    end
    CHANNELLING = false
 
    if HotKey() and CanAct() then
       UseItems()
+      if Action() then
+         return true
+      end
+   end   
+
+   -- if IsOn("lasthit") and Alone() then
+   --    if CanUse("double") then
+   --       local minions = SortByHealth(GetInRange(me, "double", MINIONS))
+   --       local lowMinions = GetKills("double", GetInRange(me, GetSpellRange("double")+spells["double"].radius, MINIONS))
+   --       for _,t in ipairs(minions) do
+   --          local bta = GetBestDouble(t, minions, lowMinions)
+   --          if bta then
+   --             Cast("double", t)
+   --             PrintAction("Double for lasthit")
+   --             return true
+   --          end
+   --       end
+   --    end
+   -- end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
    end
    
-   if CanUse("double") and (IsOn("double") or HotKey()) then 
+end
+
+function Action()
+   if CanUse("double") then 
       local bestDT
       local bestDTA
       for _,t in ipairs(GetInRange(me, GetSpellRange("double")+250, MINIONS, ENEMIES)) do
-         local doubleTargets = GetInRange(t, 500, MINIONS, ENEMIES) 
+         local doubleTargets = GetInRange(t, spells["double"].radius, MINIONS, ENEMIES) 
          local bt, bta = GetBestDouble(t, doubleTargets, ENEMIES)
          if bt then
             Circle(t, 60, blue)
@@ -116,34 +151,57 @@ function Run()
       end
    end
 
-   if IsOn("farm") and Alone() then
-      KillWeakMinion("AA")
-      if CanUse("double") then
-         local minions = SortByHealth(GetInRange(me, "double", MINIONS))
-         local lowMinions = FilterList(
-            GetInRange(me, Q.range+500, MINIONS), 
-               function(item) 
-                  return item.health < GetSpellDamage("double", item) 
-               end
-         )
-         for _,t in ipairs(minions) do
-            local bta = GetBestDouble(t, minions, lowMinions)
-            if bta then
-               Cast("double", t)
-               PrintAction("Double for lasthit")
-               return true
-            end
-         end
+   if CanUse("impure") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      if target then
+         Cast("impure", me)         
+         PrintAction("Impure")
       end
    end
-   
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AA(target) then
+      PrintAction("AA", target)
+      return true
+   end
+
+   return false
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         PrintAction("lasthit")
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("clear with AA")
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      PrintAction("move")
+      MoveToCursor()
+      return false   
+   end
+
+   return false
 end
 
 local function onObject(object)
    Persist("bulletTime", object, "missFortune_bulletTime")
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
+   if unit.charName == me.charName and find(spell.name, "MissFortuneBulletTime") then
+      StartChannel()
+   end
 end
 
 AddOnCreate(onObject)
