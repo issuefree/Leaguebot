@@ -115,7 +115,7 @@ function Action()
       -- barring that throw it at the weakest single
       local target = GetMarkedTarget() or GetWeakestEnemy("rupture")
       if target then
-         CastSpellFireahead("rupture", target)
+         CastFireahead("rupture", target)
          PrintAction("Rupture", target)
          return true
       end

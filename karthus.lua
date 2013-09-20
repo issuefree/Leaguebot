@@ -37,17 +37,13 @@ spells["ult"] = {
    cost={150,175,200}
 }
 
-local function getLayFireAhead(target)
-   return GetFireahead(target,5,999)
-end
-
 function Run()
    if IsRecalling(me) then
       return
    end
 
    local target = GetWeakEnemy("MAGIC", 90000) 
-   if target and CanUse("ult") and GetSpellDamage("ult", target) > target.health then
+   if target and CanUse("ult") and WillKill("ult", target) then
       PlaySound("Beep")
    end 
      
@@ -74,8 +70,7 @@ function Run()
                if not wMinion or wMinionK < 1 then
                   wMinion = minion
                   wMinionK = 1
-                  local x, y, z = getLayFireAhead(wMinion)
-                  wMinionX = {x=x,y=y,z=z}
+                  wMinionX = GetFireahead("lay", wMinion)
                   Circle(wMinionX, spells["lay"].radius, red, 2)
                end
             end
@@ -88,8 +83,7 @@ function Run()
             if wMinionK < tK then
                wMinion = minion
                wMinionK = tK
-               local x, y, z = getLayFireAhead(wMinion)
-               wMinionX = {x=x,y=y,z=z}
+               wMinionX = GetFireahead("lay", wMinion)
             end
          end
       end
@@ -117,7 +111,7 @@ function Action()
    if CanUse("lay") then
       local target = GetWeakestEnemy("lay")
       if target and IsGoodFireahead("lay", target) then
-         CastSpellFireahead("lay", target)
+         CastFireahead("lay", target)
          PrintAction("Lay", target)
          return true
       end

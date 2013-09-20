@@ -142,7 +142,7 @@ function Action()
    if CanUse("ooze") then
       local target = GetMarkedTarget() or GetWeakestEnemy("ooze")
       if target then
-         if CastSpellFireahead("ooze", target) then
+         if CastFireahead("ooze", target) then
             PrintAction("Ooze", target)
             return true
          end
@@ -169,7 +169,7 @@ function Action()
             GetSpellDamage(artillery, target) > target.health or
             GetHPerc(target) < tManaP*2
          then
-            if CastSpellFireahead("artillery", target) then
+            if CastFireahead("artillery", target) then
                PrintAction("Artillery", target)
                return true
             end

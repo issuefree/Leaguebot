@@ -88,7 +88,7 @@ function Action()
          -- plant traps
          local target = GetWeakestEnemy("trap")
          if target then
-            if CastSpellFireahead("trap", target) then
+            if CastFireahead("trap", target) then
                PrintAction("It's a trap")
                return true
             end

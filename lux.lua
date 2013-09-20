@@ -117,7 +117,7 @@ function Run()
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
             if IsGoodFireahead(spell, target) then
-               CastSpellFireahead("spark", target)
+               CastFireahead("spark", target)
                PrintAction("KS", target)
                return true
             end
@@ -136,7 +136,7 @@ function Run()
             PrintAction("Pop to kill", enemy)
             break
          end
-         local nextPos = ToPoint(GetFireahead(enemy, 4, 99))
+         local nextPos = ToPoint(GetFireahead(enemy, 4, 0))
          if GetDistance(P.singularity, nextPos) > spell.radius then
             Cast(spell, me)
             PrintAction("Pop escapees")
@@ -201,7 +201,7 @@ function Action()
       -- barring that throw it at the weakest single
       local target = GetWeakestEnemy("singularity")
       if target then
-         CastSpellFireahead("singularity", target)
+         CastFireahead("singularity", target)
          PrintAction("Singularity", target)
          return true
       end
@@ -321,7 +321,7 @@ function checkBarrier(unit, spell)
             end
          end
       end
-      CastSpellFireahead("barrier", target)
+      CastFireahead("barrier", target)
       PrintAction("Shield", target)
    end
 end

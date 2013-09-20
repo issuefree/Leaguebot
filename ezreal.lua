@@ -108,7 +108,7 @@ function Action()
    if CanUse("flux") and GetSpellLevel("W") > minFluxLevel then
       local target = GetWeakestEnemy("flux")
       if target and IsGoodFireahead("flux", target) then
-         CastSpellFireahead("flux", target)
+         CastFireahead("flux", target)
          return true
       end
    end

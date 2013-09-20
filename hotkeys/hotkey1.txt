@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=morde.lua
+LALT LOADSCRIPT=zilean.lua
  
  
  

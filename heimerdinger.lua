@@ -106,14 +106,14 @@ function Action()
 
    if CanUse("grenade") then
       if IsGoodFireahead("grenade", EADC) then
-         CastSpellFireahead("grenade", EADC)
+         CastFireahead("grenade", EADC)
          PrintAction("Grenade ADC", EADC)
          return true
       end
       local targets = SortByHealth(GetInRange(me, "grenade", ENEMIES))
       for _,target in ipairs(targets) do
          if IsGoodFireahead("grenade", target) then
-            CastSpellFireahead("grenade", target)
+            CastFireahead("grenade", target)
             PrintAction("Fire in the hole", target)
             return true
          end

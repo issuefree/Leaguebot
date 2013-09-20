@@ -117,7 +117,7 @@ function Action()
    if CanUse("orb") then
       local target = GetWeakEnemy("MAGIC", spells['orb'].range)
       if not P.orb and IsGoodFireahead("orb", target) then
-         CastSpellFireahead("orb", target)
+         CastFireahead("orb", target)
          PrintAction("Orb", target)
          return true
       end

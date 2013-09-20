@@ -126,7 +126,7 @@ function Action()
    if CanUse("charge") then
       local target = GetMarkedTarget() or GetWeakestEnemy("charge")
       if target and IsGoodFireahead("charge", target) then
-         CastSpellFireahead("charge", target)
+         CastFireahead("charge", target)
          chargeTime = time()
          PrintAction("Drop a charge", target)
          return true

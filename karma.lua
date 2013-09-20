@@ -115,7 +115,7 @@ function Action()
             if GetSpellDamage("flame", target) < target.health and
                GetSpellDamage("flame", target) + GetSpellDamage("soulflare", target) > target.health then
                Cast("mantra", me)
-               CastSpellFireahead("flame", target)
+               CastFireahead("flame", target)
                PrintAction("Soulflare for execute", target)
                return true
             end
@@ -131,7 +131,7 @@ function Action()
          end
          if bestT then
             Cast("mantra", me)
-            CastSpellFireahead("flame", bestT)
+            CastFireahead("flame", bestT)
             PrintAction("Soulflare for aoe", bestT)
             return true
          end
