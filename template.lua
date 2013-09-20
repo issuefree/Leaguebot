@@ -54,6 +54,8 @@ function Run()
          return true
       end
    end
+
+   PrintAction()
 end
 
 function Action()
@@ -95,7 +97,7 @@ function FollowUp()
 -- ranged
    if IsOn("move") then
       MoveToCursor() 
-      PrintAction("Move")
+      -- PrintAction("Move")
       return false
    end
 
