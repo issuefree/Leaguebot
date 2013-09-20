@@ -1,9 +1,11 @@
-LALT LOADSCRIPT=template.lua
- 
- 
- 
- 
- 
- 
- 
- 
+LALT LOADSCRIPT=irelia.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
