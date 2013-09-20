@@ -54,19 +54,24 @@ Ganking
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
 
    if HotKey() and CanAct() then
-      Action()
+      UseItems()
+      if Action() then
+         return true
+      end
    end
 
-   if IsOn("lasthit") then
-      if me.health/me.maxHealth > .75 and KillWeakMinion("swing") then
+   if IsOn("lasthit") and Alone() then
+      if GetHPerc(me) > .75 and KillWeakMinion("swing") then
          PrintAction("Swing for lasthit")
          return true
       end
       if KillMinionsInLine("axe", 2) then
+         PrintAction("Axe for lasthit")
          return true
       end
    end
@@ -84,65 +89,87 @@ function Run()
                   local x = me.x+d*math.sin(a)
                   local z = me.z+d*math.cos(a)
                   CastXYZ("axe", x, 0, z)
+                  PrintAction("Axe for jungle")
                   break
                elseif CanUse("swing") then
-                  CastSpellTarget("E", creep)
+                  Cast("swing", creep)
+                  PrintAction("Swing for jungle", creep)
                end
             end
          end
       end
    end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   PrintAction()
 end
 
 function Action()   
-   UseItems()
-      
-   if CanUse("axe") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("axe")
-      if target and IsGoodFireahead("axe", target) then
-         CastSpellFireahead("axe", target)
-      return
+   if CanUse("axe") then      
+      local target = SkillShot("axe", nil, true)
+      if target then
+         PrintAction("Axe", target)
+         return true
+      end
    end
       
    local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+50)
    if aaTarget then
       if CanUse("strikes") then
          Cast("strikes", me)
+         PrintAction("Strikes up")
       end
 
       if CanUse("swing") then
          Cast("swing", aaTarget)
+         PrintAction("Swing", aaTarget)
          return true
       end
 
       if AA(aaTarget) then
+         PrintAction("AA", target)
          return true
       end
    end
 
+   return false
+end
+
+function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
          return true
       end
    end
+
    if IsOn("clearminions") and Alone() then
       if me.mana/me.maxMana > .75 then
          if HitMinionsInLine("axe", 3) then
+            PrintAction("Axe for clear")
             return true
          end
       elseif me.mana/me.maxMana > .66 then
          if HitMinionsInLine("axe", 4) then
+            PrintAction("Axe for clear")
             return true
          end
       elseif me.mana/me.maxMana > .5 then
          if HitMinionsInLine("axe", 5) then
+            PrintAction("Axe for clear")
             return true
          end
       end
 
-      if me.health/me.maxHealth < .75 then
+      if GetHPerc(me) < .75 then
          if CanUse("strikes") and #GetInRange(me, "swing", MINIONS) >= 2 then
             Cast("strikes", me)
+            PrintAction("Strikes for clear")
          end
       end
 
@@ -163,10 +190,11 @@ function Action()
          end
       else        
          MoveToCursor() 
-         PrintAction("Move")
+         -- PrintAction("Move")
          return true
       end
    end
+   return false
 end
 
 local function onObject(object)
