@@ -16,7 +16,7 @@ spells["dis"] = {
 }
 spells["inc"] = {
    key="W", 
-   range=600, 
+   range=550, 
    color=red,    
    base={80,130,180,230,280},
    cost={70,80,90,100,110}, 
