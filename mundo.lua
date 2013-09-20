@@ -4,11 +4,6 @@ require "modules"
 
 pp("Tim's Mundo")
 
-local berserkToggleTime = GetClock()
-function getBerserkTime()
-	return math.floor(10.5 - (GetClock() - berserkToggleTime)/1000)
-end
-
 spells["cleaver"] = {
    key="Q", 
    range=1000, 
@@ -46,88 +41,115 @@ function getMasochismDamage()
    return damage
 end
 
-AddToggle("berserk", {on=false, key=112, label="BERSERK", auxLabel="{0}", args={getBerserkTime}})
-AddToggle("cook",    {on=true,  key=113, label="Cook minions", auxLabel="{0}", args={"agony"}})
-AddToggle("butcher", {on=true,  key=114, label="Butcher minions", auxLabel="{0}", args={"cleaver"}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("lasthit", {on=true,  key=116, label="Cook / Butcher minions", auxLabel="{0} / {1}", args={"agony", "cleaver"}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
--- holder for my burning agony object
-local burningAgony = nil
 
 function Run()
-	updateObjects()
-
-	if GetWeakEnemy("MAGIC", 1200) or not IsOn("berserk") then
-		berserkToggleTime = GetClock()
-	elseif GetClock() - berserkToggleTime > 10000 then
-		keyToggles["berserk"].on = false
-	end   
-
-	if HotKey() then
-      UseItems()
-      
---      if not SkillShot("cleaver", "peel") then
-         SkillShot("cleaver")
---      end
-      
-      if IsOn("berserk") then
-         local target = GetWeakEnemy("PHYSICAL", 350)
-         if target then
-            if CanUse("masochism") then
-               CastSpellTarget(spells["masochism"].key, me)
-            end
-            if not burningAgony and CanUse("agony") then
-               CastSpellTarget(spells["agony"].key, me)
-            end
-
-            AttackTarget(target)
-         else
-            target = GetWeakEnemy("PHYSICAL", 1000)
-            if target then
-               AttackTarget(target)
-            end
-         end
-      end
-	end
-
-   if IsOn("cook") and not burningAgony and CanUse("agony") then
-   	for _,minion in ipairs(MINIONS) do
-   		if GetDistance(me, minion) < spells["agony"].range and 
-   		   GetSpellDamage("agony", minion) > minion.health
-   		then
-   			CastSpellTarget(spells["agony"].key, me)
-   			break				
-   		end
-   	end
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
    end
 
-   local target = GetWeakEnemy("MAGIC", 750)
-   if IsOn("butcher") and not HotKey() and not target then
-      local cleaver = spells["cleaver"]	
-   	for _,minion in ipairs(GetUnblocked(me, cleaver, MINIONS)) do
-   		if GetDistance(minion) > spells["agony"].range and 
-   		   GetSpellDamage(cleaver, minion) > minion.health 
-   		then
-      		LineBetween(me, minion, cleaver.width)
-      		if CanUse(cleaver) then
-   			   CastSpellXYZ(cleaver.key, minion.x, minion.y, minion.z)
-   			end
- 			   break
-   		end	
-   	end
-	end
+   if HotKey() and CanAct() then
+      UseItems()
+      if Action() then
+         return true
+      end
+   end
+
+   if IsOn("lasthit") and not P.burning and CanUse("agony") then
+      for _,minion in ipairs(GetInRange(me, "agony", MINIONS)) do
+         if WillKill("agony", minion) then
+            Cast("agony", me)
+            PrintAction("Cook the minions")
+            return true
+         end
+      end
+   end
+
+   if IsOn("lasthit") and Alone() and CanUse("cleaver") then
+      for _,minion in ipairs(GetUnblocked(me, "cleaver", MINIONS)) do
+         if GetDistance(minion) > spells["agony"].range and 
+            WillKill("cleaver", minion)
+         then
+            LineBetween(me, minion, spells["cleaver"].width)
+            CastXYZ("cleaver", minion)
+            PrintAction("Butcher minion")
+            return true
+         end
+      end
+   end
+
+   if HotKey() and CanAct() then
+      UseItems()
+      if FollowUp() then
+         return true
+      end
+   end
+end
+
+function Action()
+   local target = SkillShot("cleaver")
+   if target then
+      PrintAction("Cleaver", target)
+      return true
+   end
+   
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   if target then
+      if CanUse("masochism") then
+         Cast("masochism", me)
+         PrintAction("I hurt me to hurt them")
+      end
+      
+      if not P.burning and CanUse("agony") then
+         Cast("agony", me)
+         PrintAction("Burn in my agony")
+      end
+
+      if AA(target) then
+         PrintAction("AA", target)
+         return true
+      end
+   end
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillWeakMinion("AA") then
+         PrintAction("AA lasthit")
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      -- hit the highest health minion
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      if AA(minions[#minions]) then
+         PrintAction("AA clear minions")
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
+      if target then
+         if GetDistance(target) > spells["AA"].range then
+            MoveToTarget(target)
+            return false
+         end
+      else        
+         MoveToCursor() 
+         PrintAction("Move")
+         return false
+      end
+   end
 end
 
 function checkBurning(object)
-	if find(object.charName, "burning_agony") and GetDistance(me, object) < 100 then
-		burningAgony = object
-	end
-end
-
-function updateObjects()
-	if burningAgony and burningAgony.x and burningAgony.z and GetDistance(me, burningAgony) < 50 then
-	else
-		burningAgony = nil
-	end
+   PersistBuff("burning", object, "dr_mundo_burning_agony")
 end
 
 AddOnCreate(checkBurning)
