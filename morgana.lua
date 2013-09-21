@@ -6,8 +6,8 @@ require "support"
 pp("\nTim's Morgana")
 
 AddToggle("shield", {on=true, key=112, label="Auto Shield"})
-AddToggle("bind", {on=true, key=113, label="Auto Bind"})
-AddToggle("soil", {on=true, key=114, label="Auto Soil"})
+AddToggle("soil", {on=true, key=113, label="Auto Soil"})
+AddToggle("", {on=true, key=114, label=""})
 
 spells["binding"] = {
    key="Q", 
@@ -46,79 +46,73 @@ spells["shackles"] = {
    cost=100
 }
 
-local Q = spells["binding"]
-local W = spells["soil"]
-local E = spells["shield"]
-local R = spells["shackles"]
-
 -- shield if someone is going to be hit by a stun
 -- shield other random spells
 -- binding people
 -- soil people
 
-local lastBinding = GetClock()
-
 function Run()
---   local testTarget = GetMousePos()
---   local testFA = {x=testTarget.x + 500, y = testTarget.y, z = testTarget.z}
---   
---   DrawCircle(testTarget.x, testTarget.y, testTarget.z, 100, yellow)
---   DrawCircle(testFA.x, testFA.y, testFA.z, 100, violet)
---   
---   local attack = (math.abs( AngleBetween(testTarget, me) - AngleBetween(testTarget, testFA) )*180/math.pi)
---   attack = math.abs((attack-90))
---   pp(attack)
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
+   end
    
-   if HotKey() then
+   if HotKey() and CanAct() then
       UseItems()
-      
-      if IsOn("bind") then
-         if not SkillShot("binding", "peel") then
-            SkillShot("binding")
-         end
+      if Action() then
+         return true
       end
-      
-      -- try just soiling things I bind
-      
-      local targets = GetInRange(me, W.range, ENEMIES)
-      if #targets > 0 and CanUse("soil") and IsOn("soil") then
-         if not CanUse("binding") then            
-            for _,target in ipairs(targets) do
-               local point = ToPoint(GetFireahead(target, 2.5, 0))
-               if GetDistance(target, point) < W.radius/4 then
-                  CastXYZ("soil", point)
-                  PrintAction("Soil unmoving target", target)
-                  return true
-               end
-            end
-         end 
+   end
+
+   if IsOn("soil") and CanUse("soil") then
+      local target = 
+         SortByHealth( 
+            GetWithBuff("cc", 
+               GetInRange(me, GetSpellRange("soil")+spells["soil"].radius-25, ENEMIES) ) )[1]
+      if target then
+         -- If they're out of range cast where the edge of soil will hit em
+         local point = Projection(me, target, math.min(GetDistance(target), GetSpellRange("soil")))
+         CastXYZ("soil", point)
+         PrintAction("Soil ccd", target)
+         return true
       end
-      
+   end
+
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   PrintAction()
+end
+
+function Action()
+   if CanUse("bind") then
+      local target = SkillShot("binding", "peel")
+      if target then
+         PrintAction("Binding for peel", target)
+         return true
+      end
+      local target = SkillShot("binding")
+      if target then
+         PrintAction("Binding", target)
+         return true
+      end
    end
 end
 
+function FollowUp()
+
+end
+
 local function onObject(object)
-   if find(object.charName, "DarkBinding") then
-      if IsOn("soil") and CanUse("soil") then
-         for _,enemy in ipairs(ENEMIES) do
-            if GetDistance(object, enemy) < 50 then
-               Cast("soil", object)
-               PrintAction("Soil", object)
-               break
-            end
-         end
-      end
-   end 
 end
 
 local function onSpell(unit, spell)
    if IsOn("shield") then
       CheckShield("shield", unit, spell, "MAGIC")
-   end
-   
-   if unit.name == me.name and find(spell.name, "darkbinding") then
-      lastBinding = GetClock()
-   end
+   end   
 end
 
 AddOnCreate(onObject)
