@@ -663,7 +663,7 @@ function IsGoodFireahead(thing, target, maxAngle)
    end
 
    if not maxAngle then
-      maxAngle = 70
+      maxAngle = 60
    end
 
    -- up speed by 20% so we don't get quite so much leading
@@ -677,7 +677,7 @@ function IsGoodFireahead(thing, target, maxAngle)
       return false
    end
    
-   if GetDistance(target, point) < 150 then
+   if GetDistance(target, point) < 50 then
 --      pp(target.name.." target not moving KILLIT")
       return true
    end
@@ -738,31 +738,6 @@ function IsRecalling(hero)
    return HasBuff("recall", hero)
 end
 
-function getADC(list)
-   local value = 0
-   local adc
-   for i,test in ipairs(list) do
-      local tValue = test.addDamage + (test.armorPen + test.armorPenPercent)*5 + test.attackspeed*10    
-      if tValue > value then
-         value = tValue
-         adc = test
-      end
-   end
-   return adc
-end
-
-function getAPC(list)
-   local value = 0
-   local apc
-   for i,test in ipairs(list) do
-      local tValue = test.ap + (test.magicPen + test.magicPenPercent)*5    
-      if tValue > value then
-         value = tValue
-         apc = test
-      end
-   end
-   return apc
-end
 
 function GetInRange(target, thing, ...)
    local range
@@ -990,7 +965,7 @@ local wardCastTime = time()
 function WardJump(thing)
    local spell = GetSpell(thing)
    if not CanUse(spell) then
-      return
+      return false
    end
    local ward = nil
 
@@ -1008,13 +983,15 @@ function WardJump(thing)
          local wardSlot = getWardingSlot()
          if wardSlot then
             CastXYZ(wardSlot, mousePos)
+            PrintAction("Throw ward")
             wardCastTime = time()
          end
-         return
+         return true
       end
    else
       -- Cast can't target wards as they're not visible
-      CastSpellTarget(spell.key, ward)
+      Cast(spell, ward)
+      PrintAction("Jump to ward")
       return true
    end
    return false
