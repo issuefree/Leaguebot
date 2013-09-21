@@ -44,7 +44,7 @@ ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15}
 ITEMS["Kitae's Bloodrazor"]= {id=3186}
 
 ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
-ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=1.5, type="P"}
+ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=2, type="P"}
 ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75}
 ITEMS["Iceborn Gauntlet"] = {id=3025, base={0}, adBase=1.25, type="P"}
 
