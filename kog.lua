@@ -51,8 +51,8 @@ spells["artillery"] = {
   base={80,120,160},
   ap=.3,
   bonusAd=.5,
-  delay=9,
-  speed=99,
+  delay=8,
+  speed=0,
   radius=200,
   cost=40
 }
@@ -81,7 +81,7 @@ local function updateSpells()
       end
    end
 
-   if time() - lastArtillery > 6 then
+   if time() - lastArtillery > 6.25 then
       artilleryCount = 0
    end
    spells["artillery"].cost = math.min((artilleryCount+1)*40, 400)
@@ -133,8 +133,6 @@ function Action()
          if Cast("spittle", target) then
             PrintAction("Spittle", target)
             return true
-         else
-            PrintAction("Failed spittle", target)
          end
       end
    end
@@ -150,7 +148,7 @@ function Action()
    end
 
    if CanUse("barrage") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", getBarrageRange())
+      local target = GetWeakEnemy("PHYS", getBarrageRange())
       if target then
          Cast("barrage", me)
          PrintAction("Barrage")
@@ -166,7 +164,7 @@ function Action()
       then
          if artilleryCount == 0 or 
             GetMPerc(me) > .5 or
-            GetSpellDamage(artillery, target) > target.health or
+            GetSpellDamage("artillery", target) > target.health or
             GetHPerc(target) < tManaP*2
          then
             if CastFireahead("artillery", target) then
