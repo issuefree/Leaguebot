@@ -94,7 +94,7 @@ function CheckShield(thing, unit, spell, type)
    then
       if type == "MAGIC" then
          local shot = GetSpellShot(unit.name, spell.name)
-         if shot and shot.physical then
+         if not shot or shot.physical then
             return false
          end
       end
