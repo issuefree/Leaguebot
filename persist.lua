@@ -346,5 +346,30 @@ function persistTick()
    CleanPersistedObjects()
 end
 
+function getADC(list)
+   local value = 0
+   local adc
+   for i,test in ipairs(list) do
+      local tValue = test.addDamage + (test.armorPen + test.armorPenPercent)*5 + test.attackspeed*10    
+      if tValue > value then
+         value = tValue
+         adc = test
+      end
+   end
+   return adc
+end
+
+function getAPC(list)
+   local value = 0
+   local apc
+   for i,test in ipairs(list) do
+      local tValue = test.ap + (test.magicPen + test.magicPenPercent)*5    
+      if tValue > value then
+         value = tValue
+         apc = test
+      end
+   end
+   return apc
+end
 
 SetTimerCallback("persistTick")
