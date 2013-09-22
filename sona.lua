@@ -10,7 +10,7 @@ AddToggle("tear", {on=true, key=114, label="Charge Tear / Fastwalk"})
 
 spells["blue"] = {
    key="Q", 
-   range=825, 
+   range=800, 
    color=blue, 
    base={50,100,150,200,250}, 
    ap=.7,
