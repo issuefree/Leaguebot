@@ -7,7 +7,8 @@ spells["blades"] = {
    range=675, 
    color=violet, 
    base={60,85,110,135,160}, 
-   ap=.45
+   ap=.45,
+   name="KatarinaQ"
 }
 spells["dagger"] = {
    key="Q",
@@ -20,7 +21,8 @@ spells["sinister"] = {
    color=red,
    base={40,75,110,145,180},
    ap=.25,
-   adBonus=.6
+   adBonus=.6,
+   name="KatarinaW"
 }
 spells["shunpo"] = {
    key="E", 
@@ -35,15 +37,23 @@ spells["lotus"] = {
    color=red,
    base={400,500,600},
    ap=2,
-   adBonus=3
+   adBonus=3,
+   name="KatarinaE"
 }
 
 function getComboDamage()
-   local comboDam = GetSpellDamage("shunpo") + 
-                    GetSpellDamage("blades") +
-                    GetSpellDamage("sinister")
+   local comboDam = 0
    if CanUse("blades") then
-      comboDam = comboDam + GetSpellDamage("dagger")
+      comboDam = comboDam + GetSpellDamage("blades") + GetSpellDamage("dagger")
+   end
+   if CanUse("sinister") then
+      comboDam = comboDam + GetSpellDamage("sinister")
+   end
+   if CanUse("shunpo") then
+      comboDam = comboDam + GetSpellDamage("shunpo")
+   end
+   if CanUse("lotus") then
+      comboDam = comboDam + GetSpellDamage("lotus")
    end
    return comboDam
 end
@@ -54,80 +64,54 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={"blades"}})
--- AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 pp("Tim's Katarina")
-
-local lastRDagger = 0
-local spinning = false
-local lastHotkey = 3
-
-local daggers = {}
 
 local lastQ = GetClock()
 local lastE = GetClock()
 
 function Run()
-   Clean(daggers)
-
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
    end
 
---   local turrets = GetInRange(me, 20000, TURRETS)
---   for _,turret in ipairs(turrets) do
---      if find(turret.charName, "Turret") then
---         DrawCircleObject(turret, 950, yellow)
---         DrawTextObject(turret.range, turret, 0xffffffff)
---      end
---   end
+   if IsChannelling(P.lotus) then
+      if #GetInRange(me, GetSpellRange("lotus")+50, ENEMIES) > 0 then
+         PrintAction("LOTUS")
+         return true
+      else
+         P.lotus = nil
+      end
+   end
 
-         
    if KeyDown(string.byte("X")) then
       WardJump("E")
+      return true
    end
 
-   local target = GetWeakEnemy('MAGIC',730)
-   
-   if GetClock() > lastRDagger + 250 then
-      spinning = false 
-   end
-
-   if spinning then
-      CHANNELLING = true
-   else
-      CHANNELLING = false
-   end
-
-
-   if IsOn("steal") and target and not spinning then 
-      killSteal() 
-   end
-   
-   if KeyDown(hotKey) and target then
-      if not spinning then
-         UseItems()
-         if spells["Ignite"] and CanUse("Ignite") and target.health < GetSpellDamage("Ignite") then
-            CastSpellTarget(spells["Ignite"].key, target)
-         end
-         if CanUse("blades") and GetDistance(target) < spells["blades"].range then
-            CastQ(target)
-         elseif CanUse("sinister") and GetDistance(target) < spells["sinister"].range then
-            CastSpellTarget("W", target)
-         elseif CanUse("shunpo") and GetDistance(target) < spells["shunpo"].range then
-            CastSpellTarget("E", target)
-         elseif CanUse("lotus") and GetDistance(target) < 275 then
-            CastSpellTarget("R", target)
-            spinning = true
-            lastRDagger = GetClock()
-         else
---            AttackTarget(target)
-         end
-      end
-      if not spinning then
---         AttackTarget(target)
+   if HotKey() then
+      UseItems()
+      if Action() then
+         return true
       end
    end
+
+   if IsOn("lasthit") then
+      if Farm() then
+         return true
+      end
+   end
+
+   if HotKey() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   PrintAction()
+
    
 --   local nearMouse = GetInRange(GetMousePos(), 2000, MINIONS)
 --   SortByDistance(nearMouse, GetMousePos())
@@ -149,184 +133,89 @@ function Run()
 --
 --      end
 --   end
-   if IsOn("lasthit") and not GetWeakEnemy("MAGIC", 700) then
-      QFarm()      
-   end
 end
 
-function killSteal()
-   -- full combo
-   local target = GetWeakEnemy("MAGIC", spells["shunpo"].range)
-   if target and
-      CanUse("shunpo") and
-      CanUse("blades") and
-      CanUse("sinister")
-   then
-      local comboDam = GetSpellDamage("shunpo", target) + 
-                       GetSpellDamage("blades", target) +
-                       GetSpellDamage("dagger", target) +
-                       GetSpellDamage("sinister", target)
---      PrintState(0, "FC: "..comboDam.."/"..target.health)
-      if comboDam > target.health then
-         if GetDistance(target) > spells["blades"].range then
-            CastSpellTarget("E", target)
---            PrintState(1, "Did E")
-            return
-         else
-            CastSpellTarget("Q", target)
---            PrintState(1, "Did Q")
-            return
-         end
-      end
-      return -- if full combo won't do it don't bother
-   end   
-
-   -- try to execute with W
-   target = GetWeakEnemy("MAGIC", spells["sinister"].range)
-   if target and 
-      CanUse("sinister") and
-      not CanUse("blades") and
-      not CanUse("shunpo") 
-   then
-      local comboDam = GetSpellDamage("sinister", target)
-      if #GetInRange(target, 50, daggers) > 0 then
-         comboDam = comboDam + GetSpellDamage("dagger", target)
-      end
---      PrintState(2, "W: "..comboDam.."/"..target.health)
-      if comboDam > target.health then
-         CastSpellTarget("W", target)
---         PrintState(2, "Did W")
-         return
+function Action()
+   -- blades and sinister are no brainers
+   if CanUse("blades") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("blades")
+      if target then
+         Cast("blades", target)
+         PrintAction("Blades", target)
+         return true
       end
    end
-
-   -- try to execute with Q
-   target = GetWeakEnemy("MAGIC", spells["blades"].range)
-   if target and 
-      CanUse("blades") and
-      not CanUse("sinister") and
-      not CanUse("shunpo")
-   then
-      local comboDam = GetSpellDamage("blades", target)
---      PrintState(3, "Q: "..comboDam.."/"..target.health)
-      if comboDam > target.health then
-         CastSpellTarget("Q", target)
---         PrintState(3, "Did Q")
-         return
-      end
-   end   
-
-   -- try to execute with E
-   target = GetWeakEnemy("MAGIC", spells["shunpo"].range)
-   if target and CanUse("shunpo") then
-      local comboDam = GetSpellDamage("shunpo", target)
-      if #GetInRange(target, 50, daggers) > 0 then
-         comboDam = comboDam + GetSpellDamage("dagger", target)
-      end
---      PrintState(4, "E: "..comboDam.."/"..target.health)
-      if comboDam > target.health then
-         CastSpellTarget("E", target)
---         PrintState(4, "Did E")
-         return
-      end
-   end
-   
-
-   -- I have shunpo and sinister left
-   -- if in sinister range, prefer that
-   target = GetWeakEnemy("MAGIC", spells["shunpo"].range)   
-   if target and 
-      CanUse("shunpo") and
-      CanUse("sinister")
-   then
-      local comboDam = GetSpellDamage("shunpo", target) + 
-                       GetSpellDamage("sinister", target)
-      if #GetInRange(target, 50, daggers) > 0 then
-         comboDam = comboDam + GetSpellDamage("dagger", target)
-      end
---      PrintState(5, "WE: "..comboDam.."/"..target.health)      
-      if comboDam > target.health then
-         if GetDistance(target) < spells["sinister"].range then
-            CastSpellTarget("W", target)
---            PrintState(5, "Did W")
-            return
-         else
-            CastSpellTarget("E", target)
---            PrintState(5, "Did E")
-            return
-         end
-      end
-   end
-
-   -- I have blades and sinister left
-   target = GetWeakEnemy("MAGIC", spells["blades"].range)   
-   if target and 
-      CanUse("blades") and
-      CanUse("sinister")
-   then
-      local comboDam = GetSpellDamage("blades", target) + 
-                       GetSpellDamage("dagger", target) +
-                       GetSpellDamage("sinister", target)
---      PrintState(6, "QW: "..comboDam.."/"..target.health)
-      if comboDam > target.health then
-         CastSpellTarget("Q", target)
---         PrintState(6, "Did Q")
-         return
-      end
-   end
-end
-
-local function onCreateObj(object)
-   local s=object.charName
-   if find(s,"katarina_daggered") then
-      table.insert(daggers, object)
-   elseif find(s,"katarina_deathLotus_mis.troy") then
-      spinning = true
-      lastRDagger = GetClock()
-   end
-end
-
-local function onSpell(object, spell)
-   if object.name == me.name and spell.name == "KatarinaE" then
-      lastE = GetClock()
-   end
-end
-
--- preferrs throws that include hitting heroes.
--- will keep throwing until heroes get pretty close.
-function QFarm()
-   local dagDam = GetSpellDamage("dagger")
-
-   local shunpoRange = GetInRange(me, spells["shunpo"].range, MINIONS)
-   for _,minion in ipairs(shunpoRange) do
-      if minion.health < GetSpellDamage("shunpo", minion) then
-         Circle(minion, 75, red, 2)
-      elseif #GetInRange(minion, 50, daggers) > 0 and 
-         minion.health < (GetSpellDamage("shunpo", minion) + GetSpellDamage("dagger", minion))
-      then 
-         Circle(minion, 75, red, 2)
+   if CanUse("sinister") then
+      if #GetInRange(me, "sinister", ENEMIES) > 0 then
+         Cast("sinister", me)
+         PrintAction("Sinister")
       end      
    end
 
-   if CanUse("sinister") and 
-      GetClock() - lastQ > 500 and
-      GetClock() - lastE > 500 
-   then
-      local sinRange = GetInRange(me, spells["sinister"].range, MINIONS)
-      for _,minion in ipairs(sinRange) do
-         if minion.health < GetSpellDamage("sinister", minion) then
-            CastSpellTarget("W", minion)
-            return
-         elseif #GetInRange(minion, 50, daggers) > 0 and 
-            minion.health < (GetSpellDamage("sinister", minion) + GetSpellDamage("dagger", minion)) 
-         then
-            if GetWeakEnemy("MAGIC", spells["sinister"].range) and
-               #GetInRange(me, 950, TURRETS) > 0
-            then               
-               -- don't sinister under towers if there's a champ
-            else
-               CastSpellTarget("W", minion)
-               return
+   if CanUse("lotus") then
+      local enemies = GetInRange(me, GetSpellRange("lotus")/2, ENEMIES)
+
+      local kills = GetKills("lotus", enemies)
+      if #kills > 0 then
+         Cast("lotus", me)
+         PrintAction("Lotus for kill", kills[1])
+         return true
+      end
+
+      if #enemies >= 2 then
+         Cast("lotus", me)
+         PrintAction("Lotus for aoe", #enemies)
+         return true
+      end
+   end
+
+   if CanUse("shunpo") then
+      local target = GetWeakestEnemy("shunpo")
+      if target then
+         local dam = GetSpellDamage("shunpo")
+         if HasBuff("dagger", target) then
+            dam = dam + GetSpellDamage("dagger")
+         end
+         if CanUse("sinister") then
+            dam = dam + GetSpellDamage("sinister", target)
+         end
+         if CanUse("lotus") then
+            dam = dam + GetSpellDamage("lotus", target)
+         end
+         if CalcMagicDamage(target, dam) > target.health then
+            Cast("shunpo", target)
+            PrintAction("Shunpo", target)
+            AA(target)
+            return true
+         end
+      end
+   end
+   return false
+end
+
+function FollowUp()
+   return false
+end
+
+
+-- preferrs throws that include hitting heroes.
+-- will keep throwing until heroes get pretty close.
+function Farm()
+   local underTower = #GetInRange(me, 950, TURRETS) > 0 
+
+   if CanUse("sinister") then
+      if GetWeakestEnemy("sinister") and underTower then
+         PrintAction("-Sinister: Tower danger")
+      else
+         local sinRange = GetInRange(me, spells["sinister"].range, MINIONS)
+         for _,minion in ipairs(sinRange) do
+            local dam = GetSpellDamage("sinister", minion)
+            if HasBuff("dagger", minion) then
+               dam = dam + GetSpellDamage("dagger", minion)
+            end
+            if minion.health < dam then
+               Cast("sinister", minion)
+               PrintAction("Sinister for lasthit")
             end
          end
       end
@@ -334,30 +223,9 @@ function QFarm()
 
    if CanUse("blades") then
    
-      local nearTargets = {}
-      local initialTargets = {}
+      local nearTargets = GetInRange(me, 3000, MINIONS, ENEMIES)
+      local initialTargets = SortByDistance(GetInRange(me, GetSpellRange("blades")+150, MINIONS, ENEMIES))
 
-      -- gather the possible bounce targets and possible initial targets      
-      local boundingDistance = 3000
-      for _,minion in ipairs(MINIONS) do
-         if GetDistance(me, minion) < boundingDistance then
-            table.insert(nearTargets, minion)
-            if GetDistance(me, minion) < 675+150 then
-               table.insert(initialTargets, minion)
-            end
-         end
-      end
-      for _,hero in ipairs(ENEMIES) do
-         if hero.visible == 1 and GetDistance(me, hero) < boundingDistance and hero.dead ~= 1 then
-            table.insert(nearTargets, hero)
-            if GetDistance(me, hero) < 675+150 then
-               table.insert(initialTargets, hero)
-            end
-         end
-      end
-      
-      SortByDistance(initialTargets)
-      
       -- bounce path with the best score      
       local bestKills = 0
       local bestKillTargets = nil
@@ -390,18 +258,49 @@ function QFarm()
                Circle(bkti, 70, yellow)                        
             end
          end
-         if GetDistance(bestKillTargets[1]) < 675 then
-            if GetWeakEnemy("MAGIC", 1500) and
-               #GetInRange(me, 950, TURRETS) > 0
-            then
+         if GetDistance(bestKillTargets[1]) < GetSpellRange("blades") then
+            if GetWeakEnemy("MAGIC", 1500) and underTower then
                -- do nothing if there's a hero nearby and i'm under a tower
             elseif bestKills >= 1 then
-               CastQ(bestKillTargets[1])
---               OrbWalk(250)
+               Cast("blades", bestKillTargets[1])
+               PrintAction("Blades for lasthit", bestKills)
+               return true
             end
          end
       end
-   end   
+   end
+
+   if CanUse("shunpo") and not CanUse("blades") then
+      local shunpoRange = GetInRange(me, "shunpo", MINIONS)
+      local bestT
+      local bestS
+      for _,minion in ipairs(shunpoRange) do
+         if GetDistance(minion) > GetSpellRange("sinister") and
+            #GetInRange(minion, 950, TURRETS) == 0
+         then
+            local dam = GetSpellDamage("shunpo", minion)
+            if HasBuff("dagger", minion) then
+               dam = dam + GetSpellDamage("dagger", minion)
+            end
+
+            if minion.health < dam then
+               local s = GetInRange(minion, "sinister", MINIONS)
+               if not bestT or #s > bestS then
+                  bestT = minion
+                  bestS = #s
+               end
+            end
+         end
+      end
+      if bestT and
+         #GetInRange(bestT, (750+(me.selflevel*25))*1.5, ENEMIES) == 0
+      then
+         Cast("shunpo", bestT)
+         PrintAction("Shunpo into minions")
+         return true
+      end
+   end
+
 end
 
 function getBouncePath(target, nearTargets)
@@ -419,7 +318,7 @@ function getBouncePath(target, nearTargets)
             break
          end
          target = testNearby[nearestI]
-         local isHero = not find(target.charName, "Minion")
+         local isHero = not IsMinion(target)
          table.insert(tKillTargets, target)
          if CalcMagicDamage(target, bbDam) > target.health then
             if isHero then
@@ -444,11 +343,22 @@ function getBouncePath(target, nearTargets)
    return tKills, tKillTargets, tKillDeaths
 end
 
-function CastQ(target)
-   lastQ = GetClock()
-   CastSpellTarget("Q", target)
+function onObject(object)
+   PersistOnTargets("dagger", object, "katarina_daggered", ENEMIES, MINIONS)
+   if PersistBuff("lotus", object, "katarina_deathLotus_mis.troy", 100) then
+      StartChannel(.25)
+   end
 end
 
-AddOnCreate(onCreateObj)
+function onSpell(unit, spell)
+   if ICast("lotus", unit, spell) then
+      StartChannel(.25, "LOTUS")
+   end
+   if ICast("blades", unit, spell) then
+      StartChannel(.33, "blades")
+   end
+end
+
+AddOnCreate(onObject)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
