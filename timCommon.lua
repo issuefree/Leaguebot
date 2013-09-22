@@ -643,13 +643,7 @@ function SkillShot(thing, purpose, nonBlocking)
       target = nil
    end
    
-   -- blast em
-   if target then
-      CastFireahead(spell, target)
-      return target
-   end
-
-   return nil
+   return target
 end
 
 function IsGoodFireahead(thing, target, maxAngle)
@@ -1146,22 +1140,35 @@ function GetWeakest(thing, list)
 end
 
 DOLATERS = {}
-function DoIn(f, millis, key)
---   pp("Call at: "..GetClock()+millis.." now: "..GetClock())
+function DoIn(f, timeout, key)
    if key then
-      DOLATERS[key] = {GetClock()+millis, f}
+      DOLATERS[key] = {time()+timeout, f}
    else
-      table.insert(DOLATERS, {GetClock()+millis, f})
+      table.insert(DOLATERS, {time()+timeout, f})
    end
 end
 
 CHANNELBUFFER = false
 CHANNELLING = false
 
-function StartChannel(timeout)
+function StartChannel(timeout, label)
    if not timeout then timeout = .5 end
    CHANNELBUFFER = true
-   DoIn(function() CHANNELBUFFER = false end, timeout, "ChannelBuffer")
+   if label then
+      pp("..."..label.." "..timeout)
+   else
+      pp("...channel "..timeout)
+   end
+   local start = time()
+   DoIn( function() 
+            CHANNELBUFFER = false 
+            if label then
+               pp("   "..label.."..."..time()-start)
+            else
+               pp("   channel..."..time()-start)
+            end            
+         end, 
+         timeout, "ChannelBuffer" )
 end
 
 function IsChannelling(object)
@@ -1271,7 +1278,7 @@ function TimTick()
    end
 
    for key,doLater in pairs(DOLATERS) do
-      if doLater[1] < GetClock() then
+      if doLater[1] < time() then
          doLater[2]()
          DOLATERS[key] = nil
       end
