@@ -225,7 +225,11 @@ function GetSpellDamage(thing, target)
       damageP = damageP + ohd[2]
    end
 
+
    if target then
+      if HasBuff("dfg", target) then
+         damageM = damageM*1.2
+      end
       damage = CalcDamage(target, damageP) +
                CalcMagicDamage(target, damageM) +
                damageT
@@ -288,4 +292,9 @@ end
 
 function WillKill(thing, target)
    return GetSpellDamage(thing, target) > target.health
+end
+
+function ICast(thing, unit, spell)
+   local mySpell = GetSpell(thing)
+   return IsMe(unit) and spell.name == mySpell.name
 end
