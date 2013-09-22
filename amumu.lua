@@ -14,7 +14,7 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "tantrum"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-spells["badage"] = {
+spells["bandage"] = {
   key="Q", 
   range=1100, 
   color=violet, 
