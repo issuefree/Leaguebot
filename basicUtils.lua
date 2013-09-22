@@ -150,3 +150,14 @@ function GetIntersection(list1, list2)
    end
    return intersection
 end
+
+function SameUnit(o1, o2)
+   return o1.name == o2.name and
+          o1.charName == o2.charName and
+          o1.x == o2.x and
+          o1.z == o2.z
+end
+
+function IsMe(unit)
+   return SameUnit(me, unit)
+end
