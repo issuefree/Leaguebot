@@ -53,7 +53,10 @@ function Run()
 
    if HotKey() and CanAct() then
 
-      if SkillShot("boomerang") then
+      local target = SkillShot("boomerang")
+      if target then
+         CastFireahead("boomerang", target)
+         PrintAction("Boomerang", target)
          return true
       end
    end

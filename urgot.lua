@@ -139,6 +139,7 @@ function Action()
       else
          local target = SkillShot("hunter")
          if target then
+            CastFireahead("hunter", target)
             PrintAction("Hunter SS", target)
             return true
          end

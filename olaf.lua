@@ -113,6 +113,7 @@ function Action()
    if CanUse("axe") then      
       local target = SkillShot("axe", nil, true)
       if target then
+         CastFireahead("axe", target)
          PrintAction("Axe", target)
          return true
       end
