@@ -110,7 +110,7 @@ function Action()
       if CanUse("mantra") then -- look for executes, then for clumps
          local unblocked = GetUnblocked(me, "flame", MINIONS, ENEMIES)
          unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
-         unblocked = SortByDistance(FilterList(unblocked, function(item) return IsGoodFireahead("flame", item)))
+         unblocked = SortByDistance(FilterList(unblocked, function(item) return IsGoodFireahead("flame", item) end))
          for _,target in ipairs(unblocked) do -- aim for the closest guy I can kill
             if GetSpellDamage("flame", target) < target.health and
                GetSpellDamage("flame", target) + GetSpellDamage("soulflare", target) > target.health then
@@ -139,6 +139,12 @@ function Action()
 
       local target = SkillShot("flame")
       if target then
+         if CanUse("mantra") and ApproachAngleRel(me, target) < 30 then
+            Cast("mantra", me)
+            PrintAction("Mantra for good flame")
+         end
+
+         CastFireahead("flame", target)
          PrintAction("Flame", target)
          return true
       end
