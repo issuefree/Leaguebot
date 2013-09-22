@@ -334,6 +334,8 @@ function createForPersist(object)
    -- --tear
    -- PersistBuff("tear", object, "TearoftheGoddess", 100)
 
+   PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
+
 end
 
 function persistTick()
