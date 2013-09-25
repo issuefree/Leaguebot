@@ -324,8 +324,8 @@ function KillWeakMinion(thing, extraRange)
             return wMinion
          end
       else
-         if GetSpellDamage(spell, wMinion) > wMinion.health then
-            CastSpellTarget(spell.key, wMinion)
+         if WillKill(spell, wMinion) then
+            Cast(spell, wMinion)
             return wMinion
          end
       end
@@ -398,7 +398,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
 
       if killScore ~= 0 then
          for _,hit in ipairs(hits) do
-            if GetSpellDamage(spell, hit) > hit.health then
+            if WillKill(spell, hit) then
                score = score + killScore
                table.insert(kills, hit)
             end
@@ -661,7 +661,7 @@ function IsGoodFireahead(thing, target, maxAngle)
    end
 
    -- up speed by 20% so we don't get quite so much leading
-   local point = ToPoint(GetFireahead(target,spell.delay,spell.speed*SS_FUDGE))
+   local point = GetSpellFireahead(target, spell)
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
    end
