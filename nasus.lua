@@ -64,7 +64,7 @@ if GetSpellLevel("Q") == 0 then
    setStrikes(0)
 end
 
-local victim, victimName
+local victim
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
@@ -78,11 +78,11 @@ function Run()
    end   
    
 
-   if IsOn("lasthit") and Alone() then
+   if IsOn("lasthit") and not Engaged() then
       if CanUse("strike") then
          local targets = SortByDistance(GetAllInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
-            if GetSpellDamage("strike", target) > target.health then
+            if WillKill("strike", target) then
                Cast("strike", target)
                if ListContains(target, CREEPS) then
                   ClickSpellXYZ("M", target.x, target.y, target.z, 0)
@@ -90,7 +90,6 @@ function Run()
                   AttackTarget(target) -- not using AA as I want to interupt auto attacks
                end
                victim = target
-               victimName = target.name
                PrintAction("strike lasthit")
                return true
             end
@@ -112,31 +111,19 @@ function Action()
    -- spirit fire: Nice if I can hit a few people
    -- other wise one will do if it's my aa target.
    if CanUse("fire") then
-      local targets = GetInRange(me, "fire", ENEMIES)
-      local bestTargets = {}
-      for _,target in ipairs(targets) do
-         local hits = GetInRange(target, spells["fire"].radius, ENEMIES)
-         if #hits > #bestTargets then
-            bestTargets = hits
-         end
-      end
-      if #bestTargets > 2 then
-         local x,y,z = GetCenter(bestTargets)
-         CastXYZ("fire", x,y,z)
-         PrintAction("fire on area")
+      local hits = GetBestArea(me, "fire", 1, 0, ENEMIES)
+      if #hits >= 2 then
+         CastXYZ("fire", GetCenter(hits))
+         PrintAction("Fire on area", #hits)
          return true
       end
 
       local target = GetWeakEnemy("PHYS", spells["AA"].range*2)
       if target then
-         Circle(target, 100, red, 6)
-      end
-      if target then
-         CastXYZ("fire", target)
-         PrintAction("fire", target)
+         CastFireahead("fire", target)
+         PrintAction("Fire", target)
          return true
       end
-
    end
 
    if CanUse("wither") then
@@ -159,12 +146,17 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if target and GetDistance(target) < spells["AA"].range+50 and CanUse("strike") then
+   local strikeUp
+   if target and GetDistance(target) < spells["AA"].range+100 and CanUse("strike") then
       Cast("strike", me)
-      PrintAction("prep for AA")
+      strikeUp = true
    end
    if AA(target) then
-      PrintAction("AA "..target.name)
+      if strikeUp then
+         PrintAction("Strike", target)
+      else
+         PrintAction("AA", target)
+      end
       return true
    end
 
@@ -172,8 +164,6 @@ function Action()
 end
 
 function FollowUp()
-   local target = GetWeakEnemy("PHYS", spells["AA"].range*2)
-
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
          PrintAction("AA lasthit")
