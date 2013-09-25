@@ -183,7 +183,7 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
       if target then
          if GetDistance(target) > spells["AA"].range then
             MoveToTarget(target)

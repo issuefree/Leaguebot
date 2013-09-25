@@ -98,7 +98,7 @@ function Action()
    end
 
    if CanUse("justice") then
-      local targets = SortByDistance(GetInRange(me, spells["justice"].range*1.5, ENEMIES))
+      local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
       for _,target in ipairs(targets) do
          if target.health < getJusticeDam(target) then
             Cast("justice", target)
