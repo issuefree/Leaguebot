@@ -44,7 +44,7 @@ end
 -- angle of approach of attacker to target
 -- 0 should be dead on, 180 should be dead away
 function ApproachAngle(attacker, target)
-   local x,y,z = GetFireahead(attacker, 2, 20)
+   local x,y,z = GetFireahead(attacker, 3, 0)
    local aa = RadsToDegs(math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, {x=x, y=y,z=z}) ))
    if aa > 180 then
       aa = 360 - aa
@@ -130,7 +130,7 @@ end
 
 function FacingMe(target)
    local d1 = GetDistance(target)
-   local x, y, z = GetFireahead(target,2,10)
+   local x, y, z = GetFireahead(target,3,0)
    local d2 = GetDistance({x=x, y=y, z=z})
    return d2 < d1 
 end
@@ -140,7 +140,7 @@ function GetMousePos()
 end
 
 function Engaged()
-   return GetWeakEnemy("MAGIC", 300 ) ~= nil
+   return GetWeakEnemy("MAGIC", 450 ) ~= nil
 end
 function Alone()
    return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
