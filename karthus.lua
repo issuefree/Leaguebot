@@ -57,6 +57,10 @@ function Run()
    Circle(GetMousePos(), spells["lay"].radius, red)
    
    if IsOn("farm") and Alone() and CanUse("lay") then
+      if KillMinionsInArea("lay", 2) then
+         PrintAction("Lay minions in area")
+         return true
+      end
       local wMinion = nil
       local wMinionK = 0
       local wMinionX = {}
@@ -70,8 +74,8 @@ function Run()
                if not wMinion or wMinionK < 1 then
                   wMinion = minion
                   wMinionK = 1
-                  wMinionX = GetFireahead("lay", wMinion)
-                  Circle(wMinionX, spells["lay"].radius, red, 2)
+                  wMinionX = GetSpellFireahead(wMinion, "lay")
+                  Circle(wMinion, spells["lay"].radius, red, 2)
                end
             end
          else
@@ -83,7 +87,7 @@ function Run()
             if wMinionK < tK then
                wMinion = minion
                wMinionK = tK
-               wMinionX = GetFireahead("lay", wMinion)
+               wMinionX = GetSpellFireahead(wMinion, "lay")
             end
          end
       end
