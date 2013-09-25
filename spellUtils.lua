@@ -46,7 +46,7 @@ function CastFireahead(thing, target)
    if not spell.speed then spell.speed = 20 end
    if not spell.delay then spell.delay = 2 end
 
-   local point = ToPoint(GetFireahead(target,spell.delay,spell.speed*SS_FUDGE))
+   local point = GetSpellFireahead(target, spell)
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
    end   
@@ -288,6 +288,14 @@ function getSBDam(item, buff, needActive)
       end
    end
    return nil
+end
+
+function GetSpellFireahead(thing, target)
+   local spell = GetSpell(thing)
+   if not spell.speed then spell.speed = 20 end
+   if not spell.delay then spell.delay = 2 end
+
+   return ToPoint(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
 end
 
 function WillKill(thing, target)
