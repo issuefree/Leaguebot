@@ -23,7 +23,7 @@ spells["rupture"] = {
 	base={80,135,190,245,305},
 	ap=1,
 	delay=9,
-	speed=99,
+	speed=0,
 	radius=275,
 	cost=90
 }
