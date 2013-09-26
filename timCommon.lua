@@ -163,9 +163,19 @@ function DumpSpells(unit, spell)
    end
 end
 
-function IsMinion(object)
-   return find(object.name, "Minion")
+function IsMinion(unit)
+   return find(unit.name, "Minion")
 end
+
+function IsHero(unit)
+   for _,hero in ipairs(concat(ALLIES, ENEMIES)) do
+      if SameUnit(unit, hero) then
+         return true
+      end
+   end
+   return false
+end
+
 
 function ValidTargets(list)
    if not list then return {} end
@@ -214,7 +224,7 @@ function KillMinionsInLine(thing, killsNeeded)
 
    local hits, kills, score = GetBestLine(me, thing, 0, 1, MINIONS)
    if #kills >= killsNeeded then
-      local point = ToPoint(GetCenter(hits))
+      local point = GetCenter(hits)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
@@ -232,7 +242,7 @@ function HitMinionsInLine(thing, hitsNeeded)
    
    local hits, kills, score = GetBestLine(me, thing, 1, 1, MINIONS)
    if #hits >= hitsNeeded then
-      local point = ToPoint(GetCenter(hits))
+      local point = GetCenter(hits)
       if spell.overShoot then
          point = OverShoot(me, point, spell.overShoot)         
       end
@@ -379,7 +389,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
       local center
       -- trim outliers until everyone fits
       while true do
-         center = ToPoint(GetCenter(hits))
+         center = GetCenter(hits)
          SortByDistance(hits, center)         
          if GetDistance(center, hits[#hits]) > spell.radius then
             table.remove(hits, #hits)
@@ -388,7 +398,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
          end
       end
 
-      center = ToPoint(GetCenter(hits))
+      center = GetCenter(hits)
       if GetDistance(source, center) > GetSpellRange(spell) then
          hits = {}
       end
@@ -569,7 +579,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
          local z = (minionAngles[bestAngleI][2].z + minionAngles[bestAngleJ][2].z)/2
          
          -- draw the target cone and the target spot  
-         Circle(ToPoint(x,y,z), 25, yellow)
+         Circle(Point(x,y,z), 25, yellow)
          LineBetween(me, minionAngles[bestAngleI][2])
          LineBetween(me, minionAngles[bestAngleJ][2])
          
@@ -661,7 +671,7 @@ function IsGoodFireahead(thing, target, maxAngle)
    end
 
    -- up speed by 20% so we don't get quite so much leading
-   local point = GetSpellFireahead(target, spell)
+   local point = GetSpellFireahead(spell, target)
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
    end
@@ -1283,6 +1293,15 @@ function TimTick()
          DOLATERS[key] = nil
       end
    end
+
+   for _,spell in pairs(spells) do
+      if spell.delay and spell.speed then
+         for _,enemy in ipairs(ENEMIES) do
+            TrackSpellFireahead(spell, enemy)
+         end
+      end
+   end
+
    UseAutoItems()
 end
 
