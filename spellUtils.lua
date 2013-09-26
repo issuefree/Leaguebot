@@ -1,6 +1,7 @@
 require "basicUtils"
 require "items"
 require "persist"
+require "telemetry"
 
 -- common spell defs
 spells = {}
@@ -46,7 +47,7 @@ function CastFireahead(thing, target)
    if not spell.speed then spell.speed = 20 end
    if not spell.delay then spell.delay = 2 end
 
-   local point = GetSpellFireahead(target, spell)
+   local point = GetSpellFireahead(spell, target)
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
    end   
@@ -290,12 +291,33 @@ function getSBDam(item, buff, needActive)
    return nil
 end
 
-function GetSpellFireahead(thing, target)
-   local spell = GetSpell(thing)
-   if not spell.speed then spell.speed = 20 end
-   if not spell.delay then spell.delay = 2 end
+local trackTicks = 10
+local tfas = {}
+function TrackSpellFireahead(thing, target)
+   local spell = GetSpell(thing)   
+   local key = spell.key
+   local tcn = target.charName
 
-   return ToPoint(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   if not tfas[key] then
+      tfas[key] = {}
+   end
+   if not ValidTarget(target) or not tfas[key][tcn] then
+      tfas[key][tcn] = {}
+   end
+
+   table.insert(tfas[key][tcn], Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target))
+   if #tfas[key][tcn] > trackTicks then
+      table.remove(tfas[key][tcn], 1)
+   end   
+end
+
+function GetSpellFireahead(thing, target)   
+   local spell = GetSpell(thing)
+   if not tfas[spell.key] or not tfas[spell.key][target.charName] then
+      return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   end
+
+   return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
 function WillKill(thing, target)
@@ -306,3 +328,4 @@ function ICast(thing, unit, spell)
    local mySpell = GetSpell(thing)
    return IsMe(unit) and spell.name == mySpell.name
 end
+
