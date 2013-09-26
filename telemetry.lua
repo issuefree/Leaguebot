@@ -1,5 +1,27 @@
 require "basicUtils"
 
+Point = class()
+function Point:__init(a, b, c)
+   if not b and not c then
+      self.x = a.x
+      self.y = a.y
+      self.z = a.z
+   else
+      self.x = a
+      self.y = b
+      self.z = c
+   end
+end
+function Point:__add(p)
+   return Point(self.x+p.x, self.y+p.y, self.z+p.z)
+end
+function Point:__sub(p)
+   return Point(self.x-p.x, self.y-p.y, self.z-p.z)
+end
+function Point:__eq(p)
+   return self.x == p.x and self.y == p.y and self.z == p.z
+end
+
 function GetDistance(p1, p2)
     p2 = p2 or myHero
     if not p1 or not p1.x or not p2.x then
@@ -107,11 +129,11 @@ function GetCenter(targets)
    y = y / #targets
    z = z / #targets
    
-   return x,y,z
+   return Point(x,y,z)
 end
 
-function ToPoint(x,y,z)
-   return {x=x,y=y,z=z}
+function GetOffset(p1, p2)
+   return {x=p1.x-p2.x, y=p1.y-p2.y, z=p1.z-p2.z}
 end
 
 --[[
