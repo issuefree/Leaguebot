@@ -8,12 +8,12 @@ AddToggle("farm", {on=true, key=112, label="Waste Minions", auxLabel="{0}", args
 
 spells["lay"] = {
    key="Q", 
-   range=875, 
+   range=900, 
    color=violet, 
    base={40,60,80,100,120}, 
    ap=.3, 
    radius=137.5,
-   delay=4,
+   delay=7.5,
    speed=0,
    cost={20,26,32,38,44}
 }
@@ -38,14 +38,23 @@ spells["ult"] = {
 }
 
 function Run()
+   local target = GetWeakEnemy("MAGIC", 90000) 
+   if target and CanUse("ult") and WillKill("ult", target) then
+      LineBetween(me, target, 3)
+      -- PlaySound("Beep")
+   end 
+
    if IsRecalling(me) then
       return
    end
 
-   local target = GetWeakEnemy("MAGIC", 90000) 
-   if target and CanUse("ult") and WillKill("ult", target) then
-      PlaySound("Beep")
-   end 
+   if CanUse("defile") and P.defiling then
+      if #GetAllInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
+         Cast("defile", me)
+         PrintAction("Defile off")
+      end
+   end
+
      
    if HotKey() then
       UseItems()
@@ -57,46 +66,22 @@ function Run()
    Circle(GetMousePos(), spells["lay"].radius, red)
    
    if IsOn("farm") and Alone() and CanUse("lay") then
-      if KillMinionsInArea("lay", 2) then
+      if KillMinionsInArea("lay", 1) then
          PrintAction("Lay minions in area")
          return true
       end
-      local wMinion = nil
-      local wMinionK = 0
-      local wMinionX = {}
 
-      local nearMinions = GetInRange(me, spells["lay"].range, MINIONS)   
+      local nearMinions = SortByHealth(GetInRange(me, "lay", MINIONS))
       for _,minion in ipairs(nearMinions) do
-         local tK = 0
-         local vnMinions = GetInRange(minion, spells["lay"].radius, nearMinions)
-         if #vnMinions == 1 then
-            if GetSpellDamage("lay", minion)*2 > minion.health then
-               if not wMinion or wMinionK < 1 then
-                  wMinion = minion
-                  wMinionK = 1
-                  wMinionX = GetSpellFireahead(wMinion, "lay")
-                  Circle(wMinion, spells["lay"].radius, red, 2)
-               end
-            end
-         else
-            for _,vnM in ipairs(vnMinions) do
-               if GetSpellDamage("lay", vnM) > minion.health then
-                  tK = tK + 1
-               end
-            end
-            if wMinionK < tK then
-               wMinion = minion
-               wMinionK = tK
-               wMinionX = GetSpellFireahead(wMinion, "lay")
+         if GetSpellDamage("lay", minion)*2 > minion.health then
+            if #GetInRange(minion, spells["lay"].radius+5, nearMinions) == 1 then
+               CastFireahead("lay", minion)
+               PrintAction("Lay lone minion")
+               return true
             end
          end
       end
-      
-      if wMinion then
-         CastXYZ("lay", wMinionX)
-         Circle(wMinionX, spells["lay"].radius, yellow)
-      end
-   end   
+   end
 end
 
 function Action()
@@ -104,11 +89,7 @@ function Action()
       local target = GetWeakEnemy("MAGIC", spells["defile"].range-50)      
       if target and not P.defiling and CanUse("defile") then
          Cast("defile", me)
-      end
-
-      target = GetWeakEnemy("MAGIC", spells["defile"].range+50)
-      if not target and P.defiling then
-         Cast("defile", me)
+         PrintAction("Defile ON")
       end
    end
 
@@ -120,7 +101,6 @@ function Action()
          return true
       end
    end
-   
    
 end
 
