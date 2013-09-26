@@ -47,7 +47,7 @@ function Run()
    -- for _,t in ipairs(hits) do
    --    DrawBB(t, red)      
    -- end
-   -- local c = ToPoint(GetCenter(hits))
+   -- local c = GetCenter(hits)
    -- DrawLineObject(me, spell.range, blue, AngleBetween(me, c), spell.width)
 
 

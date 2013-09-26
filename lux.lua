@@ -136,7 +136,7 @@ function Run()
             PrintAction("Pop to kill", enemy)
             break
          end
-         local nextPos = ToPoint(GetFireahead(enemy, 4, 0))
+         local nextPos = Point(GetFireahead(enemy, 4, 0))
          if GetDistance(P.singularity, nextPos) > spell.radius then
             Cast(spell, me)
             PrintAction("Pop escapees")
@@ -217,7 +217,7 @@ function Action()
       -- don't care about kills because I already killed them if I could
       local hits = GetBestLine(me, "spark", 1, 0, ENEMIES)
       if #hits > 2 then
-         local center = ToPoint(GetCenter(hits))
+         local center = GetCenter(hits)
          LineBetween(me, center, spells["spark"].width)
          if IsOn("spark") then
             CastXYZ("spark", center)

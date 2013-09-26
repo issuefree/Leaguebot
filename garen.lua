@@ -59,9 +59,7 @@ function Run()
       end
 
       if #bestMinions > 2 then 
-         local x,y,z = GetCenter(bestMinions)
-         spinT = {x=x, y=y, z=z}
-         Circle(spinT, 50, yellow, 6)
+         Circle(GetCenter(bestMinions), 50, yellow, 6)
       end
    end
 

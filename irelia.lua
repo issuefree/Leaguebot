@@ -148,7 +148,7 @@ function Action()
             return true
          end
 
-         if GetDistance(ToPoint(GetFireahead(target, 5, 0))) > GetSpellRange("strike") then
+         if GetDistance(Point(GetFireahead(target, 5, 0))) > GetSpellRange("strike") then
             Cast("strike", target)
             PrintAction("Strike to stop escape", target)
             return true
