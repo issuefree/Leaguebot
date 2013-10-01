@@ -161,9 +161,13 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      PrintAction("move")
-      MoveToCursor()
-      return false   
+      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
+         #GetInRange(me, "AA", ENEMIES) == 0 
+      then
+         MoveToCursor()
+         PrintAction("move")
+         return false   
+      end
    end
 
    return false
