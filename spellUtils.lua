@@ -292,7 +292,7 @@ function getSBDam(item, buff, needActive)
 end
 
 local trackTicks = 10
-local tfas = {}
+tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   
    local key = spell.key
@@ -308,16 +308,65 @@ function TrackSpellFireahead(thing, target)
    table.insert(tfas[key][tcn], Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target))
    if #tfas[key][tcn] > trackTicks then
       table.remove(tfas[key][tcn], 1)
-   end   
+   end
 end
 
 function GetSpellFireahead(thing, target)   
    local spell = GetSpell(thing)
    if not tfas[spell.key] or not tfas[spell.key][target.charName] then
+      pp("faking fireahead")
       return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
    end
 
    return Point(target) + GetCenter(tfas[spell.key][target.charName])
+end
+
+function IsGoodFireahead(thing, target)
+   local spell = GetSpell(thing)
+   if not target then return end
+    -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
+    -- this should imply that the target is moving steadily.
+
+   local point = GetSpellFireahead(spell, target)
+   if spell.overShoot then
+      point = OverShoot(me, point, spell.overShoot)
+   end
+
+   if GetDistance(point) > GetSpellRange(spell) then
+      return false
+   end
+
+   if GetDistance(target, point) < 50 then
+      return true
+   end
+
+   -- for collision skill shots dead on or dead away people are easy to hit
+   -- no spell speed is a short cut for this. Gragas barrel won't work the best.
+   if spell.speed > 0 then
+      if ApproachAngleRel(target, me) < 10 then
+         return true
+      end
+   end
+
+   local tps = tfas[spell.key][target.charName]
+   local point = GetCenter(tps)
+   if GetDistance(tps[1], point) < 75 and
+      GetDistance(tps[#tps], point) < 75
+   then
+      return true
+   end
+   
+   
+   return false   
+end
+
+function GetGoodFireaheads(thing, ...)
+   return FilterList(
+      concat(...), 
+      function(item)
+         return IsGoodFireahead(thing, item)
+      end
+   )
 end
 
 function WillKill(thing, target)
