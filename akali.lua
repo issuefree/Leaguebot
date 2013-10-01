@@ -76,10 +76,7 @@ function Run()
       if CanUse("mark") then
          local targets = SortByDistance(GetKills("mark", GetInRange(me, "mark", MINIONS)))
          local target = targets[#targets]
-         if target and 
-            ( GetDistance(target) > GetSpellRange("AA") or
-              JustAttacked() )
-         then
+         if target and GetDistance(target) > GetSpellRange("AA") then
             Cast("mark", target)
             PrintAction("Mark for lasthit")
             return true
