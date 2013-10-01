@@ -40,7 +40,7 @@ spells["ult"] = {
 function Run()
    local target = GetWeakEnemy("MAGIC", 90000) 
    if target and CanUse("ult") and WillKill("ult", target) then
-      LineBetween(me, target, 3)
+      LineBetween(GetMousePos(), target, 3)
       -- PlaySound("Beep")
    end 
 
