@@ -65,8 +65,8 @@ function Run()
       if #minions > 0 then
          if GetMPerc(me) > .75 then
             for _,minion in ipairs(minions) do
-               if (GetDistance(minion) > spells["AA"].range or JustAttacked()) and
-                  GetSpellDamage("strike", minion) > minion.health
+               if GetDistance(minion) > spells["AA"].range and
+                  WillKill("strike", minion)
                then
                   Cast("strike", minion)
                   PrintAction("Strike for lasthit")
