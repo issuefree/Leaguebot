@@ -71,7 +71,7 @@ function Run()
       return
    end
    
-   if HotKey() and CanAct() then
+   if HotKey() then
       if Action() then
          return true
       end
