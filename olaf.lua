@@ -23,7 +23,8 @@ spells["axe"] = {
    speed=16,
    width=80,
    overShoot=150,
-   cost={55,60,65,70,75}
+   cost={55,60,65,70,75},
+   noblock=true
 }
 spells["strikes"] = {
    key="W",
@@ -111,7 +112,7 @@ end
 
 function Action()   
    if CanUse("axe") then      
-      local target = SkillShot("axe", nil, true)
+      local target = SkillShot("axe")
       if target then
          CastFireahead("axe", target)
          PrintAction("Axe", target)
