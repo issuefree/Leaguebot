@@ -109,6 +109,31 @@ local function drawCommon()
       Circle(P.markedTarget, nil, red, 7)
    end
 
+
+   -- if tfas then
+   --    for key,spell in pairs(tfas) do
+   --       for name,trackedPoints in pairs(spell) do
+   --          local target
+   --          for _,enemy in ipairs(ENEMIES) do
+   --             if enemy.charName == name then
+   --                target = enemy
+   --                break
+   --             end
+   --          end
+
+   --          if not target then break end
+   --          local point = GetSpellFireahead(key, target)
+
+   --          if IsGoodFireahead(key, target) then
+   --             Circle(point, 75, green, 3)
+   --          else
+   --             Circle(point, 75, yellow, 1)
+   --          end
+   --          LineBetween(target, point)
+   --       end
+   --    end
+   -- end
+
    for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
       if spellShot.time < time() then
          table.remove(ACTIVE_SKILL_SHOTS, i)
@@ -595,107 +620,29 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    return false
 end
 
-function SkillShot(thing, purpose, nonBlocking)
+function SkillShot(thing, purpose)
    local spell = GetSpell(thing)
-
-   if not CanUse(spell) then return false end
-   if not GetWeakestEnemy(spell) then return false end
-
-   -- if we don't have spell specifics use some sensible defaults.
-   if not spell.delay then 
-      spell.delay = 2 
-      pp("No delay set for.."..thing)
-   end
-   if not spell.speed then 
-      spell.speed = 20 
-      pp("No speed set for.."..thing)
-   end
-   if not spell.width then 
-      spell.width = 80 
-      pp("No width set for.."..thing)
-   end
+   if not CanUse(spell) then return nil end
 
    local targets = {}
-   if not nonBlocking then
+   if not spell.noblock then
       local unblocked = GetUnblocked(me, spell, MINIONS, ENEMIES)
-      targets = FilterList(unblocked, function(item) return not IsMinion(item) end)
+      targets = FilterList(unblocked, function(item) return not IsMinion(item) end)      
    else
-      targets = GetInRange(me, spell, ENEMIES)
+      targets = ENEMIES
    end
+   targets = GetGoodFireaheads(spell, targets)
 
    local target
-   while #targets > 0 do
-      -- find the best target in the remaining unblocked
-      if purpose == "peel" then
-         target = GetPeel({ADC, APC, me}, targets)
-      else
-         target = GetWeakest(spell, targets)
-      end
-
-      -- no targets so bail out
-      if not target then
-         return nil
-      end
-
-      -- Validate that the current favorite target is a good candidate for skillshot
-      if IsGoodFireahead(spell, target) then
-         break
-      end
-
-      -- If it's not remove it from the unblocked list and try again
-      for i,t in ipairs(targets) do
-         if t.name == target.name then
-            table.remove(targets, i)
-            break
-         end
-      end
-      -- reset the target var for the next loop
-      target = nil
+   -- find the best target in the remaining unblocked
+   if purpose == "peel" then
+      target = GetPeel({ADC, APC, me}, targets)
+   else
+      target = GetWeakest(spell, targets)
    end
    
    return target
 end
-
-function IsGoodFireahead(thing, target, maxAngle)
-   local spell = GetSpell(thing)
-   if not spell.speed then spell.speed = 20 end
-   if not spell.delay then spell.delay = 2 end
-
-   if not target or not spell then
---      pp("no target")
-      return false
-   end
-
-   if not maxAngle then
-      maxAngle = 60
-   end
-
-   -- up speed by 20% so we don't get quite so much leading
-   local point = GetSpellFireahead(spell, target)
-   if spell.overShoot then
-      point = OverShoot(me, point, spell.overShoot)
-   end
-   
-   if GetDistance(point) > GetSpellRange(spell) then
---      pp(target.name.." target leaving range")
-      return false
-   end
-   
-   if GetDistance(target, point) < 50 then
---      pp(target.name.." target not moving KILLIT")
-      return true
-   end
-   
-   -- avoid people moving at hard angles
-   if ApproachAngleRel(target, me) < maxAngle then
---      pp(target.name.." angle ("..angleRel..") ok. shoot")
-      return true
-   end
-   
-   return false   
-end
-
-
 
 function GetUnblocked(source, thing, ...)
    local spell = GetSpell(thing)
