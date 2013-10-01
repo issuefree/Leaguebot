@@ -66,8 +66,8 @@ end
 -- angle of approach of attacker to target
 -- 0 should be dead on, 180 should be dead away
 function ApproachAngle(attacker, target)
-   local x,y,z = GetFireahead(attacker, 3, 0)
-   local aa = RadsToDegs(math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, {x=x, y=y,z=z}) ))
+   local point = Point(GetFireahead(attacker, 3, 0))
+   local aa = RadsToDegs(math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, point) ))
    if aa > 180 then
       aa = 360 - aa
    end
