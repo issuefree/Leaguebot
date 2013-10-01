@@ -9,7 +9,7 @@ AddToggle("feast", {on=true, key=113, label="Feast"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "rupture"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 local function feastRange()
@@ -22,10 +22,11 @@ spells["rupture"] = {
 	color=yellow,
 	base={80,135,190,245,305},
 	ap=1,
-	delay=9,
+	delay=8,
 	speed=0,
 	radius=275,
-	cost=90
+	cost=90,
+	noblock=true
 }
 spells["scream"] = {
 	key="W",
@@ -59,33 +60,35 @@ function Run()
 			return true
 		end
 
-		GetInRange(me, "feast", CREEPS)
-		for _,creep in ipairs(CREEPS) do
-			if ListContains(creep.name, MajorCreepNames) and
-				creep.health < 1000 + me.ap*.7
-			then
-				Cast("feast", creep)
-				PrintAction("Feast", creep)
-				return true
+		if VeryAlone() then
+			GetInRange(me, "feast", CREEPS)
+			for _,creep in ipairs(CREEPS) do
+				if ListContains(creep.name, MajorCreepNames) and
+					creep.health < 1000 + me.ap*.7
+				then
+					Cast("feast", creep)
+					PrintAction("Feast", creep)
+					return true
+				end
 			end
 		end
 	end	
 
-	if HotKey() and CanAct() then
+	if HotKey() then
 		UseItems()
 		if Action() then
 			return true
 		end
 	end
 
-   if IsOn("lasthit") and Alone() then
+   if IsOn("lasthit") and Alone() and GetMPerc(me) > .33 then
       -- lasthit with rupture if it kills 2 minions or more
       if KillMinionsInArea("rupture", 2) then
          return true
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return true
       end
@@ -104,6 +107,15 @@ function Action()
 
    -- try to deal some damage with rupture
    if CanUse("rupture") then
+
+   	-- target marked first if applicable
+      local target = GetMarkedTarget() 
+      if target and IsGoodFireahead("rupture", target) then
+         CastFireahead("rupture", target)
+         PrintAction("Rupture marked", target)
+         return true
+      end
+
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "rupture", 1, 3, ENEMIES)
       if score >= 3 then
@@ -113,10 +125,10 @@ function Action()
       end
 
       -- barring that throw it at the weakest single
-      local target = GetMarkedTarget() or GetWeakestEnemy("rupture")
+      local target = SkillShot("rupture")
       if target then
          CastFireahead("rupture", target)
-         PrintAction("Rupture", target)
+         PrintAction("Rupture weak", target)
          return true
       end
    end
