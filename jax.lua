@@ -14,7 +14,7 @@ pp(" - lasthit with AA or empower")
 pp(" - clear minions")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("autoUlt", {on=false, key=113, label="AutoUlt"})
+AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -65,25 +65,25 @@ function Run()
 	end
 
 	if P.counter and GetWeakestEnemy("counter") and CanUse("counter") then
-		PrintAction("stun")
 		Cast("counter", me)
+		PrintAction("Stun")
 	end
 
-	if JustAttacked() and CanUse("empower") and not P.empower then
-	   if GetWeakestEnemy("AA") or #GetAllInRange(me, spells["AA"].range+50, CREEPS) > 0 then
+	if CanUse("empower") and not P.empower then
+	   if #GetAllInRange(me, spells["AA"].range+50, ENEMIES, CREEPS) > 0 then
 			PrintAction("Whap")
 			Cast("empower", me)
 		end
 	end
 
 
-	if HotKey() and CanAct() then
+	if HotKey() then
 		if Action() then
          return
       end
 	end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return
       end
@@ -115,7 +115,7 @@ function Action()
 	   local target = GetMarkedTarget() or GetWeakestEnemy("leap")
 	   if target and
 	   	GetDistance(target) < spells["leap"].range and
-	   	GetDistance(target) > spells["AA"].range
+	   	GetDistance(target) > spells["AA"].range+50
 	   then
 	   	if CanUse("counter") and not P.counter then
 	   		Cast("counter", me)
@@ -126,7 +126,7 @@ function Action()
 	   		PrintAction("start empower")
 	   	end
 	   	Cast("leap", target)
-	   	PrintAction("Leap "..target.charName)
+	   	PrintAction("Leap", target)
 	   	return true
 	   end
 	end
@@ -136,9 +136,9 @@ function Action()
 		PrintAction("start counter")
 	end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
    if AA(target) then
-		PrintAction("AA "..target.charName)
+		PrintAction("AA", target)
 	   return true
    end
 
@@ -162,7 +162,7 @@ function FollowUp()
 	            ClickSpellXYZ("M", target.x, target.y, target.z, 0)
 	            return true
 	         else 
-	            AttackTarget(target) -- not using AA as I want to interupt auto attacks
+	            AttackTarget(target)
 	            return true
 	         end
 	      end
@@ -178,7 +178,7 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
       if target then
       	if GetDistance(target) > spells["AA"].range then
 	         MoveToTarget(target)
