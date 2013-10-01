@@ -59,23 +59,23 @@ function GetAAData()
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack_cas", "Zyra_basicAttack_cas_02", "Zyra_basicAttack_mis", "Zyra_basicAttack_tar", "Zyra_basicAttack_tar_hellvine"}, aaSpellName = "zileanbasicattack", startAttackSpeed = "0.625",  },
-        Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
-        Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
-        Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
-        Amumu        = { aaParticles = {"SadMummyBasicAttack"}, aaSpellName = "attack"},
-        Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
+        -- Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
+        -- Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
+        -- Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
+        -- Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
+        Amumu        = { aaParticles = {"SadMummyBasicAttack"}, aaSpellName = "attack"}
     }
 end
 local aaData = GetAAData()[myHero.name]
-if not aaData then
-   aaData = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack" }
-end
+-- if not aaData then
+--    aaData = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack" }
+-- end
 
 local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
 local lastAAState = 0
 
-local lastAttack = os.clock() -- last time I cast an attack
+local lastAttack = time() -- last time I cast an attack
 local shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 function aaTick()
@@ -98,6 +98,9 @@ function IsAttacking()
 end
 
 function JustAttacked()
+   if not aaData then -- hacky for people without aa info
+      return true
+   end
    if shotFired and not CanAttack() then
       return true 
    end
@@ -135,7 +138,7 @@ end
 
 function setAttackState(state)
    if attackState == 0 and state == 0 then
-      lastAAState = os.clock()
+      lastAAState = time()
       return
    end
    if attackState == 0 and state >= 3 then      
@@ -165,7 +168,7 @@ function onObjAA(object)
 end
 
 function onSpellAA(obj,spell)
-   if obj ~= nil and obj.name == myHero.name then
+   if aaData and obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
       if type(spellName) == "table" then
          if spell.name == "" or ListContains(spell.name, spellName) then
