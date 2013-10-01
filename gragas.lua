@@ -20,8 +20,9 @@ spells["barrel"] = {
   ap=.9,
   delay=2,
   speed=12,
-  radius=325,
-  cost={80,90,100,110,120}
+  radius=300,
+  cost={80,90,100,110,120},
+  noblock=true
 }
 spells["rage"] = {
   key="W"
@@ -101,21 +102,12 @@ end
 function Action()
    if CanUse("barrel") and not isBarrelActive() then
 
-      local target = GetWeakestEnemy("barrel")
-      if target and IsGoodFireahead("barrel", target) then
+      local target = SkillShot("barrel")
+      if target then
          CastFireahead("barrel", target)
-         PrintAction("Barrel weak", target)
+         PrintAction("Barrel", target)
          return true
       end
-
-      local targets = SortByDistance(GetInRange(me, "barrel", ENEMIES))
-      for _,target in ipairs(targets) do
-         if IsGoodFireahead("barrel", target) then
-            CastFireahead("barrel", target)
-            PrintAction("Barrel close", target)
-            return true
-         end
-      end 
 
    end
 end
