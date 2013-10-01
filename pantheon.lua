@@ -118,8 +118,8 @@ function Run()
       if IsOn("lasthit") and CanUse("spear") and me.mana/me.maxMana > .75 then
          local minions = SortByHealth(GetInRange(me, "spear", MINIONS))
          for _,minion in ipairs(minions) do
-            if (GetDistance(minion) > spells["AA"].range or JustAttacked()) and
-               GetSpellDamage("spear", minion) > minion.health
+            if GetDistance(minion) > spells["AA"].range and
+               WillKill("spear", minion)
             then
                Cast("spear", minion)
                PrintAction("Spear for lasthit")
