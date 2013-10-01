@@ -19,7 +19,8 @@ spells["boomerang"] = {
    delay=2.5,
    speed=13,
    width=80,
-   cost={70,80,90,100,110}
+   cost={70,80,90,100,110},
+   noblock=true
 }
 spells["ricochet"] = {
    key="W",
