@@ -35,9 +35,9 @@ spells["lotus"] = {
    key="R", 
    range=550, 
    color=red,
-   base={400,500,600},
-   ap=2,
-   adBonus=3,
+   base={400,575,750},
+   ap=2.5,
+   adBonus=3.75,
    name="KatarinaE"
 }
 

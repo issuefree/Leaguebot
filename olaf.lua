@@ -16,10 +16,10 @@ spells["axe"] = {
    key="Q", 
    range=1000, 
    color=violet, 
-   base={80,125,170,215,260}, 
+   base={70,115,160,205,250}, 
    adBonus=1, 
    type="P",
-   delay=2.65,
+   delay=2,
    speed=16,
    width=80,
    overShoot=150,
@@ -28,18 +28,18 @@ spells["axe"] = {
 }
 spells["strikes"] = {
    key="W",
-   cost={40,45,50,55,60}
+   cost=30
 }
 spells["swing"] = {
    key="E", 
    range=325, 
    color=yellow, 
-   base={100,160,220,280,340}, 
+   base={70,115,160,205,250}, 
+   ad=.4,
    type="T"
 }
 spells["ragnarok"] = {
-   key="R",
-   cost={100,75,50}
+   key="R"
 }
 
 --[[
