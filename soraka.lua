@@ -103,7 +103,7 @@ function Action()
 	if CanUse("infuse") then
 		local target = GetMarkedTarget() or GetWeakestEnemy("infuse")
 		Cast("infuse", target)
-		PrintAction("Infuse", target)
+		PrintAction("Infuse D", target)
 		return true
 	end
 
@@ -127,6 +127,7 @@ function infuseMinion()
 	for _,minion in ipairs(minions) do
 		if CalcMagicDamage(minion, dam) > minion.health then
 			Cast("infuse", minion)
+			PrintAction("Infuse lasthit")
 			return true
 		end
 	end
@@ -144,6 +145,7 @@ function FollowUp()
 					kills = kills + 1
 					if kills >= 2 then
 						Cast("starfall", me)
+						PrintAction("Starfall for lasthit")
 						return true
 					end
 				end
@@ -151,6 +153,7 @@ function FollowUp()
 		end
 
 		if KillWeakMinion("AA") then
+			PrintAction("AA minion")
          return true
       end		
 	end
@@ -159,6 +162,7 @@ function FollowUp()
 		if CanUse("starfall") then
 			if #GetInRange(me, "starfall", MINIONS) > 2 then
 				Cast("starfall", me)
+				PrintAction("Starfall for clear")
 				return true
 			end
 		end
@@ -204,6 +208,7 @@ function infuseTeam()
 		-- don't infuse mostly full people if there's a nearby enemy
 		if not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5 then
 			Cast("infuse", bestInRangeT)
+			PrintAction("Infuse M", target)
 			return true
 		else
 			Circle(bestInRangeT, 100, blue)
