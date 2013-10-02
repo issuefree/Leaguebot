@@ -26,7 +26,8 @@ spells["pp"] = {
    delay=2,
    speed=20,
    type="P",
-   width=80
+   width=80,
+   noblock=true
 }
 spells["trap"] = {
    key="W", 
@@ -35,7 +36,8 @@ spells["trap"] = {
    ap=.6,
    cost=50,
    delay=7,
-   speed=99
+   speed=0,
+   noblock=true
 }
 spells["net"] = {
    key="E", 
@@ -76,9 +78,9 @@ function Run()
    end
 
    if IsOn("execute") then
-      local target = GetWeakEnemy("PHYSICAL", GetSpellRange("ace"))
-      if target and target.health < GetSpellDamage("ace", target) then
-         PlaySound("Beep")
+      local target = GetWeakestEnemy("ace")
+      if target and WillKill("ace", target) then
+         LineBetween(me, target, 3)
          Circle(target, 100, red, 6)
       end
    end
@@ -98,38 +100,36 @@ end
 
 function Action()
    UseItems()
-   
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if target then
-      if IsOn("trap") and 
-         CanUse("trap") and 
-         me.mana > GetSpellCost("net") + GetSpellCost("trap") 
-      then
-         -- trap targets that are moving mostly directly toward or away from me.
-         if IsGoodFireahead("trap", target, 30) then
-            PrintAction("It's a trap!", target)
-            CastFireahead("trap", target)            
-            return true
-         end
-      end
 
-      if AA(target) then
-         PrintAction("AA", target)
+   if IsOn("trap") and 
+      CanUse("trap") and 
+      me.mana > GetSpellCost("net") + GetSpellCost("trap") 
+   then
+      local target = SkillShot("trap")
+      if target then
+         CastFireahead("trap", target)
+         PrintAction("It's a trap!", target)
          return true
       end
    end
 
-   -- get the weakest target within pp range but out of AA range
-   local targets = GetInRange(me, "pp", ENEMIES)
-   targets = FilterList(targets, function(item) return GetDistance(item) > GetSpellRange("AA") end)
-   local target = GetWeakest("pp", targets)
-   if target then
-      if IsOn("pp") and CanUse("pp") and me.mana > GetSpellCost("net") + GetSpellCost("pp") then
-         if IsGoodFireahead("pp", target) then
-            PrintAction("PP", target)
-            CastFireahead("pp", target)
-            return true
-         end
+   if AA(target) then
+      PrintAction("AA", target)
+      return true
+   end
+
+   if IsOn("pp") and 
+      CanUse("pp") and 
+      me.mana > GetSpellCost("net") + GetSpellCost("pp") 
+   then
+      -- get the weakest target within pp range but out of AA range
+      local targets = GetGoodFireaheads("pp", ENEMIES)
+      targets = FilterList(targets, function(item) return GetDistance(item) > GetSpellRange("AA") end)
+      local target = GetWeakest("pp", targets)
+      if target then
+         CastFireahead("pp", target)
+         PrintAction("PP", target)
+         return true
       end
    end
 
