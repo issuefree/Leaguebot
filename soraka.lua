@@ -119,13 +119,13 @@ function Action()
 end
 
 function infuseMinion()
-	if not CanUse("infuse") then return false	end
+	if not CanUse("infuse") then return false end
 
 	local dam = GetSpellDamage("infuse")
 
 	local minions = SortByHealth(GetInRange(me, "infuse", MINIONS))
 	for _,minion in ipairs(minions) do
-		if CalcMagicDamage(minion, dam) > minion.health then
+		if WillKill("infuse", minion) then
 			Cast("infuse", minion)
 			PrintAction("Infuse lasthit")
 			return true
@@ -208,7 +208,7 @@ function infuseTeam()
 		-- don't infuse mostly full people if there's a nearby enemy
 		if not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5 then
 			Cast("infuse", bestInRangeT)
-			PrintAction("Infuse M", target)
+			PrintAction("Infuse M", bestInRangeT)
 			return true
 		else
 			Circle(bestInRangeT, 100, blue)
