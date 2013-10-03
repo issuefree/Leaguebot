@@ -64,7 +64,7 @@ function Run()
 --      Circle(GetFireahead(target, 1.2, 20),100, red )
 --   end
   
-   if IsOn("harrass") and CanUse("shot") then
+   if IsOn("harrass") then
       if SkillShot("shot") then
          return true
       end
@@ -103,18 +103,14 @@ end
 function Action()
    local minFluxLevel = 0
    -- flux enemy if flux is over level 1 (waste of mana at low levels)
-   if CanUse("flux") and GetSpellLevel("W") > minFluxLevel then
-      local target = GetWeakestEnemy("flux")
-      if target and IsGoodFireahead("flux", target) then
-         CastFireahead("flux", target)
+   if GetSpellLevel("W") > minFluxLevel then
+      if SkillShot("flux") then
          return true
       end
    end
    
-   if CanUse("shot") then -- in case harass is off
-      if SkillShot("shot") then
-         return true
-      end
+   if SkillShot("shot") then -- in case harass is off
+      return true
    end
 
    local target = GetWeakEnemy("PHYS", spells["AA"].range)

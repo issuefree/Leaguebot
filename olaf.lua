@@ -111,10 +111,8 @@ function Run()
 end
 
 function Action()   
-   if CanUse("axe") then      
-      if SkillShot("axe") then
-         return true
-      end
+   if SkillShot("axe") then
+      return true
    end
       
    local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+50)

@@ -100,7 +100,7 @@ function Run()
 end
 
 function Action()
-   if CanUse("barrel") and not isBarrelActive() then
+   if not isBarrelActive() then
       if SkillShot("barrel") then
          return true
       end
