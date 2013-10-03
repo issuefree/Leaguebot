@@ -83,7 +83,7 @@ function Run()
    
    if IsOn("lasthit") and Alone() then
       if CanUse("shot") then
-         for _,minion in ipairs(GetUnblocked(me, "shot", MINIONS)) do
+         for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
             if WillKill("shot", minion) and
                ( JustAttacked() or
                  GetDistance(minion) > spells["AA"].range )
