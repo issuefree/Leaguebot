@@ -26,7 +26,8 @@ spells["orb"] = {
    delay=2.5,
    speed=8.5,
    width=80,
-   radius=150
+   radius=150,
+   noblock=true
 }
 spells["wall"] = {
    key="W", 

@@ -14,7 +14,8 @@ spells["shot"] = {
   adBonus=.8,
   delay=2,
   speed=50,
-  cone=30
+  cone=30,
+  noblock=true
 }
 spells["smoke"] = {
   key="W", 
@@ -23,7 +24,8 @@ spells["smoke"] = {
   base={60,110,160,210,260}, 
   ap=.6,
   delay=2,
-  speed=50,
+  speed=0,
+  noblock=true
   area=250
 }
 spells["dash"] = {

@@ -15,8 +15,8 @@ spells["lay"] = {
    radius=137.5,
    delay=7.5,
    speed=0,
-   cost={20,26,32,38,44},
-   noblock=true
+   noblock=true,
+   cost={20,26,32,38,44}
 }
 spells["wall"] = {
    key="W", 

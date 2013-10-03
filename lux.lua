@@ -44,6 +44,7 @@ spells["singularity"] = {
    ap=.6,
    delay=2.65,
    speed=13,
+   noblock=true,
    radius=350,
    cost={70,85,100,115,130}
 }

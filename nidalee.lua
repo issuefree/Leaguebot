@@ -33,7 +33,8 @@ spells["trap"] = {
    color=yellow,
    cost={60,75,90,105,120},
    delay=5,
-   speed=0
+   speed=0,
+   noblock=true
 }
 
 spells["heal"] = {

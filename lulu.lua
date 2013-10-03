@@ -11,6 +11,7 @@ spells["lance"] = {
 	color=violet, 
 	base={80,125,170,215,260}, 
 	ap=.5,
+	noblock=true,
 	cost={60,65,70,75,80}
 }
 spells["whimsy"] = {

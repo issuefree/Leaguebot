@@ -20,7 +20,8 @@ spells["standaside"] = {
   adBonus=.5,
   delay=2,
   speed=12,
-  width=100
+  width=100,
+  noblock=true
 }
 
 

@@ -39,6 +39,7 @@ spells["grenade"] = {
   ap=.6,
   delay=2.5,
   speed=7.5,
+  noblock=true,
   radius=250,
   cost={80,90,100,110,120}
 }

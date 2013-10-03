@@ -31,6 +31,9 @@ spells["flux"] = {
    color=yellow, 
    base={70,115,160,205,250}, 
    ap=.8,
+   delay=2,
+   speed=15,
+   noblock=true,
    cost={50,60,70,80,90}
 }
 spells["arrow"] = {
@@ -53,6 +56,7 @@ spells["barrage"] = {
    ap=.9,
    delay=12,
    speed=20,
+   noblock=true,
    cost=100
 }
 

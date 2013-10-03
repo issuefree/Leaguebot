@@ -18,6 +18,7 @@ spells["cask"] = {
    color=yellow, 
    delay=2,
    speed=14,
+   noblock=true,
    area=300
 }
 spells["expColor1"] = {

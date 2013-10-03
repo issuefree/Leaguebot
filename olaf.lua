@@ -21,10 +21,10 @@ spells["axe"] = {
    type="P",
    delay=2,
    speed=16,
+   noblock=true,
    width=80,
    overShoot=150,
-   cost={55,60,65,70,75},
-   noblock=true
+   cost={55,60,65,70,75}
 }
 spells["strikes"] = {
    key="W",

@@ -45,6 +45,7 @@ spells["blades"] = {
    bonusAd=.6,
    delay=1.6,
    speed=20,
+   noblock=true,
    width=100,
    cost=100
 }

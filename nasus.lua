@@ -48,6 +48,7 @@ spells["fire"] = {
    radius=400,
    delay=4,
    speed=0,
+   noblock=true,
    cost={70,85,100,115,130}
 }
 spells["fury"] = {

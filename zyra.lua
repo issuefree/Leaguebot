@@ -15,6 +15,7 @@ spells["bloom"] = {
   ap=.6,
   delay=2,
   speed=12, --?
+  noblock=true,
   area=300  --?
 }
 spells["seed"] = {
@@ -30,6 +31,7 @@ spells["roots"] = {
   ap=.5,
   delay=2,
   speed=12, --?
+  noblock=true,
   width=80  --?
 }
 spells["strangle"] = {
@@ -39,6 +41,8 @@ spells["strangle"] = {
   base={180,265,350}, 
   ap=.7,
   delay=2,
+  speed=0,
+  noblock=true,
   area=600  --?
 }
 

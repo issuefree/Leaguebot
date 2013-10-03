@@ -43,6 +43,7 @@ spells["charge"] = {
    type="P",
    delay=2.5,
    speed=15,
+   noblock=true,
    width=300
 }
 

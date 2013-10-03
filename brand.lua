@@ -27,8 +27,9 @@ spells["pillar"] = {
   base={75,120,165,210,255}, 
   ap=.6,
   delay=2+6,
-  speed=99,
-  area=250
+  speed=0,
+  area=250,
+  noblock=true
 }
 spells["conflag"] = {
   key="E", 
