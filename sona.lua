@@ -10,7 +10,7 @@ AddToggle("tear", {on=true, key=114, label="Charge Tear / Fastwalk"})
 
 spells["blue"] = {
    key="Q", 
-   range=800, 
+   range=700, 
    color=blue, 
    base={50,100,150,200,250}, 
    ap=.7,
@@ -93,7 +93,7 @@ function Run()
          minionRays = minionRays - 1
       end
    end
-   
+
    if IsOn("tear") then
       if CanUse("violet") and Alone() then
          if GetDistance(HOME) > 1000 and GetMPerc(me) > .9 then
