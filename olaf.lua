@@ -112,10 +112,7 @@ end
 
 function Action()   
    if CanUse("axe") then      
-      local target = SkillShot("axe")
-      if target then
-         CastFireahead("axe", target)
-         PrintAction("Axe", target)
+      if SkillShot("axe") then
          return true
       end
    end

@@ -125,10 +125,7 @@ function Action()
       end
 
       -- barring that throw it at the weakest single
-      local target = SkillShot("rupture")
-      if target then
-         CastFireahead("rupture", target)
-         PrintAction("Rupture weak", target)
+      if SkillShot("rupture") then
          return true
       end
    end

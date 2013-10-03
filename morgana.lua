@@ -90,16 +90,10 @@ end
 
 function Action()
    if CanUse("bind") then
-      local target = SkillShot("binding", "peel")
-      if target then
-         CastFireahead("binding", target)
-         PrintAction("Binding for peel", target)
+      if SkillShot("binding", "peel") then
          return true
       end
-      local target = SkillShot("binding")
-      if target then
-         CastFireahead("binding", target)
-         PrintAction("Binding", target)
+      if SkillShot("binding") then
          return true
       end
    end

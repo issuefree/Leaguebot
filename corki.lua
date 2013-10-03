@@ -74,6 +74,11 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
+   if IsOn("lasthit") and CanUse("phos") then
+      if KillMinionsInArea("phos", 3) then
+         return true
+      end
+   end
 
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
@@ -86,7 +91,7 @@ function Run()
 end
 
 function Action()
-   local target = GetWeakEnemy("PHYS", spells["AA"].range)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -112,9 +117,13 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      MoveToCursor() 
-      -- PrintAction("Move")
-      return false
+      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
+         #GetInRange(me, "AA", ENEMIES) == 0 
+      then
+         MoveToCursor()
+         -- PrintAction("Move")
+         return false   
+      end
    end
 
    return false

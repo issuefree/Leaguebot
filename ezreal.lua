@@ -65,10 +65,7 @@ function Run()
 --   end
   
    if IsOn("harrass") and CanUse("shot") then
-      local target = SkillShot("shot")
-      if target then
-         CastFireahead("shot", target)
-         PrintAction("Shot", target)
+      if SkillShot("shot") then
          return true
       end
    end
@@ -115,10 +112,7 @@ function Action()
    end
    
    if CanUse("shot") then -- in case harass is off
-      local target = SkillShot("shot")
-      if target then
-         CastFireahead("shot", target)
-         PrintAction("Shot", target)
+      if SkillShot("shot") then
          return true
       end
    end

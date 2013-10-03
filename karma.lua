@@ -137,7 +137,7 @@ function Action()
          end
       end
 
-      local target = SkillShot("flame")
+      local target = GetSkillShot("flame")
       if target then
          if CanUse("mantra") and ApproachAngleRel(me, target) < 30 then
             Cast("mantra", me)

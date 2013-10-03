@@ -60,7 +60,7 @@ end
 
 function Action()
 -- ranged
-   local target = GetWeakEnemy("PHYS", spells["AA"].range)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -76,7 +76,6 @@ function Action()
 
    return false
 end
-
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion("AA") then
@@ -96,9 +95,13 @@ function FollowUp()
 
 -- ranged
    if IsOn("move") then
-      MoveToCursor() 
-      -- PrintAction("Move")
-      return false
+      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
+         #GetInRange(me, "AA", ENEMIES) == 0 
+      then
+         MoveToCursor()
+         -- PrintAction("Move")
+         return false   
+      end
    end
 
 -- melee
@@ -116,6 +119,10 @@ function FollowUp()
    --    end
    -- end
 
+-- mage
+   if IsOn("move") then
+   end
+
    return false
 end
 
@@ -128,3 +135,4 @@ end
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
+

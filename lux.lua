@@ -178,16 +178,10 @@ function Action()
 
    -- peel if necessary, else hit someone weak
    if CanUse("binding") then
-      local target = SkillShot("binding", "peel")
-      if target then
-         CastFireahead("binding", target)
-         PrintAction("Binding to peel")
+      if SkillShot("binding", "peel") then
          return true
       end
-      local target = SkillShot("binding")
-      if target then
-         CastFireahead("binding", target)
-         PrintAction("Binding")
+      if SkillShot("binding") then
          return true
       end
    end

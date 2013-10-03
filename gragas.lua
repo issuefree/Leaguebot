@@ -101,14 +101,9 @@ end
 
 function Action()
    if CanUse("barrel") and not isBarrelActive() then
-
-      local target = SkillShot("barrel")
-      if target then
-         CastFireahead("barrel", target)
-         PrintAction("Barrel", target)
+      if SkillShot("barrel") then
          return true
       end
-
    end
 end
 

@@ -105,14 +105,12 @@ function Action()
       CanUse("trap") and 
       me.mana > GetSpellCost("net") + GetSpellCost("trap") 
    then
-      local target = SkillShot("trap")
-      if target then
-         CastFireahead("trap", target)
-         PrintAction("It's a trap!", target)
+      if SkillShot("trap") then
          return true
       end
    end
 
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -165,11 +163,11 @@ function FollowUp()
          #GetInRange(me, "AA", ENEMIES) == 0 
       then
          MoveToCursor()
-         PrintAction("move")
+         -- PrintAction("Move")
          return false   
       end
    end
-
+   
    return false
 end
 

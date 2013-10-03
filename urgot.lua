@@ -137,10 +137,7 @@ function Action()
       if time() - chargeTime < .5 then
          PrintAction("Waiting for charge to land "..time()-chargeTime)
       else
-         local target = SkillShot("hunter")
-         if target then
-            CastFireahead("hunter", target)
-            PrintAction("Hunter SS", target)
+         if SkillShot("hunter") then
             return true
          end
       end

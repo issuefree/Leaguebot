@@ -91,10 +91,7 @@ function Run()
 end
 
 function Action()
-   local target = SkillShot("cleaver")
-   if target then
-      CastFireahead("cleaver", target)
-      PrintAction("Cleaver", target)
+   if SkillShot("cleaver") then
       return true
    end
    

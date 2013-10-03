@@ -621,6 +621,16 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
 end
 
 function SkillShot(thing, purpose)
+   local target = GetSkillShot(thing, purpose)
+   if target then
+      CastFireahead(thing, target)
+      PrintAction(thing, target)
+      return true
+   end
+   return false
+end
+
+function GetSkillShot(thing, purpose)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return nil end
 

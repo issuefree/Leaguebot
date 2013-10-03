@@ -79,10 +79,7 @@ end
 
 function Action()   
    if not isCougar then
-      local target = SkillShot("jav")
-      if target then
-         CastFireahead("jav", target)
-         PrintAction("Jav", target)
+      if SkillShot("jav") then
          return true
       end      
       
