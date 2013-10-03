@@ -19,16 +19,16 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 --spells["binding"] = {
---   key="Q", 
---   range=1175, 
---   color=violet, 
---   base={60,110,160,210,260}, 
---   ap=.7,
---   delay=2,
---   speed=12,
---   width=80,
---   cost={10,20,30,40,50}
---}
+--    key="Q", 
+--    range=1175, 
+--    color=violet, 
+--    base={60,110,160,210,260}, 
+--    ap=.7,
+--    delay=2,
+--    speed=12,
+--    width=80,
+--    cost={10,20,30,40,50}
+--} 
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
