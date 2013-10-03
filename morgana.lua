@@ -26,8 +26,9 @@ spells["soil"] = {
    color=violet, 
    base={25,40,55,70,85}, 
    ap=.2,
-   radius=300,
-   cost={70,85,100,115,130}
+   radius=275,
+   cost={70,85,100,115,130},
+   noblock=true
 }
 spells["shield"] = {
    key="E", 
