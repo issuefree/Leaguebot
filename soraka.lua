@@ -196,10 +196,10 @@ function infuseTeam()
 		   not IsRecalling(hero)
 		then			
 			if not bestInRangeT or
-			   hero.mana/hero.maxMana < bestInRangeP
+			   GetMPerc(hero) < bestInRangeP
 			then		
 				bestInRangeT = hero
-				bestInRangeP = hero.mana/hero.maxMana
+				bestInRangeP = GetMPerc(hero)
 			end
 		end
 	end
@@ -223,7 +223,7 @@ function Wish()
 		return false
 	end
 	for _,ally in ipairs(ALLIES) do
-		if ally.health/ally.maxHealth < .33 then
+		if GetHPerc(ally) < .33 then
 			for _,enemy in ipairs(ENEMIES) do
 				if GetDistance(ally, enemy) < 1000 then
 					PlaySound("Beep")
