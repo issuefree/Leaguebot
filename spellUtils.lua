@@ -323,7 +323,7 @@ end
 
 function IsGoodFireahead(thing, target)
    local spell = GetSpell(thing)
-   if not target then return end
+   if not ValidTarget(target) then return false end   
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
 
@@ -374,7 +374,12 @@ function WillKill(thing, target)
 end
 
 function ICast(thing, unit, spell)
+   if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
-   return IsMe(unit) and spell.name == mySpell.name
+   if #mySpell.key > 1 then
+      return spell.name == thing
+   else
+      return spell.name == mySpell.name
+   end
 end
 
