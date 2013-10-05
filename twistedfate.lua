@@ -15,14 +15,48 @@ end
 AddToggle("farm", {on=true, key=112, label="Auto Farm", auxLabel="{0}", args={GetAADamage}})
 AddToggle("pick", {on=true, key=113, label="Auto Pick", auxLabel="{0}", args={getCard}})
 
-spells["wild"] = {key="Q", range=1450, color=violet, base={60,110,160,210,260}, ap=.65}
-spells["pick"] = {key="W"}
+spells["wild"] = {
+	key="Q", 
+	range=1450, 
+	color=violet, 
+	base={60,110,160,210,260}, 
+	ap=.65,
+	delay=2,
+	speed=10,
+	noblock=true
+}
+spells["pick"] = {
+	key="W"
+}
+spells["blue"] = {
+	key="W", 
+	range=spells["AA"].range, 
+	base={40,60,80,100,120}, 
+	ap=.4, 
+	ad=1
+}
+spells["red"] = {
+	key="W", 
+	range=spells["AA"].range, 
+	base={30,45,60,75,90}, 
+	ap=.4, 
+	ad=1
+}
+spells["yellow"]  = {
+	key="W", 
+	range=spells["AA"].range, 
+	base={30,45,60,75,90}, 
+	ap=.4, 
+	ad=1
+}
 
-spells["blue"] = {key="W", range=spells["AA"].range, base={40,60,80,100,120}, ap=.4, ad=1}
-spells["red"]  = {key="W", range=spells["AA"].range, base={30,45,60,75,90}, ap=.4, ad=1}
-spells["yellow"]  = {key="W", range=spells["AA"].range, base={30,45,60,75,90}, ap=.4, ad=1}
-
-spells["stacked"] = {key="E", range=spells["AA"].range, base={15,22.5,30,37.5,45}, ap=.4, ad=1}
+spells["stacked"] = {
+	key="E", 
+	range=spells["AA"].range, 
+	base={15,22.5,30,37.5,45}, 
+	ap=.4, 
+	ad=1
+}
 
 spells["card"] = nil
 spells["stack"] = nil
@@ -34,9 +68,10 @@ function Run()
 	  PrintState(1, "not")
 	end
 	
-	if IsRecalling(me) then
-	  return
-	end
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
+   end
 	
 	if not P.cardSelected then
       spells["card"] = nil
@@ -49,15 +84,15 @@ function Run()
 		if HotKey() and target then
          UseItems()
          if CanUse("pick") and not selecting then
-            CastSpellTarget("W", me)
+            Cast("pick", me)
             selecting = true
          end
 
-         if CanUse("wild") then
-            CastSpellXYZ("Q", target.x, target.y, target.z)
+         if SkillShot("wild") then
+         	return true
          end
          
-         AttackTarget(target)
+         -- AttackTarget(target)
       end
 	else
 		if IsOn("farm") and not gating then
