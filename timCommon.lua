@@ -625,7 +625,7 @@ function SkillShot(thing, purpose)
    if target then
       CastFireahead(thing, target)
       PrintAction(thing, target)
-      return true
+      return target
    end
    return false
 end
