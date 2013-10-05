@@ -7,6 +7,12 @@ red    = 2
 blue   = 3
 violet = 4
 
+-- text colors
+yellowT = 0xFFFFFF00
+greenT  = 0xFF00FF00
+redT    = 0xFFFF0000
+blueT   = 0xFF00FFFF
+
 function LineBetween(object1, object2, thickness)
    if not thickness then
       thickness = 0
