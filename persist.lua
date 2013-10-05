@@ -84,7 +84,26 @@ function Persist(name, object, charName)
       P[name] = object
       PData[name] = {}
       PData[name].cn = object.charName
+      return true
    end
+end
+
+function PersistAll(name, object, charName)
+   if object and (not charName or find(object.charName, charName)) then      
+      Persist(name..object.id, object)
+      PData[name..object.id].name = name
+      return true
+   end
+end
+
+function GetPersisted(name)
+   local persisted = {}
+   for pKey,data in pairs(PData) do
+      if data.name == name then
+         table.insert(persisted, P[pKey])
+      end
+   end
+   return persisted
 end
 
 -- find an object only near me and persist it
