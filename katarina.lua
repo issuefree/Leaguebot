@@ -29,7 +29,8 @@ spells["shunpo"] = {
    range=700, 
    color=yellow, 
    base={60,85,110,135,160}, 
-   ap=.4
+   ap=.4,
+   name="KatarinaE"
 }
 spells["lotus"] = {
    key="R", 
