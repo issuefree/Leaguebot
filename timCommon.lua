@@ -853,8 +853,8 @@ function UseItem(itemName, target)
          end
       end
 
-      for _,hero in ipairs(ALLIES) do
-         if hero.health/hero.maxHealth < .25 then
+      for _,hero in ipairs(GetInRange(me, ITEMS["Mikael's Crucible"].range, ALLIES)) do
+         if GetHPerc(hero) < .25 then
             CastSpellTarget(slot, hero)
              pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
          end
