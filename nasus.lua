@@ -99,11 +99,13 @@ function Run()
    end
    
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return true
       end
    end
+
+   PrintAction()
 end
 
 function Action()
