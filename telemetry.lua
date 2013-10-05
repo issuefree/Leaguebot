@@ -34,7 +34,7 @@ end
 
 function GetDistanceSqr(p1, p2)
     p2 = p2 or myHero
-    return (p1.x - p2.x) ^ 2 + ((p1.z or p1.y) - (p2.z or p2.y)) ^ 2
+    return (p1.x - p2.x)^2 + ((p1.z or p1.y) - (p2.z or p2.y))^2
 end
 
 function AngleBetween(object1, object2)
@@ -133,7 +133,7 @@ function GetCenter(targets)
 end
 
 function GetOffset(p1, p2)
-   return {x=p1.x-p2.x, y=p1.y-p2.y, z=p1.z-p2.z}
+   return Point(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z)
 end
 
 --[[
@@ -152,13 +152,13 @@ end
 
 function FacingMe(target)
    local d1 = GetDistance(target)
-   local x, y, z = GetFireahead(target,3,0)
-   local d2 = GetDistance({x=x, y=y, z=z})
+   local p = Point(GetFireahead(target,3,0))
+   local d2 = GetDistance(p)
    return d2 < d1 
 end
 
 function GetMousePos()
-   return {x=GetCursorWorldX(), y=GetCursorWorldY(), z=GetCursorWorldZ()}
+   return Point(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
 end
 
 function Engaged()
