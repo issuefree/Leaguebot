@@ -31,13 +31,6 @@ function smiteTick()
          break 
       end
    end
-
---   local inRange = GetInRange(me, spells["smite"].range, ENEMIES)
---   for _,enemy in ipairs(inRange) do
---      if CanUse("ignite") and enemy.health < GetSpellDamage("ignite") then
---         CastSpellTarget(spells["ignite"].key, enemy)
---      end      
---   end
 end
 
 local function onCreateSmite(obj)   
