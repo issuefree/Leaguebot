@@ -1,11 +1,10 @@
 require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 print("\nTim's Nunu")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("boil",  {on=true, key=113, label="Boil ADC"})
 AddToggle("blast", {on=true, key=114, label="Auto Blast", auxLabel="{0}", args={"iceblast"}})
 AddToggle("", {on=true, key=115, label=""})
@@ -16,9 +15,10 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["consume"] = {
 	key="Q",
-	range=125,
+	range=225,
 	base={500,625,750,875,1000},
-	color=yellow
+	color=yellow,
+	cost=60
 }
 spells["fed"] = {
 	key="Q",
@@ -28,33 +28,48 @@ spells["fed"] = {
 spells["boil"] = {
 	key="W", 
 	range=700,  
-	color=green
+	color=green,
+	cost=50
 }
 spells["iceblast"] = {
 	key="E", 
-	range=550,  
+	range=575,  
 	color=violet, 
 	base={85,130,175,225,275}, 
-	ap=1
+	ap=1,
+	cost={75,85,95,105,115}
 }
 spells["zero"] = {
 	key="R", 
 	range=650, 
 	color=red,    
 	base={625,875,1125}, 
-	ap=2.5
+	ap=2.5,
+	cost=100
 }
 
 local lastBoil = time()
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
    end
 
 	if HotKey() and CanAct() then 
-		Action()
+		if Action() then
+			return true
+		end
 	end
+
+	if IsOn("lasthit") then
+		if me.maxHealth - me.health > GetSpellDamage("fed") then
+			if KillWeakMinion("consume") then
+				return true
+			end
+		end
+	end
+
 end
 
 function Action()
@@ -64,59 +79,40 @@ function Action()
 		   time() - lastBoil > 12 and 
 		   ADC and
 		   ADC.name ~= me.name and
-		   GetDistance(ADC) < spells["boil"].range 
+		   GetDistance(ADC) < GetSpellRange("boil")
 		then
 			Cast("boil", ADC)
+			PrintAction("Boil", ADC)
 			lastBoil = time()
-			return
+			return true
 		end
 	end
 	
 	if IsOn("blast") then
-		local spell = GetSpell("iceblast")
 		if CanUse("iceblast") then
-			if EADC and GetDistance(EADC) < spell.range then
+			if EADC and GetDistance(EADC) < GetSpellRange("iceblast") then
 				Cast("iceblast", EADC)
-				return
+				PrintAction("Iceblast EADC", EADC)
+				return true
 			else
-				local target = GetWeakEnemy("MAGIC", spell.range)
+				local target = GetWeakestEnemy("iceblast")
 				if target then
 					Cast("iceblast", target)
-					return
+					PrintAction("Iceblast", target)
+					return true
 				end
 			end
 		end
 	end
 
-   local aaTarget = GetWeakEnemy("PHYSICAL", spells["AA"].range+100)
-   if aaTarget then
-      if AA(aaTarget) then
-         return
-      end
-	end
-
-	if IsOn("lasthit") then
-		if me.maxHealth - me.health > GetSpellDamage("fed") then
-			if KillWeakMinion("consume") then
-				return
-			end
-		end
-
-		if Alone() and KillWeakMinion("AA") then
-			return
+	local target = GetWeakestEnemy("AA")
+	if target then
+		if AA(target) then
+			return true
 		end
 	end
 
-   if IsOn("clearminions") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         return
-      end
-   end
-
-   if IsOn("move") then
-      MoveToCursor() 
-   end
+   return false
 end
 
 SetTimerCallback("Run")
