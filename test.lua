@@ -56,6 +56,28 @@ function t(a, b)
    pp(a.." "..b)
 end
 
-t(foo())
+function class()
+    local cls = {}
+    cls.__index = cls
+    return setmetatable(cls, {__call = function (c, ...)
+        local instance = setmetatable({}, cls)
+        if cls.__init then
+            cls.__init(instance, ...)
+        end
+        return instance
+    end})
+end
+Point = class()
 
+function Point:__init(a, b, c)
+   self.x = a
+   self.y = b
+   self.z = c
+end
+
+function Point:__add(a)
+   return Point(self.x+a.x, self.y+a.y, self.z+a.z)
+end
+
+pp(type(Point(1,2,1) + Point(5,2,2)))
 
