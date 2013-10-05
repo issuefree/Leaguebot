@@ -105,6 +105,20 @@ local function drawCommon()
       return
    end
 
+   for _,turret in ipairs(TURRETS) do
+      Circle(turret, 950, red)
+   end
+
+   for _,minion in ipairs(MINIONS) do
+      local hits = math.ceil(minion.health/GetAADamage(minion))
+      if hits == 1 then
+         DrawTextObject(hits.." hp", minion, blueT)
+         Circle(minion, 50, red, 3)
+      elseif hits <= 3 then
+         DrawTextObject(hits.." hp", minion, greenT)
+      end
+   end
+
    if P.markedTarget then
       Circle(P.markedTarget, nil, red, 7)
    end
@@ -833,7 +847,7 @@ function UseItem(itemName, target)
       -- I took (or tried to) take out the slows so it will only work on harder cc.
       -- how about try to free adc then apc then check for heals on all in range.
 
-      local crucibleRange = 750
+      local crucibleRange = ITEMS["Mikael's Crucible"].range
 
       local target = ADC
       if target and target.name ~= me.name and 
@@ -853,7 +867,7 @@ function UseItem(itemName, target)
          end
       end
 
-      for _,hero in ipairs(GetInRange(me, ITEMS["Mikael's Crucible"].range, ALLIES)) do
+      for _,hero in ipairs(GetInRange(me, crucibleRange, ALLIES)) do
          if GetHPerc(hero) < .25 then
             CastSpellTarget(slot, hero)
              pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
