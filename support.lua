@@ -1,10 +1,6 @@
 require "timCommon"
-require "spell_shot"
-
-local mortalStrikes = {}
 
 function SupportTick()
-	Clean(mortalStrikes, "charName", "Mortal_Strike")
 end
 
 function healTeam(thing)   
@@ -22,22 +18,22 @@ function healTeam(thing)
    for _,hero in ipairs(ALLIES) do
       if GetDistance(HOME, hero) > spell.range+250 and
          hero.health + maxW < hero.maxHealth*.9 and
-         not isWounded(hero) and 
+         not HasBuff("wound", hero) and 
          not IsRecalling(hero)
       then
          if GetDistance(hero) < spell.range then        
             if not bestInRangeT or
-               hero.health/hero.maxHealth < bestInRangeP
+               GetHPerc(hero) < bestInRangeP
             then           
                bestInRangeT = hero
-               bestInRangeP = hero.health/hero.maxHealth
+               bestInRangeP = GetHPerc(hero)
             end
          elseif GetDistance(hero) < spell.range+250 then
             if not bestOutRangeT or
-               hero.health/hero.maxHealth < bestOutRangeP
+               GetHPerc(hero) < bestOutRangeP
             then           
                bestOutRangeT = hero
-               bestOutRangeP = hero.health/hero.maxHealth
+               bestOutRangeP = GetHPerc(hero)
             end
          end
       end
@@ -56,19 +52,8 @@ function healTeam(thing)
    return false
 end
 
-function isWounded(hero)
-	for _,obj in ipairs(mortalStrikes) do
-		if obj and GetDistance(hero, obj) < 75 then
-			return true
-		end
-	end
-	return false
-end
-
 local function onCreateObjectSupport(object)
-	if find(object.charName, "Mortal_Strike") then
-		table.insert(mortalStrikes, object)
-	end
+   PersistOnTargets("wound", object, "Mortal_Strike", ENEMIES)
 end
 
 function CheckShield(thing, unit, spell, type)
