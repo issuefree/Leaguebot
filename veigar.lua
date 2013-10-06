@@ -69,7 +69,7 @@ function Run()
       local target = GetWeakest("dark", GetWithBuff("cc", GetInRange(me, spells["dark"].range+50, ENEMIES)))
       if target then
          CastXYZ("dark", target)
-         PrintAction("Dark Matter stunned")
+         PrintAction("Dark Matter stunned", target)
          return true
       end
    end
@@ -97,7 +97,7 @@ end
 function Action()
    UseItems()
    
-   local target = GetWeakEnemy('MAGIC', spells["event"].range+200)
+   local target = GetWeakEnemy('MAGIC', GetSpellRange("event")+200)
    if target then
       if CanUse("event") then
          if FacingMe(target) then
@@ -106,7 +106,7 @@ function Action()
             PrintAction("Event Horizon <-", target)
             return true
          else
-            local point = Projection(me, target, GetDistance(target)+150)
+            local point = Projection(me, target, math.min(GetSpellRange("event"), GetDistance(target)+150))
             CastXYZ("event", point)
             PrintAction("Event Horizon ->", target)
             return true
