@@ -63,7 +63,7 @@ function Run()
       numRockets = 3
    end
 
-	if HotKey() and CanAct() then
+	if HotKey() then
       UseItems()
 		if Action() then
 			return true
@@ -73,8 +73,8 @@ function Run()
    if IsOn("lasthit") and CanUse("rockets") and VeryAlone() then
       local targets = SortByDistance(GetInRange(me, "rockets", MINIONS))
       if #targets >= 2 and 
-         GetSpellDamage("rockets", targets[1]) > targets[1].health and
-         GetSpellDamage("rockets", targets[2]) > targets[2].health
+         WillKill("rockets", targets[1]) and
+         WillKill("rockets", targets[2])
       then
          Cast("rockets", me)
          PrintAction("Rockets for lasthit")
@@ -82,7 +82,7 @@ function Run()
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return true
       end
@@ -100,6 +100,8 @@ function Action()
             if validEnemies > 3 then -- upgrade so I can hit more people with rockets
                Cast("upgrade", me)
                PrintAction("UPGRADE!")
+               spells["grenade"].speed = 10
+               numRockets = 5
             end
          end
       end
