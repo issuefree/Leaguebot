@@ -10,6 +10,13 @@ require "toggles"
 
 ModuleConfig = scriptConfig("Module Config", "modules")
 
+if me.SpellLevelQ == 0 and
+   me.SpellLevelW == 0 and
+   me.SpellLevelE == 0
+then
+   os.remove("lualog.txt")
+end
+
 local lastAction = nil
 local lastActionTime = time()
 function PrintAction(str, target)
