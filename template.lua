@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 -- Try to stick to one "action" per loop.
 -- Action function should return 
@@ -20,6 +18,39 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 --spells["binding"] = {
 --    key="Q", 
+--    range=1175, 
+--    color=violet, 
+--    base={60,110,160,210,260}, 
+--    ap=.7,
+--    delay=2,
+--    speed=12,
+--    width=80,
+--    cost={10,20,30,40,50}
+--} 
+--spells["binding"] = {
+--    key="W", 
+--    range=1175, 
+--    color=violet, 
+--    base={60,110,160,210,260}, 
+--    ap=.7,
+--    delay=2,
+--    speed=12,
+--    width=80,
+--    cost={10,20,30,40,50}
+--} 
+--spells["binding"] = {
+--    key="E", 
+--    range=1175, 
+--    color=violet, 
+--    base={60,110,160,210,260}, 
+--    ap=.7,
+--    delay=2,
+--    speed=12,
+--    width=80,
+--    cost={10,20,30,40,50}
+--} 
+--spells["binding"] = {
+--    key="R", 
 --    range=1175, 
 --    color=violet, 
 --    base={60,110,160,210,260}, 
@@ -67,7 +98,7 @@ function Action()
    end
 
 -- melee
-   -- local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   -- local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
    -- if AA(target) then
    --    PrintAction("AA", target)
    --    return true
@@ -118,10 +149,6 @@ function FollowUp()
    --       return false
    --    end
    -- end
-
--- mage
-   if IsOn("move") then
-   end
 
    return false
 end
