@@ -57,7 +57,7 @@ function Run()
    end
 
      
-   if HotKey() then
+   if HotKey() or me.dead == 1 then
       UseItems()
       if Action() then
          return true
@@ -95,8 +95,8 @@ function Action()
    end
 
    if CanUse("lay") then
-      local target = GetWeakestEnemy("lay")
-      if target and IsGoodFireahead("lay", target) then
+      local target = SkillShot("lay")
+      if target then
          CastFireahead("lay", target)
          PrintAction("Lay", target)
          return true
