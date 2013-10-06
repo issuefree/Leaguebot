@@ -58,44 +58,38 @@ function Run()
    end
 
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
    end
 
-
+   -- I want all not moving targets.
+   -- I think I want to do this by looking for the stun obj and throwing darks at it
+   -- This might even catch other people's stuns.   
    if CanUse("dark") then
-      local stunnedEnemies = GetWithBuff("cc", GetInRange(me, spells["dark"].range+50, ENEMIES))
-      local bestS = 0
-      local bestT = nil
-      for _,nearStun in ipairs(stunnedEnemies) do
-         local hits = GetInRange(nearStun, spells["dark"].radius, ENEMIES)
-         if #hits > bestS then
-            bestS = #hits
-            bestT = nearStun
-         end
-      end
-      if bestT then
-         CastXYZ("dark", bestT)
+      local target = GetWeakest("dark", GetWithBuff("cc", GetInRange(me, spells["dark"].range+50, ENEMIES)))
+      if target then
+         CastXYZ("dark", target)
          PrintAction("Dark Matter stunned")
          return true
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if Action() then
-         return
+         return true
       end
    end
 
    if IsOn("lasthit") and Alone() then
       if KillWeakMinion(spells["strike"]) then
          PrintAction("Strike for lasthit")
-         return
+         return true
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
-         return
+         return true
       end
    end
 end
@@ -103,21 +97,23 @@ end
 function Action()
    UseItems()
    
-   local target = GetWeakEnemy('MAGIC',spells["event"].range+100)
+   local target = GetWeakEnemy('MAGIC', spells["event"].range+200)
    if target then
       if CanUse("event") then
-         local point = Projection(me, target, GetDistance(target)-75)
-         CastXYZ("event", point)
-         PrintAction("Event Horizon")
-         return true
+         if FacingMe(target) then
+            local point = Projection(me, target, GetDistance(target)-150)
+            CastXYZ("event", point)
+            PrintAction("Event Horizon <-", target)
+            return true
+         else
+            local point = Projection(me, target, GetDistance(target)+150)
+            CastXYZ("event", point)
+            PrintAction("Event Horizon ->", target)
+            return true
+         end            
       end
    end
       
-   -- I want all not moving targets.
-   -- I think I want to do this by looking for the stun obj and throwing darks at it
-   -- This might even catch other people's stuns.   
-
-
    if CanUse("burst") then
       -- if there aren't any of those lets find a good target
       -- I want to do the largest % remaining health but
