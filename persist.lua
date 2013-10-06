@@ -138,6 +138,7 @@ function PersistOnTargets(name, object, charName, ...)
          return target
       end
    end
+   return false
 end
 
 -- check if a given target has the named buff
