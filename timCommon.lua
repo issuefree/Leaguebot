@@ -1,4 +1,5 @@
 require "Utils"
+ModuleConfig = scriptConfig("Module Config", "modules")
 require "basicUtils"
 require "spell_shot"
 require "telemetry"
@@ -9,7 +10,6 @@ require "persist"
 require "spellUtils"
 require "toggles"
 
-ModuleConfig = scriptConfig("Module Config", "modules")
 
 if me.SpellLevelQ == 0 and
    me.SpellLevelW == 0 and
@@ -369,19 +369,19 @@ function KillMinion(thing, method, extraRange)
    local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
    if method == "weak" then
       SortByHealth(minions)
-   elseif method = "far" then
+   elseif method == "far" then
       SortByDistance(minions)
       minions = reverse(minions)
-   elseif method = "near" then
+   elseif method == "near" then
       SortByDistance(minions)
-   elseif method = "strong"
+   elseif method == "strong" then
       SortByHealth(minions)
       minions = reverse(minions)
    end
 
    for _,minion in ipairs(minions) do
       if WillKill(spell, minion) then
-         if not spell.key then
+         if spell.name and spell.name == "attack" then
             AttackTarget(minion)
             PrintAction("AA "..method.." minion")
             return true
@@ -390,6 +390,41 @@ function KillMinion(thing, method, extraRange)
             PrintAction(thing.." "..method.." minion")
             return true
          end
+      end
+   end
+   return false
+end
+
+-- weak, far, near, strong
+function HitMinion(thing, method, extraRange)
+   local spell = GetSpell(thing)
+   if not CanUse(spell) then return end
+
+   if not extraRange then extraRange = 0 end
+   if not method then method = "weak" end
+
+   local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
+   if method == "weak" then
+      SortByHealth(minions)
+   elseif method == "far" then
+      SortByDistance(minions)
+      minions = reverse(minions)
+   elseif method == "near" then
+      SortByDistance(minions)
+   elseif method == "strong" then
+      SortByHealth(minions)
+      minions = reverse(minions)
+   end
+
+   for _,minion in ipairs(minions) do
+      if spell.name and spell.name == "attack" then
+         AttackTarget(minion)
+         PrintAction("AA "..method.." minion")
+         return true
+      else
+         Cast(spell, minion)
+         PrintAction(thing.." "..method.." minion")
+         return true
       end
    end
    return false
@@ -1024,7 +1059,7 @@ end
 function WillKill(thing, target)
    local spell = GetSpell(thing)
    if spell.name and spell.name == "attack" then
-      return GetAADamage(spell, target) > target.health
+      return GetAADamage(target) > target.health
    else
       return GetSpellDamage(thing, target) > target.health
    end
@@ -1306,18 +1341,6 @@ function ModAA(thing, target)
       return target
    end
 
-   return false
-end
-
-function 
-
-function AAForClear()
-   -- hit the highest health minion
-   local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-   if AA(minions[#minions]) then
-      PrintAction("AA clear minions")
-      return true
-   end
    return false
 end
 
