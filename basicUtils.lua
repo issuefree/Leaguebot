@@ -57,6 +57,12 @@ function pp(str)
    end
 end
 
+function trunc(num, places)
+   if not places then places = 2 end
+   local factor = 10^places
+   return math.floor(num*factor)/factor
+end
+
 
 function merge(table1, table2)
    local resTable = {}
