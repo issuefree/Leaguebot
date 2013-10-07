@@ -1,7 +1,6 @@
 require "basicUtils"
 require "telemetry"
 
-local attackDelayOffset = .3
 local minAttackTime = .66
 
 function GetAARange()
@@ -15,7 +14,7 @@ function GetAAData()
         Annie        = { projSpeed = 1.0, aaParticles = {"annie_basicattack"}, aaSpellName = "AnnieBasicAttack", startAttackSpeed = "0.579",  },
         Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = {"attack", "frostarrow"}, startAttackSpeed = "0.658" },
         Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
-        Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis_04"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668" },
+        Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile"}, startAttackSpeed = "0.668", windup=.525, speed=.95 },
         Cassiopeia   = { projSpeed = 1.22, aaParticles = {"CassBasicAttack_mis"}, aaSpellName = "cassiopeiabasicattack", startAttackSpeed = "0.644" },
         Corki        = { projSpeed = 2.0, aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"}, aaSpellName = "CorkiBasicAttack", startAttackSpeed = "0.658" },
         Draven       = { projSpeed = 1.4, aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"}, aaSpellName = "dravenbasicattack", startAttackSpeed = "0.679",  },
@@ -59,17 +58,29 @@ function GetAAData()
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack"}, aaSpellName = "attack", startAttackSpeed = "0.625",  },
-        -- Jax          = { aaParticles = {"globalhit_bloodslash", "RelentlessAssault_tar"}, aaSpellName = "attack"},
-        -- Olaf         = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack"},        
-        -- Warwick      = { aaParticles = {"GlobalLifeSteal_buf"}, aaSpellName = "attack"},
-        -- Nasus        = { aaParticles = {"globalhit_bloodslash", "nassus_siphonStrike_tar"}, aaSpellName = "attack"}
-        Amumu        = { aaParticles = {"SadMummyBasicAttack"}, aaSpellName = "attack"}
+        Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar"} },
+        Olaf         = { melee=true },
+        Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} },
+        Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
+        Amumu        = { melee=true, aaParticles = {"SadMummyBasicAttack"} },
+        Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} }
     }
 end
 local aaData = GetAAData()[myHero.name]
--- if not aaData then
---    aaData = { aaParticles = {"globalhit_bloodslash"}, aaSpellName = "attack" }
--- end
+if not aaData then
+  if GetAARange() == me.range + 100 then
+    aaData = { melee=true, aaParticles = {} }
+  end  
+end
+if not aaData.aaSpellName then
+  aaData.aaSpellName = "attack"
+end
+if not aaData.windup then
+   aaData.windup = .5
+end
+if not aaData.speed then
+   aaData.speed = 1.05
+end
 
 local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
@@ -79,10 +90,18 @@ local lastAttack = time() -- last time I cast an attack
 local shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 function aaTick()
-   -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled   
+   -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled
+   local attackDelayOffset = math.max(aaData.windup-.325*me.attackspeed, .15)
    if not shotFired and time() - lastAttack > attackDelayOffset then
+      if not aaData.melee then -- ranged folks start their cast from out of range so this prevents weirdness
+         lastAttack = 0
+      end 
       shotFired = true
-      lastAttack = 0
+   end
+
+   if ModuleConfig.aaDebug then
+      PrintState(1, (1 / (me.attackspeed*aaData.speed)))
+      PrintState(2, aaData.windup-.325*(me.attackspeed))
    end
 end
 
@@ -98,9 +117,6 @@ function IsAttacking()
 end
 
 function JustAttacked()
-   if not aaData then -- hacky for people without aa info
-      return true
-   end
    if shotFired and not CanAttack() then
       return true 
    end
@@ -148,32 +164,33 @@ function setAttackState(state)
       state > attackState 
    then
       attackState = state
-      local delta = os.clock() - lastAAState
+      local delta = time() - lastAAState
       printtext(state.." "..delta.." "..attackStates[attackState+1].."\n")
       if state == 0 then
-         lastAAState = os.clock()
+         lastAAState = time()
       end
    end
 end
 
 function onObjAA(object)
-   if aaData and ListContains(object.charName, aaData.aaParticles) 
-      and GetDistance(object) < GetSpellRange("AA")
+   if ListContains(object.charName, aaData.aaParticles) 
+      and GetDistance(object) < GetSpellRange("AA")+75
    then
-      if ModuleConfig.debug then
-         printtext("AAP: "..object.charName.."\n")
+      if ModuleConfig.aaDebug then
+        local delta = time() - lastAAState
+         printtext("AAP: "..delta.." "..object.charName.."\n")
       end
       shotFired = true
    end
 end
 
 function onSpellAA(obj,spell)
-   if aaData and obj ~= nil and obj.name == myHero.name then
+   if obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
       if type(spellName) == "table" then
          if spell.name == "" or ListContains(spell.name, spellName) then
             local delta = os.clock() - lastAAState
-            if ModuleConfig.debug then               
+            if ModuleConfig.aaDebug then               
                printtext("AAS: "..delta.." "..spell.name.."\n")
             end
             setAttackState(0)
@@ -183,7 +200,7 @@ function onSpellAA(obj,spell)
       else
          if spell.name == "" or find(spell.name, spellName) then                       
             local delta = os.clock() - lastAAState
-            if ModuleConfig.debug then               
+            if ModuleConfig.aaDebug then               
                printtext("AAS: "..delta.." "..spell.name.."\n")
             end
             setAttackState(0)
