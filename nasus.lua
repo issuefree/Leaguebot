@@ -99,7 +99,7 @@ function Run()
    end
    
 
-   if HotKey() then
+   if HotKey() and CanAct() then
       if FollowUp() then
          return true
       end
@@ -148,18 +148,8 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   local strikeUp
-   if target and GetDistance(target) < spells["AA"].range+100 and CanUse("strike") then
-      Cast("strike", me)
-      strikeUp = true
-   end
-   if AA(target) then
-      if strikeUp then
-         PrintAction("Strike", target)
-      else
-         PrintAction("AA", target)
-      end
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   if target and ModAA("strike", target) then
       return true
    end
 
@@ -168,8 +158,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA lasthit")
+      if KillMinion("AA") then
          return true
       end
    end
@@ -183,16 +172,8 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
