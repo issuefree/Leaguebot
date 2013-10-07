@@ -4,15 +4,20 @@ require "modules"
 pp("\nTim's Shyvana")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("", {on=true, key=113, label=""})
+AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bite"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["bite"] = {
-   key="Q"
+   key="Q",
+   base={0,0,0,0,0},
+   ad=1,
+   onhit=true,
+   perc={.8,.85,.9,.95,1},
+   type="P"
 } 
 spells["burnout"] = {
    key="W", 
@@ -45,6 +50,10 @@ spells["binding"] = {
 } 
 
 function Run()
+   for lvl,p in ipairs(spells["bite"].perc) do
+      spells["bite"].base[lvl] = (me.baseDamage+me.addDamage)*p
+   end
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -70,6 +79,32 @@ function Run()
       end
    end
 
+   if CanUse("bite") and Alone() then
+
+      if IsOn("lasthit") then
+         local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
+         if target and WillKill("bite", target) and CanAct() and JustAttacked() then
+            Cast("bite", me)
+            PrintAction("Bite lasthit")
+            AttackTarget(target)
+            return true
+         end
+      end
+
+      if IsOn("jungle") then
+         local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
+         local creep = creeps[#creeps]
+         if creep and not WillKill("AA", creep) then
+            if JustAttacked() then
+               Cast("bite", me)
+               PrintAction("Bite jungle")
+               return true
+            end
+         end
+      end
+
+   end
+
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -91,20 +126,11 @@ function Action()
          Cast("burnout", me)
          PrintAction("Burnout", target)
          return true
-      end
-      if CanUse("bite") and
-         JustAttacked() and 
-         GetDistance(target) < GetSpellRange("AA") + 100
-      then
-         Cast("bite", me)
-         PrintAction("Bite on", target)
-         return true
-      end
+      end      
+   end
 
-      if AA(target) then
-         PrintAction("AA", target)
-         return true
-      end
+   if target and ModAA("bite", target) then
+      return true
    end
 
    return false
@@ -117,34 +143,33 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if #minions >= 3 then
-         Cast("burnout", me)
-         PrintAction("Burnout for clear")
+   if CanUse("bite") then
+      local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]
+      if target and WillKill("bite", target) and
+         ( JustAttacked() or not WillKill("AA", target) )
+      then
+         Cast("bite", me)
+         PrintAction("Bite lasthit")
+         AttackTarget(target)
+         return true
       end
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+   end
+
+   if IsOn("clearminions") and Alone() then
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
    return false
 end
+
 
 local function onObject(object)
 end
