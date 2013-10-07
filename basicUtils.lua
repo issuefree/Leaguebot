@@ -69,7 +69,7 @@ function merge(table1, table2)
    return resTable
 end
 
-function reverse(table)
+function reverse(t)
    local reversedTable = {}
    local itemCount = #t
    for k, v in ipairs(t) do
