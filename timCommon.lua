@@ -747,7 +747,7 @@ function GetInRange(target, thing, ...)
    local list = ValidTargets(concat(...))
    for _,test in ipairs(list) do
       if target and
-         GetDistance(target, test) < range 
+         GetDistance(target, test) <= range 
       then
          table.insert(result, test)
       end
