@@ -2,9 +2,10 @@ require "basicUtils"
 require "telemetry"
 
 local minAttackTime = .66
+local meleeRange = 100+15
 
 function GetAARange()
-  return me.range + 100+15
+  return me.range + meleeRange
 end
 
 function GetAAData()
@@ -68,9 +69,11 @@ function GetAAData()
 end
 local aaData = GetAAData()[myHero.name]
 if not aaData then
-  if GetAARange() == me.range + 100 then
-    aaData = { melee=true, aaParticles = {} }
-  end  
+   if GetAARange() == me.range + meleeRange then      
+      aaData = { melee=true, aaParticles = {} }
+   else
+      aaData = {}
+   end
 end
 if not aaData.aaSpellName then
   aaData.aaSpellName = "attack"
@@ -81,6 +84,8 @@ end
 if not aaData.speed then
    aaData.speed = 1.05
 end
+
+pp(aaData)
 
 local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
