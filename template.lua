@@ -119,9 +119,6 @@ function FollowUp()
       if HitMinion("AA", "strong") then
          return true
       end
- then
-         return true
-      end
    end
 
    if IsOn("move") then
