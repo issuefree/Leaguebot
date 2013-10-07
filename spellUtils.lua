@@ -73,7 +73,7 @@ end
 
 function CanUse(thing)
    if type(thing) == "table" then -- spell or item
-      if thing.name = "attack" then
+      if thing.name == "attack" then
          return CanAttack()
       end
       if thing.id then -- item
