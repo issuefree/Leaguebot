@@ -109,46 +109,24 @@ function Action()
 end
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA lasthit")
+      if KillMinion("AA") then
          return true
       end
    end
 
    if IsOn("clearminions") and Alone() then
       -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if AAForClear() then
          return true
       end
    end
 
--- ranged
    if IsOn("move") then
-      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
-         #GetInRange(me, "AA", ENEMIES) == 0 
-      then
-         MoveToCursor()
-         -- PrintAction("Move")
-         return false   
+      if RangedMove() then
+   --    if MeleeMove() then
+         return true
       end
    end
-
--- melee
-   -- if IsOn("move") then
-   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-   --    if target then
-   --       if GetDistance(target) > spells["AA"].range then
-   --          MoveToTarget(target)
-   --          return false
-   --       end
-   --    else        
-   --       MoveToCursor() 
-   --       PrintAction("Move")
-   --       return false
-   --    end
-   -- end
 
    return false
 end
