@@ -119,12 +119,14 @@ local function drawCommon()
    end
 
    for _,minion in ipairs(MINIONS) do
-      local hits = math.ceil(minion.health/GetAADamage(minion))
-      if hits == 1 then
-         DrawTextObject(hits.." hp", minion, blueT)
-         Circle(minion, 50, red, 3)
-      elseif hits <= 3 then
-         DrawTextObject(hits.." hp", minion, greenT)
+      if minion.visible == 1 then
+         local hits = math.ceil(minion.health/GetAADamage(minion))
+         if hits == 1 then
+            DrawTextObject(hits.." hp", minion, blueT)
+            Circle(minion, 50, red, 3)
+         elseif hits <= 3 then
+            DrawTextObject(hits.." hp", minion, greenT)
+         end
       end
    end
 

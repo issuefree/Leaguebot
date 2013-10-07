@@ -15,7 +15,7 @@ pp(" - clear minions")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
-AddToggle("", {on=true, key=114, label=""})
+AddToggle("jungle", {on=true, key=114, label="Jungle"})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
@@ -70,10 +70,29 @@ function Run()
 	end
 
 	if CanUse("empower") and not P.empower then
-	   if #GetAllInRange(me, spells["AA"].range+50, ENEMIES, CREEPS) > 0 then
-			PrintAction("Whap")
-			Cast("empower", me)
+
+		if IsOn("lasthit") then
+			local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]	   	
+			if target and WillKill("empower", target) and CanAct() and JustAttacked() then
+	         Cast("empower", me)
+	         PrintAction("empower lasthit")
+	         AttackTarget(target)
+	         return true
+		   end
 		end
+
+		if IsOn("jungle") then
+			local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
+			local creep = creeps[#creeps]
+			if creep then pp(creep.charName) end
+			if creep and not WillKill("AA", creep) then
+				if JustAttacked() then
+					Cast("empower", me)
+					PrintAction("Whap jungle")
+				end
+			end
+		end
+
 	end
 
 
@@ -123,7 +142,7 @@ function Action()
 	   	end
 	   	if CanUse("empower") and not P.empower then
 	   		Cast("empower", me)
-	   		PrintAction("start empower")
+	   		PrintAction("Empower Leap")
 	   	end
 	   	Cast("leap", target)
 	   	PrintAction("Leap", target)
@@ -136,11 +155,11 @@ function Action()
 		PrintAction("start counter")
 	end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-   if AA(target) then
-		PrintAction("AA", target)
-	   return true
+   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   if target and ModAA("empower", target) then
+      return true
    end
+
 
 	return false
 end
@@ -152,26 +171,20 @@ function FollowUp()
       end
 
    	if CanUse("empower") then
-	   	local minions = SortByHealth(SortByDistance(GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS)))
-			local target = minions[1]
-	      if target and GetSpellDamage("empower", target) > target.health then
+	   	local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]	   	
+	      if target and WillKill("empower", target) and
+	      	( JustAttacked() or not WillKill("AA", target) )
+	      then
 	         Cast("empower", me)
 	         PrintAction("empower lasthit")
-	         if ListContains(target, CREEPS) then
-	            ClickSpellXYZ("M", target.x, target.y, target.z, 0)
-	            return true
-	         else 
-	            AttackTarget(target)
-	            return true
-	         end
+	         AttackTarget(target)
+	         return true
 	      end
 	   end
 	end
 
    if IsOn("clearminions") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end

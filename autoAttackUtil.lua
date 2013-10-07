@@ -4,7 +4,7 @@ require "telemetry"
 local minAttackTime = .66
 
 function GetAARange()
-  return me.range + 100
+  return me.range + 100+15
 end
 
 function GetAAData()
@@ -58,7 +58,7 @@ function GetAAData()
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack"}, aaSpellName = "attack", startAttackSpeed = "0.625",  },
-        Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar"} },
+        Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"attack", "JaxEmpowerTwo"} },
         Olaf         = { melee=true },
         Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} },
         Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
