@@ -42,32 +42,6 @@ function debugTick()
       PrintState(21+i, spells[i])
    end
 
-   if CanAttack() then
-      setAttackState(0)
-      PrintState(0, "!")
-   end
-   if IsAttacking() then
-      setAttackState(1)
-      PrintState(0, "  -")
-   end
-   if waitingForAttack() then
-      setAttackState(2)
-      PrintState(0, "  --")
-   end
-   if JustAttacked() then
-      PrintState(0, "    :")
-   end
-   if CanAct() then
-      setAttackState(3)
-      PrintState(0, "       )")
-   end
-   if CanMove() then
-      setAttackState(4)
-      PrintState(0, "         >")
-   end
-
-   -- PrintState(1, (1 / me.attackspeed))
-   -- PrintState(2, me.attackspeed)
 end
 
 local function onSpell(unit, spell)

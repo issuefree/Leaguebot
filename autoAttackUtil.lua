@@ -59,12 +59,14 @@ function GetAAData()
         Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
         Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
         Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack"}, aaSpellName = "attack", startAttackSpeed = "0.625",  },
-        Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"attack", "JaxEmpowerTwo"} },
-        Olaf         = { melee=true },
-        Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} },
-        Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
+
         Amumu        = { melee=true, aaParticles = {"SadMummyBasicAttack"} },
-        Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} }
+        Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"attack", "JaxEmpowerTwo"} },
+        Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
+        Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
+        Olaf         = { melee=true },
+        Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
+        Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} }
     }
 end
 local aaData = GetAAData()[myHero.name]
@@ -85,7 +87,12 @@ if not aaData.speed then
    aaData.speed = 1.05
 end
 
-pp(aaData)
+function getWindup()
+   return math.max(aaData.windup-.325*me.attackspeed, .15)
+end
+function getAARate()
+   return (1 / (me.attackspeed*aaData.speed))
+end
 
 local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
@@ -96,7 +103,7 @@ local shotFired = true -- have I seen the projectile or waited long enough that 
 
 function aaTick()
    -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled
-   local attackDelayOffset = math.max(aaData.windup-.325*me.attackspeed, .15)
+   local attackDelayOffset = getWindup()
    if not shotFired and time() - lastAttack > attackDelayOffset then
       if not aaData.melee then -- ranged folks start their cast from out of range so this prevents weirdness
          lastAttack = 0
@@ -105,8 +112,32 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
-      PrintState(1, (1 / (me.attackspeed*aaData.speed)))
-      PrintState(2, aaData.windup-.325*(me.attackspeed))
+      PrintState(1, "AARate "..trunc(getAARate()))
+      PrintState(2, "Windup "..trunc(getWindup()))
+
+      if CanAttack() then
+         setAttackState(0)
+         PrintState(0, "!")
+      end
+      if IsAttacking() then
+         setAttackState(1)
+         PrintState(0, "  -")
+      end
+      if waitingForAttack() then
+         setAttackState(2)
+         PrintState(0, "  --")
+      end
+      if JustAttacked() then
+         PrintState(0, "    :")
+      end
+      if CanAct() then
+         setAttackState(3)
+         PrintState(0, "       )")
+      end
+      if CanMove() then
+         setAttackState(4)
+         PrintState(0, "         >")
+      end
    end
 end
 
@@ -170,7 +201,7 @@ function setAttackState(state)
    then
       attackState = state
       local delta = time() - lastAAState
-      printtext(state.." "..delta.." "..attackStates[attackState+1].."\n")
+      pp(state.." "..trunc(delta).." "..attackStates[attackState+1])
       if state == 0 then
          lastAAState = time()
       end
@@ -183,7 +214,7 @@ function onObjAA(object)
    then
       if ModuleConfig.aaDebug then
         local delta = time() - lastAAState
-         printtext("AAP: "..delta.." "..object.charName.."\n")
+         pp("AAP: "..trunc(delta).." "..object.charName)
       end
       shotFired = true
    end
@@ -214,8 +245,12 @@ function onSpellAA(obj,spell)
    end   
    if attacked then
       local delta = os.clock() - lastAAState
-      if ModuleConfig.aaDebug then               
-         printtext("AAS: "..delta.." "..spell.name.."\n")
+      if ModuleConfig.aaDebug then
+         local tn = "?"
+         if spell.target then
+            tn = spell.target.charName
+         end
+         pp("AAS: "..trunc(delta).." "..spell.name.." -> "..tn)
       end
       setAttackState(0)
       lastAttack = time()
