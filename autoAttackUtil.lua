@@ -189,31 +189,39 @@ function onObjAA(object)
    end
 end
 
-function onSpellAA(obj,spell)
+local lastSpell
+function onSpellAA(obj,spell)   
+   local attacked = false
    if obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
       if type(spellName) == "table" then
-         if spell.name == "" or ListContains(spell.name, spellName) then
-            local delta = os.clock() - lastAAState
-            if ModuleConfig.aaDebug then               
-               printtext("AAS: "..delta.." "..spell.name.."\n")
-            end
-            setAttackState(0)
-            lastAttack = time()
-            shotFired = false
+         if ListContains(spell.name, spellName) then
+            attacked = true
          end
       else
-         if spell.name == "" or find(spell.name, spellName) then                       
-            local delta = os.clock() - lastAAState
-            if ModuleConfig.aaDebug then               
-               printtext("AAS: "..delta.." "..spell.name.."\n")
-            end
-            setAttackState(0)
-            lastAttack = time()
-            shotFired = false
+         if find(spell.name, spellName) then                       
+            attacked = true
          end
       end
+      if spell.name == lastSpell or
+         not find(spell.name, me.SpellNameQ) and
+         not find(spell.name, me.SpellNameW) and
+         not find(spell.name, me.SpellNameE) and
+         not find(spell.name, me.SpellNameR)
+      then
+         attacked = true
+      end
    end   
+   if attacked then
+      local delta = os.clock() - lastAAState
+      if ModuleConfig.aaDebug then               
+         printtext("AAS: "..delta.." "..spell.name.."\n")
+      end
+      setAttackState(0)
+      lastAttack = time()
+      shotFired = false
+   end
+   lastSpell = spell.name
 end
 
 RegisterLibraryOnCreateObj(onObjAA)
