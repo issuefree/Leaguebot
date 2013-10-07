@@ -136,8 +136,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("lasthit")
+      if KillMinion("AA") then
          return true
       end
    end
@@ -159,12 +158,8 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
-         #GetInRange(me, "AA", ENEMIES) == 0 
-      then
-         MoveToCursor()
-         -- PrintAction("Move")
-         return false   
+      if RangedMove() then
+         return true
       end
    end
    

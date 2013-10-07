@@ -84,8 +84,7 @@ function Action()
 end
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA lasthit")
+      if KillMinion("AA") then
          return true
       end
    end

@@ -66,8 +66,7 @@ function Run()
       if ( CanChargeTear() and GetMPerc(me) > .66 ) or
          GetMPerc(me) > .8
       then
-         if KillWeakMinion("overload") then
-            PrintAction("Overload for lasthit")
+         if KillMinion("overload") then
             return true
          end
       end
@@ -126,8 +125,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA lasthit")
+      if KillMinion("AA") then
          return true
       end
    end

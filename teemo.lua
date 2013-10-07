@@ -95,9 +95,8 @@ function Action()
    end
 
 	if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-      	PrintAction("AA for lasthit")
-      	return true
+      if KillMinion("AA") then
+         return true
       end
 	end 
 	

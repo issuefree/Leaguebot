@@ -67,8 +67,7 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if GetHPerc(me) > .75 and KillWeakMinion("swing") then
-         PrintAction("Swing for lasthit")
+      if GetHPerc(me) > .75 and KillMinion("swing") then
          return true
       end
       if KillMinionsInLine("axe", 2) then
@@ -139,8 +138,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA lasthit")
+      if KillMinion("AA") then
          return true
       end
    end

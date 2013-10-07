@@ -60,7 +60,7 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      KillWeakMinion("AA", 100)
+      KillMinion("AA")
    end
 end
 

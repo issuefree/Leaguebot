@@ -42,6 +42,4 @@ end
 if spells["smite"] then
    SetTimerCallback("smiteTick")
    AddOnCreate(onCreateSmite)
-   ModuleConfig:addParam("smite", "Auto Smite", SCRIPT_PARAM_ONOFF, true)
-   ModuleConfig:permaShow("smite")
 end

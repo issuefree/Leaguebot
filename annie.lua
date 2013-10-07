@@ -89,14 +89,12 @@ function Run()
 
    if IsOn("lasthit") then
       if VeryAlone() then
-         if KillWeakMinion("dis") then
-            PrintAction("Disintigrate for lasthit")
+         if KillMinion("dis") then
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
-            if KillWeakMinion("dis") then
-               PrintAction("Disintigrate for lasthit")
+            if KillMinion("dis") then
                return true
             end
          end         
@@ -216,8 +214,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA for lasthit")
+      if KillMinion("AA") then
          return true
       end
    end

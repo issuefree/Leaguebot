@@ -152,10 +152,9 @@ function FollowUp()
 			end
 		end
 
-		if KillWeakMinion("AA") then
-			PrintAction("AA minion")
+      if KillMinion("AA") then
          return true
-      end		
+      end
 	end
 
 	if IsOn("clearminions") and Alone() then

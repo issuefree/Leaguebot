@@ -81,8 +81,7 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if KillWeakMinion(spells["strike"]) then
-         PrintAction("Strike for lasthit")
+      if KillMinion("strike") then
          return true
       end
    end
@@ -167,8 +166,7 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and not CanUse("strike") and Alone() then
-      if KillWeakMinion("AA") then
-         PrintAction("AA for lasthit")
+      if KillMinion("AA") then
          return true
       end
    end

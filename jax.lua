@@ -147,10 +147,9 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-	   if KillWeakMinion("AA") then
-	   	PrintAction("AA lasthit")
-	      return true
-	   end
+      if KillMinion("AA") then
+         return true
+      end
 
    	if CanUse("empower") then
 	   	local minions = SortByHealth(SortByDistance(GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS)))
