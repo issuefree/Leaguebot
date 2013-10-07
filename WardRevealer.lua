@@ -202,7 +202,4 @@ end
 AddOnCreate(createWards)
 AddOnSpell(processWards)
 
-ModuleConfig:addParam("wardRevealer", "Ward Revealer", SCRIPT_PARAM_ONOFF, true)
-ModuleConfig:permaShow("wardRevealer")
-
 SetTimerCallback("OnTick")

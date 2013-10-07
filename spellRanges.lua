@@ -1,8 +1,5 @@
 require "timCommon"
 
-ModuleConfig:addParam("ranges", "Draw Spell Ranges", SCRIPT_PARAM_ONOFF, true)
-ModuleConfig:permaShow("ranges")
-
 function rangeTick()
    if not ModuleConfig.ranges then
       return

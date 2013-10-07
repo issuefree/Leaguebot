@@ -110,9 +110,6 @@ local function onObject(object)
    end
 end
 
-ModuleConfig:addParam("debug", "Debug Objects", SCRIPT_PARAM_ONOFF, false)
-ModuleConfig:permaShow("debug")
-
 AddOnSpell(onSpell)
 AddOnCreate(onObject)
 

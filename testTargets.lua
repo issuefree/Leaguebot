@@ -61,7 +61,5 @@ end
 
 
 AddOnKey(onKey)
-ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
-ModuleConfig:permaShow("testtargets")
 
 SetTimerCallback("TestTick")

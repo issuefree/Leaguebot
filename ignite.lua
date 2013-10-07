@@ -36,7 +36,5 @@ end
 
 if spells["ignite"] then
    SetTimerCallback("igniteTick")
-   ModuleConfig:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
-   ModuleConfig:permaShow("ignite")
    AddOnSpell(onSpell)
 end

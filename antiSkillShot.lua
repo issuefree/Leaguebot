@@ -69,7 +69,4 @@ function assTick()
    end
 end
 
-ModuleConfig:addParam("ass", "AntiSkillShot", SCRIPT_PARAM_ONOFF, false)
-ModuleConfig:permaShow("ass")
-
 AddOnTick(assTick)
