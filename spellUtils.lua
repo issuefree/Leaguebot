@@ -73,12 +73,12 @@ end
 
 function CanUse(thing)
    if type(thing) == "table" then -- spell or item
+      if thing.name = "attack" then
+         return CanAttack()
+      end
       if thing.id then -- item
          return IsCooledDown(GetInventorySlot(thing.id))
       elseif thing.key then -- spell
-         if thing.key == "A" then
-            return CanAttack()
-         end
          if me.mana >= GetSpellCost(thing) then             
             return CanUse(thing.key)
          else
@@ -367,10 +367,6 @@ function GetGoodFireaheads(thing, ...)
          return IsGoodFireahead(thing, item)
       end
    )
-end
-
-function WillKill(thing, target)
-   return GetSpellDamage(thing, target) > target.health
 end
 
 function ICast(thing, unit, spell)
