@@ -76,7 +76,7 @@ function Run()
    end
 
 	if IsOn("lasthit") and Alone() then
-		if KillFarMinion("gun") then
+		if KillMinion("gun", "far") then
 			PrintAction("gun down a minion")
 			return true
 		end
