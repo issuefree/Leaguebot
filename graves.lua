@@ -25,7 +25,7 @@ spells["smoke"] = {
   ap=.6,
   delay=2,
   speed=0,
-  noblock=true
+  noblock=true,
   area=250
 }
 spells["dash"] = {
