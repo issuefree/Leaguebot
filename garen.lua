@@ -43,7 +43,7 @@ local spinT
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
-      return
+      return true
    end
 
    spinT = nil
@@ -58,24 +58,26 @@ function Run()
          end
       end
 
-      if #bestMinions > 2 then 
-         Circle(GetCenter(bestMinions), 50, yellow, 6)
+      if isSpinning() and #bestMinions >= 1 then
+         spinT = GetCenter(bestMinions)
+         Circle(spinT, 50, yellow, 6)
+      elseif #bestMinions >= 3 then 
+         spinT = GetCenter(bestMinions)
+         Circle(spinT, 50, yellow, 6)
       end
    end
 
-
-	if HotKey() and CanAct() then
+	if HotKey() then
       UseItems()
 		if Action() then
-         return
+         return true
       end
 	end
 
 	-- always stuff here
-
-   if HotKey() and CanAct() then
+   if HotKey() and CanAct() then  
       if FollowUp() then
-         return
+         return true
       end
    end
 end
@@ -88,13 +90,6 @@ function Action()
    -- If someone targets me and I'm < 50% activate courage
    -- If strike is on cooldown and I have >= 2 enemies in range, activate spin
 
-   if CanUse("courage") and 
-      #GetInRange(me, spells["AA"].range*2, ENEMIES) >= 2 
-   then
-      Cast("courage", me)
-      PrintAction("Courage")
-   end
-
    if CanUse("justice") then
       local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
       for _,target in ipairs(targets) do
@@ -106,30 +101,32 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-
+   local strikeUp = false
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
    if target and not isSpinning() and CanUse("strike") and not P.strike then
       Cast("strike", me)
-      PrintAction("Strike up", target)
+      strikeUp = true
       -- no return
    end
 
-   if not isSpinning() and CanUse("judgement") and not CanUse("strike") and not P.strike then
-      local targets = GetInRange(me, spells["judgement"].range, ENEMIES)
-      if #targets > 0 then
-         Cast("judgement", me)
-         PrintAction("spin to win")
-      end
+   local target = GetWeakest("judgement", GetInRange(me, spells["judgement"].range, ENEMIES))
+   if target and not isSpinning() and CanUse("judgement") and not CanUse("strike") and not P.strike then
+      Cast("judgement", me)
+      PrintAction("Spin to win")
+      return true
    end
-
    if target and isSpinning() then
-      MoveToTarget(target)
+      MoveToXYZ(target.x, target.y, target.z)
       PrintAction("Spin to target", target)
       return true
    end
 
    if AA(target) then
-      PrintAction("AA", target)
+      if strikeUp then
+         PrintAction("AA (strike)", target)
+      else
+         PrintAction("AA", target)
+      end
    	return true
    end
 
@@ -137,50 +134,42 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
 
-   if IsOn("clearminions") and Alone() then
-      -- if I'm close to the best spin spot then spin
-      if not isSpinning() and CanUse("judgement") and spinT then
-         if GetDistance(me, spinT) < 200 then
-            Cast("judgement", me)
-            PrintAction("Spin to clear")
+      if VeryAlone() then
+         -- if I'm close to the best spin spot then spin
+         if not isSpinning() and CanUse("judgement") and spinT then
+            if GetDistance(me, spinT) < 200 then
+               Cast("judgement", me)
+               PrintAction("Spin to clear")
+            end
+         end
+
+         -- if I'm spinning then move close to the spin spot.
+         if isSpinning() and spinT then
+            MoveToXYZ(spinT.x, spinT.y, spinT.z)
+            return true
          end
       end
 
-      -- if I'm spinning then move close to the spin spot.
-      if isSpinning() and spinT then
-         MoveToXYZ(spinT.x, spinT.y, spinT.z)
+      if KillMinion("AA") then
          return true
       end
 
+   end
+
+   if IsOn("clearminions") and Alone() then
       if not spinT or (not isSpinning() and not CanUse("judgement")) then
-         -- hit the highest health minion
-         local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-         if AA(minions[#minions]) then
-            PrintAction("AA clear minions")
+         if HitMinion("AA", "strong") then
             return true
          end
       end
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return true
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
+      if MeleeMove() then
          return true
       end
    end
-
    return false
 end
 
@@ -196,7 +185,7 @@ function getJusticeDam(target)
 end
 
 function isSpinning()
-   return me.SpellNameE == "garenbladestormleave"
+   return me.SpellNameE == "garenecancel"
 end
 
 local function onObject(object)
@@ -205,10 +194,12 @@ end
 
 local function onSpell(object, spell)
    if spell.target and spell.target.name == me.name and
-      me.health / me.maxHealth < .5 and
+      me.health / me.maxHealth < .75 and
+      #GetInRange(me, 750, ENEMIES) >= 2 and
       CanUse("courage")
    then
       Cast("courage", me)
+      PrintAction("Courage", spell.name)
    end
 end
 
