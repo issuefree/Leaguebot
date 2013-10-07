@@ -1,6 +1,6 @@
-require "Utils"
 require "timCommon"
 require "modules"
+
 
 pp("\nTim's Caitlyn")
 pp(" - alert for snipe")
@@ -149,10 +149,7 @@ function FollowUp()
          end
       end
 
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         pp("clear with AA")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
