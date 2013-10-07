@@ -69,6 +69,15 @@ function merge(table1, table2)
    return resTable
 end
 
+function reverse(table)
+   local reversedTable = {}
+   local itemCount = #t
+   for k, v in ipairs(t) do
+       reversedTable[itemCount + 1 - k] = v
+   end
+   return reversedTable
+end
+
 function concat(...)
    local resTable = {}
    for _,tablex in ipairs(GetVarArg(...)) do
