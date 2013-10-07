@@ -1,6 +1,7 @@
 require "timCommon"
 require "modules"
 
+
 -- Try to stick to one "action" per loop.
 -- Action function should return 
 --   true if they perform an action that takes time (most spells attacks)
@@ -115,8 +116,10 @@ function FollowUp()
    end
 
    if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      if AAForClear() then
+      if HitMinion("AA", "strong") then
+         return true
+      end
+ then
          return true
       end
    end
