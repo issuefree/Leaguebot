@@ -69,6 +69,12 @@ function Run()
 		PrintAction("Stun")
 	end
 
+	if HotKey() then
+		if Action() then
+         return
+      end
+	end
+
 	if CanUse("empower") and not P.empower then
 
 		if IsOn("lasthit") then
@@ -93,13 +99,6 @@ function Run()
 			end
 		end
 
-	end
-
-
-	if HotKey() then
-		if Action() then
-         return
-      end
 	end
 
    if HotKey() then
@@ -155,7 +154,7 @@ function Action()
 		PrintAction("start counter")
 	end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
    if target and ModAA("empower", target) then
       return true
    end
@@ -190,16 +189,8 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-      if target then
-      	if GetDistance(target) > spells["AA"].range then
-	         MoveToTarget(target)
-	         return false
-	      end
-      else      	
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
