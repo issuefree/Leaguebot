@@ -21,6 +21,10 @@ end
 function Point:__eq(p)
    return self.x == p.x and self.y == p.y and self.z == p.z
 end
+function Point:unpack()
+   return self.x, self.y, self.z
+end
+
 
 function GetDistance(p1, p2)
     p2 = p2 or myHero
