@@ -1,4 +1,0 @@
-LeagueBot
-=========
-
-Leaguebot files
