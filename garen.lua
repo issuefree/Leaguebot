@@ -6,7 +6,7 @@ pp("\nTim's Garen")
 pp(" - if justice will kill, use justice (probably worth chasing)")
 pp(" - If my target is in 2x aa range then activate strike to catch and smack em")
 pp(" -   don't activate if I'm spinning")
-pp(" - If someone targets me and I'm < 50% activate courage")
+pp(" - If someone targets me and I'm < 75% activate courage")
 pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
@@ -28,6 +28,7 @@ spells["courage"] = {
 spells["judgement"] = {
   key="E", 
   range=330,
+  radius=330,
   color=violet
 }
 spells["justice"] = {
@@ -47,16 +48,8 @@ function Run()
    end
 
    spinT = nil
-   -- highlight best spin location within 3x spin range
    if CanUse("judgement") then
-      local minions = SortByDistance(GetInRange(me, spells["judgement"].range*3, MINIONS))
-      local bestMinions = {}
-      for _,minion in ipairs(minions) do
-         local hits = GetInRange(minion, "judgement", minions)
-         if #hits > #bestMinions then
-            bestMinions = hits
-         end
-      end
+      local bestMinions = GetBestArea(me, {range=1000, radius=330}, 1, 0, MINIONS)
 
       if isSpinning() and #bestMinions >= 1 then
          spinT = GetCenter(bestMinions)
@@ -83,13 +76,6 @@ function Run()
 end
 
 function Action()
-   
-   -- if justice will kill, use justice (probably worth chasing)
-   -- If my target is in 2x aa range then activate strike to catch and smack em
-   --   don't activate if I'm spinning
-   -- If someone targets me and I'm < 50% activate courage
-   -- If strike is on cooldown and I have >= 2 enemies in range, activate spin
-
    if CanUse("justice") then
       local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
       for _,target in ipairs(targets) do
@@ -102,7 +88,7 @@ function Action()
    end
 
    local strikeUp = false
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if target and not isSpinning() and CanUse("strike") and not P.strike then
       Cast("strike", me)
       strikeUp = true
@@ -133,12 +119,13 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
+   if IsOn("lasthit") then
 
       if VeryAlone() then
          -- if I'm close to the best spin spot then spin
+
          if not isSpinning() and CanUse("judgement") and spinT then
-            if GetDistance(me, spinT) < 200 then
+            if GetDistance(me, spinT) < 225 then
                Cast("judgement", me)
                PrintAction("Spin to clear")
             end
@@ -146,13 +133,15 @@ function FollowUp()
 
          -- if I'm spinning then move close to the spin spot.
          if isSpinning() and spinT then
-            MoveToXYZ(spinT.x, spinT.y, spinT.z)
+            MoveToXYZ(spinT:unpack())
             return true
          end
       end
 
-      if KillMinion("AA") then
-         return true
+      if Alone() then
+         if KillMinion("AA") then
+            return true
+         end
       end
 
    end
@@ -189,13 +178,15 @@ function isSpinning()
 end
 
 local function onObject(object)
-   PersistBuff("strike", object, "garen_decisiveStrike_indicator")
+   if PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword") then
+      pp("strike")
+   end
 end
 
-local function onSpell(object, spell)
-   if spell.target and spell.target.name == me.name and
-      me.health / me.maxHealth < .75 and
-      #GetInRange(me, 750, ENEMIES) >= 2 and
+local function onSpell(unit, spell)
+   if spell.target and IsMe(spell.target) and
+      GetHPerc(me) < .75 and
+      IsEnemy(unit) and 
       CanUse("courage")
    then
       Cast("courage", me)
