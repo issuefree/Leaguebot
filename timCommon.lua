@@ -94,7 +94,8 @@ spells["AA"] = {
    base={0}, 
    ad=1, 
    type="P", 
-   color=red
+   color=red,
+   name="attack"   
 }
 
 
@@ -357,63 +358,41 @@ function MoveToCursor()
 end
 
 
--- find lowest health minion in range and smack it if it will die
-function KillWeakMinion(thing, extraRange)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then 
-      return nil 
-   end
-   
-   if not extraRange then extraRange = 0 end
-   -- find a weak minion
-   local wMinion
-   for _,minion in ipairs(GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)) do
-      if not wMinion or minion.health < wMinion.health then
-         wMinion = minion
-      end
-   end
-
-   -- if it's weak enough KILL IT
-   if wMinion then
-      if spells["AA"] == spell then
-         if GetAADamage(wMinion) > wMinion.health then
-            AA(wMinion)
-            return wMinion
-         end
-      else
-         if WillKill(spell, wMinion) then
-            Cast(spell, wMinion)
-            return wMinion
-         end
-      end
-   end
-   return nil
-end
-
--- find the furthest away minion that you can kill and smack it
-function KillFarMinion(thing)
+-- weak, far, near, strong
+function KillMinion(thing, method, extraRange)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return end
 
-   local damage = GetSpellDamage(spell)
+   if not extraRange then extraRange = 0 end
+   if not method then method = "weak" end
 
-   local wMinion, wMinionD
-   for _,minion in ipairs(GetInRange(me, GetSpellRange(spell), MINIONS)) do
-      if GetSpellDamage(spell, minion) > minion.health then
-         local minionD = GetDistance(minion)
-         if not wMinionD or minionD > wMinionD then
-            wMinion = minion
-            wMinionD = minionD
+   local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
+   if method == "weak" then
+      SortByHealth(minions)
+   elseif method = "far" then
+      SortByDistance(minions)
+      minions = reverse(minions)
+   elseif method = "near" then
+      SortByDistance(minions)
+   elseif method = "strong"
+      SortByHealth(minions)
+      minions = reverse(minions)
+   end
+
+   for _,minion in ipairs(minions) do
+      if WillKill(spell, minion) then
+         if not spell.key then
+            AttackTarget(minion)
+            PrintAction("AA "..method.." minion")
+            return true
+         else
+            Cast(spell, minion)
+            PrintAction(thing.." "..method.." minion")
+            return true
          end
       end
    end
-   if wMinion then
-      if not spell.key then
-         AttackTarget(wMinion)
-      else
-         CastSpellTarget(spell.key, wMinion)
-      end
-   end
+   return false
 end
 
 -- returns hits, kills (if scored), score
@@ -1042,6 +1021,15 @@ function GetAADamage(target)
    return math.floor(damage+.5)
 end
 
+function WillKill(thing, target)
+   local spell = GetSpell(thing)
+   if spell.name and spell.name == "attack" then
+      return GetAADamage(spell, target) > target.health
+   else
+      return GetSpellDamage(thing, target) > target.health
+   end
+end
+
 --[[
 This should look at the allies in [save] in order 
 and return an enemy in [stop] that is trying to kill that ally in [save]
@@ -1288,6 +1276,73 @@ function AA(target)
    if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
       return true
+   end
+   return false
+end
+
+function ModAA(thing, target)
+   local dist = GetDistance(target)
+   local range = GetSpellRange("AA")
+   
+   local mod = false
+
+   if CanUse(thing) then
+      if ( dist <= range and
+           JustAttacked() ) or
+         ( dist > range and 
+           dist < range+100 )
+      then
+         Cast(thing, me)
+         mod = true
+      end
+   end
+
+   if AA(target) then
+      if mod then
+         PrintAction("AA ("..thing..")", target)
+      else
+         PrintAction("AA", target)
+      end
+      return target
+   end
+
+   return false
+end
+
+function 
+
+function AAForClear()
+   -- hit the highest health minion
+   local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+   if AA(minions[#minions]) then
+      PrintAction("AA clear minions")
+      return true
+   end
+   return false
+end
+
+function MeleeMove()
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   if target then
+      if GetDistance(target) > spells["AA"].range then
+         MoveToTarget(target)
+         return true
+      end
+   else        
+      MoveToCursor() 
+      return false
+   end
+   return false
+end
+
+function RangedMove()
+   if IsOn("move") then
+      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
+         #GetInRange(me, "AA", ENEMIES) == 0 
+      then
+         MoveToCursor()
+         return false   
+      end
    end
    return false
 end
