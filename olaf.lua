@@ -114,20 +114,20 @@ function Action()
       return true
    end
       
-   local aaTarget = GetWeakEnemy("PHYSICAL", spells["swing"].range+50)
-   if aaTarget then
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if target then
       if CanUse("strikes") then
          Cast("strikes", me)
          PrintAction("Strikes up")
       end
 
       if CanUse("swing") then
-         Cast("swing", aaTarget)
-         PrintAction("Swing", aaTarget)
+         Cast("swing", target)
+         PrintAction("Swing", target)
          return true
       end
 
-      if AA(aaTarget) then
+      if AA(target) then
          PrintAction("AA", target)
          return true
       end
