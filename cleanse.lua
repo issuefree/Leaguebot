@@ -87,7 +87,4 @@ local function cleanseObj(object)
 
 end
 
-ModuleConfig:addParam("cleanse", "Auto Cleanse", SCRIPT_PARAM_ONOFF, true)
-ModuleConfig:permaShow("cleanse")
-
 AddOnCreate(cleanseObj)
