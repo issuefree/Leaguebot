@@ -226,6 +226,9 @@ function IsHero(unit)
    return false
 end
 
+function IsEnemy(unit)
+   return unit.team ~= me.team and IsHero(unit)
+end
 
 function ValidTargets(list)
    if not list then return {} end
@@ -1347,7 +1350,7 @@ function ModAA(thing, target)
 end
 
 function MeleeMove()
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
       if GetDistance(target) > spells["AA"].range then
          MoveToTarget(target)
@@ -1358,6 +1361,14 @@ function MeleeMove()
       return false
    end
    return false
+end
+
+-- get the weakest nearby target so we don't get stuck on a tank.
+-- don't jump too far as you end up chasing.
+-- look out further to find a target if there isn't one at hand.
+function GetMeleeTarget()
+   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5) or
+          GetWeakEnemy("PHYS", GetSpellRange("AA")*2.5)
 end
 
 function RangedMove()
