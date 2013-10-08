@@ -72,10 +72,11 @@ end
 local aaData = GetAAData()[myHero.name]
 if not aaData then
    if GetAARange() == me.range + meleeRange then      
-      aaData = { melee=true, aaParticles = {} }
-   else
-      aaData = {}
+      aaData = { melee=true }
    end
+end
+if not aaData.aaParticles then
+   aaData.aaParticles = {}
 end
 if not aaData.aaSpellName then
   aaData.aaSpellName = "attack"
