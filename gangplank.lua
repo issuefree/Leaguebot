@@ -61,8 +61,8 @@ function Run()
 	-- end
 
 	if CanUse("oranges") abd
-		( me.health/me.maxHealth < .5 or 
-		  me.health/me.maxHealth < .75 and Alone() )
+		( GetHPerc(me) < .5 or 
+		  GetHPerc(me) < .75 and Alone() )
 	then
 		PrintAction("oranges")
 		Cast("oranges", me)		
@@ -70,6 +70,7 @@ function Run()
 	end
 
    if HotKey() and CanAct() then
+		UseItems()
       if Action() then
       	return true
       end
@@ -90,8 +91,6 @@ function Run()
 end
 
 function Action()
-	UseItems()
-
 	if CanUse("gun") then
 		local target = GetMarkedTarget() or GetWeakestEnemy("gun")
 		if target and Cast("gun", target) then
@@ -105,17 +104,17 @@ function Action()
 		manaThresh = manaThresh - .1*#GetInRange(me, spells["morale"].range, ALLIES)
 		manaThresh = manaThresh - .05*#GetInRange(me, spells["gun"].range, ENEMIES)
 		
-		if me.mana/me.maxMana > manaThresh then
+		if GetMPerc(me) > manaThresh then
 			Cast("morale", me)
 			PrintAction("morale")
 			return true
 		end
 	end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if AA(target) then
-		PrintAction("AA "..target.charName)
-	   return true
+      PrintAction("AA", target)
+      return true
    end
 
    return false
@@ -129,24 +128,13 @@ function FollowUp()
    end
 
    if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-      	if GetDistance(target) > spells["AA"].range then
-	         MoveToTarget(target)
-	         return true
-	      end
-      else      	
-         MoveToCursor() 
-         PrintAction("Move")
+      if MeleeMove() then
          return true
       end
    end
