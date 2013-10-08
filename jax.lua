@@ -43,7 +43,7 @@ spells["empower"] = {
 spells["counter"] = {
 	key="E", 
 	range=375, 
-	color=red,
+	color=yellow,
 	type="P",
 	cost={70,75,80,85,90}
 }
@@ -71,11 +71,11 @@ function Run()
 
 	if HotKey() then
 		if Action() then
-         return
+         return true
       end
 	end
 
-	if CanUse("empower") and not P.empower then
+	if CanUse("empower") and not P.empower and Alone() then
 
 		if IsOn("lasthit") then
 			local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]	   	
@@ -120,13 +120,14 @@ end
 function Action()
    UseItems()
 
-   if IsOn("autoUlt") and
-   	CanUse("might") and 
-   	#GetInRange(me, spells["AA"].range*2, ENEMIES) >= 2 
-  	then
-   	Cast("might", me)
-  		PrintAction("Might")
-   end
+   -- if IsOn("autoUlt") and
+   -- 	CanUse("might") and 
+   -- 	#GetInRange(me, spells["AA"].range*2, ENEMIES) >= 2 
+  	-- then
+   -- 	Cast("might", me)
+  	-- 	PrintAction("Might")
+  	-- 	return true
+   -- end
 
    if CanUse("leap") then
 	   local target = GetMarkedTarget() or GetWeakestEnemy("leap")
@@ -153,7 +154,7 @@ function Action()
 		PrintAction("start counter")
 	end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if target and ModAA("empower", target) then
       return true
    end
@@ -203,12 +204,18 @@ end
 
 
 local function onSpell(unit, spell)
-   -- if spell.target and spell.target.name == me.name and
-   --    me.health / me.maxHealth < .5 and
-   --    CanUse("might")
-   -- then
-   --    Cast("might", me)
-   -- end
+   if IsOn("autoUlt") and 
+   	CanUse("might") and
+      GetHPerc(me) < .75 and
+      not Alone()
+   then
+   	if ( spell.target and IsMe(spell.target) and IsEnemy(unit) ) or
+   		( SpellShotTarget(unit, spell, me) )
+   	then
+	      Cast("might", me)
+	      PrintAction("Might", spell.name)
+	   end
+   end
 end
 
 AddOnCreate(onObject)
