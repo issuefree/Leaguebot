@@ -99,7 +99,7 @@ function Action()
    end
 
 -- melee
-   -- local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   -- local target = GetMarkedTarget() or GetMeleeTarget()
    -- if AA(target) then
    --    PrintAction("AA", target)
    --    return true
