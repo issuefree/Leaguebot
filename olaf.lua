@@ -77,24 +77,20 @@ function Run()
    end
    
    if IsOn("jungle") then
-      local creeps = GetInRange(me, 350, CREEPS)
+      local creeps = GetAllInRange(me, 275, CREEPS)
       for _,creep in ipairs(creeps) do
          if ListContains(creep.name, MajorCreepNames, true) or 
             ListContains(creep.name, BigCreepNames, true) 
          then
-            if GetDistance(creep) < 275 and creep.dead ~= 1 then
-               if CanUse("axe") then 
-                  local a = AngleBetween(me, creep)
-                  local d = 60
-                  local x = me.x+d*math.sin(a)
-                  local z = me.z+d*math.cos(a)
-                  CastXYZ("axe", x, 0, z)
-                  PrintAction("Axe for jungle")
-                  break
-               elseif CanUse("swing") then
-                  Cast("swing", creep)
-                  PrintAction("Swing for jungle", creep)
-               end
+            if CanUse("axe") then 
+               CastXYZ("axe", creep)
+               PrintAction("Axe for jungle")
+               return true
+            end
+            if CanUse("swing") then
+               Cast("swing", creep)
+               PrintAction("Swing for jungle", creep)
+               return true
             end
          end
       end
