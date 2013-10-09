@@ -58,7 +58,7 @@ function doHeal()
 		   hero.health + maxHeal < hero.maxHealth*.9 and
 		   hero.dead == 0 and
 		   hero.visible == 1 and
-		   not isWounded(hero) and 
+		   not HasBuff("wound") and 
 		   not IsRecalling(hero)
 		then
 			local dist = GetDistance(hero)
