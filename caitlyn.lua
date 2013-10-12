@@ -86,6 +86,8 @@ function Run()
    end
 
    if HotKey() and CanAct() then
+      UseItems()
+
       if Action() then
          return true
       end
@@ -99,8 +101,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-
    if IsOn("trap") and 
       CanUse("trap") and 
       me.mana > GetSpellCost("net") + GetSpellCost("trap") 
