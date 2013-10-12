@@ -21,7 +21,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["hunter"] = {
    key="Q", 
-   range=900,
+   range=1000,
    lockedRange=1200,
    color=violet, 
    base={10,40,70,100,130}, 
@@ -29,10 +29,12 @@ spells["hunter"] = {
    type="P",
    delay=2,
    speed=15,
-   width=80
+   width=80,
+   cost=40
 }
 spells["capacitor"] = {
-   key="W"
+   key="W",
+   cost={55,60,65,70,75}
 }
 spells["charge"] = {
    key="E", 
@@ -44,18 +46,18 @@ spells["charge"] = {
    delay=2.5,
    speed=15,
    noblock=true,
-   width=300
+   radius=300,
+   cost={50,55,60,65,70}
+}
+spells["reverser"] = {
+   key="R",
+   range={550,700,850},
+   cost=120
 }
 
 local chargeTime = 0
 
 function Run()
-
-   for i,t in ipairs(tearTimes) do
-      PrintState(i+1, t)
-   end
-
-   PrintState(4, GetCD("1"))
 
    for _,enemy in ipairs(GetWithBuff("charge", ENEMIES)) do
       Circle(enemy, nil, green, 3)
@@ -144,7 +146,7 @@ function Action()
       end
    end
 
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -176,17 +178,15 @@ function FollowUp()
          end
       end
       
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      MoveToCursor() 
-      PrintAction("Move")
-      return false
+      if RangedMove() then
+         return true
+      end
    end
 end
 
