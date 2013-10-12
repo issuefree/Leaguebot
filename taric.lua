@@ -1,7 +1,5 @@
- require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("Tim's Taric")
 pp(" - Heal")
@@ -13,10 +11,32 @@ spells["heal"] = {
 	base={60,100,140,180,220}, 
 	ap=.6
 }
-spells["shatter"]  = {key="W", range=400,  color=red,    base={60,105,150,195,240}, ap=.6}
-spells["radiance"] = {key="R", range=400,  color=red,    base={171,285,399},        ap=.7}
-spells["aura"]     = {key="W", range=1000, color=yellow}
-spells["stun"]     = {key="E", range=625,  color=violet,    base={150,195,240},        ap=.6}
+spells["shatter"] = {
+	key="W", 
+	range=400,  
+	color=red,    
+	base={60,105,150,195,240}, 
+	ap=.6
+}
+spells["aura"] = {
+	key="W", 
+	range=1000, 
+	color=yellow
+}
+spells["stun"] = {
+	key="E", 
+	range=625,  
+	color=violet,    
+	base={150,195,240},        
+	ap=.6
+}
+spells["radiance"] = {
+	key="R", 
+	range=400,  
+	color=red,    
+	base={171,285,399},        
+	ap=.7
+}
 
 AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
 
@@ -64,17 +84,17 @@ function doHeal()
 			local dist = GetDistance(hero)
 			if dist < 750 then
 				if not bestInRangeT or
-				   hero.health/hero.maxHealth < bestInRangeP
+				   GetHPerc(hero) < bestInRangeP
 				then
 					bestInRangeT = hero
-					bestInRangeP = hero.health/hero.maxHealth
+					bestInRangeP = GetHPerc(hero)
 				end
 			elseif dist < 1000 then
 				if not bestOutRangeT or
 				   hero.health/hero.maxHealth < bestOutRangeP
 				then				
 					bestOutRangeT = hero
-					bestOutRangeP = hero.health/hero.maxHealth
+					bestOutRangeP = GetHPerc(hero)
 				end
 			end
 		end
