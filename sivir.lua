@@ -5,8 +5,11 @@ require "support"
 
 print("\nTim's Sivir")
 
-AddToggle("lasthit", {on=true, key=112, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("block", {on=true, key=113, label="SpellShield"})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["boomerang"] = {
    key="Q", 
@@ -16,11 +19,12 @@ spells["boomerang"] = {
    ap=.5, 
    adBonus=1.1,   
    type="P",
-   delay=2.5,
+   delay=2,
    speed=13,
    width=80,
-   cost={70,80,90,100,110},
-   noblock=true
+   noblock=true,
+   overshoot=-200,
+   cost={70,80,90,100,110}
 }
 spells["ricochet"] = {
    key="W",
@@ -53,15 +57,47 @@ function Run()
 
 
    if HotKey() and CanAct() then
+      UseItems()
+      if Action() then
+         return true
+      end
+   end   
 
-      if SkillShot("boomerang") then
+   if HotKey() and CanAct() then
+      if FollowUp() then
          return true
       end
    end
 
-   if IsOn("lasthit") and Alone() then
-      KillMinion("AA")
+end
+
+function Action()
+   if SkillShot("boomerang") then
+      return true
    end
+   return false
+end
+
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      if HitMinion("AA", "strong") then
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      if RangedMove() then
+         return true
+      end
+   end
+   
+   return false
 end
 
 -- function getRangTargs()
