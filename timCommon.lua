@@ -269,6 +269,13 @@ function GetLizard()
       end
    end
 end
+function GetWraith()
+   for _,creep in ipairs(SortByDistance(CREEPS)) do
+      if creep.name == "Wraith" then
+         return creep
+      end
+   end
+end
 
 
 function KillMinionsInLine(thing, killsNeeded)
@@ -283,7 +290,7 @@ function KillMinionsInLine(thing, killsNeeded)
       end
       Circle(point, 50, yellow)
       CastXYZ(thing, point)
-      PrintAction(thing.." for kills", #hits)
+      PrintAction(thing.." for kills", #kills)
       return true
    end
    return false
@@ -529,7 +536,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
 
       if killScore ~= 0 then     
          for _,hit in ipairs(hits) do
-            if GetSpellDamage(spell, hit) > hit.health then
+            if WillKill(thing, hit) then
                score = score + killScore
                table.insert(kills, hit)
             end
@@ -860,10 +867,10 @@ function UseItem(itemName, target)
           itemName == "Wooglet's Witchcap" or
           itemName == "Seraph's Embrace"
    then
-      -- use it if I'm at 10% and there's an enemy nearby
+      -- use it if I'm at x% and there's an enemy nearby
       -- may expand this to trigger when a spell is cast on me that will kill me
       local target = GetWeakEnemy("MAGIC", 750)
-      if target and GetMPerc(me) < .20 then
+      if target and GetMPerc(me) < .25 then
          CastSpellTarget(slot, me)
       end
 
@@ -1173,23 +1180,27 @@ function StartChannel(timeout, label)
    CHANNELBUFFER = true
    if label then
       pp("..."..label.." "..timeout)
-   else
-      pp("...channel "..timeout)
+   -- else
+   --    pp("...channel "..timeout)
    end
    local start = time()
    DoIn( function() 
             CHANNELBUFFER = false 
             if label then
                pp("   "..label.."..."..time()-start)
-            else
-               pp("   channel..."..time()-start)
+            -- else
+            --    pp("   channel..."..time()-start)
             end            
          end, 
          timeout, "ChannelBuffer" )
 end
 
 function IsChannelling(object)
-   return CHANNELBUFFER or object
+   if not object then
+      return CHANNELBUFFER or CHANNELLING
+   else
+      return CHANNELBUFFER or object
+   end
 end
 
 function OnProcessSpell(unit, spell)
@@ -1205,6 +1216,10 @@ function OnProcessSpell(unit, spell)
             PrintAction("Dodge "..unit.name.."'s "..spell.name)
          end
       end
+   end
+
+   if ICast("Recall", unit, spell) then
+      StartChannel(1)
    end
 
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
@@ -1373,8 +1388,8 @@ end
 
 function RangedMove()
    if IsOn("move") then
-      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
-         #GetInRange(me, "AA", ENEMIES) == 0 
+      if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
+         #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
       then
          MoveToCursor()
          return false   
