@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("Tim's Soraka")
 
@@ -205,7 +203,7 @@ function infuseTeam()
 	
 	if bestInRangeT then
 		-- don't infuse mostly full people if there's a nearby enemy
-		if not GetWeakEnemy("MAGIC", 800) or bestInRangeP < .5 then
+		if Alone() or bestInRangeP < .5 then
 			Cast("infuse", bestInRangeT)
 			PrintAction("Infuse M", bestInRangeT)
 			return true
