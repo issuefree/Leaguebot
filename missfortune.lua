@@ -175,21 +175,14 @@ function FollowUp()
    end
 
    if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("clear with AA")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      if #GetInRange(GetMousePos(), "AA", ENEMIES) == 0 or
-         #GetInRange(me, "AA", ENEMIES) == 0 
-      then
-         MoveToCursor()
-         PrintAction("move")
-         return false   
+      if RangedMove() then
+         return true
       end
    end
 
