@@ -21,7 +21,7 @@ spells["shot"] = {
    ad=1, 
    ap=.2,
    delay=2,
-   speed=20, 
+   speed=20,    
    type="P",
    cost={28,31,34,37,40}
 }
@@ -34,6 +34,7 @@ spells["flux"] = {
    delay=2,
    speed=15,
    noblock=true,
+   width=75,
    cost={50,60,70,80,90}
 }
 spells["arrow"] = {
@@ -56,6 +57,8 @@ spells["barrage"] = {
    ap=.9,
    delay=12,
    speed=20,
+   width=150,
+   range=99999,
    noblock=true,
    cost=100
 }
@@ -117,7 +120,7 @@ function Action()
       return true
    end
 
-   local target = GetWeakEnemy("PHYS", spells["AA"].range)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -134,18 +137,15 @@ function FollowUp()
    end
 
    if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      MoveToCursor() 
-      PrintAction("Move")
-      return false
+      if RangedMove() then
+         return true
+      end
    end
 end
 
