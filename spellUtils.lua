@@ -348,15 +348,16 @@ function IsGoodFireahead(thing, target)
       end
    end
 
+   -- local r = spell.width or spell.radius
+
    local tps = tfas[spell.key][target.charName]
    local point = GetCenter(tps)
-   if GetDistance(tps[1], point) < 75 and
-      GetDistance(tps[#tps], point) < 75
+   if GetDistance(tps[1], point) < 66 and
+      GetDistance(tps[#tps], point) < 66
    then
       return true
    end
-   
-   
+
    return false   
 end
 
@@ -372,10 +373,14 @@ end
 function ICast(thing, unit, spell)
    if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
-   if #mySpell.key > 1 then
+   if #mySpell.key > 1 then -- hack for if getspell fails
       return spell.name == thing
    else
-      return spell.name == mySpell.name
+      if mySpell.name then
+         return find(spell.name, mySpell.name)
+      else
+         return spell.name == me["SpellName"..mySpell.key]
+      end
    end
 end
 
