@@ -203,9 +203,9 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      MoveToCursor() 
-      PrintAction("Move")
-      return false
+      if RangedMove() then
+         return true
+      end
    end
 
    return false

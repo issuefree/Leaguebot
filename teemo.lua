@@ -115,8 +115,10 @@ function Action()
 		end
 	end
 
-	if IsOn("move") then
-      MoveToCursor() 
+   if IsOn("move") then
+      if RangedMove() then
+         return true
+      end
    end
 end
 

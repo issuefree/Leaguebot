@@ -91,7 +91,9 @@ function Action()
    end
 
    if IsOn("move") then
-      MoveToCursor() 
+      if RangedMove() then
+         return true
+      end
    end
 end
 
