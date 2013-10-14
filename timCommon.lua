@@ -869,8 +869,7 @@ function UseItem(itemName, target)
    then
       -- use it if I'm at x% and there's an enemy nearby
       -- may expand this to trigger when a spell is cast on me that will kill me
-      local target = GetWeakEnemy("MAGIC", 750)
-      if target and GetMPerc(me) < .25 then
+      if not Alone() and GetHPerc(me) < .25 then
          CastSpellTarget(slot, me)
       end
 
