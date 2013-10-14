@@ -70,6 +70,7 @@ function Run()
 	end
 
 	if HotKey() then
+	   UseItems()
 		if Action() then
          return true
       end
@@ -118,17 +119,6 @@ end
 
 
 function Action()
-   UseItems()
-
-   -- if IsOn("autoUlt") and
-   -- 	CanUse("might") and 
-   -- 	#GetInRange(me, spells["AA"].range*2, ENEMIES) >= 2 
-  	-- then
-   -- 	Cast("might", me)
-  	-- 	PrintAction("Might")
-  	-- 	return true
-   -- end
-
    if CanUse("leap") then
 	   local target = GetMarkedTarget() or GetWeakestEnemy("leap")
 	   if target and
