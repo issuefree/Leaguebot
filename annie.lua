@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("\nTim's Annie")
 
@@ -11,8 +9,7 @@ spells["dis"] = {
    color=violet, 
    base={85,125,165,205,245}, 
    cost={60,65,70,75,80},
-   ap=.7,
-   cost={85,125,165,205,245}
+   ap=.7
 }
 spells["inc"] = {
    key="W", 
@@ -22,7 +19,9 @@ spells["inc"] = {
    cost={70,80,90,100,110}, 
    ap=.75, 
    cone=45,
-   cost={80,130,180,230,280}
+   delay=2,
+   speed=0,
+   noblock=true
 }
 spells["shield"] = {
    key="E",
@@ -62,14 +61,16 @@ local tibbersRange = 300
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
    end
 
    autoTibbers()   
 
    if HotKey() and CanAct() then
+      UseItems()
       if Action() then
-         return
+         return true
       end
    end
    
@@ -81,7 +82,7 @@ function Run()
    then
       Cast("shield", me)
       PrintAction("Shield for stoke")
-      return
+      return true
    end
    
    -- if we're alone blast everything.
@@ -97,7 +98,7 @@ function Run()
             if KillMinion("dis") then
                return true
             end
-         end         
+         end    
       end
    end   
 
@@ -107,24 +108,24 @@ function Run()
       if VeryAlone() then
          if KillMinionsInCone(spells["inc"], 2, 0, false) then
             PrintAction("Incinerate 2")
-            return
+            return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinionsInCone(spells["inc"], 2, 0, P.stun) then
                PrintAction("Incinerate 2")
-               return
+               return true
             end
          else
             if KillMinionsInCone(spells["inc"], 3, 0, false) then
                PrintAction("Incinerate 3")
-               return
+               return true
             end
          end
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return
       end
@@ -159,8 +160,6 @@ function tibbersAttack(target)
 end
 
 function Action()
-   UseItems() 
-
 -- actually I think it's simple. just hit whoever I can with disintigrate
 -- and incinerate and rely on movement to get me in range for shit.
 
@@ -175,7 +174,7 @@ function Action()
 
    if CanUse("tibbers") and me.SpellNameR == "InfernalGuardian" then
       local hits, kills, score = GetBestArea(me, "tibbers", 1, 3, ENEMIES)
-      if score >= 3 then
+      if score >= 2 then
          CastXYZ("tibbers", GetCenter(hits))
          PrintAction("Tibbers for AoE")
          return true
@@ -183,10 +182,7 @@ function Action()
    end
 
    if CanUse("inc") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("inc")
-      if target then
-         Cast("inc", target)
-         PrintAction("Incinerate", target)
+      if SkillShot("inc") then
          return true
       end
    end
@@ -202,7 +198,7 @@ function Action()
 
    if CanUse("tibbers") then
       local target = GetWeakestEnemy("tibbers")
-      if target and target.health < GetSpellDamage("tibbers", target) then
+      if target and WillKill("tibbers", target) then
          Cast("tibbers", target)
          PrintAction("Tibbers for execute", target)
          return true
