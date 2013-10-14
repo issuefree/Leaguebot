@@ -184,15 +184,15 @@ function GetSpellDamage(thing, target)
 
    local damage = spell.base[lvl]
 
-   if spell.ap then 
+   if spell.ap then
       damage = damage + spell.ap*me.ap
    end
    if spell.ad then
       damage = damage + spell.ad*(me.baseDamage+me.addDamage)
-   end 
+   end
    if spell.adBonus then
       damage = damage + spell.adBonus*me.addDamage
-   end 
+   end
    if spell.adBase then
       damage = damage + spell.adBase*me.baseDamage
    end
@@ -204,7 +204,10 @@ function GetSpellDamage(thing, target)
    end
    if spell.bonus then
       damage = damage + spell.bonus
-   end   
+   end
+   if spell.percMaxHealth and target then
+      damage = damage + (target.maxHealth*spell.percMaxHealth)
+   end
 
    local damageT = 0
    local damageP = 0
