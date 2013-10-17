@@ -61,7 +61,7 @@ spells["strangle"] = {
 }
 
 local castSeedAt = time()
-local seedDelay = .5
+local seedDelay = .75
 local seedCharges = 2
 local st = time()
 
@@ -186,9 +186,31 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
-   -- if ICast("seed", unit, spell) then
-      -- pp(unit.name.." "..spell.name)
-   -- end
+   if ICast("roots", unit, spell) then
+      if canSeed() then
+         for _,enemy in ipairs(ENEMIES) do 
+            if GetOrthDist(spell.endPos, enemy) < spells["roots"].growWidth then
+               local point = Projection(me, spell.endPos, GetDistance(enemy))
+               if GetDistance(point) > GetSpellRange("seed") then
+                  point = Projection(me, point, GetSpellRange("seed"))
+               end
+               CastXYZ("seed", point)
+               PrintAction("Seed on roots")
+               break
+            end
+         end
+      end
+   end
+
+   if ICast("bloom", unit, spell) then
+      if canSeed() then
+         if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
+            CastXYZ("seed", spell.endPos)
+            PrintAction("Seed on bloom")
+         end
+      end
+   end
+
 end
 
 AddOnCreate(onObject)
