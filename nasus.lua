@@ -69,10 +69,12 @@ local victim
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
    end
    
    if HotKey() then
+      UseItems()
       if Action() then
          return true
       end
@@ -109,8 +111,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-
    -- spirit fire: Nice if I can hit a few people
    -- other wise one will do if it's my aa target.
    if CanUse("fire") then
@@ -148,7 +148,7 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if target and ModAA("strike", target) then
       return true
    end
