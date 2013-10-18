@@ -1,68 +1,37 @@
 require "timCommon"
 
-ssers = {
-   blitz = {
-      spell = {type="line", range=925, key="Q", block=true, width=80}
-   },
-   lux = {
-      spell = {type="line", range=1175, key="Q", width=80}   
-   },
-   morgana = {
-      spell = {type="line", range=1300, key="Q", block=true, width=90}
-   },
-   ezreal = {
-      spell = {type="line", range=1100, key="Q", block=true, width=80}
-   },
-   thresh = {
-      spell = {type="line", range=1075, key="Q", block=true, width=100}
-   },
-   nautilus = {
-      spell = {type="line", range=950, key="Q", block=true, width=80}
-   },
-   leesin = {
-      spell = {type="line", range=975, key="Q", block=true, width=60}
-   },
-   nidalee = {
-      spell = {type="line", range=1500, key="Q", block=true, width=80}
-   }
-}
-
 
 function assTick()
-   for _,enemy in ipairs(ENEMIES) do
-      if enemy.name == "Blitzcrank" then
-         ssers.blitz.obj = enemy
-      elseif enemy.name == "Lux" then
-         ssers.lux.obj = enemy
-      elseif enemy.name == "Morgana" then
-         ssers.morgana.obj = enemy
-      elseif enemy.name == "Ezreal" then
-         ssers.ezreal.obj = enemy
-      elseif enemy.name == "Thresh" then
-         ssers.thresh.obj = enemy
-      elseif enemy.name == "Nautilus" then
-         ssers.nautilus.obj = enemy
-      elseif enemy.name == "LeeSin" then
-         ssers.leesin.obj = enemy
-      elseif enemy.name == "Nidalee" then
-         ssers.nidalee.obj = enemy
-      end
+   if not ModuleConfig.ass then
+      return
    end
-   if ModuleConfig.ass then
-      for _,enemy in pairs(ssers) do
-         if enemy.obj then
-            if enemy.obj.visible == 0 then
-            
-            elseif enemy.spell.type == "line" then
-               if enemy.obj.x and GetDistance(enemy.obj) < enemy.spell.range and enemy.obj["SpellTime"..enemy.spell.key] >= -.5 then
-                  local unblocked = GetUnblocked(enemy.obj, enemy.spell, MYMINIONS, ALLIES)
-                  for _,test in ipairs(unblocked) do
-                     if test.charName == me.charName then
-                        LineBetween(enemy.obj, me, enemy.spell.width)
-                        break
+
+   for _,enemy in ipairs(ENEMIES) do
+      if ValidTarget(enemy) then
+         local spells = GetSpellShots(enemy.name)
+         for _,spell in ipairs(spells) do
+            if spell.perm and spell.key and enemy["SpellLevel"..spell.key] > 0 then
+
+               if spell.ss and spell.isline then
+                  if GetDistance(enemy) < spell.range and enemy["SpellTime"..spell.key] >= 1 then
+                     if spell.blocked then
+                        local unblocked = GetUnblocked(enemy, spell, MYMINIONS, ALLIES)
+                        for _,test in ipairs(unblocked) do
+                           if test.charName == me.charName then
+                              LineBetween(enemy, me, spell.radius)
+                              break
+                           end
+                        end
+                     else
+                        LineBetween(enemy, me, spell.radius)
                      end
                   end
                end
+
+               if not spell.ss then
+                  Circle(enemy, spell.range, red, 2)
+               end
+
             end
          end
       end

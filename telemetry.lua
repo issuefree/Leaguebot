@@ -166,7 +166,7 @@ function GetMousePos()
 end
 
 function Engaged()
-   return GetWeakEnemy("MAGIC", 450 ) ~= nil
+   return GetWeakEnemy("MAGIC", 400 ) ~= nil
 end
 function Alone()
    return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil

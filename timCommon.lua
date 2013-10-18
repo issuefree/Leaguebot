@@ -163,7 +163,7 @@ local function drawCommon()
       if spellShot.time < time() then
          table.remove(ACTIVE_SKILL_SHOTS, i)
       else
-         if spellShot.spell.isline then
+         if spellShot.spell.isline then            
             LineBetween(spellShot.startPoint, spellShot.endPoint, spellShot.spell.radius)
          else
             Circle(spellShot.endPoint, spellShot.spell.radius, blue, 4)
@@ -710,12 +710,14 @@ function GetUnblocked(source, thing, ...)
    
    local blocked = {}
    
+   local width = spell.width or spell.radius
+
    for i,target in ipairs(targets) do
       local d = GetDistance(source, target)
       for m = i+1, #targets do
          local a = AngleBetween(source, targets[m])
          local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
-         if GetDistance(target, proj) < spell.width+minionWidth then
+         if GetDistance(target, proj) < width+minionWidth then
             table.insert(blocked, targets[m])
          end
       end
@@ -1210,11 +1212,22 @@ function OnProcessSpell(unit, spell)
       then
          local spellShot = SpellShotTarget(unit, spell, me)
          if spellShot then
-            BlockingMove(spellShot.safePoint)
+            if not Engaged() then
+               BlockingMove(spellShot.safePoint)
+               PrintAction("Dodge "..unit.name.."'s "..spell.name)
+            end
             addSkillShot(spellShot)
-            PrintAction("Dodge "..unit.name.."'s "..spell.name)
+         else
+            spellShot = GetSpellShot(unit, spell)
+            if spellShot and spellShot.show then
+               addSkillShot(spellShot)
+            end
          end
       end
+   end
+
+   if unit.name == "Jinx" then
+      pp("spell.name")
    end
 
    if ICast("Recall", unit, spell) then

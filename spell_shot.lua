@@ -15,7 +15,7 @@ Tim's modified version of...
             			end
 --]]
 
-require 'Utils'
+require "telemetry"
 
 -- "hardness" of the cc
 local GRAB = 4
@@ -46,15 +46,15 @@ local spells = {
 		{name="infernalguardian", cc=STUN},
 	},
 	Anivia = {
-		{name="FlashFrostSpell", range=1100, radius=90, time=2, ss=true, isline=true, cc=STUN},
+		{name="FlashFrostSpell", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=STUN},
 		{name="frostbite"},
 	},
 	Ashe = {
 		{name="volley", cc=SLOW, physical=true},
-		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, isline=true, cc=STUN},
+		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN},
 	},
 	Blitzcrank = {
-		{name="RocketGrabMissile", key="Q", range=925, radius=80, time=1, ss=true, isline=true, cc=GRAB},
+		{name="RocketGrabMissile", key="Q", range=925, radius=80, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB},
 	},
 	Brand = {
 		{name="BrandBlazeMissile", range=1050, radius=70, time=1, ss=true, isline=true, cc=STUN},
@@ -72,7 +72,7 @@ local spells = {
 		{name="CassiopeiaNoxiousBlast", range=850, radius=75, time=1, ss=true, isline=false},
 	},
 	Chogath = {
-		{name="Rupture", range=950, radius=275, time=1, ss=true, isline=false, cc=SLOW},
+		{name="Rupture", range=950, radius=275, time=2, ss=true, show=true, isline=false, cc=SLOW},
 		{name="feralscream", cc=SILENCE},			
 		{name="feast"},			
 	},
@@ -90,7 +90,7 @@ local spells = {
 	},
 	Draven = {
 		{name="DravenDoubleShot", range=1050, radius=125, time=1, ss=true, isline=true, cc=SLOW, physical=true},
-		{name="DravenRCast", range=50000, radius=100, time=4, ss=true, isline=true, physical=true},
+		{name="DravenRCast", range=50000, radius=100, time=4, ss=true, show=true, isline=true, physical=true},
 	},
 	DrMundo = {
 		{name="InfectedCleaverMissile", range=1000, radius=80, time=1, ss=true, isline=true, cc=SLOW},
@@ -99,9 +99,9 @@ local spells = {
 		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, isline=true},
 	},
 	Ezreal = {
-		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, isline=true, physical=true},
+		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, physical=true},
 		{name="EzrealEssenceFluxMissile", range=900, radius=100, time=1, ss=true, isline=true},
-		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, isline=true},
+		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, show=true, isline=true},
 	},
 	FiddleSticks = {
 		{name="terrify", cc=FEAR, nodamage=true},
@@ -127,7 +127,7 @@ local spells = {
 		{name="GravesChargeShot", range=1000, radius=110, time=1, ss=true, isline=true, physical=true},
 	},
 	Gragas = {
-		{name="GragasBarrelRoll", range=1100, radius=320, time=2.5, ss=true, isline=false},
+		{name="GragasBarrelRoll", range=1100, radius=320, time=2.5, ss=true, show=true, isline=false},
 		{name="GragasBodySlam", range=650, radius=150, time=1.5, ss=true, isline=true, point=true, cc=SLOW},
 		{name="GragasExplosiveCask", range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
 	},
@@ -140,7 +140,7 @@ local spells = {
 		{name="ireliaequilibriumstrike", cc=STUN},
 	},
 	Janna = {
-		{name="HowlingGale", range=1700, radius=100, time=2, ss=true, isline=true},
+		{name="HowlingGale", range=1700, radius=100, time=3, ss=true, show=true, isline=true},
 		{name="sowthewind", cc=SLOW}
 	},
 	JarvanIV = {
@@ -149,7 +149,10 @@ local spells = {
 		{name="JarvanIVCataclysm", range=650, radius=300, time=1.5, ss=true, isline=false, physical=true},
 	},
 	Jayce = {
-		{name="jayceshockblast", range=1470, radius=100, time=1, ss=true, isline=true, physical=true},
+		{name="jayceshockblast", range=1470, radius=100, time=1, ss=true, show=true, isline=true, physical=true},
+	},
+	Jinx = {
+		{name=""}
 	},
 	Karthus = {
 		{name="LayWaste", range=875, radius=150, time=1, ss=true, isline=false},
@@ -176,7 +179,7 @@ local spells = {
 	},
 	KogMaw = {
 		{name="KogMawVoidOozeMissile", range=1115, radius=100, time=1, ss=true, isline=true, cc=SLOW},
-		{name="KogMawLivingArtillery", range=2200, radius=200, time=1.5, ss=true, isline=false},
+		{name="KogMawLivingArtillery", range=2200, radius=200, time=1.5, ss=true, show=true, isline=false},
 	},
 	Leblanc = {
 		{name="LeblancSoulShackle", range=1000, radius=80, time=1, ss=true, isline=true, cc=BIND},
@@ -187,7 +190,7 @@ local spells = {
 		{name="leblancslidereturnm", range=1000, radius=50, time=1, ss=true, isline=false},
 	},
 	LeeSin = {
-		{name="BlindMonkQOne", key="Q", range=975, radius=150, time=1, ss=true, isline=true, physical=true},
+		{name="BlindMonkQOne", key="Q", range=975, radius=150, time=1, ss=true, block=true, perm=true, isline=true, physical=true},
 		{name="BlindMonkRKick", range=1200, radius=100, time=1, ss=true, isline=true, physical=true},
 	},
 	Leona = {
@@ -205,7 +208,7 @@ local spells = {
 	},
 	Lux = {
 		{name="LuxLightBinding", key="Q", range=1175, radius=150, time=1, ss=true, isline=true, cc=BIND},
-		{name="LuxLightStrikeKugel", range=1100, radius=300, time=2.5, ss=true, isline=false, cc=SLOW},
+		{name="LuxLightStrikeKugel", range=1100, radius=300, time=2.5, ss=true, show=true, isline=false, cc=SLOW},
 		{name="LuxMaliceCannon", range=3000, radius=180, time=1.5, ss=true, isline=true},
 	},
 	Lulu = {
@@ -213,7 +216,7 @@ local spells = {
 	},
 	Malphite = {
 		{name="seismicshard", cc=SLOW},
-		{name="UFSlash", range=1000, radius=325, time=1, ss=true, isline=false, cc=KNOCK},
+		{name="UFSlash", range=1000, radius=325, time=1, ss=true, show=true, isline=false, cc=KNOCK},
 	},
 	Malzahar = {
 		{name="AlZaharCalloftheVoid", range=900, radius=100, time=1, ss=true, isline=false, cc=SILENCE},
@@ -231,22 +234,22 @@ local spells = {
 		{name="MissFortuneScattershot", range=800, radius=400, time=3, ss=true, isline=false},
 	},
 	Morgana = {
-		{name="DarkBindingMissile", key="Q", range=1300, radius=90, time=1.5, ss=true, isline=true, cc=BIND},
+		{name="DarkBindingMissile", key="Q", range=1300, radius=90, time=1.5, ss=true, show=true, perm=true, blocked=true, isline=true, cc=BIND},
 		{name="TormentedSoil", range=900, radius=300, time=1.5, ss=true, isline=false},
 	},
 	Nami = {
-		{name="NamiQ", range=875, radius=200, time=1.5, ss=true, isline=false, cc=STUN},
+		{name="NamiQ", range=875, radius=200, time=1.5, ss=true, show=true, isline=false, cc=STUN},
 		{name="NamiR", range=2550, radius=350, time=3, ss=true, isline=true, cc=KNOCK},
 	},
 	Nasus = {
 		{name="wither", cc=SLOW, nodamage=true},
 	},
 	Nautilus = {
-		{name="NautilusAnchorDrag", key="Q", range=950, radius=80, time=1.5, ss=true, isline=true},
+		{name="NautilusAnchorDrag", key="Q", range=950, radius=80, time=1.5, ss=true, perm=true, block=true, isline=true},
 		{name="nautilusgrandline", cc=KNOCK},
 	},
 	Nidalee = {
-		{name="JavelinToss", key="Q", range=1500, radius=120, time=1.5, ss=true, isline=true},
+		{name="JavelinToss", key="Q", range=1500, radius=120, time=1.5, ss=true, block=true, perm=true, show=true, isline=true},
 	},
 	Nocturne = {
 		{name="NocturneDuskbringer", range=1200, radius=150, time=1.5, ss=true, isline=true, physical=true},
@@ -326,7 +329,7 @@ local spells = {
 		{name="blindingdart", cc=BLIND},
 	},
 	Thresh = {
-		{name="ThreshQ", key="Q", range=1100, radius=100, time=1.5, ss=true, isline=true, cc=STUN},
+		{name="ThreshQ", key="Q", range=1100, radius=100, time=1.5, ss=true, show=true, block=true, perm=true, isline=true, cc=STUN},
 	},
 	Tristana = {
 		{name="detonatingshot"},
@@ -373,8 +376,8 @@ local spells = {
 		--{name="ViktorDeathRay", range=700, radius=80, time=2, ss=true, isline=true},
 	},
 	Xerath = {
-		{name="xeratharcanopulsedamage", range=900, radius=80, time=1, ss=true, isline=true},
-		{name="xeratharcanopulsedamageextended", range=1300, radius=80, time=1, ss=true, isline=true},
+		{name="xeratharcanopulsedamage", range=900, radius=80, time=1, ss=true, show=true, isline=true},
+		{name="xeratharcanopulsedamageextended", range=1300, radius=80, time=1, ss=true, show=true, isline=true},
 		{name="xeratharcanebarragewrapper", range=900, radius=250, time=1, ss=true, isline=false},
 		{name="xeratharcanebarragewrapperext", range=1300, radius=250, time=1, ss=true, isline=false},
 	},
@@ -388,14 +391,14 @@ local spells = {
 		{name="zedw2", range=550, radius=150, time=0.5, ss=true, isline=false, physical=true},
 	},
 	Ziggs = {
-		{name="ZiggsQ", range=850, radius=160, time=1, ss=true, isline=true},
+		{name="ZiggsQ", range=850, radius=160, time=1.5, ss=true, show=true, isline=true},
 		{name="ZiggsW", range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
 		{name="ZiggsE", range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},
 	},
 	Zyra = {
 		{name="ZyraQFissure", range=825, radius=275, time=1.5, ss=true, isline=true},
-		{name="ZyraGraspingRoots", range=1100, radius=90, time=2, ss=true, isline=true, cc=BIND},
+		{name="ZyraGraspingRoots", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=BIND},
 	},
 }
 
@@ -409,24 +412,7 @@ function find(source, target)
    return string.find(string.lower(source), string.lower(target))
 end
 
-function GetAngle(p1, p2)
-	local a = p1.x - p2.x
-	local b = p1.z - p2.z
-	local angle = math.atan(a/b)
-   if b < 0 then
-   	angle = angle+math.pi
-   end
-   return angle
-end
-
-function GetLinePoint(pos,angle,distance)
-	local ret = {x = 0, y = 0, z = 0}
-	ret.x = pos.x - distance*math.sin(angle)
-	ret.z = pos.z - distance*math.cos(angle)
-	return ret
-end
-
-function GetSpellShot(name,spellName)
+function GetSpellDef(name, spellName)
 	local spellTable = spells[name]
 	if spellTable ~= nil then
 		for i=1, #spellTable, 1 do
@@ -438,30 +424,63 @@ function GetSpellShot(name,spellName)
 	return nil
 end
 
-function SpellShotTarget(unit,spell,target)
+function GetSpellShots(name)
+	return spells[name] or {}
+end
+
+function GetSpellShot(unit, spell)
+
+	local spellShot = GetSpellDef(unit.name, spell.name)
+	if spellShot then
+		if spellShot.isline then
+			local shotDistance
+			if spell.point then -- make sure we get the whole line if necessary
+				shotDistance = GetDistance(startPos, spell.endPos) + spell.radius
+			else
+				shotDistance = spellShot.range + spellShot.radius
+			end
+			if spellShot.point then
+				return {
+					spell=spellShot,
+					time=os.clock()+spellShot.time,
+					startPoint=Point(unit),
+					endPoint=Projection(Point(unit), spell.endPos, shotDistance)
+				}
+			else
+				return {
+					spell=spellShot,
+					time=os.clock()+spellShot.time,
+					startPoint=startPos,
+					endPoint=spell.endPos
+				}
+			end
+		end
+	else
+		return nil
+	end
+end
+function SpellShotTarget(unit, spell, target)
 	if unit and spell and unit.team ~= target.team then
-		local spellShot = GetSpellShot(unit.name, spell.name)
+		local spellShot = GetSpellDef(unit.name, spell.name)
+		local startPos = Point(unit) -- always start them at the unit casting them
 		if spellShot and spellShot.ss then
 			local safeDist = spellShot.radius + GetDistance(target, GetMinBBox(target))
 			if spellShot.isline then
-				local spellAngle = GetAngle(spell.startPos, spell.endPos)				
 				local shotDistance 
 				if spell.point then -- make sure we get the whole line if necessary
-					shotDistance = GetDistance(spell.startPos, spell.endPos) + spell.radius
+					shotDistance = GetDistance(startPos, spell.endPos) + spell.radius
 				else
 					shotDistance = spellShot.range + spellShot.radius
 				end
-				local targetDistance = GetDistance(spell.startPos, target)
+				local targetDistance = GetDistance(startPos, target)
 
 				if targetDistance < shotDistance then -- target is in range
-					local point = GetLinePoint(spell.startPos, spellAngle, targetDistance) -- "impact" point
+					local point = Projection(startPos, spell.endPos, targetDistance) -- "impact" point
 					local impactDistance = GetDistance(target, point)
 					if impactDistance <= spellShot.radius then -- hit
-						local angle = GetAngle(point, target) 
-						local safePoint = GetLinePoint(point, angle, safeDist)
+						local safePoint = Projection(point, target, safeDist)
 						if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then -- if safe is into a wall go the other direction
-							angle = GetAngle(safePoint, point)
-							safePoint = GetLinePoint(safePoint, angle, safeDist*2)
+							safePoint = Projection(safePoint, point, safeDist*2)
 							if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then -- if that's still a wall give up, it's meant to be
 								return nil
 							end
@@ -469,8 +488,8 @@ function SpellShotTarget(unit,spell,target)
 						local ret = {
 							spell=spellShot,
 							time=os.clock()+spellShot.time, 
-							startPoint=spell.startPos,
-							endPoint=GetLinePoint(spell.startPos, spellAngle, shotDistance),
+							startPoint=startPos,
+							endPoint=Projection(Point(unit), spell.endPos, shotDistance),
 							safePoint=safePoint, 
 							isline=true
 						}
@@ -480,15 +499,14 @@ function SpellShotTarget(unit,spell,target)
 			else
 				local impactDistance = GetDistance(target, spell.endPos)
 				if impactDistance <= spellShot.radius then
-					local angle = GetAngle(spell.endPos, target)
-					local safePoint = GetLinePoint(spell.endPos, angle, safeDist)
+					local safePoint = Projection(spell.endPos, target, safeDist)
 					if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then
 						return nil
 					end
 					local ret = {
 						spell=spellShot,
 						time=os.clock()+spellShot.time,
-						startPoint=spell.startPos,
+						startPoint=startPos,
 						endPoint=spell.endPos,
 						safePoint=safePoint,
 						isline=false
