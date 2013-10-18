@@ -42,8 +42,8 @@ local spells = {
 		{name="BandageToss", range=1100, radius=80, time=1, ss=true, isline=true, cc=STUN},
 	},
 	Annie = {
-		{name="disintigrate", cc=STUN},
-		{name="infernalguardian", cc=STUN},
+		{name="disintigrate", key="Q", cc=STUN},
+		{name="infernalguardian", key="R", range=600, perm=true, cc=STUN},
 	},
 	Anivia = {
 		{name="FlashFrostSpell", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=STUN},
@@ -82,7 +82,7 @@ local spells = {
 		{name="CarpetBomb", range=800, radius=150, time=1, ss=true, isline=true, point=true},
 	},
 	Darius = {
-		{name="dariusaxegrabcone", cc=GRAB, nodamage=true},
+		{name="dariusaxegrabcone", key="E", range=540, perm=true, cc=GRAB, nodamage=true},
 		{name="dariusexecute"},			
 	},
 	Diana = {
@@ -93,10 +93,10 @@ local spells = {
 		{name="DravenRCast", range=50000, radius=100, time=4, ss=true, show=true, isline=true, physical=true},
 	},
 	DrMundo = {
-		{name="InfectedCleaverMissile", range=1000, radius=80, time=1, ss=true, isline=true, cc=SLOW},
+		{name="InfectedCleaverMissile", key="Q", range=1000, radius=80, time=1, ss=true, perm=true, block=true, isline=true, cc=SLOW},
 	},
 	Elise = {
-		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, isline=true},
+		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true},
 	},
 	Ezreal = {
 		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, physical=true},
@@ -132,7 +132,7 @@ local spells = {
 		{name="GragasExplosiveCask", range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
 	},
 	Heimerdinger = {
-		{name="CH1ConcussionGrenade", range=950, radius=225, time=1.5, ss=true, isline=false, cc=STUN},
+		{name="CH1ConcussionGrenade", range=950, radius=225, time=2, ss=true, show=true, isline=false, cc=STUN},
 		{name="hextechmicrorockets"},
 	},
 	Irelia = {
@@ -152,7 +152,10 @@ local spells = {
 		{name="jayceshockblast", range=1470, radius=100, time=1, ss=true, show=true, isline=true, physical=true},
 	},
 	Jinx = {
-		{name=""}
+		{name="JinxQ", key="Q"},
+		{name="JinxW", key="W"},
+		{name="JinxE", key="E", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
+		{name="JinxR", key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true}
 	},
 	Karthus = {
 		{name="LayWaste", range=875, radius=150, time=1, ss=true, isline=false},
@@ -342,7 +345,7 @@ local spells = {
 	TwistedFate = {
 		{name="redcard", cc=SLOW},
 		{name="yellowcard", cc=STUN},
-		{name="WildCards", range=1450, radius=80, time=1, ss=true, isline=true},
+		{name="WildCards", range=1450, radius=80, time=1, ss=true, show=true, isline=true},
 	},
 	Twitch = {
 		{name="TwitchVenomCask", cc=SLOW, nodamage=true},
@@ -361,7 +364,7 @@ local spells = {
 	},
 	Veigar = {
 		{name="veigarbalefulstrike"},
-		{name="VeigarDarkMatter", range=900, radius=225, time=2, ss=true, isline=false},
+		{name="VeigarDarkMatter", range=900, radius=225, time=2, ss=true, show=true, isline=false},
 		{name="veigareventhorizon", cc=STUN},	
 		{name="veigarprimordialburst"},
 	},
