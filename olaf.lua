@@ -9,7 +9,7 @@ AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "swing"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["axe"] = {
@@ -22,7 +22,7 @@ spells["axe"] = {
    delay=2,
    speed=16,
    noblock=true,
-   width=80,
+   width=75,
    overShoot=150,
    cost={55,60,65,70,75}
 }
@@ -67,7 +67,7 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if GetHPerc(me) > .75 and KillMinion("swing") then
+      if KillMinion("swing") then
          return true
       end
       if KillMinionsInLine("axe", 2) then
@@ -82,15 +82,17 @@ function Run()
          if ListContains(creep.name, MajorCreepNames, true) or 
             ListContains(creep.name, BigCreepNames, true) 
          then
-            if CanUse("axe") then 
-               CastXYZ("axe", creep)
-               PrintAction("Axe for jungle")
-               return true
-            end
-            if CanUse("swing") then
-               Cast("swing", creep)
-               PrintAction("Swing for jungle", creep)
-               return true
+            if JustAttacked() then -- to keep me from getting distracted when I run through the jungle
+               if CanUse("axe") then 
+                  CastXYZ("axe", creep)
+                  PrintAction("Axe for jungle")
+                  return true
+               end
+               if CanUse("swing") then
+                  Cast("swing", creep)
+                  PrintAction("Swing for jungle", creep)
+                  return true
+               end
             end
          end
       end
@@ -173,15 +175,7 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return true
-         end
-      else        
-         MoveToCursor() 
-         -- PrintAction("Move")
+      if MeleeMove() then
          return true
       end
    end
