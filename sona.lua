@@ -126,6 +126,14 @@ function Action()
          return true
       end
    end
+
+   if CanUse("violet") and not VeryAlone() and GetMPerc(me) > .5 then
+      if #GetInRange(me, "violet", ALLIES) >= 2 then
+         Cast("violet", me)
+         PrintAction("Violet in teamfight")
+         return true
+      end
+   end
 end
 
 local function onObject(object)
