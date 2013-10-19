@@ -52,7 +52,7 @@ function Run()
       return true
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       UseItems()
       if Action() then
          return true
@@ -95,7 +95,7 @@ function Action()
       return true
    end
    
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
       if CanUse("masochism") then
          Cast("masochism", me)
@@ -131,19 +131,10 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
-   end
-end
+   endend
 
 function checkBurning(object)
    PersistBuff("burning", object, "dr_mundo_burning_agony")
