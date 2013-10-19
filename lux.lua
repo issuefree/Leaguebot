@@ -133,13 +133,13 @@ function Run()
       local enemies = GetInRange(P.singularity, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
          if GetSpellDamage("singularity", enemy) > enemy.health then
-            Cast(spell, me)
+            Cast(spell, me, true)
             PrintAction("Pop to kill", enemy)
             break
          end
          local nextPos = Point(GetFireahead(enemy, 4, 0))
          if GetDistance(P.singularity, nextPos) > spell.radius then
-            Cast(spell, me)
+            Cast(spell, me, true)
             PrintAction("Pop escapees")
             break
          end
@@ -148,7 +148,7 @@ function Run()
       local minions = GetInRange(P.singularity, spell.radius, MINIONS)
       local kills = GetKills("singularity", minions)
       if #kills > 2 then
-         Cast(spell, me)
+         Cast(spell, me, true)
          PrintAction("Pop to kill "..#kills.." minions")
       end
    end
@@ -299,7 +299,7 @@ function checkBarrier(unit, spell)
       spell.target.team == me.team
    then
       -- don't bother shielding people near full health
-      if spell.target.health,spell.target.maxHealth > .85 then
+      if spell.target.health/spell.target.maxHealth > .85 then
          return
       end
       
