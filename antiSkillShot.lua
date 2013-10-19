@@ -28,7 +28,7 @@ function assTick()
                   end
                end
 
-               if not spell.ss then
+               if not spell.ss and enemy["SpellTime"..spell.key] >= 1 then
                   Circle(enemy, spell.range, red, 2)
                end
 
