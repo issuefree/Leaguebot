@@ -90,7 +90,7 @@ playerTeam = ""
 SS_FUDGE = 1.33
 
 spells["AA"] = {
-   range=me.range+GetAARange(), 
+   range=GetAARange(), 
    base={0}, 
    ad=1, 
    type="P", 
@@ -1099,9 +1099,11 @@ function GetPeel(save, stop)
 end
 
 function GetHPerc(target)
+   if not target then target = me end
    return target.health/target.maxHealth
 end
 function GetMPerc(target)
+   if not target then target = me end
    return target.mana/target.maxMana
 end
 
