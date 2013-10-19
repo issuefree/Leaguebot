@@ -23,7 +23,8 @@ spells["double"] = {
    ad=.9,
    type="P",
    cost={70,75,80,85,90},
-   radius=500
+   radius=500,
+   onhit=true -- not sheen so watch for that
 }
 spells["impure"] = {
    key="W",
@@ -57,7 +58,7 @@ function GetBestDouble(target, targets, goodTargets)
    local ta = AngleBetween(me, target)
    local bdt
    local bdta = 1000
-   for i,dt in ipairs(targets) do
+   for _,dt in ipairs(targets) do
       if target ~= dt then
          local dta = math.abs(ta - AngleBetween(target, dt))
          if dta > 3*math.pi/2 then
@@ -103,20 +104,20 @@ function Run()
       end
    end   
 
-   -- if IsOn("lasthit") and Alone() then
-   --    if CanUse("double") then
-   --       local minions = SortByHealth(GetInRange(me, "double", MINIONS))
-   --       local lowMinions = GetKills("double", GetInRange(me, GetSpellRange("double")+spells["double"].radius, MINIONS))
-   --       for _,t in ipairs(minions) do
-   --          local bta = GetBestDouble(t, minions, lowMinions)
-   --          if bta then
-   --             Cast("double", t)
-   --             PrintAction("Double for lasthit")
-   --             return true
-   --          end
-   --       end
-   --    end
-   -- end
+   if IsOn("lasthit") and VeryAlone() then
+      if CanUse("double") and GetMPerc() > .75 then
+         local minions = SortByHealth(GetInRange(me, "double", MINIONS))
+         local lowMinions = GetKills("double", GetInRange(me, GetSpellRange("double")+spells["double"].radius, MINIONS))
+         for _,t in ipairs(minions) do
+            local bta = GetBestDouble(t, minions, lowMinions)
+            if bta then
+               Cast("double", t)
+               PrintAction("Double for lasthit")
+               return true
+            end
+         end
+      end
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -143,7 +144,7 @@ function Action()
             end
          end
       end
-      if bestDT and GetDistance(bestDT) < GetSpellRange("double") and CanUse("double") then
+      if bestDT and GetDistance(bestDT) < GetSpellRange("double") then
          Cast("double", bestDT)
          PrintAction("Double", bestDT)
          return true
