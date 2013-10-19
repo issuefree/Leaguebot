@@ -65,7 +65,7 @@ function Run()
       if CanUse("orb") then
          local inRange = GetInRange(P.orb, spells["orb"].radius, ENEMIES)
          if #inRange > 0 then
-            Cast("orb", me)
+            Cast("orb", me, true)
             PrintAction("Detonate orb", inRange[1])
          end
       end
