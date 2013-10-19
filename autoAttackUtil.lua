@@ -34,7 +34,7 @@ function GetAAData()
       Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
       Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
       Malzahar     = { projSpeed = 1.5, aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"}, aaSpellName = "malzaharbasicattack", startAttackSpeed = "0.625" },
-      MissFortune  = { projSpeed = 2.0, aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}, aaSpellName = "missfortunebasicattack", startAttackSpeed = "0.656" },
+      MissFortune  = { projSpeed = 2.0, aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}, aaSpellName = "missfortunebasicattack", startAttackSpeed = "0.656", windup=.48 },
       Morgana      = { projSpeed = 1.6, aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"}, aaSpellName = "Morganabasicattack", startAttackSpeed = "0.579" },
       Nidalee      = { projSpeed = 1.7, aaParticles = {"nidalee_javelin_mis"}, aaSpellName = "nidaleebasicattack", startAttackSpeed = "0.670" },
       Orianna      = { projSpeed = 1.4, aaParticles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"}, aaSpellName = "oriannabasicattack", startAttackSpeed = "0.658" },
@@ -100,8 +100,12 @@ local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "waitingForAttack", "canAct", "canMove"}
 local lastAAState = 0
 
+local lastAADelta = getAARate()
+local lastWUDelta = getWindup()
+
 local lastAttack = time() -- last time I cast an attack
 local shotFired = true -- have I seen the projectile or waited long enough that it should show
+
 
 function aaTick()
    -- we asked for an attack but it's been longer than the attackDelayOffset so we must have canceled
@@ -114,8 +118,22 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
-      PrintState(1, "AARate "..trunc(getAARate()))
-      PrintState(2, "Windup "..trunc(getWindup()))
+      -- AARate is how long to wait between attacks. 
+      --  This should be less than actual delta (try not to wait too long some wiggle room here) 
+      --  but close to it (don't stop doing other things before I should attack)
+      -- Windup is how long between I cast the attack and the actual attack.
+      --  This MUST be greater than the actual windup (don't clip attacks)
+      --  but close to it (don't wait too long to do other things)
+      local aarstr = "AARate "..trunc(getAARate()).." ("..trunc(lastAADelta)..")"
+      if getAARate() > lastAADelta then
+         aarstr = aarstr.."!!!"
+      end
+      local wustr = "Windup "..trunc(getWindup()).." ("..trunc(lastWUDelta)..")"
+      if getWindup() < lastWUDelta then
+         wustr = wustr.."!!!"
+      end
+      PrintState(1, aarstr) 
+      PrintState(2, wustr)
 
       if CanAttack() then
          setAttackState(0)
@@ -203,6 +221,12 @@ function setAttackState(state)
    then
       attackState = state
       local delta = time() - lastAAState
+      if state == 0 then
+         lastAADelta = delta
+      end
+      if state == 3 then
+         lastWUDelta = delta
+      end
       pp(state.." "..trunc(delta).." "..attackStates[attackState+1])
       if state == 0 then
          lastAAState = time()
@@ -246,7 +270,7 @@ function onSpellAA(obj,spell)
       end
    end   
    if attacked then
-      local delta = os.clock() - lastAAState
+      local delta = time() - lastAAState
       if ModuleConfig.aaDebug then
          local tn = "?"
          if spell.target then
