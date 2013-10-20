@@ -125,11 +125,10 @@ function FollowUp()
       end
 
    -- ranged
-      if IsOn("move") then
-         MoveToCursor() 
-         PrintAction("Move")
-         return true
-      end
+      -- if IsOn("move") then
+      --    MoveToCursor() 
+      --    return true
+      -- end
    end
 
 -- melee
