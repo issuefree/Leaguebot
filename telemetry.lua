@@ -175,6 +175,11 @@ function VeryAlone()
    return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
 end
 
+function UnderTower(target)
+   if not target then target = me end
+   return #GetInRange(target, 950, TURRETS) > 0
+end
+
 function SortByHealth(things)
    table.sort(things, function(a,b) return a.health < b.health end)
    return things
