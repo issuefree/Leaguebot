@@ -1,149 +1,223 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
 pp("\nTim's Master Yi")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+function getADam()
+	return GetSpellDamage("alpha") + GetLVal(spells["alpha"], "mmBonus")
+end
+
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("jungle", {on=true, key=113, label="Jungle"})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, getADam}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["alpha"] = {
-  key="Q", 
-  range=600, 
-  color=violet, 
-  base={100,150,200,250,300}, 
-  ap=1,
-  delay=2
+   key="Q", 
+   range=600, 
+   color=violet, 
+   base={25,60,95,130,165}, 
+   ad=1,
+   mmBonus={75,100,125,150,175},
+   cost={70,80,90,100,110},
+   chainRange=400
 }
 spells["meditate"] = {
-  key="W", 
-  base={200,350,500,650,800}, 
-  ap=2,
-  delay=2
+   key="W", 
+   cost={50,65,80,95,110}
 }
 spells["wuju"] = {
-  key="E", 
-  delay=2
+   key="E",
+   base={10,15,20,25,30},
+   ad={.1,.125,.15,.175,.2},
+   type="T"
 }
 spells["highlander"] = {
-  key="R", 
-  duration={8,10,12},
-  delay=2
+  key="R",
+  cost=100
 }
-
-local medTime = -1000
-local ultTime = -1000
-
-local function isMed()
-	return os.clock() - medTime < 5
-end
-local function isUlt()
-	local ultLevel = GetSpellLevel("R")
-	if ultLevel == 0 then
-		return false
-	end   
-	return os.clock() - ultTime < spells["highlander"].duration[ultLevel]
-end
 
 -- it might be easier to set a bounding radius and see if looking 
 -- for a chain is worth it rather than calculating all of the possible chains
 -- i.e. Find a target and see if you can chain rather than looking at
 -- all of the chains and finding the best chain
-local maxChainDist = 1200
+local maxChainDist = spells["alpha"].chainRange*3
+
 
 function Run()
-	if isMed() or IsRecalling(me) then
-		return
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return
+   end
+
+   if IsChannelling(P.med) then
+      CHANNELLING = true
+      return true
+   end
+
+
+   if HotKey() then
+      UseItems()
+      if Action() then
+         return true
+      end
+   end
+
+   if IsOn("jungle") then
+
+   end
+
+
+   if IsOn("lasthit") then
+	   if CanUse("alpha") and Alone() then
+	   	local targets = GetInRange(me, "alpha", MINIONS)
+
+	   	local dam = getADam()
+
+	   	local bestT
+	   	local bestK = 1
+
+	   	for _,target in ipairs(targets) do
+	   		local kills = 0
+	   		local path = getAlphaPath(target)
+	   		for _, t in ipairs(path) do
+		   		if CalcDamage(t, dam) > t.health then
+		   			kills = kills + 1
+		   		end   			
+	   		end
+	   		if kills > bestK then
+	   			bestT = target
+	   			bestK = kills
+	   		end
+	   	end
+	   	if bestT then
+	   		Cast("alpha", bestT)
+	   		PrintAction("Alpha minions:", bestK)
+	   		return true
+	   	end
+	   end
 	end
 
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
 
-	if HotKey() then
-		UseItems()
+   PrintAction()
+end
 
-		local ks = alphaBot()
+function Action()
+	if CanUse("alpha") then
 
-		-- no immediate kill, no small chain kill, just hurt some folks
-		if not ks then
-			local target = GetWeakEnemy("MAGIC", 600)
-			if target then
-				if CanUse("alpha") then
-					CastSpellTarget("Q", target)
-				elseif CanUse("meditate") and me.health/me.maxHealth < .25 then
-					CastSpellTarget("W", me)            
-				elseif CanUse("wuju") and GetDistance(target) < spells["AA"].range + 50 then
-					CastSpellTarget("E", me)
-					AttackTarget(target)
-				end
-			else
-				local intersection = 
-						GetIntersection( GetInRange(me, 600, MINIONS, ENEMIES),
-						GetInRange(target, 600, MINIONS, ENEMIES) )
-				for _,t in ipairs(intersection) do
-					if #GetInRange(t, 600, MINIONS, ENEMIES) <= 4 and
-						#GetInRange(t, 1020, TURRETS) == 0 
-					then
-						CastSpellTarget("Q", t)
-						break
+		-- Execute direct target with alpha
+		local target = GetWeakestEnemy("alpha")	
+		if target and WillKill("alpha", target) then
+			if not UnderTower(target) then
+				Cast("alpha", target)
+				PrintAction("Alpha (primary)", target)
+				AttackTarget(target) -- just in case
+				return true
+			end
+		end
+
+		-- look for an execute
+		local targets = SortByHealth(GetInRange(me, "alpha", MINIONS, ENEMIES))
+		for _,target in ipairs(targets) do
+			if not UnderTower(target) then
+				for _,t in ipairs(getAlphaPath(target)) do
+					if IsEnemy(t) and WillKill("alpha", t) then
+						Cast("alpha", target)
+						PrintAction("Alpha (chain)", t)
+						return true
 					end
 				end
 			end
 		end
-	end
-end
 
-function alphaBot()
-	if not CanUse("alpha") then return false end ;
-
-	-- pass one. Kill the one you're with		
-	local target = GetWeakEnemy("MAGIC", 600)
-	if target and 
-		GetSpellDamage(spells["alpha"], target) > target.health 
-	then
-		if #GetInRange(target, 1020, TURRETS) == 0 then
-			if not isUlt() then CastSpellTarget("R", me) end
-			CastSpellTarget("Q", target)
-			CastSpellTarget("E", me)
-			AttackTarget(target)
+		local target = GetMarkedTarget() or GetWeakestEnemy("alpha")
+		if target and 
+			GetDistance(target) < GetSpellRange("alpha") and
+			GetDistance(target) > GetSpellRange("AA") and
+			not UnderTower(target) 
+		then
+			Cast("alpha", target)
+			PrintAction("Alpha (gap)", target)
 			return true
 		end
+
 	end
 
-   -- we have a killable in "range" let's see if we can hit him.
+   if not P.wuju and CanUse("wuju") and GetWeakestEnemy("AA",100) then
+      Cast("wuju", me)
+      PrintAction("Wuju")
+      return true
+   end
 
-	-- find all of the targets in range that are in range of the target
-	-- find one of those targetes that has 4 or less targets in the range
-	-- (so we can hit what we wanted to hit)
-	target = GetWeakEnemy("MAGIC", maxChainDist)
-	if target and 
-		GetSpellDamage(spells["alpha"], target) > target.health 
-	then
-		local intersection = 
-			GetIntersection( GetInRange(me, 600, MINIONS, ENEMIES),
-								  GetInRange(target, 600, MINIONS, ENEMIES) )
-		for _,t in ipairs(intersection) do
-			if #GetInRange(t, 600, MINIONS, ENEMIES) <= 4 and
-				#GetInRange(t, 1020, TURRETS) == 0 
-			then
-				pp(GetSpellDamage(spells["alpha"], target).." -> "..target.health)
-				if not isUlt() then CastSpellTarget("R", me) end
-				CastSpellTarget("Q", t)
-				return true
-			end
-		end
-	end
-	return false
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if target then
+      if AA(target) then
+         PrintAction("AA", target)
+         return true
+      end
+   end
+   return false   
 end
 
-local function onObject(object)   
+function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true
+      end
+   end
+
+   if IsOn("clearminions") and Alone() then
+      if HitMinion("AA", "strong") then
+         return true
+      end
+   end
+
+   if IsOn("move") then
+      if MeleeMove() then
+         return true
+      end
+   end
+
+   return false
+end
+
+function getAlphaPath(target)
+   local testNearby = SortByDistance(GetAllInRange(target, maxChainDist, MINIONS, ENEMIES), target)
+   local path = {}
+
+   local jumps = 0
+   while jumps < 4 do
+      local nearestI = GetNearestIndex(target, testNearby)
+      if nearestI then
+         if GetDistance(target, testNearby[nearestI]) > spells["alpha"].chainRange then
+            break
+         end
+         table.insert(path, testNearby[nearestI])
+         table.remove(testNearby, nearestI)
+      else
+         break  -- out of bounce targets
+      end
+      jumps = jumps+1
+   end
+   return path
+end
+
+
+local function onObject(object)
+	PersistBuff("wuju", object, "MasterYi_Base_E_SuperChraged_buf")
+	PersistBuff("wujuBase", object, "MasterYi_Base_E_buff")
+	PersistBuff("med", object, "MasterYi_Base_W_Buf")
 end
 
 local function onSpell(object, spell)
-	if object.name == me.name and spell.name == "Meditate" then
-		medTime = os.clock()
-	end
-	if object.name == me.name and spell.name == "Highlander" then
-		ultTime = os.clock()
-	end
-
 end
 
 AddOnCreate(onObject)
