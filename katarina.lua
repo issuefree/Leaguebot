@@ -202,13 +202,11 @@ end
 -- preferrs throws that include hitting heroes.
 -- will keep throwing until heroes get pretty close.
 function Farm()
-   local underTower = #GetInRange(me, 950, TURRETS) > 0 
-
    if CanUse("sinister") then
-      if GetWeakestEnemy("sinister") and underTower then
+      if GetWeakestEnemy("sinister") and UnderTower() then
          PrintAction("-Sinister: Tower danger")
       else
-         local sinRange = GetInRange(me, spells["sinister"].range, MINIONS)
+         local sinRange = GetInRange(me, "sinister", MINIONS)
          for _,minion in ipairs(sinRange) do
             local dam = GetSpellDamage("sinister", minion)
             if HasBuff("dagger", minion) then
@@ -260,7 +258,7 @@ function Farm()
             end
          end
          if GetDistance(bestKillTargets[1]) < GetSpellRange("blades") then
-            if GetWeakEnemy("MAGIC", 1500) and underTower then
+            if GetWeakEnemy("MAGIC", 1500) and UnderTower() then
                -- do nothing if there's a hero nearby and i'm under a tower
             elseif bestKills >= 1 then
                Cast("blades", bestKillTargets[1])
