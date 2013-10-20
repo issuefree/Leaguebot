@@ -165,6 +165,14 @@ function GetSpell(thing)
    return spell
 end
 
+function GetLVal(spell, field)
+   if type(spell[field]) == "number" then
+      return spell[field]
+   else
+      return spell[field][GetSpellLevel(spell.key)]
+   end
+end
+
 function GetSpellDamage(thing, target)
    local spell = GetSpell(thing)
    if not spell or not spell.base then
@@ -185,28 +193,28 @@ function GetSpellDamage(thing, target)
    local damage = spell.base[lvl]
 
    if spell.ap then
-      damage = damage + spell.ap*me.ap
+      damage = damage + GetLVal(spell, "ap")*me.ap
    end
    if spell.ad then
-      damage = damage + spell.ad*(me.baseDamage+me.addDamage)
+      damage = damage + GetLVal(spell, "ad")*(me.baseDamage+me.addDamage)
    end
    if spell.adBonus then
-      damage = damage + spell.adBonus*me.addDamage
+      damage = damage + GetLVal(spell, "adBonus")*me.addDamage
    end
    if spell.adBase then
-      damage = damage + spell.adBase*me.baseDamage
+      damage = damage + GetLVal(spell, "adBase")*me.baseDamage
    end
    if spell.mana then
-      damage = damage + spell.mana*me.maxMana
+      damage = damage + GetLVal(spell, "mana")*me.maxMana
    end
    if spell.lvl then
-      damage = damage + me.selflevel*spell.lvl
+      damage = damage + GetLVal(spell, "lvl")*me.selflevel
    end
    if spell.bonus then
-      damage = damage + spell.bonus
+      damage = damage + GetLVal(spell, "bonus")
    end
    if spell.percMaxHealth and target then
-      damage = damage + (target.maxHealth*spell.percMaxHealth)
+      damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
    end
 
    local damageT = 0
