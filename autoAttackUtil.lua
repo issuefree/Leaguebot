@@ -65,6 +65,7 @@ function GetAAData()
       Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
       Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
       Olaf         = { melee=true },
+      MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
       Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} }
    }
