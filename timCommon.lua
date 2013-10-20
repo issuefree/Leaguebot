@@ -1053,6 +1053,10 @@ function GetAADamage(target)
       if target then
          damageM = damageM + spells["barrage"].healthPerc*target.maxHealth
       end
+   elseif me.name == "MasterYi" then
+      if HasBuff("wuju", me) then
+         damageT = damageT + GetSpellDamage("wuju")
+      end
    end
    
    -- items
@@ -1381,7 +1385,7 @@ end
 function MeleeMove()
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
-      if GetDistance(target) > spells["AA"].range then
+      if GetDistance(target) > spells["AA"].range+10 then
          MoveToTarget(target)
          return true
       end
@@ -1410,6 +1414,9 @@ function RangedMove()
       end
    end
    return false
+end
+
+function Dance()
 end
 
 SetTimerCallback("TimTick")
