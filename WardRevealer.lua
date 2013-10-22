@@ -9,10 +9,10 @@ local wardTypes = {
 	sight={color=green, duration=180, sightRange=1350, triggerRange=70},
 	vision={color=violet, duration=180, sightRange=1350, triggerRange=70},
 	shaco={color=red, duration=60, sightRange=690, triggerRange=300},
-	shroom={color=yellow, duration=60, sightRange=405, triggerRange=115},
+	shroom={color=yellow, duration=600, sightRange=405, triggerRange=115},
    yordle={color=yellow, duration=240, sightRange=150, triggerRange=150},
    bushwhack={color=yellow, duration=240, sightRange=0, triggerRange=150},
-   sapling={color=red, duration=350, sightRange=700, triggerRange=500}
+   -- sapling={color=red, duration=350, sightRange=700, triggerRange=500}
 }
 
 local wardSpots = {
@@ -62,7 +62,7 @@ function drawWards()
 		if showVisionRange then					
 			Circle(ward, ward.sightRange, ward.color)
 		end
-		if GetDistance({x=ward.x, z=ward.z},GetMousePos()) < showTimerRadius then
+		if GetDistance(ward, GetMousePos()) < showTimerRadius then
 			if ward.source == "onload" then
 				DrawText(ward.name..": max "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
 			else
@@ -96,8 +96,8 @@ local function createWards(object)
 		object.charName == "Jack In The Box" or 
 		object.charName == "Noxious Trap" or
 		object.charName == "Cupcake Trap" or
-		object.name == "Nidalee_Spear" or
-		object.charName == "MaokaiSproutling"
+		object.name == "Nidalee_Spear" --or
+		-- object.charName == "MaokaiSproutling"
 	then
 		local ward = {x=object.x, y=object.y, z=object.z, object=object, tick=time(), source="oncreate"}		
 		if LOADING then
@@ -126,8 +126,8 @@ local function processWards(object,spell)
 			ward = {name="Yordle Trap", source="spell", type="yordle"}
 		elseif spell.name == "Bushwhack" then
 			ward = {name="Bushwhack", source="spell", type="bushwhack"}
-		elseif spell.name == "MaokaiSapling2" then
-			ward = {name="Sapling", source="spell", type="sapling"}
+		-- elseif spell.name == "MaokaiSapling2" then
+		-- 	ward = {name="Sapling", source="spell", type="sapling"}
 		else
 			return
 		end
