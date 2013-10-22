@@ -169,8 +169,11 @@ function GetLVal(spell, field)
    if type(spell[field]) == "number" then
       return spell[field]
    else
-      return spell[field][GetSpellLevel(spell.key)]
+      local val = spell[field][GetSpellLevel(spell.key)]
+      if not val then val = 0 end
+      return val
    end
+   return 0
 end
 
 function GetSpellDamage(thing, target)
@@ -384,8 +387,8 @@ end
 function ICast(thing, unit, spell)
    if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
-   if #mySpell.key > 1 then -- hack for if getspell fails
-      return spell.name == thing
+   if #mySpell.key > 1 then -- hack for if getspell fails      
+      return find(spell.name, thing)
    else
       if mySpell.name then
          return find(spell.name, mySpell.name)
