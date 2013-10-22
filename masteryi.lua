@@ -93,7 +93,10 @@ function Run()
 	   			bestK = kills
 	   		end
 	   	end
-	   	if bestT then
+	   	if (GetMPerc(me) > .75 and bestK >= 2) or
+            (GetMPerc(me) > .5 and bestK >= 3) or
+            (GetMPerc(me) > .33 and bestK >= 4)
+         then
 	   		Cast("alpha", bestT)
 	   		PrintAction("Alpha minions:", bestK)
 	   		return true
