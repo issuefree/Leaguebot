@@ -120,7 +120,7 @@ function Action()
       return true
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("AA"))
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA", 0, GetSpellRange("AA"))
    if target then
       if CanUse("burnout") then
          Cast("burnout", me)

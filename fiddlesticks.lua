@@ -103,7 +103,7 @@ function Action()
       if CanUse("fear") then
          local target = GetMarkedTarget() or 
                         GetWeakest("fear", GetInRange(me, "fear", {EADC, EAPC})) or 
-                        GetWeakestEnemy("fear", 100)
+                        GetWeakestEnemy("fear", 0, 100)
 
          if target then
             Cast("fear", target)
@@ -114,7 +114,7 @@ function Action()
 
       if CanUse("drain") then
          -- might update this to target feared guys first
-         local target = GetMarkedTarget() or GetWeakestEnemy("drain", 100)
+         local target = GetMarkedTarget() or GetWeakestEnemy("drain", 0, 100)
          if target and Cast("drain", target) then
             PrintAction("Drain", target)
             return true

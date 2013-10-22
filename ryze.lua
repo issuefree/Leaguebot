@@ -82,7 +82,7 @@ end
 
 function Action()   
    if CanUse("prison") then
-      local target = GetWeakestEnemy("prison", 50)
+      local target = GetWeakestEnemy("prison", 0, 50)
       if target then
          CheckPower(target)
          Cast("prison", target)
@@ -92,7 +92,7 @@ function Action()
    end
 
    if CanUse("overload") then
-      local target = GetWeakestEnemy("overload", 50)
+      local target = GetWeakestEnemy("overload", 0, 50)
       if target then
          CheckPower(target)
          Cast("overload", target)
@@ -102,7 +102,7 @@ function Action()
    end
 
    if CanUse("flux") then
-      local target = GetWeakestEnemy("flux", 50)
+      local target = GetWeakestEnemy("flux", 0, 50)
       if target then
          CheckPower(target)
          Cast("flux", target)
