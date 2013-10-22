@@ -14,7 +14,7 @@ function assTick()
 
                if spell.ss and spell.isline then
                   if GetDistance(enemy) < spell.range and enemy["SpellTime"..spell.key] >= 1 then
-                     if spell.blocked then
+                     if spell.block then
                         local unblocked = GetUnblocked(enemy, spell, MYMINIONS, ALLIES)
                         for _,test in ipairs(unblocked) do
                            if test.charName == me.charName then
