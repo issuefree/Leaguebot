@@ -237,7 +237,7 @@ local spells = {
 		{name="MissFortuneScattershot", range=800, radius=400, time=3, ss=true, isline=false},
 	},
 	Morgana = {
-		{name="DarkBindingMissile", key="Q", range=1300, radius=90, time=1.5, ss=true, show=true, perm=true, blocked=true, isline=true, cc=BIND},
+		{name="DarkBindingMissile", key="Q", range=1300, radius=90, time=1.5, ss=true, show=true, perm=true, block=true, isline=true, cc=BIND},
 		{name="TormentedSoil", range=900, radius=300, time=1.5, ss=true, isline=false},
 	},
 	Nami = {
