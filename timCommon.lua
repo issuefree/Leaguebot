@@ -98,6 +98,7 @@ spells["AA"] = {
    name="attack"   
 }
 
+HOME = nil
 
 repeat
    if string.format(me.team) == "100" then
@@ -1111,9 +1112,12 @@ function GetMPerc(target)
    return target.mana/target.maxMana
 end
 
-function GetWeakestEnemy(thing, extraRange)
+function GetWeakestEnemy(thing, extraRange, stretch)
    if not extraRange then
       extraRange = 0
+   end
+   if not stretch then
+      stretch = 0
    end
 
    local type
@@ -1132,9 +1136,8 @@ function GetWeakestEnemy(thing, extraRange)
       type = "MAGIC"
    end
 
-   return 
-      GetWeakEnemy(type, GetSpellRange(spell)) or
-      GetWeakEnemy(type, GetSpellRange(spell)+extraRange)
+   return GetWeakEnemy(type, GetSpellRange(spell)+extraRange) or
+          GetWeakEnemy(type, GetSpellRange(spell)+extraRange+stretch)
 end
 
 
@@ -1405,14 +1408,14 @@ function GetMeleeTarget()
 end
 
 function RangedMove()
-   if IsOn("move") then
-      if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
-         #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
-      then
-         MoveToCursor()
-         return false   
-      end
-   end
+   -- if IsOn("move") then
+   --    if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
+   --       #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
+   --    then
+   --       MoveToCursor()
+   --       return false   
+   --    end
+   -- end
    return false
 end
 
