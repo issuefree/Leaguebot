@@ -46,7 +46,7 @@ function GetAAData()
       Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
       Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
       Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
-      Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656",  },
+      Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656", windup=.45 },
       TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
       Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
       Urgot        = { projSpeed = 1.3, aaParticles = {"UrgotBasicAttack_mis"}, aaSpellName = "urgotbasicattack", startAttackSpeed = "0.644" },
@@ -67,7 +67,7 @@ function GetAAData()
       Olaf         = { melee=true },
       MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
-      Warwick      = { melee=true, aaParticles = {"GlobalLifeSteal_buf"} }
+      Warwick      = { melee=true }
    }
 end
 
@@ -87,7 +87,7 @@ if not aaData.windup then
    aaData.windup = .5
 end
 if not aaData.speed then
-   aaData.speed = 1.05
+   aaData.speed = 1.10
 end
 
 function getWindup()
@@ -248,7 +248,14 @@ function onObjAA(object)
 end
 
 local lastSpell
-function onSpellAA(obj,spell)   
+function onSpellAA(obj,spell)
+
+   if ICast("attack", obj, spell) then
+      if Alone() and not WillKill("AA", obj) then
+         KillMinion("AA")
+      end
+   end
+
    local attacked = false
    if obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
