@@ -63,8 +63,8 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if ( CanChargeTear() and GetMPerc(me) > .66 ) or
-         GetMPerc(me) > .8
+      if ( CanChargeTear() and GetMPerc(me) > .5 ) or
+         GetMPerc(me) > .66
       then
          if KillMinion("overload") then
             return true
@@ -82,7 +82,7 @@ end
 
 function Action()   
    if CanUse("prison") then
-      local target = GetWeakestEnemy("prison", 0, 50)
+      local target = GetWeakestEnemy("prison", 0, 15)
       if target then
          CheckPower(target)
          Cast("prison", target)
@@ -92,7 +92,7 @@ function Action()
    end
 
    if CanUse("overload") then
-      local target = GetWeakestEnemy("overload", 0, 50)
+      local target = GetWeakestEnemy("overload", 0, 15)
       if target then
          CheckPower(target)
          Cast("overload", target)
@@ -102,7 +102,7 @@ function Action()
    end
 
    if CanUse("flux") then
-      local target = GetWeakestEnemy("flux", 0, 50)
+      local target = GetWeakestEnemy("flux", 0, 15)
       if target then
          CheckPower(target)
          Cast("flux", target)
@@ -157,7 +157,7 @@ end
 local function onObject(object)
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
