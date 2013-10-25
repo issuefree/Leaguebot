@@ -14,7 +14,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["bomb"] = {
   key="Q", 
-  range=700, 
+  range=725, 
   color=violet, 
   base={90,145,200,260,320}, 
   ap=.9,
