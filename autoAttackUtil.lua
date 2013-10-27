@@ -250,12 +250,6 @@ end
 local lastSpell
 function onSpellAA(obj,spell)
 
-   if ICast("attack", obj, spell) then
-      if Alone() and not WillKill("AA", obj) then
-         KillMinion("AA")
-      end
-   end
-
    local attacked = false
    if obj ~= nil and obj.name == myHero.name then
       local spellName = aaData.aaSpellName
@@ -276,8 +270,26 @@ function onSpellAA(obj,spell)
       then
          attacked = true
       end
-   end   
+   end
+
    if attacked then
+
+      -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
+      -- if I can't hit an enemy try to hit a minion I could kill instead
+      if spell.target and IsMinion(spell.target) then
+         if not WillKill("AA", spell.target) then
+            local target = GetWeakestEnemy("AA")
+            if target then
+               if AA(target) then
+                  PrintAction("Override AA", target)
+               end
+            else
+               KillMinion("AA")
+            end
+         end
+      end
+
+
       local delta = time() - lastAAState
       if ModuleConfig.aaDebug then
          local tn = "?"
