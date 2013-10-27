@@ -77,7 +77,7 @@ function Run()
       return true
    end
 
-   if IsOn("execute") then
+   if IsOn("execute") and CanUse("ace") then
       local target = GetWeakestEnemy("ace")
       if target and WillKill("ace", target) then
          LineBetween(me, target, 3)
