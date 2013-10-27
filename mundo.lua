@@ -134,7 +134,8 @@ function FollowUp()
       if MeleeMove() then
          return true
       end
-   endend
+   end
+end
 
 function checkBurning(object)
    PersistBuff("burning", object, "dr_mundo_burning_agony")
