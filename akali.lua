@@ -22,8 +22,8 @@ spells["mark"] = {
   range=600,
   color=violet,
   base={35,55,75,95,115},
-  ap=.4,
-  cost=60
+  ap=.4
+  -- cost=60
 }
 spells["detonate"] = {
    key="Q",
@@ -34,8 +34,8 @@ spells["shroud"] = {
   key="W", 
   range=700, 
   color=blue, 
-  radius=600,
-  cost={80,75,70,65,60}
+  radius=600
+  -- cost={80,75,70,65,60}
 }
 spells["slash"] = {
   key="E", 
@@ -44,8 +44,8 @@ spells["slash"] = {
   base={30,55,80,105,130}, 
   ap=.3,
   ad=.6,
-  type="P",
-  cost={60,55,50,45,40}
+  type="P"
+  -- cost={60,55,50,45,40}
 }
 spells["dance"] = {
   key="R", 
@@ -114,8 +114,8 @@ function Action()
    if CanUse("mark") then
       local target = GetMarkedTarget() or GetWeakestEnemy("mark")
       if target and not HasBuff("mark", target) then
-         PrintAction("Mark", target)
          Cast("mark", target)
+         PrintAction("Mark", target)
          return true
       end
    end
@@ -123,8 +123,8 @@ function Action()
    if CanUse("dance") then
       local target = GetMarkedTarget() or GetWeakestEnemy("dance")
       if target and GetDistance(target) > GetSpellRange("slash") then
-         PrintAction("Dance", target)
          Cast("dance", target)
+         PrintAction("Dance", target)
          return true
       end
    end
@@ -132,13 +132,13 @@ function Action()
    if CanUse("slash") then
       local target = GetWeakestEnemy("slash")
       if target then
-         PrintAction("Slash", target)
          Cast("slash", me)
+         PrintAction("Slash", target)
          return true
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -165,16 +165,8 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
