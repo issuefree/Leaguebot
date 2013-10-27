@@ -1388,7 +1388,7 @@ end
 function MeleeMove()
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
-      if GetDistance(target) > spells["AA"].range+10 then
+      if GetDistance(target) > spells["AA"].range+15 then
          MoveToTarget(target)
          return true
       end
