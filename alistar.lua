@@ -52,7 +52,9 @@ function Run()
       end
    end
 
-   heal()
+   if heal() then
+      return true
+   end
 
    if HotKey() then
       if Action() then
