@@ -92,7 +92,7 @@ SS_FUDGE = 1.33
 spells["AA"] = {
    range=GetAARange(), 
    base={0}, 
-   ad=1, 
+   ad=1,
    type="P", 
    color=red,
    name="attack"   
@@ -1233,10 +1233,6 @@ function OnProcessSpell(unit, spell)
             end
          end
       end
-   end
-
-   if unit.name == "Jinx" then
-      pp("spell.name")
    end
 
    if ICast("Recall", unit, spell) then
