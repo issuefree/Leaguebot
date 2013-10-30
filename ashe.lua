@@ -42,7 +42,7 @@ spells["arrow"] = {
    speed=16,
    width=160,
    radius=250,
-   cost=150
+   cost=100
 }
 
 local frostTime = 0

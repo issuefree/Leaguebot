@@ -28,12 +28,13 @@ spells["boomerang"] = {
 }
 spells["ricochet"] = {
    key="W",
-   cost=40
+   cost=40,
+   ad={.5,.55,.6,.65,.7},
+   bounceRange=400 --?
 }
 spells["shield"] = {
    key="E",
-   range=10,
-   cost=75   
+   range=10  
 }
 spells["hunt"] = {
    key="R",

@@ -15,10 +15,10 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["bloom"] = {
    key="Q", 
-   range=825, 
+   range=800, 
    color=violet, 
-   base={75,115,155,195,235}, 
-   ap=.6,
+   base={70,105,140,175,210}, 
+   ap=.65,
    delay=4,
    speed=0,
    noblock=true,

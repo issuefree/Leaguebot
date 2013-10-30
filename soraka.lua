@@ -35,7 +35,7 @@ spells["wish"] = {
 	key="R",
 	base={200,320,440},
 	ap=.7,
-	cost={100,175,250}	
+	cost=100
 }
 spells["consecration"] = {
 	range=1000, 

@@ -27,7 +27,7 @@ spells["alpha"] = {
 }
 spells["meditate"] = {
    key="W", 
-   cost={50,65,80,95,110}
+   cost=50
 }
 spells["wuju"] = {
    key="E",

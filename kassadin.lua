@@ -6,9 +6,28 @@ print("Tim's Kassadin")
 
 local pulseReady
 
-spells["sphere"] = {key="Q", range=650, color=yellow, base={80,130,180,230,280}, ap=.7}
-spells["pulse"]  = {key="E", range=650, color=red,    base={80,130,180,230,280}, ap=.7}
-spells["rift"]   = {key="R", range=700, color=yellow, base={60,70,80},           ap=.8}
+spells["sphere"] = {
+	key="Q", 
+	range=650, 
+	color=yellow, 
+	base={80,115,150,185,220}, 
+	ap=.7,
+	cost={70,75,80,85,90}
+}
+spells["pulse"] = {
+	key="E", 
+	range=650, 
+	color=red,    
+	base={80,130,180,230,280}, 
+	ap=.7
+}
+spells["rift"] = {
+	key="R", 
+	range=700, 
+	color=yellow, 
+	base={80,100,120},
+	ap=.8
+}
 
 function getExecuteLabel()
 	local str = ""

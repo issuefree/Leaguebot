@@ -85,7 +85,7 @@ function Run()
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       UseItems()
 
       if Action() then

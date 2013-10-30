@@ -24,7 +24,7 @@ spells["axe"] = {
    noblock=true,
    width=75,
    overShoot=150,
-   cost={55,60,65,70,75}
+   cost=60
 }
 spells["strikes"] = {
    key="W",
