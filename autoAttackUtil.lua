@@ -22,9 +22,10 @@ function GetAAData()
       Ezreal       = { projSpeed = 2.0, aaParticles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}, aaSpellName = "ezrealbasicattack", startAttackSpeed = "0.625" },
       FiddleSticks = { projSpeed = 1.75, aaParticles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"}, aaSpellName = "fiddlesticksbasicattack", startAttackSpeed = "0.625" },
       Graves       = { projSpeed = 3.0, aaParticles = {"Graves_BasicAttack_mis",}, aaSpellName = "gravesbasicattack", startAttackSpeed = "0.625" },
-      Heimerdinger = { projSpeed = 1.4, aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"}, aaSpellName = "heimerdingerbasicAttack", startAttackSpeed = "0.625" },
+      Heimerdinger = { projSpeed = 1.4, aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"}, aaSpellName = "heimerdingerbasicAttack", startAttackSpeed = "0.625", windup=.575 },
       Janna        = { projSpeed = 1.2, aaParticles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"}, aaSpellName = "jannabasicattack", startAttackSpeed = "0.625" },
       Jayce        = { projSpeed = 2.2, aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"}, aaSpellName = "jaycebasicattack", startAttackSpeed = "0.658",  },
+      Jinx         = { projSpeed = 2.4, aaParticles = {"Jinx_Q_Minigun_Mis", "Jinx_Q_Rocket_mis"}, startAttackSpeed = "0.625" },
       Karma        = { projSpeed = nil, aaParticles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"}, aaSpellName = "karmabasicattack", startAttackSpeed = "0.658",  },
       Karthus      = { projSpeed = 1.25, aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"}, aaSpellName = "karthusbasicattack", startAttackSpeed = "0.625" },
       Kayle        = { projSpeed = 1.8, aaParticles = {"RighteousFury_nova"}, aaSpellName = "KayleBasicAttack", startAttackSpeed = "0.638",  }, -- Kayle doesn't have a particle when auto attacking without E buff..
@@ -247,32 +248,41 @@ function onObjAA(object)
    end
 end
 
-local lastSpell
-function onSpellAA(obj,spell)
-
-   local attacked = false
-   if obj ~= nil and obj.name == myHero.name then
-      local spellName = aaData.aaSpellName
-      if type(spellName) == "table" then
-         if ListContains(spell.name, spellName) then
-            attacked = true
-         end
-      else
-         if find(spell.name, spellName) then                       
-            attacked = true
-         end
-      end
-      if spell.name == lastSpell or
-         not find(spell.name, me.SpellNameQ) and
-         not find(spell.name, me.SpellNameW) and
-         not find(spell.name, me.SpellNameE) and
-         not find(spell.name, me.SpellNameR)
-      then
-         attacked = true
-      end
+function IAttack(unit, spell)
+   if not unit or not IsMe(unit) then
+      return false
    end
 
-   if attacked then
+   local spellName = aaData.aaSpellName
+   if type(spellName) == "table" then
+      if ListContains(spell.name, spellName) then
+         return true
+      end
+   else
+      if find(spell.name, spellName) then                       
+         return true
+      end
+   end
+   if spell.name == lastSpell or
+      not find(spell.name, me.SpellNameQ) and
+      not find(spell.name, me.SpellNameW) and
+      not find(spell.name, me.SpellNameE) and
+      not find(spell.name, me.SpellNameR)
+   then
+      return true
+   end
+
+   return false
+end
+
+local lastSpell
+function onSpellAA(unit, spell)
+
+   if not unit or not IsMe(unit) then
+      return false
+   end
+   
+   if IAttack(unit, spell) then
 
       -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
       -- if I can't hit an enemy try to hit a minion I could kill instead
