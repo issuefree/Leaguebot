@@ -153,8 +153,8 @@ local spells = {
 	},
 	Jinx = {
 		{name="JinxQ", key="Q"},
-		{name="JinxW", key="W"},
-		{name="JinxE", key="E", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
+		{name="JinxW", key="W", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
+		{name="JinxE", key="E"},
 		{name="JinxR", key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true}
 	},
 	Karthus = {
@@ -400,7 +400,7 @@ local spells = {
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},
 	},
 	Zyra = {
-		{name="ZyraQFissure", range=825, radius=275, time=1.5, ss=true, isline=true},
+		{name="ZyraQFissure", range=800, radius=275, time=1.5, ss=true},
 		{name="ZyraGraspingRoots", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=BIND},
 	},
 }
