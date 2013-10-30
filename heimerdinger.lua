@@ -12,7 +12,7 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["aura"] = {
-  range=800, 
+  range=1000, 
   color=green
 }
 spells["turret"] = {
@@ -48,6 +48,11 @@ spells["upgrade"] = {
 }
 
 function Run()
+   local sentries = GetPersisted("sentry")
+   for _,sentry in ipairs(sentries) do
+      Circle(sentry, 525)
+   end
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -158,6 +163,7 @@ end
 
 local function onObject(object)
    PersistBuff("upgrade", object, "HolyFervor_buf")
+   PersistAll("sentry", object, "H-28G Evolution Turret")
 end
 
 local function onSpell(object, spell)
