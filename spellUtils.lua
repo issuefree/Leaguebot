@@ -335,6 +335,16 @@ function GetSpellFireahead(thing, target)
    return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
+function GetFireaheads(thing, targets)
+   local fas = {}
+   for _,target in ipairs(targets) do
+      local fa = GetSpellFireahead(thing, target)
+      fa.unit = target
+      table.insert(fas, fa)
+   end
+   return fas
+end
+
 function IsGoodFireahead(thing, target)
    local spell = GetSpell(thing)
    if not ValidTarget(target) then return false end   
@@ -366,8 +376,8 @@ function IsGoodFireahead(thing, target)
 
    local tps = tfas[spell.key][target.charName]
    local point = GetCenter(tps)
-   if GetDistance(tps[1], point) < 66 and
-      GetDistance(tps[#tps], point) < 66
+   if GetDistance(tps[1], point) < 30 and
+      GetDistance(tps[#tps], point) < 30
    then
       return true
    end

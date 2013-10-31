@@ -12,46 +12,49 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["aura"] = {
-  range=1000, 
+  range=1100, 
   color=green
 }
 spells["turret"] = {
   key="Q", 
-  range=250,
+  range=450,
   turretRange=525,
   color=yellow,
-  cost={70,80,90,100,110}
+  cost=20
 }
 spells["rockets"] = {
   key="W", 
-  range=1000, 
+  range=1300, 
   color=violet, 
-  base={85,135,185,235,285}, 
-  ap=.55,
-  cost={65,85,105,125,145}
+  base={60,90,120,150,180}, 
+  ap=.45,
+  delay=1,
+  speed=40,
+  width=50,
+  overShoot=-75,
+  cost={70,80,90,100,110}
 }
 spells["grenade"] = {
   key="E", 
   range=925, 
   color=blue, 
-  base={80,135,190,245,300}, 
+  base={60,100,140,180,220}, 
   ap=.6,
   delay=2.5,
-  speed=7.5,
+  speed=12,
   noblock=true,
-  radius=250,
-  cost={80,90,100,110,120}
+  radius=210,
+  radiusBase=210,
+  radiusUp=420,
+  cost=85
 }
 spells["upgrade"] = {
   key="R", 
-  cost=90
+  cost=100
 }
 
 function Run()
    local sentries = GetPersisted("sentry")
-   for _,sentry in ipairs(sentries) do
-      Circle(sentry, 525)
-   end
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -60,11 +63,11 @@ function Run()
 
    if P.upgrade then
       PrintState(1, "UPGRADE")
-      spells["grenade"].speed = 10
-      numRockets = 5
+      spells["rockets"].noblock = true
+      spells["grenade"].radius = spells["grenade"].radiusUp
    else
-      spells["grenade"].speed = 7.5
-      numRockets = 3
+      spells["rockets"].noblock = false
+      spells["grenade"].radius = spells["grenade"].radiusBase
    end
 
 	if HotKey() then
@@ -74,17 +77,17 @@ function Run()
 		end
 	end
 
-   if IsOn("lasthit") and CanUse("rockets") and VeryAlone() then
-      local targets = SortByDistance(GetInRange(me, "rockets", MINIONS))
-      if #targets >= 2 and 
-         WillKill("rockets", targets[1]) and
-         WillKill("rockets", targets[2])
-      then
-         Cast("rockets", me)
-         PrintAction("Rockets for lasthit")
-         return true
-      end
-   end
+   -- if IsOn("lasthit") and CanUse("rockets") and VeryAlone() then
+   --    local targets = SortByDistance(GetInRange(me, "rockets", MINIONS))
+   --    if #targets >= 2 and 
+   --       WillKill("rockets", targets[1]) and
+   --       WillKill("rockets", targets[2])
+   --    then
+   --       Cast("rockets", me)
+   --       PrintAction("Rockets for lasthit")
+   --       return true
+   --    end
+   -- end
 
    if HotKey() then
       if FollowUp() then
@@ -94,49 +97,49 @@ function Run()
 end
 
 function Action()
-   if CanUse("rockets") and CanUse("upgrade") then
-      local targets = SortByDistance(GetInRange(me, "rockets", ENEMIES, MINIONS))
-      local validEnemies = 0
-      for i = 1, 5, 1 do
-         local target = targets[i]
-         if target and not IsMinion(target) then
-            validEnemies = validEnemies + 1
-            if validEnemies > 3 then -- upgrade so I can hit more people with rockets
+   if CanUse("upgrade") or P.upgrade then
+
+      if CanUse("grenade") then
+         spells["grenade"].radius = spells["grenade"].radiusUp
+         local hits = GetBestArea(me, "grenade", 1, 0, GetFireaheads("grenade", ENEMIES))
+         if #hits >= 2 then
+            if not P.upgrade then
                Cast("upgrade", me)
-               PrintAction("UPGRADE!")
-               spells["grenade"].speed = 10
-               numRockets = 5
             end
-         end
-      end
-   end
-
-   if CanUse("grenade") then
-      if IsGoodFireahead("grenade", EADC) then
-         CastFireahead("grenade", EADC)
-         PrintAction("Grenade ADC", EADC)
-         return true
-      end
-      local targets = SortByHealth(GetInRange(me, "grenade", ENEMIES))
-      for _,target in ipairs(targets) do
-         if IsGoodFireahead("grenade", target) then
-            CastFireahead("grenade", target)
-            PrintAction("Fire in the hole", target)
+            CastXYZ("grenade", GetCenter(hits))
+            PrintAction("Grenade (UPGRADE)", #hits)
             return true
          end
       end
-   end
 
-   if CanUse("rockets") then
-      local targets = SortByDistance(GetInRange(me, "rockets", ENEMIES, MINIONS))
-      for i = 1, numRockets, 1 do
-         local target = targets[i]
-         if target and not IsMinion(target) then
-            Cast("rockets", me)
-            PrintAction("Rockets", target)
+      if CanUse("rockets") then
+         spells["rockets"].noblock = true
+         local target = GetSkillShot("rockets")
+         if target then
+            if not P.upgrade then
+               Cast("upgrade", me)
+            end
+            CastFireahead("rockets", target)
+            PrintAction("Rockets (UPGRADE)", target)
             return true
          end
       end
+
+   end
+   if P.upgrade then
+      PrintState(1, "UPGRADE")
+      spells["rockets"].noblock = true
+      spells["grenade"].radius = spells["grenade"].radiusUp
+   else
+      spells["rockets"].noblock = false
+      spells["grenade"].radius = spells["grenade"].radiusBase
+   end
+
+   if SkillShot("grenade") then
+      return true
+   end
+   if SkillShot("rockets") then
+      return true
    end
 
    return false
