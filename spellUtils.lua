@@ -360,14 +360,14 @@ function IsGoodFireahead(thing, target)
       return false
    end
 
-   if GetDistance(target, point) < 50 then
+   if GetDistance(target, point) < 75 then
       return true
    end
 
    -- for collision skill shots dead on or dead away people are easy to hit
    -- no spell speed is a short cut for this. Gragas barrel won't work the best.
    if spell.speed > 0 then
-      if ApproachAngleRel(target, me) < 10 then
+      if ApproachAngleRel(target, me) < 12 then
          return true
       end
    end
@@ -376,8 +376,8 @@ function IsGoodFireahead(thing, target)
 
    local tps = tfas[spell.key][target.charName]
    local point = GetCenter(tps)
-   if GetDistance(tps[1], point) < 30 and
-      GetDistance(tps[#tps], point) < 30
+   if GetDistance(tps[1], point) < 66 and
+      GetDistance(tps[#tps], point) < 66
    then
       return true
    end
