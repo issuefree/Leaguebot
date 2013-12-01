@@ -53,8 +53,8 @@ local function onSpell(unit, spell)
    end   
    if GetDistance(unit) < range or GetDistance(unit, GetMousePos()) < range then
       if spell.target and spell.target.charName then
-         table.insert(spells, unit.name.." : "..spell.name.." -> "..spell.target.charName)
-         pp(unit.name.." : "..spell.name.." -> "..spell.target.charName)
+         table.insert(spells, unit.name.." : "..spell.name.." -> "..spell.target.name)
+         pp(unit.name.." : "..spell.name.." -> "..spell.target.name)
       else
          if spell.endPos then
 --            if GetDistance(unit, spell.endPos) > GetDistance(unit, EADC) then
@@ -79,7 +79,7 @@ local function onObject(object)
    end
    if GetDistance(object, GetMousePos()) < range then
       if not ListContains(object.charName, ignoredObjects) then
-         pp(object.charName.."      "..object.name)
+         pp(object.charName.."      "..object.charName)
       end
    end
 end
