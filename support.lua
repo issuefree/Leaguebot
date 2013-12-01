@@ -3,7 +3,7 @@ require "timCommon"
 function SupportTick()
 end
 
-function healTeam(thing)   
+function HealTeam(thing)   
    local spell = GetSpell(thing)
    if not spell then return false end
    if not CanUse(spell) then return false end
