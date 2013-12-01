@@ -30,7 +30,7 @@ function checkToggles()
    DrawToggles()
 end
 
-local labelX = 280
+local labelX = 320
 local labelY = 960
 function DrawToggles()
    for i,key in ipairs(toggleOrder) do
