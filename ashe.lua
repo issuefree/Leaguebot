@@ -45,18 +45,27 @@ spells["arrow"] = {
    cost=100
 }
 
-local frostTime = 0
-
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       return
    end
 
-   if Alone() then
-      if P.frost and time() - frostTime > .5 then
-         frostTime = time()
+   if IsChannelling() then
+      return true
+   end
+
+   if GetMPerc(me) > .5 and CanChargeTear() or not Alone() then
+      if not P.frost then         
          Cast("frost", me)
-         PrintAction("Frost OFF")
+         -- PrintAction("Frost ON")
+         StartChannel()
+         return true
+      end
+   else      
+      if P.frost then
+         Cast("frost", me)
+         StartChannel()
+         -- PrintAction("Frost OFF")
       end
    end
 
@@ -73,7 +82,7 @@ function Run()
    end
 end
 
-function Action()
+function Action()   
    UseItems()
 
    if CanUse("volley") then
@@ -87,14 +96,6 @@ function Action()
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    if target then
-      if not P.frost and time() - frostTime > .5 and
-         GetDistance(target) < GetSpellRange("AA") 
-      then
-         Cast("frost", me)
-         frostTime = time()
-         PrintAction("Frost ON")
-      end      
-
       if AA(target) then
          PrintAction("AA", target)
          return true
@@ -121,9 +122,9 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      PrintAction("move")
-      MoveToCursor()
-      return false   
+      if RangedMove() then
+         return true
+      end
    end
 
    return false
@@ -135,8 +136,8 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
-   if unit.name == me.name and find(spell.name, "FrostShot") then
-      frostTime = time()
+   if ICast("frost", unit, spell) then
+      StartChannel()
    end
 end
 

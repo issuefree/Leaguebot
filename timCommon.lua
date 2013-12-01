@@ -228,6 +228,7 @@ function IsHero(unit)
 end
 
 function IsEnemy(unit)
+   if not unit then return false end
    return unit.team ~= me.team and IsHero(unit)
 end
 
