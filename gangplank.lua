@@ -60,7 +60,7 @@ function Run()
 	-- 	end
 	-- end
 
-	if CanUse("oranges") abd
+	if CanUse("oranges") and
 		( GetHPerc(me) < .5 or 
 		  GetHPerc(me) < .75 and Alone() )
 	then
@@ -78,7 +78,6 @@ function Run()
 
 	if IsOn("lasthit") and Alone() then
 		if KillMinion("gun", "far") then
-			PrintAction("gun down a minion")
 			return true
 		end
 	end
