@@ -14,7 +14,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["barrel"] = {
   key="Q", 
-  range=1050, 
+  range=900, 
   color=violet, 
   base={85,135,185,235,285}, 
   ap=.9,
