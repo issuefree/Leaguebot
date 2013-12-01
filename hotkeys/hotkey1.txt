@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=jinx.lua
+LALT LOADSCRIPT=template.lua
  
  
  
