@@ -166,10 +166,7 @@ function FollowUp()
          end
       end
 
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
