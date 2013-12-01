@@ -16,13 +16,13 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 spells["consume"] = {
 	key="Q",
 	range=225,
-	base={500,625,750,875,1000},
+	base={400,550,700,850,1000},
 	color=yellow,
 	cost=60
 }
 spells["fed"] = {
 	key="Q",
-	base={90,130,170,210,250},
+	base={70,115,160,205,250},
 	ap=.75
 }
 spells["boil"] = {
