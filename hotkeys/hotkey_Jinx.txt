@@ -1,0 +1,11 @@
+LALT LOADSCRIPT=jinx.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
