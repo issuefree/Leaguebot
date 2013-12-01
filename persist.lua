@@ -38,12 +38,13 @@ MinorCreepNames = {
    "wolf", 
    "YoungLizard", 
    "LesserWraith",
-   "SmallGolem"
+   "SmallGolem",
+   "Wraith"
 }
 BigCreepNames = {
    "GiantWolf", 
-   "Wraith", 
-   "Golem"
+   "Golem",
+   "GreatWraith"
 }
 MajorCreepNames = {
    "AncientGolem", 
@@ -338,7 +339,8 @@ function createForPersist(object)
       PersistOnTargets("cc", object, object.charName, ENEMIES, ALLIES)
    end
 
-   if find(object.name, "Ward") then
+   if find(object.charName, "Ward") then
+      pp("add ward")
       table.insert(WARDS, object)
    end
 
