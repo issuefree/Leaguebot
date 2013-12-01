@@ -1,6 +1,6 @@
 require "timCommon"
 
-local smite = {range=625, base={460}, lvl=30}
+local smite = {range=625, base={370}, lvl=20}
 
 local smiteTargets = {}
 
@@ -33,8 +33,13 @@ function smiteTick()
    end
 end
 
-local function onCreateSmite(obj)   
-   if obj and obj.name and ListContains(obj.name, MajorCreepNames) then
+local function onCreateSmite(obj)
+   if not obj.name then return end
+   if find(obj.name, "MechCannon") then
+      table.insert(smiteTargets, obj)
+   elseif ListContains(obj.name, BigCreepNames) then
+      table.insert(smiteTargets, obj)
+   elseif ListContains(obj.name, MajorCreepNames) then
       table.insert(smiteTargets, obj)
    end
 end 
