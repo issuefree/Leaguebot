@@ -703,6 +703,8 @@ function GetInventorySlot(item)
         return 5
     elseif GetInventoryItem(6) == item then
         return 6
+    elseif GetInventoryItem(7) == item then
+        return 7
     end
     return nil
 end
