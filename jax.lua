@@ -76,9 +76,22 @@ function Run()
       end
 	end
 
-	if CanUse("empower") and not P.empower and Alone() then
+	if IsOn("lasthit") then
+		if CanUse("leap") and VeryAlone() then
+			local minions = GetInRange(me, "leap", MINIONS)
+			for _,minion in ipairs(minions) do
+				if find(minion.name, "MechCannon") then
+					if WillKill("leap", minion) then
+						Cast("leap", minion)
+						PrintAction("Leap cannon")
+						return true
+					end
+				end
+			end
+		end
 
-		if IsOn("lasthit") then
+		if CanUse("empower") and not P.empower and Alone() then
+
 			local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]	   	
 			if target and WillKill("empower", target) and CanAct() and JustAttacked() then
 	         Cast("empower", me)
@@ -86,19 +99,19 @@ function Run()
 	         AttackTarget(target)
 	         return true
 		   end
-		end
 
-		if IsOn("jungle") then
-			local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
-			local creep = creeps[#creeps]
-			if creep and not WillKill("AA", creep) then
-				if JustAttacked() then
-					Cast("empower", me)
-					PrintAction("Whap jungle")
+			if IsOn("jungle") then
+				local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
+				local creep = creeps[#creeps]
+				if creep and not WillKill("AA", creep) then
+					if JustAttacked() then
+						Cast("empower", me)
+						PrintAction("Whap jungle")
+					end
 				end
 			end
-		end
 
+		end
 	end
 
    if HotKey() then
