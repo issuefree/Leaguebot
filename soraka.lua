@@ -9,32 +9,33 @@ spells["starfall"] = {
 	color=red,    
 	base={60,85,110,135,160},
 	ap=.4,
-	cost={20,35,50,65,80}
+	cost={30,40,50,60,70}
 }
 spells["heal"] = {
 	key="W", 
 	range=750,  
 	color=green,  
-	base={70,140,210,280,350}, 
+	base={70,130,180,130,270}, 
 	ap=.45,
-	cost={80,110,140,170,200}
+	cost={80,100,120,140,160}
 }
 spells["infuseMana"] = {
 	key="E", 
 	range=725,
 	color=blue,   
-	base={40,80,120,160,200}
+	base={20,40,60,80,100}
 }
 spells["infuse"] = {
 	key="E",
 	range=725,
-	base={50,100,150,200,250}, 
-	ap=.6
+	base={40,70,100,130,160}, 
+	mana=.05,
+	ap=.4
 }
 spells["wish"] = {
 	key="R",
-	base={200,320,440},
-	ap=.7,
+	base={150,250,350},
+	ap=.55,
 	cost=100
 }
 spells["consecration"] = {
@@ -53,6 +54,9 @@ AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}",
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
+	spells["infuseMana"].cost = me.maxMana * .05
+	spells["infuse"].cost = me.maxMana * .05
+
 	if me.dead == 1 then
 		PrintAction("Dead")
 		return
@@ -174,22 +178,73 @@ function FollowUp()
    return false
 end
 
+function healTeam()   
+   if not CanUse("heal") then return false end
+      
+   local base = GetSpellDamage("heal")
+
+   local spell = GetSpell("heal")
+
+   local bestInRangeT = nil
+   local bestInRangeP = 1
+   local bestOutRangeT = nil
+   local bestOutRangeP = 1
+   
+   for _,hero in ipairs(ALLIES) do
+   	local value = base * 1+(1-GetHPerc(hero))/2
+      if GetDistance(HOME, hero) > spell.range+250 and
+         hero.health + value < hero.maxHealth*.9 and
+         not HasBuff("wound", hero) and 
+         not IsRecalling(hero)
+      then
+         if GetDistance(hero) < spell.range then        
+            if not bestInRangeT or
+               GetHPerc(hero) < bestInRangeP
+            then           
+               bestInRangeT = hero
+               bestInRangeP = GetHPerc(hero)
+            end
+         elseif GetDistance(hero) < spell.range+250 then
+            if not bestOutRangeT or
+               GetHPerc(hero) < bestOutRangeP
+            then           
+               bestOutRangeT = hero
+               bestOutRangeP = GetHPerc(hero)
+            end
+         end
+      end
+   end
+   if bestInRangeT then
+      Circle(bestInRangeT, 100, green)
+   end
+   if bestOutRangeT and GetDistance(me, bestOutRangeT) > spell.range then
+      Circle(bestOutRangeT, 100, yellow, 4)
+   end
+
+   if bestInRangeT then
+      Cast(spell, bestInRangeT)
+      return true
+   end
+   return false
+end
+
 function infuseTeam()
 	if not CanUse("infuse") then
 		return false
 	end
 	
-	local maxE = GetSpellDamage("infuseMana")
+	local base = GetSpellDamage("infuseMana")
 
 	local bestInRangeT = nil
 	local bestInRangeP = 1
 		
 	local heroes = GetInRange(me, "infuse", ALLIES)
 	for _,hero in ipairs(heroes) do
+		local value = base * 1+(1-GetMPerc(hero))/2
 		if hero.name ~= me.name and
 			GetDistance(HOME, hero) > 1000 and
 		   hero.mana ~= 0 and 
-		   hero.mana + maxE <= hero.maxMana and
+		   hero.mana + value <= hero.maxMana and
 		   not IsRecalling(hero)
 		then			
 			if not bestInRangeT or
