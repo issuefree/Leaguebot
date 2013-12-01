@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -9,40 +8,40 @@ AddToggle("pull", {on=true, key=113, label="Pull"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "fist"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["grab"] = {
-  key="Q", 
-  range=1050, 
-  color=violet, 
-  base={80,135,190,245,300}, 
-  ap=1,
-  delay=2,
-  speed=17,
-  width=80,
-  cost=120
+   key="Q", 
+   range=1050, 
+   color=violet, 
+   base={80,135,190,245,300}, 
+   ap=1,
+   delay=2,
+   speed=17,
+   width=80,
+   cost=120
 }
 spells["drive"] = {
-  key="W", 
-  cost=75
+   key="W", 
+   cost=75
 }
 spells["fist"] = {
-  key="E", 
-  range=GetSpellRange("AA"), 
-  base={0,0,0,0,0},
-  ad=1,
-  onHit=true,
-  color=red, 
-  cost=25
+   key="E", 
+   range=GetSpellRange("AA"), 
+   base=0,
+   ad=2,
+   onHit=true,
+   color=red, 
+   cost=25
 }
-spells["binding"] = {
-  key="R", 
-  range=600, 
-  color=yellow, 
-  base={250,375,500}, 
-  ap=1,
-  cost=150
+spells["field"] = {
+   key="R", 
+   range=600, 
+   color=yellow, 
+   base={250,375,500}, 
+   ap=1,
+   cost=150
 }
 
 function Run()
@@ -62,6 +61,19 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
+   if IsOn("lasthit") then
+
+      if CanUse("fist") and not P.fist and Alone() then
+
+         local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
+         if target and WillKill("fist", target) and CanAct() and JustAttacked() then
+            Cast("fist", me)
+            PrintAction("fist lasthit")
+            AttackTarget(target)
+            return true
+         end
+      end
+   end
 
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
@@ -73,42 +85,45 @@ function Run()
    PrintAction()
 end
 
-function Action()
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if AA(target) then
-      PrintAction("AA", target)
+function Action()   
+
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if target and ModAA("fist", target) then
       return true
    end
 
    return false
 end
+
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
          return true
       end
+
+      if CanUse("fist") then
+         local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]        
+         if target and WillKill("fist", target) and
+            ( JustAttacked() or not WillKill("AA", target) )
+         then
+            Cast("fist", me)
+            PrintAction("fist lasthit")
+            AttackTarget(target)
+            return true
+         end
+      end
+
    end
 
    if IsOn("clearminions") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
@@ -116,6 +131,7 @@ function FollowUp()
 end
 
 local function onObject(object)
+   PersistBuff("fist", object, "Powerfist_buf", 150)
 end
 
 local function onSpell(unit, spell)

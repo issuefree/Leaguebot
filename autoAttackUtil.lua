@@ -66,6 +66,7 @@ function GetAAData()
       Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
       Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
       Olaf         = { melee=true },
+      Blitzcrank   = { melee=true, windup=.625 },
       MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
       Warwick      = { melee=true }
@@ -80,6 +81,7 @@ if not aaData then
 end
 if not aaData.aaParticles then
    aaData.aaParticles = {}
+   -- aaData.aaParticles = {"globalhit_bloodslash"}
 end
 if not aaData.aaSpellName then
   aaData.aaSpellName = "attack"
@@ -238,7 +240,7 @@ end
 
 function onObjAA(object)
    if ListContains(object.charName, aaData.aaParticles) 
-      and GetDistance(object) < GetSpellRange("AA")+75
+      and GetDistance(object) < GetSpellRange("AA")+100
    then
       if ModuleConfig.aaDebug then
         local delta = time() - lastAAState
