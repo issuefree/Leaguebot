@@ -210,6 +210,9 @@ function GetSpellDamage(thing, target)
    if spell.mana then
       damage = damage + GetLVal(spell, "mana")*me.maxMana
    end
+   if spell.armor then
+      damage = damage + GetLVal(spell, "armor")*me.armor
+   end
    if spell.lvl then
       damage = damage + GetLVal(spell, "lvl")*me.selflevel
    end
@@ -305,7 +308,7 @@ function getSBDam(item, buff, needActive)
    return nil
 end
 
-local trackTicks = 10
+local trackTicks = 5
 tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   
@@ -367,7 +370,7 @@ function IsGoodFireahead(thing, target)
    -- for collision skill shots dead on or dead away people are easy to hit
    -- no spell speed is a short cut for this. Gragas barrel won't work the best.
    if spell.speed > 0 then
-      if ApproachAngleRel(target, me) < 12 then
+      if ApproachAngleRel(target, me) < 10 then
          return true
       end
    end
@@ -376,8 +379,8 @@ function IsGoodFireahead(thing, target)
 
    local tps = tfas[spell.key][target.charName]
    local point = GetCenter(tps)
-   if GetDistance(tps[1], point) < 66 and
-      GetDistance(tps[#tps], point) < 66
+   if GetDistance(tps[1], point) < 50 and
+      GetDistance(tps[#tps], point) < 50
    then
       return true
    end
