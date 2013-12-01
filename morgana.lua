@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("\nTim's Morgana")
 
