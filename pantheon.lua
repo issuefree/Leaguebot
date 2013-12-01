@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -108,7 +107,7 @@ function Run()
    end
 
    if VeryAlone() and IsOn("lasthit") then
-      if KillMinionsInCone("strike", 3, true, true) then
+      if KillMinionsInCone("strike", 3) then
          PrintAction("Strike for lasthits")
       end
    end    
