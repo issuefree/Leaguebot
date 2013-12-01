@@ -63,7 +63,7 @@ function Run()
    end
 
    if IsOn("healTeam") and not isCougar then
-      if healTeam("heal") then
+      if HealTeam("heal") then
          return true
       end
    end
