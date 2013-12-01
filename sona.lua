@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("\nTim's Sona")
 AddToggle("lastHit", {on=false, key=112, label="Last Hit", auxLabel="{0}", args={"blue"}})
@@ -13,14 +11,14 @@ spells["blue"] = {
    range=700, 
    color=blue, 
    base={50,100,150,200,250}, 
-   ap=.7,
+   ap=.5,
    cost={45,50,55,60,65}
 }
 spells["green"] = {
    key="W", 
    range=1000, 
    color=green, 
-   base={40,60,80,100,120}, 
+   base={40,55,70,85,100}, 
    ap=.25,
    cost={60,65,70,75,80}
 }
@@ -35,7 +33,7 @@ spells["yellow"] = {
    range=1001, 
    color=yellow, 
    base={150,250,350}, 
-   ap=.8,
+   ap=.5,
    cost={100,150,200}
 }
 
