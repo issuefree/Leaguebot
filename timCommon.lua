@@ -951,24 +951,18 @@ function CanChargeTear()
 end
 
 local function getWardingSlot()
-   local wardSlot = GetInventorySlot(3154) -- Wriggles
-   if wardSlot and IsCooledDown(wardSlot) then
-      return wardSlot
-   end
-
-   wardSlot = GetInventorySlot(2049) -- Sightstone
-   if wardSlot and IsCooledDown(wardSlot) then
-      return wardSlot
-   end
-
-   wardSlot = GetInventorySlot(2045) -- Ruby Sightstone
-   if wardSlot and IsCooledDown(wardSlot) then
-      return wardSlot
-   end
-
-   wardSlot = GetInventorySlot(2044) -- Sight Ward
-   if wardSlot and IsCooledDown(wardSlot) then
-      return wardSlot
+   local wardSlots = {
+      3340, 3350, 3361, 3362, -- trinkets
+      3154, -- wriggles
+      2049, 2045, -- sightstones
+      2044 -- sight ward
+   }
+   local wardSlot
+   for _,id in ipairs(wardSlots) do
+      local wardSlot = GetInventorySlot(id)
+      if wardSlot and IsCooledDown(wardSlot) then
+         return wardSlot
+      end
    end
 end
 
@@ -983,13 +977,13 @@ function WardJump(thing)
    -- is there a ward already?
    for _,w in ipairs(WARDS) do
       if GetDistance(w, GetMousePos()) < 150 then
-         ward = w
+         waxrd = w
          break
       end
    end
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
-   if not ward then 
+   if not ward then
       if time() - wardCastTime > 5 then
          local wardSlot = getWardingSlot()
          if wardSlot then
@@ -1345,7 +1339,8 @@ function TimTick()
 end
 
 function AA(target)
-   if CanAttack() and ValidTarget(target) then
+   if ValidTarget(target) then
+   -- if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
       return true
    end
@@ -1399,8 +1394,8 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5) or
-          GetWeakEnemy("PHYS", GetSpellRange("AA")*2.5)
+   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25) or
+          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.75)
 end
 
 function RangedMove()
