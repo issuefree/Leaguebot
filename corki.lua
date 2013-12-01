@@ -14,14 +14,14 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["phos"] = {
    key="Q", 
-   range=600, 
-   color=violet, 
-   base={80,130,180,230,280}, 
+   range=825,
+   color=violet,
+   base={80,130,180,230,280},
    ap=.5,
    delay=2,
-   speed=0,
+   speed=20,
    radius=300,
-   cost={80,90,100,110,120},
+   cost={60,70,80,90,100},
    noblock=true
 }
 spells["valk"] = {
@@ -42,7 +42,7 @@ spells["gun"] = {
    color=red, 
    base={20,32,44,56,68}, 
    bonusAd=.4,
-   cost={60,70,80,90,100}
+   cost=50
 }
 spells["barrage"] = {
    key="R", 
@@ -50,7 +50,7 @@ spells["barrage"] = {
    color=violet,
    base={100,180,260}, 
    ap=.3,
-   ad=.2,
+   ad={.2,.3,.4},
    delay=1.5,
    speed=19,
    width=80,
