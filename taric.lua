@@ -9,14 +9,14 @@ spells["heal"] = {
 	range=750,
 	color=green,
 	base={60,100,140,180,220}, 
-	ap=.6
+	ap=.3
 }
 spells["shatter"] = {
 	key="W", 
 	range=400,  
 	color=red,    
-	base={60,105,150,195,240}, 
-	ap=.6
+	base={40,80,120,160,200}, 
+	armor=.3
 }
 spells["aura"] = {
 	key="W", 
@@ -28,19 +28,21 @@ spells["stun"] = {
 	range=625,  
 	color=violet,    
 	base={150,195,240},        
-	ap=.6
+	ap=.5
 }
 spells["radiance"] = {
 	key="R", 
 	range=400,  
 	color=red,    
 	base={171,285,399},        
-	ap=.7
+	ap=.5
 }
 
 AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
 
 function Run()
+	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selfLevel-1)))*.05
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
