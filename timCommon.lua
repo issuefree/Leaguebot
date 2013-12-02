@@ -1382,7 +1382,7 @@ function ModAAFarm(thing, pObj)
       local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
       if target and WillKill(thing, target) and JustAttacked() then
          Cast(thing, me)
-         PrintAction(thing.." lasthit")
+         PrintAction(thing.." lasthit", target)
          AttackTarget(target)
          return true
       end
@@ -1390,13 +1390,13 @@ function ModAAFarm(thing, pObj)
    return false
 end
 
-function ModAAJungle(thing)
-   if CanUse(thing) then
+function ModAAJungle(thing, pObj)
+   if CanUse(thing) and not pObj then
       local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
       local creep = creeps[#creeps]
       if creep and not WillKill("AA", creep) and JustAttacked() then
          Cast(thing, me)
-         PrintAction(thing.." jungle")
+         PrintAction(thing.." jungle", creep)
          return true
       end
    end
