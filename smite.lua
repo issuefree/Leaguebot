@@ -26,10 +26,13 @@ function smiteTick()
       end
    end
 
-   for _,target in ipairs(smiteTargets) do
-      if GetDistance(target) < smite.range+50 and target.health < GetSpellDamage(smite) then
-         CastSpellTarget(smite.key, target)
-         break 
+   if CanUse("smite") then
+      for _,target in ipairs(smiteTargets) do
+         if GetDistance(target) < smite.range+50 and target.health < GetSpellDamage(smite) then
+            CastSpellTarget(smite.key, target)
+            PrintAction("SMITE", target)
+            break 
+         end
       end
    end
 end
@@ -38,9 +41,9 @@ function onCreateSmite(obj)
    if not obj.name then return end
    if find(obj.name, "MechCannon") then
       table.insert(smiteTargets, obj)
-   elseif ListContains(obj.name, BigCreepNames) then
+   elseif ListContains(obj.name, BigCreepNames, true) then
       table.insert(smiteTargets, obj)
-   elseif ListContains(obj.name, MajorCreepNames) then
+   elseif ListContains(obj.name, MajorCreepNames, true) then
       table.insert(smiteTargets, obj)
    end
 end 
