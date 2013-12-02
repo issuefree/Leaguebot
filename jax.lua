@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -9,13 +8,11 @@ pp(" - auto ult if I have 2 or more nearby enemies")
 pp(" - leap on marked or weak enemies")
 pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
-pp(" - auto attack marked or weak in 2xAA range")
-pp(" - lasthit with AA or empower")
-pp(" - clear minions")
+pp(" - lasthit with empower")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
-AddToggle("jungle", {on=true, key=114, label="Jungle"})
+AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"smite"}})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
@@ -90,29 +87,20 @@ function Run()
 			end
 		end
 
-		if CanUse("empower") and not P.empower and Alone() then
-
-			local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]	   	
-			if target and WillKill("empower", target) and CanAct() and JustAttacked() then
-	         Cast("empower", me)
-	         PrintAction("empower lasthit")
-	         AttackTarget(target)
+		if Alone() then
+	      if ModAAFarm("empower", P.empower) then
 	         return true
-		   end
+	      end
+	   end
 
-			if IsOn("jungle") then
-				local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
-				local creep = creeps[#creeps]
-				if creep and not WillKill("AA", creep) then
-					if JustAttacked() then
-						Cast("empower", me)
-						PrintAction("Whap jungle")
-					end
-				end
-			end
+	end
 
+	if IsOn("jungle") then
+		if ModAAJungle("empower", P.empower) then
+			return true
 		end
 	end
+
 
    if HotKey() then
       if FollowUp() then
@@ -120,6 +108,7 @@ function Run()
       end
    end
 
+   PrintAction()
 end
 
 -- jump to good targets
@@ -171,18 +160,6 @@ function FollowUp()
       if KillMinion("AA") then
          return true
       end
-
-   	if CanUse("empower") then
-	   	local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]	   	
-	      if target and WillKill("empower", target) and
-	      	( JustAttacked() or not WillKill("AA", target) )
-	      then
-	         Cast("empower", me)
-	         PrintAction("empower lasthit")
-	         AttackTarget(target)
-	         return true
-	      end
-	   end
 	end
 
    if IsOn("clearminions") and Alone() then
