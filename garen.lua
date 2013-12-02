@@ -10,7 +10,7 @@ pp(" - If someone targets me and I'm < 75% activate courage")
 pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("", {on=true, key=113, label=""})
+AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -67,12 +67,28 @@ function Run()
       end
 	end
 
+   if IsOn("lasthit") then
+      if Alone() then
+         if ModAAFarm("strike", P.strike) then
+            return true
+         end
+      end
+   end
+
+   if IsOn("jungle") then
+      if ModAAJungle("strike", P.strike) then
+         return true
+      end
+   end
+
 	-- always stuff here
    if HotKey() and CanAct() then  
       if FollowUp() then
          return true
       end
    end
+
+   PrintAction()
 end
 
 function Action()
@@ -178,9 +194,7 @@ function isSpinning()
 end
 
 local function onObject(object)
-   if PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword") then
-      pp("strike")
-   end
+   PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword", 150)
 end
 
 local function onSpell(unit, spell)
