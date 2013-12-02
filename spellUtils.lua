@@ -173,6 +173,9 @@ function GetLVal(spell, field)
    local lvl = 1
    if spell.key then
       lvl = GetSpellLevel(spell.key)
+      if lvl == 0 then
+         lvl = 1
+      end
    end
 
    local val = spell[field][lvl]
