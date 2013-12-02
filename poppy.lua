@@ -52,29 +52,16 @@ function Run()
       end
    end
 
-   if CanUse("blow") and not P.blow and Alone() then
-
-      if IsOn("lasthit") and GetMPerc(me) > .5 then
-         local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
-         if target and WillKill("blow", target) and CanAct() and JustAttacked() then
-            Cast("blow", me)
-            PrintAction("blow lasthit")
-            AttackTarget(target)
-            return true
-         end
+   if IsOn("lasthit") and GetMPerc(me) > .5 and Alone() then
+      if ModAAFarm("blow", P.blow) then
+         return true
       end
+   end      
 
-      if IsOn("jungle") then
-         local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
-         local creep = creeps[#creeps]
-         if creep and not WillKill("AA", creep) then
-            if JustAttacked() then
-               Cast("blow", me)
-               PrintAction("Blow jungle")
-            end
-         end
+   if IsOn("jungle") and GetMPerc(me) > .5 then
+      if ModAAJungle("blow", P.blow) then
+         return true
       end
-
    end
 
    if HotKey() then
