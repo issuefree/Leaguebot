@@ -35,7 +35,7 @@ PData = {}
 
 -- name field
 MinorCreepNames = {
-   "wolf", 
+   "Wolf", 
    "YoungLizard", 
    "LesserWraith",
    "SmallGolem",
