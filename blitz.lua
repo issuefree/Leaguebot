@@ -61,17 +61,9 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
-   if IsOn("lasthit") then
-
-      if CanUse("fist") and not P.fist and Alone() then
-
-         local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
-         if target and WillKill("fist", target) and CanAct() and JustAttacked() then
-            Cast("fist", me)
-            PrintAction("fist lasthit")
-            AttackTarget(target)
-            return true
-         end
+   if IsOn("lasthit") and Alone() then
+      if ModAAFarm("fist", P.fist) then
+         return true
       end
    end
 
