@@ -1,7 +1,7 @@
 require "timCommon"
 
-local smite = {range=625, base={370}, lvl=20}
-
+local smite = {range=750, base=0}
+local smiteDam = {390,410,430,450,480,510,540,570,600,640,680,720,760,800,850,900,950,1000}
 local smiteTargets = {}
 
 if me.SummonerD == "SummonerSmite" then
@@ -13,6 +13,7 @@ elseif me.SummonerF == "SummonerSmite" then
 end
 
 function smiteTick()
+   spells["smite"].base = smiteDam[me.selflevel]
    if not ModuleConfig.smite then
       return
    end
@@ -33,7 +34,7 @@ function smiteTick()
    end
 end
 
-local function onCreateSmite(obj)
+function onCreateSmite(obj)
    if not obj.name then return end
    if find(obj.name, "MechCannon") then
       table.insert(smiteTargets, obj)
