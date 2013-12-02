@@ -87,14 +87,14 @@ if not aaData.aaSpellName then
   aaData.aaSpellName = "attack"
 end
 if not aaData.windup then
-   aaData.windup = .5
+   aaData.windup = .55
 end
 if not aaData.speed then
    aaData.speed = 1.10
 end
 
 function getWindup()
-   return math.max(aaData.windup-.325*me.attackspeed, .15)
+   return math.max(aaData.windup-.325*me.attackspeed, .1)
 end
 function getAARate()
    return (1 / (me.attackspeed*aaData.speed))
@@ -184,10 +184,10 @@ function JustAttacked()
 end
 
 function CanAct()
-    if shotFired or CanAttack() then
-        return true
-    end
-    return false
+   if shotFired or CanAttack() then
+      return true
+   end
+   return false
 end
 
 -- in testing (with teemo) if I moved between attacks I couldn't attack faster than ~.66
