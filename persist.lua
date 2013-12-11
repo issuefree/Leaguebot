@@ -110,7 +110,7 @@ end
 -- find an object only near me and persist it
 function PersistBuff(name, object, charName, dist)
    if not dist then
-      dist = 50
+      dist = 100
    end
    if object and find(object.charName, charName) then
       if GetDistance(object) < dist then
@@ -182,7 +182,6 @@ function CleanPersistedObjects()
       for i,pKey in rpairs(pList) do
          if not P[pKey] then
             table.remove(pList, i)
-            -- pp("Clean "..pKey)
          end
       end
    end
@@ -340,7 +339,6 @@ function createForPersist(object)
    end
 
    if find(object.charName, "Ward") then
-      pp("add ward")
       table.insert(WARDS, object)
    end
 
@@ -364,7 +362,7 @@ function persistTick()
    updateMinions()
    updateCreeps()
    updateHeroes()
-   Clean(WARDS, "name", "Ward")
+   Clean(WARDS, "charName", "Ward")
    Clean(TURRETS, "name", "Turret")
    Clean(MYTURRETS, "name", "Turret")
    CleanPersistedObjects()
