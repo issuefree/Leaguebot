@@ -24,7 +24,7 @@ spells["turret"] = {
 }
 spells["rockets"] = {
   key="W", 
-  range=1300, 
+  range=1200, 
   color=violet, 
   base={60,90,120,150,180}, 
   ap=.45,
