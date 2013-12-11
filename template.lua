@@ -67,6 +67,9 @@ function Run()
       PrintAction("Recalling or dead")
       return true
    end
+   if IsChannelling() then
+      return true
+   end
 
    -- auto stuff that always happen
 
@@ -130,13 +133,13 @@ function FollowUp()
    return false
 end
 
-local function onObject(object)
+local function onCreate(object)
 end
 
 local function onSpell(unit, spell)
 end
 
-AddOnCreate(onObject)
+AddOnCreate(onCreate)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
 
