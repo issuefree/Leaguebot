@@ -41,7 +41,7 @@ spells["radiance"] = {
 AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
 
 function Run()
-	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selfLevel-1)))*.05
+	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selflevel-1)))*.05
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -80,7 +80,7 @@ function doHeal()
 		   hero.health + maxHeal < hero.maxHealth*.9 and
 		   hero.dead == 0 and
 		   hero.visible == 1 and
-		   not HasBuff("wound") and 
+		   not HasBuff("wound", hero) and 
 		   not IsRecalling(hero)
 		then
 			local dist = GetDistance(hero)
