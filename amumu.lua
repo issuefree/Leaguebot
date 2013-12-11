@@ -49,8 +49,12 @@ spells["curse"] = {
 local despairClearTime = 0
 
 function Run()
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
+      return true
+   end
+   if IsChannelling() then
       return true
    end
 
@@ -58,15 +62,10 @@ function Run()
       if P.despair and 
          #GetAllInRange(me, GetSpellRange("despair")+50, MINIONS, ENEMIES, CREEPS) == 0 
       then
-         if despairClearTime == 0 then
-            despairClearTime = time()
+         Cast("despair", me)         
+         PrintAction("Despair off")
+         StartChannel()
          end
-         if time() - despairClearTime > .5 then
-            Cast("despair", me)
-            PrintAction("Despair off")
-         end
-      else
-         despairClearTime = 0
       end
    end
 
@@ -81,7 +80,7 @@ function Run()
       if #GetAllInRange(me, "despair", BIGCREEPS, MAJORCREEPS) > 0  then
 
          if not P.despair and CanUse("despair") then
-            Cast("despair", me)
+            CastBuff("despair")
             PrintAction("Despair for jungle")
          end
 
@@ -93,7 +92,7 @@ function Run()
       end
    end
 
-	if IsOn("lasthit") and CanUse("tantrum") and Alone() then
+	if IsOn("lasthit") and CanUse("tantrum") and not Engaged() then
       if #GetKills("tantrum", GetInRange(me, "tantrum", MINIONS)) >= 2 then
          Cast("tantrum", me)
          PrintAction("Tantrum for lasthit")
@@ -109,9 +108,9 @@ function Run()
 end
 
 function Action()
-   if CanUse("despair") then
-      if not P.despair and GetWeakestEnemy("despair") then
-         Cast("despair", me)
+   if CanUse("despair") and not P.despair then
+      if GetWeakestEnemy("despair") then
+         CastBuff("despair")
          PrintAction("Despair")
       end
    end
@@ -162,10 +161,12 @@ function FollowUp()
 end
 
 local function onObject(object)
-   PersistBuff("despair", object, "Despair_buf")
+   if PersistBuff("despair", object, "Despair_buf", 150) then
+      pp("despair up")
+   end
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
