@@ -137,10 +137,18 @@ function FollowUp()
    end
 end
 
-function checkBurning(object)
+function onCreate(object)
    PersistBuff("burning", object, "dr_mundo_burning_agony")
 end
+local function onSpell(unit, spell)
+   if IAttack(unit, spell) and CanUse("masochism") and GetHPerc(me) > .33 then
+      Cast("masochism", me)
+      PrintAction("Masochism")
+   end
+end
 
-AddOnCreate(checkBurning)
+
+AddOnCreate(onCreate)
+AddOnSpell(onSpell)
 
 SetTimerCallback("Run")
