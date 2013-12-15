@@ -65,7 +65,6 @@ function Run()
          Cast("despair", me)         
          PrintAction("Despair off")
          StartChannel()
-         end
       end
    end
 
