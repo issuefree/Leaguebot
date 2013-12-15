@@ -24,8 +24,8 @@ DrawBox(x,y,width,height,color)
 
 ----------Action Functions---------//try to call only 1 per callback
 AttackTarget(target)
-CastSpellTarget(spell,target)
-CastSpellXYZ(spell,x,y,z)
+CastSpellTarget(spell,target,(optional) checkcooldown) checkcooldown can be 1 or 0
+CastSpellXYZ(spell,x,y,z,(optional) checkcooldown)
 MoveToXYZ(x,y,z)
 StopMove()
 
