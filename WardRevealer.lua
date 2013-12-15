@@ -1,9 +1,8 @@
 require "timCommon"
 
-local showWardsFromSpells = true
 local showTimerRadius = 100
 local showVisionRangeKey = 18
-local showSameTeam = true
+local showSameTeam = false
 
 local types = {
 	 { label="Trinket Ward", color=yellow,
@@ -21,6 +20,7 @@ local types = {
 	 { label="Vision Ward", color=violet, 
 		duration=180, sightRange=1350, triggerRange=70, 
 		charName="VisionWard", name="VisionWard", spellName="VisionWard" },
+
 	 { label="Jack in the Box", color=red, 
 		duration=60, sightRange=690, triggerRange=300,
 		charName="Jack In The Box", name="ShacoBox", spellName="JackInTheBox" },
@@ -110,35 +110,9 @@ function cleanUpWards()
 	end
 end
 
-local function createWards(object)
-	for _,type in ipairs(types) do
-		if (type.charName and object.charName == type.charName) or 
-			(type.name and object.name == type.name)
-		then
-			local ward = {loc=Point(object), object=object, tick=time(), source="oncreate"}
-			if LOADING then
-				ward.source = "onload"
-			end
-			addWard(ward, type)
-			break
-		end
-	end
-end
-
-local function processWards(object, spell)
-	if IsHero(object) and (showSameTeam or IsEnemy(object)) then
-		for _,type in ipairs(types) do
-			if type.spellName == spell.name then
-				local ward = {loc=Point(spell.endPos), tick=time(), source="spell"}
-				addWard(ward, type)
-				break
-			end
-		end
-	end
-end
-
 function addWard(ward, type)
 	ward = merge(ward, type)
+
 	--check for dups
 	for i,w in rpairs(wards) do
 		if GetDistance(w.loc, ward.loc) < 100 and
@@ -154,7 +128,39 @@ function addWard(ward, type)
 	table.insert(wards, ward)
 end
 
-AddOnCreate(createWards)
-AddOnSpell(processWards)
+local function onCreate(object)
+	if not showSameTeam and object.team == me.team then
+		return
+	end
+
+	for _,type in ipairs(types) do
+		if object.charName == type.charName and 
+			object.name == type.name
+		then
+			local ward = {loc=Point(object), object=object, tick=time(), source="oncreate"}
+			if LOADING then
+				ward.source = "onload"
+			end
+			addWard(ward, type)
+			break
+		end
+	end
+end
+
+local function onSpell(unit, spell)
+	if IsHero(unit) and (showSameTeam or IsEnemy(unit)) then
+		for _,type in ipairs(types) do
+			if type.spellName == spell.name then
+				local ward = {loc=Point(spell.endPos), tick=time(), source="spell"}
+				addWard(ward, type)
+				break
+			end
+		end
+	end
+end
+
+
+AddOnCreate(onCreate)
+AddOnSpell(onSpell)
 
 SetTimerCallback("OnTick")
