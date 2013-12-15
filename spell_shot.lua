@@ -394,7 +394,7 @@ local spells = {
 		{name="zedw2", range=550, radius=150, time=0.5, ss=true, isline=false, physical=true},
 	},
 	Ziggs = {
-		{name="ZiggsQ", range=850, radius=160, time=1.5, ss=true, show=true, isline=true},
+		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true},
 		{name="ZiggsW", range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
 		{name="ZiggsE", range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},
