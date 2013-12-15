@@ -47,25 +47,23 @@ spells["arrow"] = {
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
       return
    end
-
    if IsChannelling() then
       return true
    end
 
    if GetMPerc(me) > .5 and CanChargeTear() or not Alone() then
       if not P.frost then         
-         Cast("frost", me)
+         CastBuff("frost")
          -- PrintAction("Frost ON")
-         StartChannel()
-         return true
       end
    else      
       if P.frost then
          Cast("frost", me)
-         StartChannel()
          -- PrintAction("Frost OFF")
+         StartChannel()
       end
    end
 
@@ -80,6 +78,8 @@ function Run()
          return true
       end
    end
+
+   PrintAction()
 end
 
 function Action()   
@@ -136,9 +136,6 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
-   if ICast("frost", unit, spell) then
-      StartChannel()
-   end
 end
 
 AddOnCreate(onObject)
