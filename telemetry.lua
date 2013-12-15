@@ -177,7 +177,7 @@ end
 
 function UnderTower(target)
    if not target then target = me end
-   return #GetInRange(target, 950, TURRETS) > 0
+   return #GetAllInRange(target, 950, TURRETS) > 0
 end
 
 function SortByHealth(things)
