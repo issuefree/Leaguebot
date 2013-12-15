@@ -7,7 +7,7 @@ require "telemetry"
 spells = {}
 
 function IsCooledDown(key)
-   return me["SpellTime"..key] >= 1
+   return me["SpellTime"..key] >= .8
 end
 
 function Cast(thing, target, force)
@@ -25,7 +25,7 @@ function Cast(thing, target, force)
       return false
    end
 
-   CastSpellTarget(spell.key, target)
+   CastSpellTarget(spell.key, target, 0)
    return true
 end
 
@@ -34,9 +34,9 @@ function CastXYZ(thing, x,y,z)
    if not spell then return end
    if x and not y and not z then
       Circle(x, 100, red, 5)
-      CastSpellXYZ(spell.key, x.x,x.y,x.z)      
+      CastSpellXYZ(spell.key, x.x,x.y,x.z, 0)      
    else
-      CastSpellXYZ(spell.key, x,y,z)      
+      CastSpellXYZ(spell.key, x,y,z, 0)
    end
 end
 
@@ -409,8 +409,8 @@ end
 function ICast(thing, unit, spell)
    if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
-   if #mySpell.key > 1 then -- hack for if getspell fails      
-      return find(spell.name, thing)
+   if #mySpell.key > 1 then -- hack for if getspell fails
+      return find(spell.name, thing)      
    else
       if mySpell.name then
          return find(spell.name, mySpell.name)
