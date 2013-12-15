@@ -18,7 +18,7 @@ spells["fear"] = {
    key="Q", 
    range=575, 
    color=violet,
-   cost={65,75,85,95,105}
+   cost=65
 }
 spells["drain"] = {
    key="W", 
@@ -38,7 +38,7 @@ spells["crow"] = {
    key="R", 
    range=800, 
    color=yellow,
-   cost={150,200,250},
+   cost=100,
    radius=600
 }
 
