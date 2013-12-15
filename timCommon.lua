@@ -751,6 +751,15 @@ function IsRecalling(hero)
    return HasBuff("recall", hero)
 end
 
+function IsInRange(target, thing, source)
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
+   return GetDistance(target, source) < range
+end
 
 function GetInRange(target, thing, ...)
    local range
@@ -973,21 +982,23 @@ function WardJump(thing)
    if not CanUse(spell) then
       return false
    end
+
    local ward = nil
 
    -- is there a ward already?
    for _,w in ipairs(WARDS) do
       if GetDistance(w, GetMousePos()) < 150 then
-         waxrd = w
+         ward = w
          break
       end
    end
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
    if not ward then
-      if time() - wardCastTime > 5 then
+      if time() - wardCastTime > 3 then
          local wardSlot = getWardingSlot()
          if wardSlot then
+            -- CastSpellXYZ(wardSlot, mousePos.x, mousePos.y, mousePos.z)
             CastXYZ(wardSlot, mousePos)
             PrintAction("Throw ward")
             wardCastTime = time()
@@ -1042,7 +1053,12 @@ function GetAADamage(target)
          damageM = GetSpellDamage("card")
          damageP = 0
       end
-      damageM = damageM + GetSpellDamage("stack")  
+      damageM = damageM + GetSpellDamage("stack")
+   elseif me.name == "Katarina" then
+      if target and HasBuff("dagger", target) then
+         damageM = damageM + GetSpellDamage("dagger")
+      end
+
    elseif me.name == "Lux" then
       -- would apply flare damage if I could. Handle in script
    elseif me.name == "KogMaw" then
@@ -1180,6 +1196,7 @@ end
 CHANNELBUFFER = false
 CHANNELLING = false
 
+
 function StartChannel(timeout, label)
    if not timeout then timeout = .5 end
    CHANNELBUFFER = true
@@ -1205,6 +1222,21 @@ function IsChannelling(object)
       return CHANNELBUFFER or CHANNELLING
    else
       return CHANNELBUFFER or object
+   end
+end
+
+function CastBuff(spell)
+   if not P[spell] then
+      Cast(spell, me)
+      Persist(spell, me, me.charName)
+      DoIn( function()
+               if P[spell] and IsMe(P[spell]) then
+                  P[spell] = nil
+                  PrintAction("endbuffchannel")
+               end
+            end,
+            .5, "CastBuff"..spell
+         )
    end
 end
 
