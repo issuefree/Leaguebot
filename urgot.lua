@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -22,7 +21,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 spells["hunter"] = {
    key="Q", 
    range=1000,
-   lockedRange=1200,
+   lockedRange=1150,
    color=violet, 
    base={10,40,70,100,130}, 
    ad=.85,
@@ -34,6 +33,7 @@ spells["hunter"] = {
 }
 spells["capacitor"] = {
    key="W",
+   range=25,
    cost={55,60,65,70,75}
 }
 spells["charge"] = {
@@ -54,8 +54,6 @@ spells["reverser"] = {
    range={550,700,850},
    cost=120
 }
-
-local chargeTime = 0
 
 function Run()
 
@@ -81,7 +79,6 @@ function Run()
       then
          local minion = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))[1]
          if minion and WillKill("hunter", minion) then
-            -- LineBetween(me, minion, spell.width)
             CastXYZ("hunter", minion)
             return true
          end
@@ -118,6 +115,7 @@ function Action()
          if IsOn("capacitor") and CanUse("capacitor") then
             Cast("capacitor", me)
             PrintAction("Capacitor for slow")
+            return true
          end
          
          CastXYZ("hunter", target)
@@ -130,16 +128,13 @@ function Action()
       local target = GetMarkedTarget() or GetWeakestEnemy("charge")
       if target and IsGoodFireahead("charge", target) then
          CastFireahead("charge", target)
-         chargeTime = time()
          PrintAction("Drop a charge", target)
          return true
       end
    end
 
    if CanUse("hunter") then
-      if time() - chargeTime < .5 then
-         PrintAction("Waiting for charge to land "..time()-chargeTime)
-      else
+      if not chargeThrown then
          if SkillShot("hunter") then
             return true
          end
@@ -173,7 +168,7 @@ function FollowUp()
             if minion then
                CastXYZ("hunter", minion)
                PrintAction("Hunter for clear")
-               return
+               return true
             end
          end
       end
@@ -183,18 +178,27 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
+   -- if IsOn("move") then
+   --    if RangedMove() then
+   --       return true
+   --    end
+   -- end
 end
 
 local function onObject(object)
    PersistOnTargets("charge", object, "UrgotCorrosiveDebuff", ENEMIES)
+   if find(object.charName, "UrgotPlasmaGrenade") then
+      DoIn(function() chargeThrown = false end, .5)
+   end
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
+   if GetHPerc(me) < .75 then
+      CheckShield("capacitor", unit, spell)
+   end
+   if ICast(unit, spell, "charge") then
+      chargeThrown = true
+   end
 end
 
 AddOnCreate(onObject)
