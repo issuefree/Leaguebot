@@ -129,4 +129,13 @@ function heal()
    return false
 end
 
+local function onCreate(object)
+end
+
+local function onSpell(unit, spell)
+end
+
+AddOnCreate(onCreate)
+AddOnSpell(onSpell)
+
 SetTimerCallback("Run")
