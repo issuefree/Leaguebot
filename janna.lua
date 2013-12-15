@@ -32,7 +32,7 @@ spells["monsoon"] = {
 	key="R", 
 	range=800, 
 	color=green, 
-	base={280,440,600}, 
+	base=100, 
 	ap=1.4
 }
 
