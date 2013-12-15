@@ -24,7 +24,7 @@ spells["pix"] = {
 	key="E", 
 	range=650,  
 	color=blue,  
-	base={60,105,150,195,240}, 
+	base={80,120,160,200,240}, 
 	ap=.4,
 	cost={60,70,80,90,100}
 }
@@ -34,7 +34,7 @@ spells["growth"] = {
 	color=green,  
 	base={300,450,600}, 
 	ap=.5,
-	cost=150
+	cost=100
 }
 
 
