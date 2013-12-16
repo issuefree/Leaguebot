@@ -265,11 +265,11 @@ function IAttack(unit, spell)
          return true
       end
    end
-   if spell.name == lastSpell or
-      not find(spell.name, me.SpellNameQ) and
-      not find(spell.name, me.SpellNameW) and
-      not find(spell.name, me.SpellNameE) and
-      not find(spell.name, me.SpellNameR)
+   if (lastSpell and spell.name == lastSpell) or
+      not ( find(me.SpellNameQ, spell.name) or find(spell.name, me.SpellNameQ) ) and
+      not ( find(me.SpellNameW, spell.name) or find(spell.name, me.SpellNameW) ) and
+      not ( find(me.SpellNameE, spell.name) or find(spell.name, me.SpellNameE) ) and
+      not ( find(me.SpellNameR, spell.name) or find(spell.name, me.SpellNameR) )
    then
       return true
    end
