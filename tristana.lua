@@ -140,6 +140,7 @@ function Action()
 
    return false
 end
+
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
@@ -149,12 +150,6 @@ function FollowUp()
 
    if IsOn("clearminions") and Alone() then
       if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
          return true
       end
    end
