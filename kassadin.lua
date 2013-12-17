@@ -1,4 +1,3 @@
-require "utils"
 require "timCommon"
 require "modules"
 
@@ -126,11 +125,5 @@ function onCreateOb(object)
 		pulseReady = false
 	end
 end 
-
-function useItems(target)
-	if target ~= nil then
-		useItem("Deathfire Grasp", target)
-	end
-end
 
 SetTimerCallback("Run")
