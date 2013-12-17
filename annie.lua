@@ -182,7 +182,13 @@ function Action()
    end
 
    if CanUse("inc") then
-      if SkillShot("inc") then
+      -- if SkillShot("inc") then
+      --    return true
+      -- end
+      local target = GetMarkedTarget() or GetWeakestEnemy("inc")
+      if target then
+         Cast("inc", target)
+         PrintAction("Incinerate", target)
          return true
       end
    end
@@ -196,7 +202,7 @@ function Action()
       end
    end
 
-   if CanUse("tibbers") then
+   if CanUse("tibbers") and me.SpellNameR == "InfernalGuardian" then
       local target = GetWeakestEnemy("tibbers")
       if target and WillKill("tibbers", target) then
          Cast("tibbers", target)
