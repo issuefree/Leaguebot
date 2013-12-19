@@ -1029,31 +1029,32 @@ end
 
 function GetAADamage(target)
    local damage
+   
    local damageP = GetSpellDamage("AA") -- base aa damage
+   if spells["AA"].bonusP then
+      damageP = damageP + spells["AA"].bonusP
+   end
+
    local damageM = 0
+   if spells["AA"].bonusM then
+      damageM = damageM + spells["AA"].bonusM
+   end
+   
    local damageT = 0
+   if spells["AA"].bonusT then
+      damageT = damageT + spells["AA"].bonusT
+   end
    
    -- champ specific stuff
-   if me.name == "Teemo" then
-      damageM = damageM + GetSpellDamage("toxic")
-   elseif me.name == "Akali" then      
-      damageM = damageM + damageP*(.06+(me.ap/6/100))
-   elseif me.name == "Corki" then
-      damageT = damageP*.1
-   elseif me.name == "MissFortune" then
-      damageM = damageM + GetSpellDamage("impure")
-   elseif me.name == "Orianna" then
+   if me.name == "Orianna" then
       damageM = damageM + GetSpellDamage("windup")
+
    elseif me.name == "Varus" then
       damageM = damageM + GetSpellDamage("quiver")
+
    elseif me.name == "Caitlyn" then
       damageP = damageP + GetSpellDamage("headshot")
-   elseif me.name == "TwistedFate" then
-      if spells["card"] then
-         damageM = GetSpellDamage("card")
-         damageP = 0
-      end
-      damageM = damageM + GetSpellDamage("stack")
+
    elseif me.name == "Katarina" then
       if target and HasBuff("dagger", target) then
          damageM = damageM + GetSpellDamage("dagger")
@@ -1061,14 +1062,12 @@ function GetAADamage(target)
 
    elseif me.name == "Lux" then
       -- would apply flare damage if I could. Handle in script
+
    elseif me.name == "KogMaw" then
       if target then
          damageM = damageM + spells["barrage"].healthPerc*target.maxHealth
       end
-   elseif me.name == "MasterYi" then
-      if HasBuff("wuju", me) then
-         damageT = damageT + GetSpellDamage("wuju")
-      end
+
    end
    
    -- items
@@ -1182,6 +1181,22 @@ function GetWeakest(thing, list)
    end
    
    return weakest
+end
+
+function SelectFromList(list, scoreFunction, args)
+   local bestItem
+   local bestScore = 0
+   for _,item in ipairs(list) do
+      local score = scoreFunction(item, args)
+      if score > bestScore then
+         bestItem = item
+         bestScore = score
+      end
+   end
+   if bestItem then 
+      return bestItem, bestScore 
+   end
+   return nil, 0
 end
 
 DOLATERS = {}
@@ -1408,6 +1423,7 @@ function ModAA(thing, target)
 
    return false
 end
+
 
 function ModAAFarm(thing, pObj)
    if CanUse(thing) and not pObj then
