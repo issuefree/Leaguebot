@@ -1,4 +1,3 @@
-require "utils"
 require "timCommon"
 require "modules"
 
@@ -42,6 +41,10 @@ function getMasochismDamage()
 end
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
 AddToggle("lasthit", {on=true,  key=116, label="Cook / Butcher minions", auxLabel="{0} / {1}", args={"agony", "cleaver"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
