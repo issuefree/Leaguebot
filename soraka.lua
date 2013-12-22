@@ -143,7 +143,7 @@ function FollowUp()
 			local minions = SortByHealth(GetInRange(me, "starfall", MINIONS))
 			local kills = 0
 			for _,minion in ipairs(minions) do
-				if CalcMagicDamage(minion, dam) > minion.health then
+				if CalculateDamage(minion, dam) > minion.health then
 					kills = kills + 1
 					if kills >= 2 then
 						Cast("starfall", me)
