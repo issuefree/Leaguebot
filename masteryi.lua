@@ -22,6 +22,7 @@ spells["alpha"] = {
    base={25,60,95,130,165}, 
    ad=1,
    mmBonus={75,100,125,150,175},
+   type="P",
    cost={70,80,90,100,110},
    chainRange=400
 }
@@ -46,8 +47,24 @@ spells["highlander"] = {
 -- all of the chains and finding the best chain
 local maxChainDist = spells["alpha"].chainRange*3
 
+function getAlphaKills(target, dam)
+   local kills = 0
+   local path = getAlphaPath(target)
+   for _, t in ipairs(path) do
+      if CalculateDamage(t, dam) > t.health then
+         kills = kills + 1
+      end            
+   end
+   return kills
+end
 
 function Run()
+
+   if HasBuff("wuju", me) then
+      spells["AA"].bonus = GetSpellDamage("wuju")
+   end
+
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
@@ -73,26 +90,8 @@ function Run()
 
    if IsOn("lasthit") then
 	   if CanUse("alpha") and Alone() then
-	   	local targets = GetInRange(me, "alpha", MINIONS)
+         local bestT, bestK = SelectFromList(GetInRange(me, "alpha", MINIONS), getAlphaKills, getADam())
 
-	   	local dam = getADam()
-
-	   	local bestT
-	   	local bestK = 1
-
-	   	for _,target in ipairs(targets) do
-	   		local kills = 0
-	   		local path = getAlphaPath(target)
-	   		for _, t in ipairs(path) do
-		   		if CalcDamage(t, dam) > t.health then
-		   			kills = kills + 1
-		   		end   			
-	   		end
-	   		if kills > bestK then
-	   			bestT = target
-	   			bestK = kills
-	   		end
-	   	end
 	   	if (GetMPerc(me) > .75 and bestK >= 2) or
             (GetMPerc(me) > .5 and bestK >= 3) or
             (GetMPerc(me) > .33 and bestK >= 4)
