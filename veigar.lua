@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -129,7 +128,7 @@ function Action()
 
       -- look for 1 hit kills
       for _,enemy in ipairs(GetInRange(me, spell.range*1.5 ,ENEMIES)) do
-         local tDam = CalcMagicDamage(enemy, burstBase + enemy.ap)
+         local tDam = CalculateDamage(enemy, burstBase + enemy.ap)
          -- one hit kill in range. kill it.
          if tDam > enemy.health and GetDistance(enemy) < spell.range then
             Cast("burst", enemy)
