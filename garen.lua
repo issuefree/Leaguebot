@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -20,13 +19,15 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 spells["strike"] = {
    key="Q", 
    base={30,55,80,105,130}, 
-   ad=1.4
+   ad=1.4,
+   type="P"
 }
 spells["courage"] = {
   key="W"
 }
 spells["judgement"] = {
   key="E", 
+  type="P",
   range=330,
   radius=330,
   color=violet
@@ -36,7 +37,8 @@ spells["justice"] = {
   range=400,
   color=red,
   base={175,350,525},
-  missing={3.5,3,2.5}
+  missing={3.5,3,2.5},
+  type="M"
 }
 
 local spinT
@@ -186,7 +188,7 @@ function getJusticeDam(target)
    local dam = GetSpellDamage("justice")
    local missingHealth = target.maxHealth - target.health
    dam = dam + missingHealth / spells["justice"].missing[sLvl]
-   return CalcMagicDamage(target, dam)
+   return CalculateDamage(target, dam)
 end
 
 function isSpinning()
