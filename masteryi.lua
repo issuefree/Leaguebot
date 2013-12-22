@@ -220,6 +220,10 @@ local function onObject(object)
 end
 
 local function onSpell(object, spell)
+   if IAttack(unit, spell) then
+      pp(GetDistance(GetLizard()))
+      pp(GetAARange())
+   end
 end
 
 AddOnCreate(onObject)

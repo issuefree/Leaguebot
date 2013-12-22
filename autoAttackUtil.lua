@@ -2,7 +2,7 @@ require "basicUtils"
 require "telemetry"
 
 local minAttackTime = .66
-local meleeRange = 100+25
+local meleeRange = 100+15
 
 function GetAARange()
   return me.range + meleeRange

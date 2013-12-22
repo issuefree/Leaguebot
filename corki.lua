@@ -65,6 +65,8 @@ local mCount = 0
 local bigOne = false
 
 function Run()
+   spells["AA"].bonus = Damage(GetSpellDamage("AA")*.1, "T")
+
    local lvl = GetSpellLevel("R")
    if lvl > 0 then
       if me.dead == 1 then
