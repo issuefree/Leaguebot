@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -55,10 +54,19 @@ spells["dance"] = {
   ap=.5
 }
 
+spells["AA"].damOnTarget = 
+   function(target)
+      if HasBuff("mark", target) then
+         return GetSpellDamage("detonate")
+      end
+   end
+
 function Run()
    for _,t in ipairs(GetWithBuff("mark", MINIONS)) do
       Circle(t)
    end
+
+   spells["AA"].bonus = GetSpellDamage("AA")*(.06+(me.ap/6/100))
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -84,6 +92,7 @@ function Run()
       end
 
       if CanUse("slash") then
+
          local kills = 0
          for _,minion in ipairs(GetInRange(me, "slash", MINIONS)) do
             if WillKill("slash", minion) then
@@ -91,7 +100,7 @@ function Run()
             elseif HasBuff("mark", minion) and 
                GetSpellDamage("slash", minion) + GetSpellDamage("detonate", minion) > minion.health
             then
-               kills = kills + 1
+               kills = kills + 2
             end
             if kills >= 2 then
                Cast("slash", me)
