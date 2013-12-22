@@ -62,6 +62,11 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 --    cost={10,20,30,40,50}
 --} 
 
+spells["AA"].damOnTarget = 
+   function(target)
+      return 0
+   end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
