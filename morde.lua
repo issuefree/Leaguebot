@@ -108,7 +108,7 @@ function Action()
          local spell = spells["grave"]
          local perc = spell.healthPerc[GetSpellLevel(spell.key)]+(me.ap*.0004)
          local dam = target.maxHealth*perc
-         if CalcMagicDamage(target, dam) > target.health*.75 then
+         if CalculateDamage(target, dam) > target.health*.75 then
             Cast("grave", target)
             PrintAction("Grave", target)
             return true
