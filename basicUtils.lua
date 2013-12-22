@@ -22,7 +22,7 @@ local function table_print(tt, indent, done)
          table.insert(sb, string.rep (" ", indent)) -- indent it
          if type (value) == "table" and not done [value] then
             done [value] = true
-            table.insert(sb, "{\n");
+            table.insert(sb, tostring(key).." = {\n");
             table.insert(sb, table_print (value, indent + 2, done))
             table.insert(sb, string.rep (" ", indent)) -- indent it
             table.insert(sb, "}\n");
@@ -204,6 +204,7 @@ end
 
 Damage = class()
 function Damage:__init(p, m, t)
+   self.type = "Damage"
 
    if m and type(m) == "string" then
       if type(p) ~= "number" then
@@ -239,6 +240,9 @@ function Damage:__add(d)
       return self
    end
    if type(d) == "number" then
+      if d == 0 then
+         return self
+      end
       if self.type == "P" or ( self.p ~= 0 and self.m == 0 and self.t == 0 ) then
          return Damage(self.p+d, self.m, self.t)
       elseif self.type == "M" or ( self.p == 0 and self.m ~= 0 and self.t == 0 ) then

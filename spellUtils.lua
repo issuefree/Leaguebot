@@ -170,6 +170,10 @@ function GetLVal(spell, field)
       return spell[field]
    end
 
+   if spell[field].type == "Damage" then
+      return spell[field]
+   end
+
    local lvl = 1
    if spell.key then
       lvl = GetSpellLevel(spell.key)
@@ -188,18 +192,19 @@ end
 function GetSpellDamage(thing, target)
    local spell = GetSpell(thing)
    if not spell or not spell.base then
-      return 0
+      return Damage()
    end
 
    local lvl 
    if spell.key and not (spell.key == "D" or spell.key == "F") then
       lvl = GetSpellLevel(spell.key)
       if lvl == 0 then
-         return 0
+         return Damage()
       end
    else 
       lvl = 1
    end
+
    local damage = Damage(GetLVal(spell, "base"), spell.type or "M")
 
    if spell.ap then

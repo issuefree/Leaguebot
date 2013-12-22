@@ -944,7 +944,7 @@ function GetKills(thing, list)
    local result = FilterList(list, 
       function(item) 
          if not item.health then return false end
-         return GetSpellDamage(spell, item) > item.health
+         return WillKill(spell, item)
       end
    )
    return result
@@ -1015,7 +1015,8 @@ function WardJump(thing)
 end
 
 function GetAADamage(target)   
-   local damage = GetSpellDamage("AA") + spells["AA"].bonus
+   local damage = GetSpellDamage("AA")
+   
    if spells["AA"].damOnTarget and target then
       damage = damage + spells["AA"].damOnTarget(target)
    end
@@ -1401,7 +1402,7 @@ end
 function MeleeMove()
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
-      if GetDistance(target) > spells["AA"].range+15 then
+      if GetDistance(target) > spells["AA"].range+25 then
          MoveToTarget(target)
          return true
       end

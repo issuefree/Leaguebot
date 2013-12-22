@@ -219,11 +219,7 @@ local function onObject(object)
 	PersistBuff("med", object, "MasterYi_Base_W_Buf")
 end
 
-local function onSpell(object, spell)
-   if IAttack(unit, spell) then
-      pp(GetDistance(GetLizard()))
-      pp(GetAARange())
-   end
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)

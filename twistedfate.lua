@@ -32,30 +32,33 @@ spells["blue"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={40,60,80,100,120}, 
-	ap=.4, 
-	ad=1
+	ap=.4,
+	ad=1,
+	type="M"
 }
 spells["red"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={30,45,60,75,90}, 
 	ap=.4, 
-	ad=1
+	ad=1,
+	type="M"
 }
 spells["yellow"]  = {
 	key="W", 
 	range=spells["AA"].range, 
-	base={30,45,60,75,90}, 
+	base={15,22.5,30,37.5,45}, 
 	ap=.4, 
-	ad=1
+	ad=1,
+	type="M"
 }
 
 spells["stacked"] = {
 	key="E", 
 	range=spells["AA"].range, 
-	base={15,22.5,30,37.5,45}, 
+	base={55,80,105,130,155}, 
 	ap=.4, 
-	ad=1
+	type="M"
 }
 
 spells["card"] = nil
@@ -63,19 +66,29 @@ spells["stack"] = nil
 
 function Run()
 	if selecting then
-	  PrintState(1, "SELECTING")
-	else
-	  PrintState(1, "not")
+		PrintState(1, "SELECTING")
 	end
 	
+	if not P.card then
+      spells["card"] = nil
+   end
+
+   spells["AA"].bonus = GetSpellDamage("card") + GetSpellDamage("stack")
+   if spells["card"] then
+      spells["AA"].ad = 0
+   else
+      spells["AA"].ad = 1
+	end
+
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
    end
-	
-	if not P.cardSelected then
-      spells["card"] = nil
+   if IsChannelling() then
+      return true
    end
+
 	
 	if GetWeakEnemy("MAGIC", 1000) then
 		card = "Yellow"
@@ -98,34 +111,50 @@ function Run()
 		if IsOn("farm") and not gating then
          card = "Blue"
          
-			local nearMinions = GetInRange(me, me.range+200, MINIONS)
-			for _, minion in ipairs(nearMinions) do
-				if minion.health < GetAADamage(minion) then
-					AA(minion)
-					break
-				end
-				
-				if not selecting and CanUse("pick") then
-               if minion.health < GetAADamage(minion)+GetSpellDamage("blue", minion) then
+			if not selecting and CanUse("pick") and not P.card then
+				local minions = GetInRange(me, "AA", MINIONS)
+				for _,minion in ipairs(minions) do
+	            if minion.health < GetAADamage(minion)+GetSpellDamage("blue", minion) then
 						CastSpellTarget("W", me)
-						selecting = true
-						break
-               end
-				end
+						PrintAction("Pick for farm")
+						StartChannel()
+						return true
+	            end
+	         end
 			end
+
+         if P.card and not selecting then
+         	if KillMinion("AA") then
+         		return true
+         	end
+         end
+
+
+			-- local nearMinions = GetInRange(me, me.range+200, MINIONS)
+			-- for _, minion in ipairs(nearMinions) do
+			-- 	if minion.health < GetAADamage(minion) then
+			-- 		AA(minion)
+			-- 		break
+			-- 	end
+				
+			-- end
 		end
 	end
 end
 
 function onCreateObj(object)
-	if IsOn("pick") then
-		if find(object.charName, "Card_"..card) then
-			CastSpellTarget("W", me)
-         spells["card"] = spells[string.lower(card)]
-         Persist("cardSelected", object)
-			selecting = false
-		end	
+	-- if find(object.charName, "Card") then
+	-- 	pp(object.charName)
+	-- end
+	if PersistBuff("card", object, "Card_", 200) then		
+		if IsOn("pick") then
+			if find(object.charName, card) then
+				CastSpellTarget("W", me, 0)
+				PrintAction("Pick "..card)
+			end
+		end
 	end
+
 	if find(object.charName, "stackready") then
 		spells["stack"] = spells["stacked"]
 	end
@@ -135,9 +164,18 @@ function onCreateObj(object)
 	end
 end
 
-function onSpell(object, spell)
+function onSpell(unit, spell)
 --Destiny, gate
-	if object.name == me.name then
+	if IsMe(unit) then
+		
+		if spell.name == "goldcardlock" then
+			spells["card"] = spells["yellow"]
+		elseif spell.name == "redcardlock" then
+			spells["card"] = spells["red"]
+		elseif spell.name == "bluecardlock" then
+			spells["card"] = spells["blue"]
+		end
+
 		if spell.name == "PickACard" then
 			selecting = true
 		end
