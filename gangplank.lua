@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -49,7 +48,11 @@ spells["barrage"] = {
 
 function Run()
    if IsRecalling(me) or me.dead == 1 then
-      return
+      PrintAction("Recalling or dead")
+      return true
+   end
+   if IsChannelling() then
+      return true
    end
 
 	-- if IsOn("ult") and CanUse("barrage") then
