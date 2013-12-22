@@ -84,6 +84,8 @@ end
    
 
 function Run()
+   spells["AA"].bonus = GetSpellDamage("impure")
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
