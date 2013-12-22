@@ -45,6 +45,7 @@ spells["net"] = {
    color=yellow, 
    base={80,130,180,230,280}, 
    ap=.8,
+   type="M",
    cost=75
 }
 spells["recoil"] = {
@@ -62,14 +63,22 @@ spells["ace"] = {
 }
 spells["headshot"] = {
    base={0},
-   ad=0
+   ad=.5,
+   type="P"
 }
+
+spells["AA"].damOnTarget = 
+   function(target)
+      if P.headshot and not IsHero(target) then
+         return GetSpellDamage("headshot")*2
+      end
+   end
 
 function Run()
    if P.headshot then
-      spells["headshot"].ad = 1.5
+      spells["AA"].bonus = GetSpellDamage("headshot")
    else
-      spells["headshot"].ad = 0
+      spells["AA"].bonus = 0
    end
 
    if IsRecalling(me) or me.dead == 1 then
