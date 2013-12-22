@@ -16,7 +16,7 @@ function igniteTick()
    local inRange = GetInRange(me, spells["ignite"].range, ENEMIES)
    for _,enemy in ipairs(inRange) do
       if CanUse("ignite") and WillKill("ignite", enemy) then
-         CastSpellTarget(spells["ignite"].key, enemy)
+         Cast("ignite", enemy)
          PrintAction("Ignite for kill", enemy)
          return
       end      
