@@ -594,7 +594,7 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
 
    -- clean out the ones I can't kill and get the angles   
    for i,minion in ipairs(GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)) do
-      if CalcMagicDamage(minion, wDam) > minion.health then
+      if CalculateDamage(minion, wDam) > minion.health then
          table.insert(minionAngles, {AngleBetween(minion, me), minion})
       end
    end
@@ -1014,73 +1014,20 @@ function WardJump(thing)
    return false
 end
 
-function CalculateDamage(target, damage, dType)
-   local res = 0
-   if not dType then
-      dType = "M"
-   end 
-   if dType == "M" then
-      res = math.max(target.magicArmor*me.magicPenPercent - me.magicPen, 0)
-   elseif dType == "P" then
-      res = math.max(target.armor*me.armorPenPercent - me.armorPen, 0)
-   end
-   return damage*(100/(100+res))
-end
-
-function GetAADamage(target)
-   local damage
-   
-   local damageP = GetSpellDamage("AA") -- base aa damage
-   if spells["AA"].bonusP then
-      damageP = damageP + spells["AA"].bonusP
+function GetAADamage(target)   
+   local damage = GetSpellDamage("AA") + spells["AA"].bonus
+   if spells["AA"].damOnTarget and target then
+      damage = damage + spells["AA"].damOnTarget(target)
    end
 
-   local damageM = 0
-   if spells["AA"].bonusM then
-      damageM = damageM + spells["AA"].bonusM
-   end
-   
-   local damageT = 0
-   if spells["AA"].bonusT then
-      damageT = damageT + spells["AA"].bonusT
-   end
-   
-   -- champ specific stuff
-   if me.name == "Orianna" then
-      damageM = damageM + GetSpellDamage("windup")
-
-   elseif me.name == "Varus" then
-      damageM = damageM + GetSpellDamage("quiver")
-
-   elseif me.name == "Caitlyn" then
-      damageP = damageP + GetSpellDamage("headshot")
-
-   elseif me.name == "Katarina" then
-      if target and HasBuff("dagger", target) then
-         damageM = damageM + GetSpellDamage("dagger")
-      end
-
-   elseif me.name == "Lux" then
-      -- would apply flare damage if I could. Handle in script
-
-   elseif me.name == "KogMaw" then
-      if target then
-         damageM = damageM + spells["barrage"].healthPerc*target.maxHealth
-      end
-
-   end
-   
    -- items
-   local onHitDamage = GetOnHitDamage(target, true)
-   damageM = damageM + onHitDamage[1]
-   damageP = damageP + onHitDamage[2]
-   
+   damage = damage + GetOnHitDamage(target, true)
+
    if target then
-      damage = CalcDamage(target, damageP) + CalcMagicDamage(target, damageM)
+      damage = CalculateDamage(target, damage)
    else
-      damage = damageP + damageM
+      damage = damage:toNum()
    end
-   damage = damage + damageT
    return math.floor(damage+.5)
 end
 
@@ -1172,7 +1119,7 @@ function GetWeakest(thing, list)
    
    for _,target in ipairs(list) do
       if target then
-         local tScore = target.health / CalculateDamage(target, 100, type)
+         local tScore = target.health / CalculateDamage(target, Damage(100, type))
          if weakest == nil or tScore < wScore then
             weakest = target
             wScore = tScore
@@ -1216,7 +1163,7 @@ function StartChannel(timeout, label)
    if not timeout then timeout = .5 end
    CHANNELBUFFER = true
    if label then
-      pp("..."..label.." "..timeout)
+      pp("..."..label.." "..trunc(timeout))
    -- else
    --    pp("...channel "..timeout)
    end
@@ -1224,7 +1171,7 @@ function StartChannel(timeout, label)
    DoIn( function() 
             CHANNELBUFFER = false 
             if label then
-               pp("   "..label.."..."..time()-start)
+               pp("   "..label.."..."..trunc(time()-start))
             -- else
             --    pp("   channel..."..time()-start)
             end            

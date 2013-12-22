@@ -200,9 +200,7 @@ function GetSpellDamage(thing, target)
    else 
       lvl = 1
    end
-
-
-   local damage = GetLVal(spell, "base")
+   local damage = Damage(GetLVal(spell, "base"), spell.type or "M")
 
    if spell.ap then
       damage = damage + GetLVal(spell, "ap")*me.ap
@@ -232,71 +230,48 @@ function GetSpellDamage(thing, target)
       damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
    end
 
-   local damageT = 0
-   local damageP = 0
-   local damageM = 0
-
-   if spell.type == "P" then
-      damageP = damage
-   elseif spell.type == "T" then
-      damageT = damage
-   else
-      damageM = damage
-   end
-
-   damage = 0
-
    if spell.onHit then
-      local ohd = GetOnHitDamage(target, false)
-      damageM = damageM + ohd[1]
-      damageP = damageP + ohd[2]
+      damage = damage + GetOnHitDamage(target, false)
    end
 
 
    if target then
       if HasBuff("dfg", target) then
-         damageM = damageM*1.2
+         damage.m = damage.m*1.2
       end
-      damage = CalcDamage(target, damageP) +
-               CalcMagicDamage(target, damageM) +
-               damageT
-   else
-      damage = damageT + damageP + damageM
+      damage = CalculateDamage(target, damage)
    end
 
-   return math.floor(damage)
+   return damage
 end
 
 -- if you specify a target you get % health damage
 -- if needSpellbladeActive is true check for sheen ready (for activated on hit abilities)
 -- if needSpellbladeActive is nil or false it only adds sheen if it's already on
 function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage broken down by magic,phys
-   local damageM = 0
-   local damageP = 0
+   local damage = Damage()
+
    if GetInventorySlot(ITEMS["Nashor's Tooth"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Nashor's Tooth"])
+      damage = damage + GetSpellDamage(ITEMS["Nashor's Tooth"])
    end
    if GetInventorySlot(ITEMS["Wit's End"].id) then
-      damageM = damageM + GetSpellDamage(ITEMS["Wit's End"])
+      damage = damage + GetSpellDamage(ITEMS["Wit's End"])
    end
 
-   local spellbladeDamage = GetSpellbladeDamage(needSpellbladeActive)
-   if spellbladeDamage then
-      damageP = damageP + spellbladeDamage
-   end
+   damage = damage + GetSpellbladeDamage(needSpellbladeActive)
 
    if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
       if target then
-         damageP = damageP + target.health*.05
+         damage = damage + Damage(target.health*.05, "P")
       end
    end
 
    if GetInventorySlot(ITEMS["Kitae's Bloodrazor"].id) then
       if target then
-         damageM = damageM + target.maxHealth*.025
+         damage = damage + Damage(target.maxHealth*.025, "M")
       end
    end
-   return {damageM, damageP}
+   return damage
 end
 
 -- treating all as phys as it's so much easier
@@ -314,7 +289,7 @@ function getSBDam(item, buff, needActive)
          return GetSpellDamage(item)
       end
    end
-   return nil
+   return Damage()
 end
 
 local trackTicks = 5

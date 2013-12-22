@@ -39,13 +39,13 @@ ITEMS["Mercurial Scimitar"] = {id=3139,            type="active"}
 ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
 
 --On Hit
-ITEMS["Wit's End"] = {id=3091, base={42}}
-ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15}
-ITEMS["Kitae's Bloodrazor"]= {id=3186}
+ITEMS["Wit's End"] = {id=3091, base={42}, type="M"}
+ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15, type="M"}
+ITEMS["Kitae's Bloodrazor"]= {id=3186, type="M"}
 
 ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
 ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=2, type="P"}
-ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75}
+ITEMS["Lich Bane"]     = {id=3100, base={50}, ap=.75, type="M"}
 ITEMS["Iceborn Gauntlet"] = {id=3025, base={0}, adBase=1.25, type="P"}
 
 -- Tear

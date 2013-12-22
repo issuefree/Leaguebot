@@ -1,6 +1,6 @@
 require "timCommon"
 
-local ignite = {range=600, color=red, base={50}, lvl=20}
+local ignite = {range=600, color=red, base={50}, lvl=20, type="T"}
 
 if me.SummonerD == "SummonerDot" then
    ignite.key = "D"
@@ -15,8 +15,10 @@ end
 function igniteTick()
    local inRange = GetInRange(me, spells["ignite"].range, ENEMIES)
    for _,enemy in ipairs(inRange) do
-      if CanUse("ignite") and enemy.health < GetSpellDamage("ignite") then
+      if CanUse("ignite") and WillKill("ignite", enemy) then
          CastSpellTarget(spells["ignite"].key, enemy)
+         PrintAction("Ignite for kill", enemy)
+         return
       end      
    end
 end

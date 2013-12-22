@@ -39,7 +39,7 @@ function DrawToggles()
       local auxLabel = val.auxLabel
       if val.args then
          for a,v in ipairs(val.args) do
-            local arg = expandToggleArg(val.args[a])           
+            local arg = tostring(expandToggleArg(val.args[a]))
             label = string.gsub(label, "{"..(a-1).."}", arg)
             auxLabel = string.gsub(auxLabel, "{"..(a-1).."}", arg)
          end

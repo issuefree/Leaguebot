@@ -188,3 +188,115 @@ end
 function IsMe(unit)
    return SameUnit(me, unit)
 end
+
+function CalculateDamage(target, dam)
+   if dam.m and dam.m > 0 then
+      local res = math.max(target.magicArmor*me.magicPenPercent - me.magicPen, 0)
+      dam.m = dam.m*(100/(100+res))
+   end
+   if dam.p and dam.p > 0 then
+      local res = math.max(target.armor*me.armorPenPercent - me.armorPen, 0)
+      dam.p = dam.p*(100/(100+res))
+   end
+
+   return dam:toNum()
+end
+
+Damage = class()
+function Damage:__init(p, m, t)
+
+   if m and type(m) == "string" then
+      if type(p) ~= "number" then
+         p = p:toNum()
+      end
+      if m == "P" then
+         self.type = "P"
+         self.p = p or 0
+         self.m = 0
+         self.t = 0
+         return self
+      elseif m == "T" then
+         self.type = "T"
+         self.p = 0
+         self.m = 0
+         self.t = p or 0
+         return self
+      else
+         self.type = "M"
+         self.p = 0
+         self.m = p or 0
+         self.t = 0
+         return self
+      end
+   end
+
+   self.p = p or 0
+   self.m = m or 0
+   self.t = t or 0
+end
+function Damage:__add(d)
+   if not d then
+      return self
+   end
+   if type(d) == "number" then
+      if self.type == "P" or ( self.p ~= 0 and self.m == 0 and self.t == 0 ) then
+         return Damage(self.p+d, self.m, self.t)
+      elseif self.type == "M" or ( self.p == 0 and self.m ~= 0 and self.t == 0 ) then
+         return Damage(self.p, self.m+d, self.t)
+      elseif self.type == "T" or ( self.p == 0 and self.m == 0 and self.t ~= 0 ) then
+         return Damage(self.p, self.m, self.t+d)
+      else
+         pp(debug.traceback())
+         return self
+      end
+   end
+   return Damage(self.p+d.p, self.m+d.m, self.t+d.t)
+end
+
+function Damage:__sub(d)
+   if type(d) == "number" then
+      return self + -d
+   end
+   return Damage(self.p-d.p, self.m-d.m, self.t-d.t)
+end
+
+function Damage:__mul(d)
+   return Damage(self.p*d, self.m*d, self.t*d)
+end
+
+function Damage:__div(d)
+   return Damage(self.p/d, self.m/d, self.t/d)
+end
+
+function Damage:__eq(d)
+   if type(d) == "number" then
+      return self:toNum() == d
+   else
+      return self:toNum() == d:toNum()
+   end
+end   
+
+function Damage:__le(d)
+   if type(d) == "number" then
+      return self:toNum() <= d
+   else
+      return self:toNum() <= d:toNum()
+   end
+end
+
+function Damage:__lt(d)
+   if type(d) == "number" then
+      return self:toNum() < d
+   else
+      return self:toNum() < d:toNum()
+   end
+end
+
+function Damage:toNum()
+   return math.floor(self.p+self.m+self.t)
+end
+
+function Damage:__tostring()
+   return tostring(self:toNum())
+   -- return "{"..self.p..","..self.m..","..self.t.."}"
+end
