@@ -61,8 +61,16 @@ spells["spark"] = {
 }
 spells["flare"] = {
    base={10},
-   lvl=10
+   lvl=10,
+   type="M"
 }
+
+spells["AA"].damOnTarget = 
+   function(target)
+      if HasBuff("flare", target) then
+         return GetSpellDamage("flare")
+      end
+   end
 
 function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
