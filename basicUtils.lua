@@ -239,6 +239,11 @@ function Damage:__add(d)
    if not d then
       return self
    end
+
+   if type(self) == "number" then
+      return d+self
+   end
+
    if type(d) == "number" then
       if d == 0 then
          return self
@@ -258,6 +263,14 @@ function Damage:__add(d)
 end
 
 function Damage:__sub(d)
+   if not d then
+      return self
+   end
+
+   if type(self) == "number" then
+      return d-self
+   end
+
    if type(d) == "number" then
       return self + -d
    end
@@ -265,10 +278,18 @@ function Damage:__sub(d)
 end
 
 function Damage:__mul(d)
+   if type(self) == "number" then
+      return d*self
+   end
+
    return Damage(self.p*d, self.m*d, self.t*d)
 end
 
 function Damage:__div(d)
+   if type(self) == "number" then
+      return d/self
+   end
+
    return Damage(self.p/d, self.m/d, self.t/d)
 end
 
@@ -281,6 +302,10 @@ function Damage:__eq(d)
 end   
 
 function Damage:__le(d)
+   if type(self) == "number" then
+      return d <= self
+   end
+
    if type(d) == "number" then
       return self:toNum() <= d
    else
@@ -289,6 +314,10 @@ function Damage:__le(d)
 end
 
 function Damage:__lt(d)
+   if type(self) == "number" then
+      return d < self
+   end
+
    if type(d) == "number" then
       return self:toNum() < d
    else
