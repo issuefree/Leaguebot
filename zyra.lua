@@ -1,7 +1,5 @@
-require "Utils"
 require "timCommon"
 require "modules"
-require "support"
 
 pp("\nTim's Zyra")
 
@@ -19,7 +17,7 @@ spells["bloom"] = {
    color=violet, 
    base={70,105,140,175,210}, 
    ap=.65,
-   delay=4,
+   delay=5,
    speed=0,
    noblock=true,
    radius=250,
