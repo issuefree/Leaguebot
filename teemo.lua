@@ -42,6 +42,8 @@ function Run()
 	Clean(poisons, "charName", "Global_poison")
 	Clean(shrooms, "charName", "Noxious Trap")
 
+	spells["AA"].bonus = GetSpellDamage("toxic")
+
    if IsRecalling(me) or me.dead == 1 then
       return
    end

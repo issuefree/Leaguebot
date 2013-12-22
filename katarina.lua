@@ -42,8 +42,16 @@ spells["lotus"] = {
    name="KatarinaR"
 }
 
+-- don't calculate resists
+spells["AA"].damOnTarget = 
+   function(target)
+      if HasBuff("dagger", target) then
+         return GetSpellDamage("dagger")
+      end
+   end
+
 function fullCombo()
-   local comboDam = 0
+   local comboDam = Damage()
    if CanUse("blades") then
       comboDam = comboDam + GetSpellDamage("blades") + GetSpellDamage("dagger")
    end
@@ -176,7 +184,7 @@ function Action()
    if CanUse("lotus") then      
       if GetMarkedTarget() and IsInRange(GetMarkedTarget(), GetSpellRange("lotus")*.5) then
          Cast("lotus", me)
-         PrintAction("Lotus marked", GetMarkedTarget()))
+         PrintAction("Lotus marked", GetMarkedTarget())
          return true
       end
 
@@ -210,7 +218,7 @@ function Action()
          if CanUse("lotus") then
             dam = dam + GetSpellDamage("lotus", target)
          end
-         if CalcMagicDamage(target, dam) > target.health then
+         if CalculateDamage(target, dam) > target.health then
             Cast("shunpo", target)
             PrintAction("Shunpo", target)
             return true
@@ -359,7 +367,7 @@ function getBouncePath(target, nearTargets)
          target = testNearby[nearestI]
          local isHero = not IsMinion(target)
          table.insert(tKillTargets, target)
-         if CalcMagicDamage(target, bbDam) > target.health then
+         if CalculateDamage(target, bbDam) > target.health then
             if isHero then
                tKills = tKills + 5  -- 5 points for a hero kill
             else
