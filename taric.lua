@@ -9,14 +9,17 @@ spells["heal"] = {
 	range=750,
 	color=green,
 	base={60,100,140,180,220}, 
-	ap=.3
+	ap=.3,
+	type="H",
+	cost={60,80,100,120,140}
 }
 spells["shatter"] = {
 	key="W", 
 	range=400,  
 	color=red,    
 	base={40,80,120,160,200}, 
-	armor=.3
+	armor=.5,
+	cost={50,60,70,80,90}
 }
 spells["aura"] = {
 	key="W", 
@@ -28,20 +31,34 @@ spells["stun"] = {
 	range=625,  
 	color=violet,    
 	base={150,195,240},        
-	ap=.5
+	ap=.5,
+	cost=75
 }
 spells["radiance"] = {
 	key="R", 
 	range=400,  
 	color=red,    
-	base={171,285,399},        
-	ap=.5
+	base={150,250,350},
+	ap=.5,
+	cost=100
 }
 
 AddToggle("healing", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
 	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selflevel-1)))*.05
+	
+	if P.gemcraft then
+		spells["AA"].bonus = me.armor * .2
+	else
+		spells["AA"].bonus = 0
+	end
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -66,67 +83,60 @@ function Action()
 	return false
 end
 
+function healScore(hero, maxHeal)
+	if GetDistance(HOME, hero) < 1000 or
+		IsMe(hero) or
+		hero.health + maxHeal > hero.maxHealth*.9 or
+		hero.dead == 1 or
+		hero.visible == 0 or
+		HasBuff("wound", hero) or
+		IsRecalling(hero)
+	then
+		return 0
+	end
+
+	return 10000 - hero.health
+end
+
 function doHeal()
 	local maxHeal = GetSpellDamage("heal")
 
-	local bestInRangeT = nil
-	local bestInRangeP = 1
-	local bestOutRangeT = nil
-	local bestOutRangeP = 1
-	
-	for _,hero in ipairs(ALLIES) do
-		if GetDistance(HOME, hero) > 1000 and
-		   hero.name ~= me.name and
-		   hero.health + maxHeal < hero.maxHealth*.9 and
-		   hero.dead == 0 and
-		   hero.visible == 1 and
-		   not HasBuff("wound", hero) and 
-		   not IsRecalling(hero)
-		then
-			local dist = GetDistance(hero)
-			if dist < 750 then
-				if not bestInRangeT or
-				   GetHPerc(hero) < bestInRangeP
-				then
-					bestInRangeT = hero
-					bestInRangeP = GetHPerc(hero)
-				end
-			elseif dist < 1000 then
-				if not bestOutRangeT or
-				   hero.health/hero.maxHealth < bestOutRangeP
-				then				
-					bestOutRangeT = hero
-					bestOutRangeP = GetHPerc(hero)
-				end
-			end
-		end
-	end
-	if bestInRangeT then
-		Circle(bestInRangeT, 100, green)
-	end
-	if bestOutRangeT and GetDistance(me, bestOutRangeT) > 750 then
-		Circle(bestOutRangeT, 100, yellow, 4)
-	end
+	local bestNear = SelectFromList(GetInRange(me, "heal", ALLIES), healScore, maxHeal)
+	local bestFar = SelectFromList(GetInRange(me, GetSpellRange("heal")+250, ALLIES), healScore, maxHeal)
 
-	-- let me know if someone oustside of range is in need
-	if bestOutRangeT and 
-	   ( not bestInRangeT or
-		  ( bestOutRangeP < .33 and
-		    bestInRangeP > .5 ) 
-		)
+	Circle(bestNear, 100, green)
+
+	if ( not bestNear or GetHPerc(bestNear) > .5 ) and
+		bestFar and GetHPerc(bestFar) < .25
 	then
---			PlaySound("Beep")
+		Circle(bestFar, 100, yellow)
+		LineBetween(me, bestFar)
+		PrintAction("Far heal needed", bestFar)
+		return false
 	end
 		
-	if bestInRangeT then
-		Cast("heal", bestInRangeT)
-		PrintAction("Heal", bestInRangeT)
+	if bestNear then
+		Cast("heal", bestNear)
+		PrintAction("Heal", bestNear)
 		return true
-	elseif me.health + maxHeal*1.4 < me.maxHealth*.75 then
+	end
+
+	if me.health + maxHeal*1.4 < me.maxHealth*.75 then
 		Cast("heal", me)
-		PrintAction("Heal", me)
+		PrintAction("Heal self")
 		return true
 	end
 end
+
+local function onCreate(object)
+	PersistBuff("gemcraft", object, "bluehands_buf")
+end
+
+local function onSpell(unit, spell)
+end
+
+AddOnCreate(onCreate)
+AddOnSpell(onSpell)
+
 
 SetTimerCallback("Run")
