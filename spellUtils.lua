@@ -170,7 +170,7 @@ function GetLVal(spell, field)
       return spell[field]
    end
 
-   if spell[field].type == "Damage" then
+   if spell[field].isDamage then
       return spell[field]
    end
 
@@ -206,7 +206,6 @@ function GetSpellDamage(thing, target)
    end
 
    local damage = Damage(GetLVal(spell, "base"), spell.type or "M")
-
    if spell.ap then
       damage = damage + GetLVal(spell, "ap")*me.ap
    end
@@ -239,12 +238,15 @@ function GetSpellDamage(thing, target)
       damage = damage + GetOnHitDamage(target, false)
    end
 
-
    if target then
       if HasBuff("dfg", target) then
          damage.m = damage.m*1.2
       end
       damage = CalculateDamage(target, damage)
+   end
+
+   if damage.type == "H" then
+      damage = damage:toNum()
    end
 
    return damage
