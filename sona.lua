@@ -21,7 +21,7 @@ spells["green"] = {
    base={40,55,70,85,100}, 
    ap=.25,
    cost={60,65,70,75,80},
-   type="M"
+   type="H"
 }
 spells["violet"] = {
    key="E", 
@@ -53,13 +53,12 @@ function Run()
       local count = 0
       for _,hero in ipairs(closeAllies) do
          if not IsRecalling(hero) then
-            pp(hero.health + GetSpellDamage(spell))
-            if hero.health + GetSpellDamage(spell):toNum() < hero.maxHealth*.66 then
+            if hero.health + GetSpellDamage(spell) < hero.maxHealth*.66 then
                Cast("green", me)
                PrintAction("Heal because I should", hero)
                break
             end            
-            if hero.health + GetSpellDamage(spell):toNum() < hero.maxHealth*.9 then
+            if hero.health + GetSpellDamage(spell) < hero.maxHealth*.9 then
                count = count + 1
                if count >= 2 then
                   Cast("green", me)
