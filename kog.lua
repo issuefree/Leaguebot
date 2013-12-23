@@ -59,6 +59,11 @@ spells["artillery"] = {
    cost=40
 }
 
+spells["AA"].damOnTarget = 
+   function(target)
+      return Damage(spells["barrage"].healthPerc*target.maxHealth, "M")
+   end
+
 local barrage = nil
 local lastArtillery = 0
 local artilleryCount = 0
