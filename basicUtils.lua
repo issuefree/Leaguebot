@@ -204,8 +204,7 @@ end
 
 Damage = class()
 function Damage:__init(p, m, t)
-   self.type = "Damage"
-
+   self.isDamage = true
    if m and type(m) == "string" then
       if type(p) ~= "number" then
          p = p:toNum()
@@ -222,11 +221,17 @@ function Damage:__init(p, m, t)
          self.m = 0
          self.t = p or 0
          return self
-      else
+      elseif m == "M" then
          self.type = "M"
          self.p = 0
          self.m = p or 0
          self.t = 0
+         return self
+      elseif m == "H" then
+         self.type = "H"
+         self.p = 0
+         self.m = 0
+         self.t = p or 0
          return self
       end
    end
@@ -249,11 +254,14 @@ function Damage:__add(d)
          return self
       end
       if self.type == "P" or ( self.p ~= 0 and self.m == 0 and self.t == 0 ) then
-         return Damage(self.p+d, self.m, self.t)
+         self.p = self.p + d
+         return self
       elseif self.type == "M" or ( self.p == 0 and self.m ~= 0 and self.t == 0 ) then
-         return Damage(self.p, self.m+d, self.t)
+         self.m = self.m + d
+         return self
       elseif self.type == "T" or ( self.p == 0 and self.m == 0 and self.t ~= 0 ) then
-         return Damage(self.p, self.m, self.t+d)
+         self.t = self.t + d
+         return self
       else
          pp(debug.traceback())
          return self
@@ -268,7 +276,7 @@ function Damage:__sub(d)
    end
 
    if type(self) == "number" then
-      return d-self
+      return self-d:toNum()
    end
 
    if type(d) == "number" then
@@ -286,50 +294,24 @@ function Damage:__mul(d)
 end
 
 function Damage:__div(d)
-   if type(self) == "number" then
-      return d/self
-   end
-
+   assert(type(d) == "number")
    return Damage(self.p/d, self.m/d, self.t/d)
 end
 
-function Damage:__eq(d)
-   if type(d) == "number" then
-      return self:toNum() == d
-   else
-      return self:toNum() == d:toNum()
-   end
-end   
-
 function Damage:__le(d)
-   if type(self) == "number" then
-      return d <= self
-   end
-
-   if type(d) == "number" then
-      return self:toNum() <= d
-   else
-      return self:toNum() <= d:toNum()
-   end
+   return self:toNum() <= d:toNum()
 end
 
 function Damage:__lt(d)
-   if type(self) == "number" then
-      return d < self
-   end
-
-   if type(d) == "number" then
-      return self:toNum() < d
-   else
-      return self:toNum() < d:toNum()
-   end
-end
-
-function Damage:toNum()
-   return math.floor(self.p+self.m+self.t)
+   return self:toNum() < d:toNum()
 end
 
 function Damage:__tostring()
    return tostring(self:toNum())
    -- return "{"..self.p..","..self.m..","..self.t.."}"
 end
+
+function Damage:toNum()
+   return math.floor(self.p+self.m+self.t)
+end
+
