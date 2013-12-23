@@ -351,9 +351,6 @@ function createForPersist(object)
    --iceborn gauntlet
    PersistBuff("iceborn", object, "bluehands_buf", 100)
 
-   -- --tear
-   -- PersistBuff("tear", object, "TearoftheGoddess", 100)
-
    PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
 
 end
