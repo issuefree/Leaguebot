@@ -66,6 +66,7 @@ function GetAAData()
       Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
       Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
       Olaf         = { melee=true },
+      LeeSin       = { melee=true, aaSpellName={"LeeSinBasic", "LeeSinCrit"} },
       Blitzcrank   = { melee=true, windup=.625 },
       MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
@@ -265,14 +266,14 @@ function IAttack(unit, spell)
          return true
       end
    end
-   if (lastSpell and spell.name == lastSpell) or
-      not ( find(me.SpellNameQ, spell.name) or find(spell.name, me.SpellNameQ) ) and
-      not ( find(me.SpellNameW, spell.name) or find(spell.name, me.SpellNameW) ) and
-      not ( find(me.SpellNameE, spell.name) or find(spell.name, me.SpellNameE) ) and
-      not ( find(me.SpellNameR, spell.name) or find(spell.name, me.SpellNameR) )
-   then
-      return true
-   end
+   -- if (lastSpell and spell.name == lastSpell) or
+   --    not ( find(me.SpellNameQ, spell.name) or find(spell.name, me.SpellNameQ) ) and
+   --    not ( find(me.SpellNameW, spell.name) or find(spell.name, me.SpellNameW) ) and
+   --    not ( find(me.SpellNameE, spell.name) or find(spell.name, me.SpellNameE) ) and
+   --    not ( find(me.SpellNameR, spell.name) or find(spell.name, me.SpellNameR) )
+   -- then
+   --    return true
+   -- end
 
    return false
 end
@@ -314,7 +315,7 @@ function onSpellAA(unit, spell)
       lastAttack = time()
       shotFired = false
    end
-   lastSpell = spell.name
+   -- lastSpell = spell.name
 end
 
 RegisterLibraryOnCreateObj(onObjAA)
