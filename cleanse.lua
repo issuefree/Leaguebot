@@ -28,7 +28,7 @@ end
 
 local function cleanseObj(object)
 	if not ModuleConfig.cleanse then return end
-	if GetDistance(object) < 75 then
+	if object and GetDistance(object) < 75 then
 		if me.name == "Gangplank" and CanUse("W") and
 		   CheckCC(object, byAbil) 
 		then
