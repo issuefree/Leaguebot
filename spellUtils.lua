@@ -105,6 +105,9 @@ function CanUse(thing)
          if thing == "D" or thing == "F" then
             return IsSpellReady(thing) == 1
          end
+         if #thing > 1 then
+            return false
+         end
          return GetSpellLevel(thing) > 0 and IsCooledDown(thing) -- should be a spell key "Q"
       end
    end
@@ -146,7 +149,15 @@ function GetSpell(thing)
    if type(thing) == "table" then
       spell = thing
    else
-      spell = spells[thing]
+      if type(thing) == "string" and #thing == 1 then
+         for _,spell in pairs(spells) do
+            if spell.key == thing then
+               break
+            end
+         end
+      else
+         spell = spells[thing]
+      end
       if not spell then
          for _,s in pairs(spells) do
             if thing == s.key then
@@ -233,7 +244,9 @@ function GetSpellDamage(thing, target)
    if spell.percMaxHealth and target then
       damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
    end
-
+   if spell.targetMissingHealth and target then
+      damage = damage + GetLVal(spell, "targetMissingHealth")*(target.maxHealth - target.health)
+   end
    if spell.onHit then
       damage = damage + GetOnHitDamage(target, false)
    end
@@ -245,7 +258,7 @@ function GetSpellDamage(thing, target)
       damage = CalculateDamage(target, damage)
    end
 
-   if damage.type == "H" then
+   if type(damage) ~= "number" and damage.type == "H" then
       damage = damage:toNum()
    end
 
