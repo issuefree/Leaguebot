@@ -110,10 +110,24 @@ repeat
    end
 until playerTeam ~= nil and playerTeam ~= "0"
 
+-- local wall = {}
+
+-- for line in io.lines("walls.txt") do
+--    for x, z in string.gmatch(line, "(%d+)%.*%d*, (%d+)%.*%d*") do
+--       table.insert(wall, Point(x, 0, z))
+--    end
+-- end
+
 local function drawCommon()
    if me.dead == 1 then
       return
    end
+
+   -- for i=1,#wall-1,1 do
+   --    if GetDistance(wall[i], wall[i+1]) < 250 then
+   --       LineBetween(wall[i], wall[i+1])
+   --    end
+   -- end
 
    for _,turret in ipairs(TURRETS) do
       Circle(turret, 950, red)
@@ -136,29 +150,37 @@ local function drawCommon()
    end
 
 
-   -- if tfas then
-   --    for key,spell in pairs(tfas) do
-   --       for name,trackedPoints in pairs(spell) do
-   --          local target
-   --          for _,enemy in ipairs(ENEMIES) do
-   --             if enemy.charName == name then
-   --                target = enemy
-   --                break
-   --             end
-   --          end
+   if tfas then
+      for key,spell in pairs(tfas) do
+         local activeSpell = GetSpell(key)
 
-   --          if not target then break end
-   --          local point = GetSpellFireahead(key, target)
+         if activeSpell and activeSpell.showFireahead then
+            for name,trackedPoints in pairs(spell) do
+               local target
+               for _,enemy in ipairs(ENEMIES) do
+                  if enemy.charName == name then
+                     target = enemy
+                     break
+                  end
+               end
 
-   --          if IsGoodFireahead(key, target) then
-   --             Circle(point, 75, green, 3)
-   --          else
-   --             Circle(point, 75, yellow, 1)
-   --          end
-   --          LineBetween(target, point)
-   --       end
-   --    end
-   -- end
+               if not target then break end
+               local point = GetSpellFireahead(key, target)
+
+               if GetDistance(point) < GetSpellRange(activeSpell)+100 then
+
+                  if IsGoodFireahead(key, target) then
+                     Circle(point, 75, green, 3)
+                  else
+                     Circle(point, 75, yellow, 1)
+                  end
+                  LineBetween(target, point)
+
+               end
+            end
+         end
+      end
+   end
 
    for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
       if spellShot.time < time() then
@@ -394,7 +416,7 @@ function KillMinion(thing, method, extraRange)
    end
 
    for _,minion in ipairs(minions) do
-      if WillKill(spell, minion) then
+      if WillKill(thing, minion) then
          if spell.name and spell.name == "attack" then
             AttackTarget(minion)
             PrintAction("AA "..method.." minion")
@@ -483,7 +505,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
 
       if killScore ~= 0 then
          for _,hit in ipairs(hits) do
-            if WillKill(spell, hit) then
+            if WillKill(thing, hit) then
                score = score + killScore
                table.insert(kills, hit)
             end
@@ -868,10 +890,10 @@ function UseItem(itemName, target)
       end
 
    elseif itemName == "Locket of the Iron Solari" then
-      -- how about 3 nearby allies and 2 nearby enemies
-      local locketRange = 700
-      if #GetInRange(me, locketRange, ALLIES) >= 3 and
-      #GetInRange(me, locketRange, ENEMIES) >= 2 
+      -- how about 2 nearby allies and 2 nearby enemies
+      local locketRange = ITEMS[itemName].range
+      if #GetInRange(me, locketRange, ALLIES) >= 2 and
+         #GetInRange(me, locketRange, ENEMIES) >= 2 
       then
          CastSpellTarget(slot, me)
       end
@@ -940,11 +962,10 @@ function GetNearestIndex(target, list)
 end
 
 function GetKills(thing, list)
-   local spell = GetSpell(thing)
    local result = FilterList(list, 
       function(item) 
          if not item.health then return false end
-         return WillKill(spell, item)
+         return WillKill(thing, item)
       end
    )
    return result
@@ -983,31 +1004,31 @@ function WardJump(thing)
       return false
    end
 
-   local ward = nil
+   local ward = SortByDistance(GetAllInRange(mousePos, 150, ALLIES, MYMINIONS, WARDS), mousePos)[1]
 
-   -- is there a ward already?
-   for _,w in ipairs(WARDS) do
-      if GetDistance(w, GetMousePos()) < 150 then
-         ward = w
-         break
-      end
-   end
+   -- -- is there a ward already?
+   -- for _,w in ipairs(WARDS) do
+   --    if GetDistance(w, GetMousePos()) < 150 then
+   --       ward = w
+   --       break
+   --    end
+   -- end
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
    if not ward then
       if time() - wardCastTime > 3 then
          local wardSlot = getWardingSlot()
          if wardSlot then
-            -- CastSpellXYZ(wardSlot, mousePos.x, mousePos.y, mousePos.z)
             CastXYZ(wardSlot, mousePos)
             PrintAction("Throw ward")
             wardCastTime = time()
          end
          return true
       end
-   else
+   elseif GetDistance(ward) < GetSpellRange(spell) then
       -- Cast can't target wards as they're not visible
       Cast(spell, ward)
+      StartChannel(.25)
       PrintAction("Jump to ward")
       return true
    end
@@ -1032,13 +1053,28 @@ function GetAADamage(target)
    return math.floor(damage+.5)
 end
 
-function WillKill(thing, target)
-   local spell = GetSpell(thing)
-   if spell.name and spell.name == "attack" then
-      return GetAADamage(target) > target.health
-   else
-      return GetSpellDamage(thing, target) > target.health
+-- list of spells with the target being the last arg
+function WillKill(...)
+   local arg = GetVarArg(...)
+   local target = arg[#arg]
+   local damage = 0
+   local usedMana = 0
+   for i=1,#arg-1,1 do      
+      local thing = arg[i]
+      local spell = GetSpell(thing)
+      if spell.name and spell.name == "attack" then
+         damage = damage + GetAADamage(target)
+      else         
+         if CanUse(thing) and usedMana + GetSpellCost(thing) <= me.mana then
+            damage = damage + GetSpellDamage(thing, target)
+            usedMana = usedMana + GetSpellCost(thing)
+         end
+      end
+      if damage > target.health then
+         return true
+      end
    end
+   return false
 end
 
 --[[
