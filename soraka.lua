@@ -7,7 +7,7 @@ spells["starfall"] = {
 	key="Q", 
 	range=650,  
 	color=red,    
-	base={60,85,110,135,160},
+	base={60,95,130,165,200},
 	ap=.4,
 	cost={30,40,50,60,70}
 }
@@ -15,15 +15,18 @@ spells["heal"] = {
 	key="W", 
 	range=750,  
 	color=green,  
-	base={70,130,180,130,270}, 
-	ap=.45,
+	base={70,120,170,220,270}, 
+	ap=.35,
+	type="H",
 	cost={80,100,120,140,160}
 }
 spells["infuseMana"] = {
 	key="E", 
 	range=725,
 	color=blue,   
-	base={20,40,60,80,100}
+	base={20,40,60,80,100},
+	mana=.05,
+	type="H"
 }
 spells["infuse"] = {
 	key="E",
@@ -50,12 +53,11 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuseDamage"}})
+AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
 	spells["infuseMana"].cost = me.maxMana * .05
-	spells["infuse"].cost = me.maxMana * .05
 
 	if me.dead == 1 then
 		PrintAction("Dead")
@@ -89,6 +91,10 @@ function Run()
 		if infuseMinion() then
 			return true
 		end
+
+		if KillMinion("starfall") then
+			return true
+		end
 	end
 
    if HotKey() and CanAct() then -- interrupt because this is low priority stuff
@@ -104,9 +110,11 @@ function Action()
 
 	if CanUse("infuse") then
 		local target = GetMarkedTarget() or GetWeakestEnemy("infuse")
-		Cast("infuse", target)
-		PrintAction("Infuse D", target)
-		return true
+		if target then
+			Cast("infuse", target)
+			PrintAction("Infuse D", target)
+			return true
+		end
 	end
 
 	if CanUse("starfall") then
@@ -241,9 +249,9 @@ function infuseTeam()
 	local heroes = GetInRange(me, "infuse", ALLIES)
 	for _,hero in ipairs(heroes) do
 		local value = base * 1+(1-GetMPerc(hero))/2
-		if hero.name ~= me.name and
-			GetDistance(HOME, hero) > 1000 and
-		   hero.mana ~= 0 and 
+		if not IsMe(hero) and
+		   GetDistance(HOME, hero) > 1000 and
+		   hero.mana > 0 and 
 		   hero.mana + value <= hero.maxMana and
 		   not IsRecalling(hero)
 		then			
