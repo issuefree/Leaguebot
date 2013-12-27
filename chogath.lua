@@ -6,7 +6,7 @@ print("\nTim's Cho'Gath")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("feast", {on=true, key=113, label="Feast"})
-AddToggle("", {on=true, key=114, label=""})
+AddToggle("jungle", {on=true, key=114, label="Jungle"})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "rupture"}})
@@ -30,11 +30,15 @@ spells["rupture"] = {
 }
 spells["scream"] = {
 	key="W",
-	range=700,
+	range=650,
 	color=violet,
-	base={75,125,175,225,275},
-	delay=2.5,
-	ap=.7
+	base={75,125,175,225,275}
+}
+spells["vorpal"] = {
+	key="E",
+	base={20,35,50,65,80},
+	ap=.3,
+	type="M"
 }
 spells["feast"] = {
 	key="R",
@@ -45,8 +49,19 @@ spells["feast"] = {
 	cost=100,
 	type="T"
 }
+spells["feastCreep"] = {
+	key="R",
+	range=feastRange,
+	color=red,
+	base=1000, 
+	ap=.7,
+	cost=100,
+	type="T"
+}
 
 function Run()
+	spells["AA"].bonus = GetSpellDamage("vorpal")
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -54,24 +69,12 @@ function Run()
 
 	if CanUse("feast") then
 		local target = GetWeakestEnemy("feast")
-		if target and target.health < GetSpellDamage("feast") then
+		if target and WillKill("feast", target) then
 			Cast("feast", target)
 			PrintAction("Feast", target)
 			return true
 		end
 
-		if VeryAlone() then
-			GetInRange(me, "feast", CREEPS)
-			for _,creep in ipairs(CREEPS) do
-				if ListContains(creep.name, MajorCreepNames) and
-					creep.health < 1000 + me.ap*.7
-				then
-					Cast("feast", creep)
-					PrintAction("Feast", creep)
-					return true
-				end
-			end
-		end
 	end	
 
 	if HotKey() then
@@ -81,12 +84,33 @@ function Run()
 		end
 	end
 
-   if IsOn("lasthit") and Alone() and GetMPerc(me) > .33 then
-      -- lasthit with rupture if it kills 2 minions or more
-      if KillMinionsInArea("rupture", 2) then
-         return true
-      end
+   if IsOn("lasthit") then
+   	if VeryAlone() then
+   		if KillMinion("feastCreep") then
+   			PrintAction("Feast on creep")
+   			return true
+   		end
+   	end
+
+   	if Alone() then
+   		if GetMPerc(me) > .33 then
+		      if KillMinionsInArea("rupture", 2) then
+		         return true
+		      end
+			end
+		end
    end
+
+
+	if IsOn("jungle") and Alone() then
+		for _,creep in ipairs(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)) do
+			if WillKill("feastCreep", creep) then
+				Cast("feast", creep)
+				PrintAction("Feast", creep)
+				return true
+			end
+		end
+	end
 
    if HotKey() then
       if FollowUp() then
