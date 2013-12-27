@@ -43,7 +43,7 @@ function time()
 end
 
 function pp(str)
-   if str == nil then
+   if not str then
       pp("nil")
    elseif type(str) == "table" then
       pp(table_print(str, 2))
