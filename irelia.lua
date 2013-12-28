@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -51,12 +50,11 @@ spells["blades"] = {
 }
 
 function Run()
-   if P.blades then
-      PrintState(1, "BLADES")
-   end
-
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
+      return true
+   end
+   if IsChannelling() then
       return true
    end
 
@@ -96,6 +94,24 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
+   if IsOn("lasthit") and Alone() then
+      if CanUse("surge") and GetMPerc(me) > .5 then
+         local minion = SortByHealth(GetInRange(me, "surge", MINIONS))[1]
+         if minion and
+            WillKill("surge", minion)             
+         then
+            if GetMPerc(me) > .75 or
+               GetDistance(minion) > GetSpellRange("AA")+75 or
+               not CanAttack()
+            then
+               Cast("surge", minion)
+               PrintAction("Surge for lasthit")
+               StartChannel(.25)
+               return true
+            end
+         end
+      end
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -159,10 +175,21 @@ function Action()
 
    if CanUse("surge") then
       local target = GetMarkedTarget() or GetWeakestEnemy("surge")
-      if target and GetDistance(target) > GetSpellRange("AA")+25 then
+      if target and GetDistance(target) > GetSpellRange("AA")+50 then
          Cast("surge", target)
-         PrintAction("Surge to ", target)
+         PrintAction("Surge to", target)
          return true
+      end
+
+      local target = GetMarkedTarget()
+      if target and GetDistance(target) > GetSpellRange("surge") then
+         local minions = GetKills("surge", GetInRange(me, "surge", MINIONS))
+         local link = GetInRange(target, "surge", minions)[1]
+         if link then
+            Cast("surge", link)
+            PrintAction("Surge for link", target)
+            return true
+         end
       end
    end
 
@@ -178,27 +205,9 @@ end
 
 function FollowUp()   
    if IsOn("lasthit") and Alone() then
-
       if KillMinion("AA") then
          return true
       end
-
-      if CanUse("surge") and GetMPerc(me) > .5 then
-         local minion = SortByHealth(GetInRange(me, "surge", MINIONS))[1]
-         if minion and
-            WillKill("surge", minion)             
-         then
-            if GetMPerc(me) > .75 or
-               GetDistance(minion) > GetSpellRange("AA")+75 or
-               not CanAttack()
-            then
-               Cast("surge", minion)
-               PrintAction("Surge for lasthit")
-               return true
-            end
-         end
-      end
-
    end
 
    if IsOn("clearminions") and Alone() then
@@ -211,16 +220,8 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
 
