@@ -296,9 +296,9 @@ end
 
 -- treating all as phys as it's so much easier
 function GetSpellbladeDamage(needActive)
-   return getSBDam(ITEMS["Lich Bane"], P.lichbane, needActive) or
-          getSBDam(ITEMS["Trinity Force"], P.enrage, needActive) or
-          getSBDam(ITEMS["Iceborn Gauntlet"], P.iceborn, needActive) or
+   return getSBDam(ITEMS["Lich Bane"], P.lichbane, needActive) +
+          getSBDam(ITEMS["Trinity Force"], P.enrage, needActive) +
+          getSBDam(ITEMS["Iceborn Gauntlet"], P.iceborn, needActive) +
           getSBDam(ITEMS["Sheen"], P.enrage, needActive)
 end
 
