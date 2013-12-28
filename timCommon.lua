@@ -793,7 +793,7 @@ function GetInRange(target, thing, ...)
    local result = {}
    local list = ValidTargets(concat(...))
    for _,test in ipairs(list) do
-      if target and
+      if target and test and
          GetDistance(target, test) <= range 
       then
          table.insert(result, test)
@@ -981,7 +981,7 @@ function CanChargeTear()
    return IsCooledDown(slot)
 end
 
-local function getWardingSlot()
+function GetWardingSlot()
    local wardSlots = {
       3340, 3350, 3361, 3362, -- trinkets
       3154, -- wriggles
@@ -998,28 +998,24 @@ local function getWardingSlot()
 end
 
 local wardCastTime = time() 
-function WardJump(thing)
+function WardJump(thing, pos)
    local spell = GetSpell(thing)
    if not CanUse(spell) then
       return false
    end
 
-   local ward = SortByDistance(GetAllInRange(mousePos, 150, ALLIES, MYMINIONS, WARDS), mousePos)[1]
+   if not pos then
+      pos = GetMousePos()
+   end
 
-   -- -- is there a ward already?
-   -- for _,w in ipairs(WARDS) do
-   --    if GetDistance(w, GetMousePos()) < 150 then
-   --       ward = w
-   --       break
-   --    end
-   -- end
+   local ward = SortByDistance(GetAllInRange(pos, 150, ALLIES, MYMINIONS, WARDS), pos)[1]
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
    if not ward then
       if time() - wardCastTime > 3 then
-         local wardSlot = getWardingSlot()
+         local wardSlot = GetWardingSlot()
          if wardSlot then
-            CastXYZ(wardSlot, mousePos)
+            CastXYZ(wardSlot, pos)
             PrintAction("Throw ward")
             wardCastTime = time()
          end
