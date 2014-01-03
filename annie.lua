@@ -13,7 +13,7 @@ spells["dis"] = {
 }
 spells["inc"] = {
    key="W", 
-   range=550, 
+   range=600, 
    color=red,    
    base={80,130,180,230,280},
    cost={70,80,90,100,110}, 
@@ -187,9 +187,13 @@ function Action()
       -- end
       local target = GetMarkedTarget() or GetWeakestEnemy("inc")
       if target then
-         Cast("inc", target)
-         PrintAction("Incinerate", target)
-         return true
+         if ( IsOn("stoke") and not P.stun ) or 
+            GetDistance(target) < 525 
+         then
+            Cast("inc", target)
+            PrintAction("Incinerate", target)
+            return true
+         end
       end
    end
 
@@ -203,9 +207,10 @@ function Action()
    end
 
    if CanUse("tibbers") and me.SpellNameR == "InfernalGuardian" then
-      local target = GetWeakestEnemy("tibbers")
-      if target and WillKill("tibbers", target) then
-         Cast("tibbers", target)
+      local hits, kills, score = GetBestArea(me, "tibbers", 1, 5, ENEMIES)
+
+      if #kills >= 1 then
+         CastXYZ("tibbers", GetCenter(hits))
          PrintAction("Tibbers for execute", target)
          return true
       end
