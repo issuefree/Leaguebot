@@ -17,8 +17,6 @@ MYTURRETS = {}
 
 WARDS = {}
 
-tearTimes = {}
-
 ALLIES = {}
 ENEMIES = {}
 -- simple attempt to grab high priority targets
@@ -352,6 +350,8 @@ function createForPersist(object)
    PersistBuff("iceborn", object, "bluehands_buf", 100)
 
    PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
+
+   PersistBuff("muramana", object, "ItemMuramanaToggle")
 
 end
 
