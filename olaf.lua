@@ -76,13 +76,29 @@ function Run()
    end
    
    if IsOn("jungle") then
-      local creeps = GetAllInRange(me, 275, CREEPS)
-      for _,creep in ipairs(creeps) do
-         if ListContains(creep.name, MajorCreepNames, true) or 
-            ListContains(creep.name, BigCreepNames, true) 
-         then
-            if JustAttacked() then -- to keep me from getting distracted when I run through the jungle
-               if CanUse("axe") then 
+      local creeps = GetAllInRange(me, GetSpellRange("swing"), CREEPS)
+      
+      for i,creep in ipairs(CREEPS) do
+         PrintState(i, creep.charName.." "..creep.dead.." "..GetDistance(creep))
+      end
+
+      if #creeps > 0 and JustAttacked() then -- justattacked keeps me from aggroing by accident
+         if CanUse("axe") and GetMPerc(me) > .5 then
+            local hits, _, score = GetBestLine(me, "axe", 1, 2, creeps)
+            if score >= 2 then            
+               local target = SortByDistance(hits)[#hits]
+               CastXYZ("axe", Point(target))
+               PrintAction("Axe for jungle aoe", score)
+               return true
+            end
+         end
+
+
+         for i,creep in ipairs(creeps) do
+            if ListContains(creep.name, MajorCreepNames, true) or 
+               ListContains(creep.name, BigCreepNames, true) 
+            then
+               if CanUse("axe") and GetMPerc(me) > .66 then 
                   CastXYZ("axe", creep)
                   PrintAction("Axe for jungle")
                   return true
@@ -92,7 +108,16 @@ function Run()
                   PrintAction("Swing for jungle", creep)
                   return true
                end
+
             end
+
+
+            if CanUse("swing") and WillKill("swing", creep) and #creeps >= 2 then
+               Cast("swing", creep)
+               PrintAction("Execute creep")
+               return true
+            end
+
          end
       end
    end
@@ -172,7 +197,7 @@ function FollowUp()
 
    if IsOn("move") then
       if MeleeMove() then
-         return true
+         return false
       end
    end
    return false
