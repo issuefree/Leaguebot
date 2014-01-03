@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -7,7 +6,7 @@ pp("\nTim's Ezreal")
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("harrass", {on=true, key=113, label="Harrass"})
 AddToggle("", {on=true, key=114, label=""})
-AddToggle("", {on=true, key=115, label=""})
+AddToggle("tear", {on=true, key=115, label="Charge tear"})
 
 AddToggle("lasthit", {on=true, key=116, label="Farm", auxLabel="{0} / {1}", args={GetAADamage, "shot"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
@@ -65,17 +64,41 @@ spells["barrage"] = {
 
 
 function Run()
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
+   end
+   if IsChannelling() then
+      return true
+   end
+
+   if IsOn("tear") and not P.muramana then
+      UseItem("Muramana", me)
+   end
+
    -- TODO something with ult
 --   local target = GetWeakEnemy("MAGIC", 99999)
 --   if target then
 --      Circle(GetFireahead(target, 1.2, 20),100, red )
 --   end
   
-   if IsOn("harrass") then
-      if SkillShot("shot") then
-         return true
-      end
-   end
+   -- -- Circle(Projection(HOME, me, GetDistance(HOME, me)+500))
+   -- local enemyTurret = SortByDistance(TURRETS, me)[1]
+   -- local myTurret = SortByDistance(MYTURRETS, enemyTurret)[1]
+
+   -- local pointMinion = SortByDistance(MYMINIONS, enemyTurret)[1]
+   -- Circle(pointMinion)
+   -- local p
+   -- if pointMinion then
+   --    p = Projection(HOME, pointMinion, GetDistance(HOME, pointMinion)-200)
+   -- else
+   --    p = Point(myTurret)
+   -- end
+   -- if p and not UnderTower(p) and GetDistance(p) > 150 then
+   --    Circle(p)
+   --    MoveToXYZ(p:unpack())
+   -- -- Circle(pointMinion)
+   -- end
 
    if HotKey() and CanAct() then
       UseItems()
@@ -83,7 +106,25 @@ function Run()
          return true
       end
    end
+
+   if IsOn("harrass") then
+      if SkillShot("shot") then
+         return true
+      end
+   end
    
+   if IsOn("tear") and CanUse("shot") and CanChargeTear() and VeryAlone() and GetMPerc(me) > .75 then
+      local minion = SortByDistance(GetInRange(me, "shot", MINIONS))[1]
+      if minion then
+         CastXYZ("shot", minion)
+      else
+         CastXYZ("shot", GetMousePos())
+      end
+      PrintAction("Shot for charge")
+      return true
+   end
+
+
    if IsOn("lasthit") and Alone() then
       if CanUse("shot") then
          for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
