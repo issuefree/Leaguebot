@@ -370,7 +370,8 @@ end
 
 function MoveToTarget(t)
    if CanMove() then
-      MoveToXYZ(t.x, t.y, t.z)
+      local x,y,z = GetFireahead(t, 2, 0)
+      MoveToXYZ(x,y,z)
       PrintAction("MTT", t)
    end
 end
@@ -528,7 +529,7 @@ function GetInLine(source, thing, primary, targets)
    local hits = {primary}
    local pw = GetWidth(primary)
    for _,s in ipairs(targets) do
-      if s ~= p then
+      if s ~= primary then
          local sw = GetWidth(s)
          local ra = RelativeAngle(source, primary, s)
          if GetOrthDist(primary, s) < spell.width + pw + sw and 
@@ -548,7 +549,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
       pp("No width set for.."..thing)
    end
 
-   local targets = GetInRange(source, spell, concat(...))
+   local targets = GetAllInRange(source, spell, concat(...))
 
    local bestS = 0
    local bestT = {}
@@ -827,125 +828,6 @@ function UseAutoItems()
    UseItem("Seraph's Embrace")
    UseItem("Mikael's Crucible")
    UseItem("Locket of the Iron Solari")
-end
-
-function UseItems(target)
-   for item,_ in pairs(ITEMS) do
-      UseItem(item, target)
-   end
-end
-
-function UseItem(itemName, target)
-   local item = ITEMS[itemName]
-   local slot = GetInventorySlot(item.id)
-   if not slot then return end   
-   slot = tostring(slot)
-
-   if not IsCooledDown(slot) then return end
-
-   if itemName == "Entropy" or
-      itemName == "Bilgewater Cutlass" or
-      itemName == "Hextech Gunblade" or
-      itemName == "Blade of the Ruined King" or
-      itemName == "Deathfire Grasp" or
-      itemName == "Tiamat" or
-      itemName == "Ravenous Hydra" or
-      itemName == "Youmuu's Ghostblade" or
-      itemName == "Randuin's Omen"
-   then
-      if target and GetDistance(target) > item.range then
-         return
-      end
-      if not target then
-         target = GetWeakEnemy("MAGIC", item.range)
-      end
-      if target then
-         CastSpellTarget(slot, target)
-      end
-
-   elseif itemName == "Shard of True Ice" then
-      -- shard
-      -- look at all nearby heros in range and target the one with the most nearby enemies
-      local shardRadius = 300
-
-      local nearCount = 0
-      target = nil
-      for i,hero in ipairs(ALLIES) do
-         if GetDistance(me, hero) < 750 then
-            local near = #GetInRange(hero, shardRadius, ENEMIES)
-            if near > nearCount then
-               target = hero
-               nearCount = near
-            end
-         end
-      end
-      if target then
-         CastSpellTarget(slot, target)
-      end
-
-   elseif itemName == "Guardian's Horn" then
-      target = GetWeakEnemy("MAGIC", 600)
-      if target then
-         CastSpellTarget(slot, me)
-      end
-
-   elseif itemName == "Locket of the Iron Solari" then
-      -- how about 2 nearby allies and 2 nearby enemies
-      local locketRange = ITEMS[itemName].range
-      if #GetInRange(me, locketRange, ALLIES) >= 2 and
-         #GetInRange(me, locketRange, ENEMIES) >= 2 
-      then
-         CastSpellTarget(slot, me)
-      end
-
-   elseif itemName == "Zhonya's Hourglass" or 
-          itemName == "Wooglet's Witchcap" or
-          itemName == "Seraph's Embrace"
-   then
-      -- use it if I'm at x% and there's an enemy nearby
-      -- may expand this to trigger when a spell is cast on me that will kill me
-      if not Alone() and GetHPerc(me) < .25 then
-         CastSpellTarget(slot, me)
-      end
-
-   elseif itemName == "Mikael's Crucible" then
-      -- It can heal or it can cleans
-      -- heal is better the lower they are so how about scan in range heros and heal the lowest under 25%
-      -- the cleanse is trickier. should I save it for higher priority targets or just use it on the first who needs it?\
-      -- I took (or tried to) take out the slows so it will only work on harder cc.
-      -- how about try to free adc then apc then check for heals on all in range.
-
-      local crucibleRange = ITEMS["Mikael's Crucible"].range
-
-      local target = ADC
-      if target and target.name ~= me.name and 
-         GetDistance(target, me) < crucibleRange and
-         HasBuff("cc", target)
-      then 
-         CastSpellTarget(slot, target)
-         pp("uncc adc "..target.name) 
-      else
-         target = APC
-         if target and target.name ~= me.name and 
-            GetDistance(target, me) < crucibleRange and
-            HasBuff("cc", target)
-         then 
-            CastSpellTarget(slot, target)
-            pp("uncc apc "..target.name)
-         end
-      end
-
-      for _,hero in ipairs(GetInRange(me, crucibleRange, ALLIES)) do
-         if GetHPerc(hero) < .25 then
-            CastSpellTarget(slot, hero)
-             pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
-         end
-      end
-
-   else
-      -- CastSpellTarget(slot, me)
-   end
-
 end
 
 function GetNearestIndex(target, list)
@@ -1367,8 +1249,7 @@ function TimTick()
 end
 
 function AA(target)
-   if ValidTarget(target) then
-   -- if CanAttack() and ValidTarget(target) then
+   if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
       return true
    end
@@ -1388,6 +1269,7 @@ function ModAA(thing, target)
            dist < range+100 )
       then
          Cast(thing, me)
+         AttackTarget(target)
          mod = true
       end
    end
@@ -1432,15 +1314,17 @@ function ModAAJungle(thing, pObj)
 end
 
 function MeleeMove()
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target then
-      if GetDistance(target) > spells["AA"].range+25 then
-         MoveToTarget(target)
-         return true
+   if CanMove() then   
+      local target = GetMarkedTarget() or GetMeleeTarget()
+      if target then
+         if GetDistance(target) > spells["AA"].range+25 then
+            MoveToTarget(target)
+            return true
+         end
+      else        
+         MoveToCursor() 
+         return false
       end
-   else        
-      MoveToCursor() 
-      return false
    end
    return false
 end
@@ -1454,18 +1338,143 @@ function GetMeleeTarget()
 end
 
 function RangedMove()
-   -- if IsOn("move") then
-   --    if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
-   --       #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
-   --    then
-   --       MoveToCursor()
-   --       return false   
-   --    end
-   -- end
+   if IsOn("move") then
+      if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
+         #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
+      then
+         MoveToCursor()
+         return false   
+      end
+   end
    return false
 end
 
 function Dance()
 end
+
+function UseItems(target)
+   for item,_ in pairs(ITEMS) do
+      UseItem(item, target)
+   end
+end
+
+function UseItem(itemName, target)
+   local item = ITEMS[itemName]
+   local slot = GetInventorySlot(item.id)
+   if not slot then return end   
+   slot = tostring(slot)
+
+   if not IsCooledDown(slot) then return end
+
+   if itemName == "Entropy" or
+      itemName == "Bilgewater Cutlass" or
+      itemName == "Hextech Gunblade" or
+      itemName == "Blade of the Ruined King" or
+      itemName == "Deathfire Grasp" or
+      itemName == "Tiamat" or
+      itemName == "Ravenous Hydra" or
+      itemName == "Youmuu's Ghostblade" or
+      itemName == "Randuin's Omen"
+   then
+      if target and GetDistance(target) > item.range then
+         return
+      end
+      if not target then
+         target = GetWeakEnemy("MAGIC", item.range)
+      end
+      if target then
+         CastSpellTarget(slot, target)
+      end
+
+   elseif itemName == "Shard of True Ice" then
+      -- shard
+      -- look at all nearby heros in range and target the one with the most nearby enemies
+      local shardRadius = 300
+
+      local nearCount = 0
+      target = nil
+      for i,hero in ipairs(ALLIES) do
+         if GetDistance(me, hero) < 750 then
+            local near = #GetInRange(hero, shardRadius, ENEMIES)
+            if near > nearCount then
+               target = hero
+               nearCount = near
+            end
+         end
+      end
+      if target then
+         CastSpellTarget(slot, target)
+      end
+
+   elseif itemName == "Guardian's Horn" then
+      target = GetWeakEnemy("MAGIC", 600)
+      if target then
+         CastSpellTarget(slot, me)
+      end
+
+   elseif itemName == "Locket of the Iron Solari" then
+      -- how about 2 nearby allies and 2 nearby enemies
+      local locketRange = ITEMS[itemName].range
+      if #GetInRange(me, locketRange, ALLIES) >= 2 and
+         #GetInRange(me, locketRange, ENEMIES) >= 2 
+      then
+         CastSpellTarget(slot, me)
+      end
+
+   elseif itemName == "Zhonya's Hourglass" or 
+          itemName == "Wooglet's Witchcap" or
+          itemName == "Seraph's Embrace"
+   then
+      -- use it if I'm at x% and there's an enemy nearby
+      -- may expand this to trigger when a spell is cast on me that will kill me
+      if not Alone() and GetHPerc(me) < .25 then
+         CastSpellTarget(slot, me)
+      end
+
+   elseif itemName == "Muramana" then
+      if target then
+         CastSpellTarget(slot, target)
+      end
+
+   elseif itemName == "Mikael's Crucible" then
+      -- It can heal or it can cleans
+      -- heal is better the lower they are so how about scan in range heros and heal the lowest under 25%
+      -- the cleanse is trickier. should I save it for higher priority targets or just use it on the first who needs it?\
+      -- I took (or tried to) take out the slows so it will only work on harder cc.
+      -- how about try to free adc then apc then check for heals on all in range.
+
+      local crucibleRange = ITEMS["Mikael's Crucible"].range
+
+      local target = ADC
+      if target and target.name ~= me.name and 
+         GetDistance(target, me) < crucibleRange and
+         HasBuff("cc", target)
+      then 
+         CastSpellTarget(slot, target)
+         pp("uncc adc "..target.name) 
+      else
+         target = APC
+         if target and target.name ~= me.name and 
+            GetDistance(target, me) < crucibleRange and
+            HasBuff("cc", target)
+         then 
+            CastSpellTarget(slot, target)
+            pp("uncc apc "..target.name)
+         end
+      end
+
+      for _,hero in ipairs(GetInRange(me, crucibleRange, ALLIES)) do
+         if GetHPerc(hero) < .25 then
+            CastSpellTarget(slot, hero)
+             pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
+         end
+      end
+
+   else
+      -- CastSpellTarget(slot, me)
+   end
+
+end
+
 
 SetTimerCallback("TimTick")
