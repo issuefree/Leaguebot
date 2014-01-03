@@ -7,7 +7,7 @@ require "telemetry"
 spells = {}
 
 function IsCooledDown(key)
-   return me["SpellTime"..key] >= .8
+   return me["SpellTime"..key] >= 1
 end
 
 function Cast(thing, target, force)
@@ -249,6 +249,10 @@ function GetSpellDamage(thing, target)
    end
    if spell.onHit then
       damage = damage + GetOnHitDamage(target, false)
+   end
+
+   if P.muramana then
+      damage = damage + me.mana*.06
    end
 
    if target then
