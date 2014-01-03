@@ -52,3 +52,4 @@ ITEMS["Iceborn Gauntlet"] = {id=3025, base={0}, adBase=1.25, type="P"}
 ITEMS["Tear of the Goddess"] = {id=3070}
 ITEMS["Archangel's Staff"] = {id=3003}
 ITEMS["Manamune"] = {id=3004}
+ITEMS["Muramana"] = {id=3042}
