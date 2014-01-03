@@ -18,7 +18,7 @@ local types = {
 		duration=180, sightRange=1350, triggerRange=70, 
 		charName="SightWard", name="SightWard", spellName="wrigglelantern" },
 	 { label="Vision Ward", color=violet, 
-		duration=180, sightRange=1350, triggerRange=70, 
+		duration=0, sightRange=1350, triggerRange=70, 
 		charName="VisionWard", name="VisionWard", spellName="VisionWard" },
 
 	 { label="Jack in the Box", color=red, 
@@ -77,16 +77,18 @@ end
 
 function drawWards()
 	for i,ward in ipairs(wards) do 
-		local timer = string.format(math.ceil((ward.tick+ward.duration-time())))
-		Circle(ward.loc, ward.triggerRange, ward.color)
-		if showVisionRange then					
-			Circle(ward.loc, ward.sightRange, ward.color)
-		end
-		if GetDistance(ward.loc, GetMousePos()) < showTimerRadius then
-			if ward.source == "onload" then
-				DrawText(ward.label..": max "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
-			else
-				DrawText(ward.label..": "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
+		if ward.duration > 0 then
+			local timer = string.format(math.ceil((ward.tick+ward.duration-time())))
+			Circle(ward.loc, ward.triggerRange, ward.color)
+			if showVisionRange then					
+				Circle(ward.loc, ward.sightRange, ward.color)
+			end
+			if GetDistance(ward.loc, GetMousePos()) < showTimerRadius then
+				if ward.source == "onload" then
+					DrawText(ward.label..": max "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
+				else
+					DrawText(ward.label..": "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
+				end
 			end
 		end
 	end
@@ -104,7 +106,7 @@ function cleanUpWards()
 				break
 			end
 		end
-		if time()-ward.tick >= ward.duration then
+		if ward.duration > 0 and time()-ward.tick >= ward.duration then
 			table.remove(wards,i)
 		end
 	end
