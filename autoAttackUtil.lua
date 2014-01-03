@@ -67,6 +67,7 @@ function GetAAData()
       Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
       Olaf         = { melee=true },
       LeeSin       = { melee=true, aaSpellName={"LeeSinBasic", "LeeSinCrit"} },
+      Leona        = { melee=true, aaParticles={"leona_basicattack_hit"}, aaSpellName={"LeonaBasicAttack", "LeonaCritAttack"} },
       Blitzcrank   = { melee=true, windup=.625 },
       MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
