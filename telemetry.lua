@@ -82,8 +82,9 @@ function ApproachAngle(attacker, target)
 end
 
 function Projection(source, target, dist) -- returns a point on the line between two objects at a certain distance
-   local a = AngleBetween(source, target)   
-   return {x=source.x+math.sin(a)*dist, y=source.y, z=source.z+math.cos(a)*dist}
+   local a = AngleBetween(source, target)
+   local y = source.y or target.y
+   return Point(source.x+math.sin(a)*dist, y, source.z+math.cos(a)*dist)
 end
 
 function OverShoot(source, target, dist)
