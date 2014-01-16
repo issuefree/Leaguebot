@@ -13,7 +13,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["bite"] = {
    key="Q",
-   base={0,0,0,0,0},
+   base=0,
    ad=1,
    onhit=true,
    perc={.8,.85,.9,.95,1},
@@ -23,14 +23,14 @@ spells["burnout"] = {
    key="W", 
    range=325, 
    color=red, 
-   base={25,40,55,70,85}, 
+   base={20,35,50,65,80}, 
    bonusAd=.1
 } 
 spells["breath"] = {
    key="E", 
    range=925, 
    color=violet, 
-   base={80,115,150,185,220}, 
+   base={60,100,140,180,220}, 
    ap=.6,
    delay=2,
    speed=15,
@@ -41,7 +41,7 @@ spells["binding"] = {
    key="R", 
    range=1000, 
    color=yellow, 
-   base={200,300,400}, 
+   base={175,300,425}, 
    ap=.7,
    delay=2,
    speed=12,

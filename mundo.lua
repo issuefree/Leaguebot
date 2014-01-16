@@ -41,7 +41,7 @@ function getMasochismDamage()
 end
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("", {on=true, key=113, label=""})
+AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -58,6 +58,25 @@ function Run()
    if HotKey() then
       UseItems()
       if Action() then
+         return true
+      end
+   end
+
+   if IsOn("jungle") and CanUse("cleaver") and JustAttacked() then
+      if GetHPerc(me) > .5 then
+         local creeps = SortByHealth(GetUnblocked(me, "cleaver", CREEPS))
+         if #creeps >= 1 then
+            local target = creeps[#creeps]
+            CastXYZ("cleaver", target)
+            PrintAction("Cleaver in the jungle", target)
+            return true
+         end
+      end
+
+      local target = GetUnblocked(me, "cleaver", BIGCREEPS, MAJORCREEPS)[1]
+      if target then
+         CastXYZ("cleaver", target)
+         PrintAction("Cleaver in the jungle", target)
          return true
       end
    end

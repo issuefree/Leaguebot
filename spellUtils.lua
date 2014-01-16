@@ -316,7 +316,7 @@ function getSBDam(item, buff, needActive)
    return Damage()
 end
 
-local trackTicks = 5
+local trackTicks = 8
 tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   

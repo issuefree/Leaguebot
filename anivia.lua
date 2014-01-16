@@ -26,12 +26,14 @@ spells["orb"] = {
    speed=8.5,
    width=80,
    radius=150,
-   noblock=true
+   noblock=true,
+   cost={80,90,100,110,120}
 }
 spells["wall"] = {
    key="W", 
    range=1000, 
-   color=yellow
+   color=yellow,
+   cost=70
 }
 spells["spike"] = {
    key="E", 
