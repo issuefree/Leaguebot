@@ -107,9 +107,11 @@ end
 function Action()
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("shield", target) then
+   if AA(target) then
+      PrintAction("AA", target)
       return true
    end
+
 
    return false
 end
@@ -156,15 +158,9 @@ local function onCreate(object)
 end
 
 local function onSpell(unit, spell)
-   if IAttack(unit, spell) then
-
-      -- if w and CanUse("shield") then
-      --    Cast("shield", me)
-      --    DoIn(function() ClickSpellXYZ("M", w.x, w.y, w.z, 0) end, .1)
-      -- end
-   end
 end
 
 AddOnCreate(onCreate)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
+

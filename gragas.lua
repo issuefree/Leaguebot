@@ -1,3 +1,4 @@
+require "Utils"
 require "timCommon"
 require "modules"
 
@@ -8,21 +9,20 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "barrel"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["barrel"] = {
   key="Q", 
-  range=950, 
+  range=900, 
   color=violet, 
-  base={85,135,185,235,285},
+  base={85,135,185,235,285}, 
   ap=.9,
   delay=2,
   speed=12,
-  radius=275,
+  radius=300,
   cost={80,90,100,110,120},
-  noblock=true,
-  overShoot=50
+  noblock=true
 }
 spells["rage"] = {
   key="W"
@@ -87,6 +87,7 @@ function Run()
    if IsOn("lasthit") and CanUse("barrel") and not P.barrel and VeryAlone() then
       -- lasthit with barrel if it kills 3 minions or more
       if KillMinionsInArea("barrel", 3) then
+         PrintAction("Barrel for lasthit")
          return true
       end
    end

@@ -730,7 +730,7 @@ end
 function GetUnblocked(source, thing, ...)
    local spell = GetSpell(thing)
    local minionWidth = 55
-   local targets = GetAllInRange(source, spell, concat(...))
+   local targets = GetInRange(source, spell, concat(...))
    SortByDistance(targets, source)
    
    local blocked = {}
@@ -1385,11 +1385,6 @@ function UseItem(itemName, target)
       if target then
          CastSpellTarget(slot, target)
       end
-
-   elseif itemName == "Tiamat" or
-          itemName == "Ravenous Hydra"
-   then
-
 
    elseif itemName == "Shard of True Ice" then
       -- shard

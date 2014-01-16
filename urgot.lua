@@ -13,7 +13,7 @@ pp(" - minion farming")
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("capacitor", {on=true, key=113, label="Capacitor"})
 AddToggle("tear", {on=true, key=114, label="Charge tear"})
-AddToggle("harrass", {on=true, key=115, label="Harass"})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "hunter"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
@@ -21,14 +21,14 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 spells["hunter"] = {
    key="Q", 
    range=1000,
-   lockedRange=1200,
+   lockedRange=1150,
    color=violet, 
    base={10,40,70,100,130}, 
    ad=.85,
    type="P",
    delay=2,
-   speed=18,
-   width=85,
+   speed=15,
+   width=80,
    cost=40
 }
 spells["capacitor"] = {
@@ -44,7 +44,7 @@ spells["charge"] = {
    bonusAd=.6,
    type="P",
    delay=2.5,
-   speed=18,
+   speed=15,
    noblock=true,
    radius=300,
    cost={50,55,60,65,70}
@@ -65,41 +65,22 @@ function Run()
       PrintAction("Recalling or dead")
       return true
    end
-   if IsChannelling() then
-      return true
-   end
 
-   if IsOn("tear") and not P.muramana then
-      UseItem("Muramana", me)
-   end
-   
-   if HotKey() then
+   if HotKey() and CanAct() then
       UseItems()
       if Action() then
          return true
       end
    end           
 
-   if IsOn("harrass") then
-      if SkillShot("hunter") then
-         return true
-      end
-   end
-
-   if IsOn("lasthit") and CanUse("hunter") and Alone() then
-      if GetMPerc(me) > .33 or CanChargeTear() then
-         local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))
-         for _,minion in ipairs(minions) do
-            if JustAttacked() or 
-               GetDistance(minion) > GetSpellRange("AA") or 
-               not WillKill("AA", minion)
-            then
-               if WillKill("hunter", minion) then
-                  CastXYZ("hunter", minion)
-                  PrintAction("Hunter for lasthit")
-                  return true
-               end
-            end
+   if CanUse("hunter") and Alone() then
+      if GetMPerc(me) > .66 or
+         ( GetMPerc(me) > .33 and CanChargeTear())
+      then
+         local minion = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))[1]
+         if minion and WillKill("hunter", minion) then
+            CastXYZ("hunter", minion)
+            return true
          end
       end
    end
@@ -120,8 +101,6 @@ function Run()
       PrintAction("Hunter for charge")
       return true
    end
-
-   PrintAction()
 
 end
 
@@ -173,6 +152,12 @@ function Action()
 end
 
 function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true
+      end
+   end
+
    if IsOn("clearminions") and Alone() then
       if CanUse("hunter") then
          local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
@@ -193,24 +178,17 @@ function FollowUp()
       end
    end
 
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
-   return false
+   -- if IsOn("move") then
+   --    if RangedMove() then
+   --       return true
+   --    end
+   -- end
 end
 
 local function onObject(object)
    PersistOnTargets("charge", object, "UrgotCorrosiveDebuff", ENEMIES)
    if find(object.charName, "UrgotPlasmaGrenade") then
-      DoIn(function() chargeThrown = false end, .1)
+      DoIn(function() chargeThrown = false end, .5)
    end
 end
 

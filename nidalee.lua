@@ -41,7 +41,6 @@ spells["heal"] = {
    color=green, 
    base={50,85,120,155,190}, 
    ap=.7,
-   type="H",
    cost={60,80,100,120,140}
 }
 
