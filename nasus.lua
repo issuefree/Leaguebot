@@ -34,7 +34,7 @@ spells["strike"] = {
 }
 spells["wither"] = {
    key="W", 
-   range=700,
+   range=600,
    color=yellow,
    cost=80
 }

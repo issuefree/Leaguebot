@@ -3,7 +3,7 @@ require "modules"
 
 pp("\nTim's Heimerdinger")
 
-AddToggle("", {on=true, key=112, label=""})
+AddToggle("ult", {on=true, key=112, label="Auto Ult"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -29,9 +29,9 @@ spells["rockets"] = {
   base={60,90,120,150,180}, 
   ap=.45,
   delay=1,
-  speed=40,
+  speed=20,
   width=50,
-  overShoot=-75,
+  overShoot=-100,
   cost={70,80,90,100,110}
 }
 spells["grenade"] = {
@@ -97,7 +97,7 @@ function Run()
 end
 
 function Action()
-   if CanUse("upgrade") or P.upgrade then
+   if IsOn("ult") and ( CanUse("upgrade") or P.upgrade ) then
 
       if CanUse("grenade") then
          spells["grenade"].radius = spells["grenade"].radiusUp
@@ -125,14 +125,6 @@ function Action()
          end
       end
 
-   end
-   if P.upgrade then
-      PrintState(1, "UPGRADE")
-      spells["rockets"].noblock = true
-      spells["grenade"].radius = spells["grenade"].radiusUp
-   else
-      spells["rockets"].noblock = false
-      spells["grenade"].radius = spells["grenade"].radiusBase
    end
 
    if SkillShot("grenade") then
