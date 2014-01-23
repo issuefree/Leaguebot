@@ -2,6 +2,9 @@ require "basicUtils"
 
 Point = class()
 function Point:__init(a, b, c)
+   if not a then
+      return nil
+   end
    if not b and not c then
       self.x = a.x
       self.y = a.y
@@ -87,6 +90,11 @@ function Projection(source, target, dist) -- returns a point on the line between
    return Point(source.x+math.sin(a)*dist, y, source.z+math.cos(a)*dist)
 end
 
+function ProjectionA(source, angle, dist) -- returns a point on the line between two objects at a certain distance
+   local y = source.y
+   return Point(source.x+math.sin(angle)*dist, y, source.z+math.cos(angle)*dist)
+end
+
 function OverShoot(source, target, dist)
    return Projection(source, target, GetDistance(source, target)+dist)
 end
@@ -162,6 +170,25 @@ function FacingMe(target)
    return d2 < d1 
 end
 
+local trackTicks = 3
+local myPos = {}
+function TrackMyPosition()
+   if #myPos == 0 or GetDistance(myPos[#myPos], Point(me)) > 1 then
+      table.insert(myPos, Point(me))
+      if #myPos > trackTicks then
+         table.remove(myPos, 1)
+      end
+   end
+end
+
+function GetMyLastPosition()
+   return myPos[1]
+end
+
+function GetMyDirection()
+   return AngleBetween(GetMyLastPosition(), me)
+end
+
 function GetMousePos()
    return Point(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
 end
@@ -187,7 +214,16 @@ function SortByHealth(things)
 end
 
 function SortByDistance(things, target)
-   table.sort(things, function(a,b) return GetDistance(a, target) < GetDistance(b, target) end)
+   if not target or not target.x then
+      return {}
+   end   
+   table.sort(things, 
+      function(a,b)
+         if not b or not b.x then return false end
+         if not a or not a.x then return true end
+         return GetDistance(a, target) < GetDistance(b, target) 
+      end
+   )
    return things
 end
 
