@@ -62,4 +62,4 @@ end
 
 AddOnKey(onKey)
 
-SetTimerCallback("TestTick")
+AddOnTick(TestTick)
