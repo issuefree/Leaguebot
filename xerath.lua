@@ -22,8 +22,8 @@ spells["bolt"] = {
    base={75,115,155,195,235}, 
    ap=.6,
    delay=7,
-   speed=999,
-   width=80,
+   speed=0,
+   width=75,
    noblock=true,
    cost={65,70,75,80,85}
 } 
