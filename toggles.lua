@@ -14,6 +14,15 @@ function IsOn(key)
    return keyToggles[key].on
 end
 
+function Toggle(key, value)
+   if not value then
+      keyToggles[key].on = not keyToggles[key].on
+   else
+      keyToggles[key].on = value
+   end
+end
+
+
 local pressed = {}
 function checkToggles()
    for _,toggle in pairs(keyToggles) do      
