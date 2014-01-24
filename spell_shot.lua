@@ -475,19 +475,30 @@ function SpellShotTarget(unit, spell, target)
 				else
 					shotDistance = spellShot.range + spellShot.radius
 				end
+
 				local targetDistance = GetDistance(startPos, target)
 
 				if targetDistance < shotDistance then -- target is in range
 					local point = Projection(startPos, spell.endPos, targetDistance) -- "impact" point
 					local impactDistance = GetDistance(target, point)
 					if impactDistance <= spellShot.radius then -- hit
-						local safePoint = Projection(point, target, safeDist)
-						if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then -- if safe is into a wall go the other direction
-							safePoint = Projection(safePoint, point, safeDist*2)
-							if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then -- if that's still a wall give up, it's meant to be
-								return nil
+
+						-- calculate a safe points if I'm the target
+						if IsMe(target) then
+							-- is where I'll be in half a second clear?
+							local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
+							if GetDistance(point, safePoint) < safeDist then
+								safePoint = Projection(point, target, safeDist)
+							end
+
+							if IsWall(safePoint:unpack()) == 1 then -- if safe is into a wall go the other direction
+								safePoint = Projection(safePoint, point, safeDist*2)
+								if IsWall(safePoint:unpack()) == 1 then -- if that's still a wall give up, it's meant to be
+									return nil
+								end
 							end
 						end
+
 						local ret = {
 							spell=spellShot,
 							time=os.clock()+spellShot.time, 
@@ -502,10 +513,19 @@ function SpellShotTarget(unit, spell, target)
 			else
 				local impactDistance = GetDistance(target, spell.endPos)
 				if impactDistance <= spellShot.radius then
-					local safePoint = Projection(spell.endPos, target, safeDist)
-					if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then
-						return nil
+					
+					-- calculate a safe points if I'm the target
+					if IsMe(target) then
+						local point = spell.endPos
+						local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
+						if GetDistance(point, safePoint) < safeDist then
+							safePoint = Projection(point, target, safeDist)
+						end
+						if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then
+							safePoint = nil
+						end
 					end
+
 					local ret = {
 						spell=spellShot,
 						time=os.clock()+spellShot.time,
