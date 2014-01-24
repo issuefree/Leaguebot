@@ -109,7 +109,7 @@ local lastAAState = 0
 local lastAADelta = getAARate()
 local lastWUDelta = getWindup()
 
-local lastAttack = time() -- last time I cast an attack
+local lastAttack = 0 -- last time I cast an attack
 local shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 
