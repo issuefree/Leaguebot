@@ -22,6 +22,7 @@ spells["mace"] = {
   base={80,110,140,170,200}, 
   ap=.4,
   adBonus=1,
+  type="M",
   radius=600
 }
 spells["shield"] = {
@@ -30,16 +31,19 @@ spells["shield"] = {
   color=yellow, 
   base={24,38,52,66,80}, 
   ap=.2,
+  type="M",
   radius=250
 }
 spells["siphon"] = {
   key="E", 
-  range=700, 
+  range=650, 
   color=violet, 
   base={70,115,160,205,250}, 
   ap=.6,
+  type="M",
   delay=2,
-  speed=99,
+  speed=0,
+  noblock=true,
   cone=30
 }
 spells["grave"] = {
@@ -48,6 +52,7 @@ spells["grave"] = {
   color=red, 
   base={0,0,0}, 
   healthPerc={.24,.29,.34},
+  type="M",
   cost=0
 }
 
@@ -107,7 +112,7 @@ function Action()
       if target then
          local spell = spells["grave"]
          local perc = spell.healthPerc[GetSpellLevel(spell.key)]+(me.ap*.0004)
-         local dam = target.maxHealth*perc
+         local dam = Damage(target.maxHealth*perc, "M")
          if CalculateDamage(target, dam) > target.health*.75 then
             Cast("grave", target)
             PrintAction("Grave", target)
