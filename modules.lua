@@ -9,8 +9,8 @@ ModuleConfig:addParam("smite", "Auto Smite", SCRIPT_PARAM_ONOFF, true)
 ModuleConfig:permaShow("smite")
 
 require "WardRevealer"
-ModuleConfig:addParam("wardRevealer", "Ward Revealer", SCRIPT_PARAM_ONOFF, true)
-ModuleConfig:permaShow("wardRevealer")
+-- ModuleConfig:addParam("wardRevealer", "Ward Revealer", SCRIPT_PARAM_ONOFF, true)
+-- ModuleConfig:permaShow("wardRevealer")
 
 require "cleanse"
 ModuleConfig:addParam("cleanse", "Auto Cleanse", SCRIPT_PARAM_ONOFF, true)
@@ -34,11 +34,18 @@ require "testTargets"
 ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("testtargets")
 
-require "support"
-
+require "autoLane"
+ModuleConfig:addParam("autolane", "Auto Lane", SCRIPT_PARAM_ONOFF, false)
+ModuleConfig:permaShow("autolane")
 
 ModuleConfig:addParam("aaDebug", "Debug AA", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("aaDebug")
+
+require "JungleTimer"
+
+require "support"
+
+
 
 
 -- local modules = {}
