@@ -88,10 +88,10 @@ function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
-   end
+   end 
 
    if isStriking() then
-      PrintAction("Striking")
+      PrintAction("Striking") 
       return true
    end
 
