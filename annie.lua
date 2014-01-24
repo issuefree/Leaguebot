@@ -87,8 +87,32 @@ function Run()
    
    -- if we're alone blast everything.
    -- if there's a near, try to save stun
-
+   -- if we're alone blast 2 or more
+   -- if we're not alone but not near blast 2 if we're stoking else 3
    if IsOn("lasthit") then
+
+      if VeryAlone() then
+         if KillMinionsInCone(spells["inc"], 2, 0, false) then
+            PrintAction("Incinerate 2")
+            PauseToggle("lasthit", .25)
+            return true
+         end
+      elseif Alone() then
+         if IsOn("stoke") and not P.stun then
+            if KillMinionsInCone(spells["inc"], 2, 0, P.stun) then
+               PrintAction("Incinerate 2")
+               PauseToggle("lasthit", .25)
+               return true
+            end
+         else
+            if KillMinionsInCone(spells["inc"], 3, 0, false) then
+               PrintAction("Incinerate 3")
+               PauseToggle("lasthit", .25)
+               return true
+            end
+         end
+      end
+
       if VeryAlone() then
          if KillMinion("dis") then
             return true
@@ -100,29 +124,7 @@ function Run()
             end
          end    
       end
-   end   
 
-   -- if we're alone blast 2 or more
-   -- if we're not alone but not near blast 2 if we're stoking else 3
-   if IsOn("lasthit") then
-      if VeryAlone() then
-         if KillMinionsInCone(spells["inc"], 2, 0, false) then
-            PrintAction("Incinerate 2")
-            return true
-         end
-      elseif Alone() then
-         if IsOn("stoke") and not P.stun then
-            if KillMinionsInCone(spells["inc"], 2, 0, P.stun) then
-               PrintAction("Incinerate 2")
-               return true
-            end
-         else
-            if KillMinionsInCone(spells["inc"], 3, 0, false) then
-               PrintAction("Incinerate 3")
-               return true
-            end
-         end
-      end
    end
 
    if HotKey() then
@@ -140,7 +142,7 @@ function autoTibbers()
 
       tibbersHasTarget = false
       -- find the closest target to tibbers
-      local target = SortByDistance(GetInRange(P.tibbers, 1000, ENEMIES), P.tibbers)[1]
+      local target = GetMarkedTarget() or SortByDistance(GetInRange(P.tibbers, 1000, ENEMIES), P.tibbers)[1]
       if target then
          tibbersHasTarget = true
          tibbersAttack(target)
@@ -150,12 +152,19 @@ function autoTibbers()
    end
 end
 
+local tibbersAction
 function tibbersAttack(target)
    if GetDistance(P.tibbers, target) > tibbersRange then
       CastSpellTarget("R", target)
-      PrintAction("Tibbers CHARGE", target)
+      if tibbersAction ~= "CHARGE" then
+         PrintAction("Tibbers CHARGE", target)
+         tibbersAction = "CHARGE"
+      end
    else
-      PrintAction("Tibbers ATTACK", target)      
+      if tibbersAction ~= "ATTACK" then
+         PrintAction("Tibbers ATTACK", target)      
+         tibbersAction = "ATTACK"
+      end
    end
 end
 
