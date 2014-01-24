@@ -105,7 +105,7 @@ function Run()
       if Action() then
          return true
       end
-   end
+   end 
 
    if VeryAlone() and IsOn("lasthit") then
       if KillMinionsInCone("strike", 3) then
