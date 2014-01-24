@@ -10,7 +10,7 @@ function assTick()
       if ValidTarget(enemy) then
          local spells = GetSpellShots(enemy.name)
          for _,spell in ipairs(spells) do
-            if spell.perm and spell.key and enemy["SpellLevel"..spell.key] > 0 then
+            if spell.perm and spell.key and enemy["SpellLevel"..spell.key] > .5 then
 
                if spell.ss and spell.isline then
                   if GetDistance(enemy) < spell.range and enemy["SpellTime"..spell.key] >= 1 then
