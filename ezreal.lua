@@ -81,24 +81,6 @@ function Run()
 --   if target then
 --      Circle(GetFireahead(target, 1.2, 20),100, red )
 --   end
-  
-   -- -- Circle(Projection(HOME, me, GetDistance(HOME, me)+500))
-   -- local enemyTurret = SortByDistance(TURRETS, me)[1]
-   -- local myTurret = SortByDistance(MYTURRETS, enemyTurret)[1]
-
-   -- local pointMinion = SortByDistance(MYMINIONS, enemyTurret)[1]
-   -- Circle(pointMinion)
-   -- local p
-   -- if pointMinion then
-   --    p = Projection(HOME, pointMinion, GetDistance(HOME, pointMinion)-200)
-   -- else
-   --    p = Point(myTurret)
-   -- end
-   -- if p and not UnderTower(p) and GetDistance(p) > 150 then
-   --    Circle(p)
-   --    MoveToXYZ(p:unpack())
-   -- -- Circle(pointMinion)
-   -- end
 
    if HotKey() and CanAct() then
       UseItems()
@@ -129,8 +111,9 @@ function Run()
       if CanUse("shot") then
          for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
             if WillKill("shot", minion) and
-               ( JustAttacked() or
-                 GetDistance(minion) > spells["AA"].range )
+               -- ( JustAttacked() or
+                 GetDistance(minion) > spells["AA"].range 
+                 -- )
             then
                CastXYZ("shot", minion)
                PrintAction("Shot for lasthit")
