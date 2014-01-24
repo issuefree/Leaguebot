@@ -196,13 +196,18 @@ local function drawCommon()
 end
 
 function LoadConfig(name)
-   local config = {}
-   for line in io.lines(name..".cfg") do
-      for k,v in string.gmatch(line, "(%w+)=(%w+)") do
-         config[k] = v
-      end
-   end
-   return config
+   local status, config = pcall( 
+      function()
+         local config = {}
+         for line in io.lines(name..".cfg") do
+            for k,v in string.gmatch(line, "(%w+)=(%w+)") do
+               config[k] = v
+            end
+         end
+         return config
+      end 
+   )
+   if status then return config end
 end
 
 function SaveConfig(name, config)
@@ -813,7 +818,7 @@ function GetAllInRange(target, thing, ...)
    local result = {}
    local list = concat(...)
    for _,test in ipairs(list) do
-      if target and
+      if target and test and test.x and
          GetDistance(target, test) < range 
       then
          table.insert(result, test)
@@ -1102,6 +1107,13 @@ function IsChannelling(object)
    end
 end
 
+function PauseToggle(key, timeout)
+   Toggle(key, false)
+   DoIn( function() Toggle(key, true) end,
+         timeout,
+         "pause"..key )
+end
+
 function CastBuff(spell)
    if not P[spell] then
       Cast(spell, me)
@@ -1125,7 +1137,7 @@ function OnProcessSpell(unit, spell)
       then
          local spellShot = SpellShotTarget(unit, spell, me)
          if spellShot then
-            if not Engaged() then
+            if not Engaged() and spellShot.safePoint then
                BlockingMove(spellShot.safePoint)
                PrintAction("Dodge "..unit.name.."'s "..spell.name)
             end
@@ -1245,11 +1257,14 @@ function TimTick()
       end
    end
 
+   TrackMyPosition()
+
    UseAutoItems()
 end
 
 function AA(target)
-   if CanAttack() and ValidTarget(target) then
+   -- CanAttack() and
+   if  ValidTarget(target) then
       AttackTarget(target)
       return true
    end
@@ -1339,12 +1354,12 @@ end
 
 function RangedMove()
    if IsOn("move") then
-      if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
-         #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
-      then
-         MoveToCursor()
-         return false   
-      end
+      -- if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
+      --    #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
+      -- then
+      --    MoveToCursor()
+      --    return false   
+      -- end
    end
    return false
 end
