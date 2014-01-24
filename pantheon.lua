@@ -19,7 +19,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["spear"] = {
   key="Q", 
-  range=602, 
+  range=600, 
   color=violet, 
   base={65,105,145,185,225}, 
   adBonus=1.4,
@@ -36,7 +36,7 @@ spells["aegis"] = {
 }
 spells["strike"] = {
   key="E", 
-  range=598, 
+  range=600, 
   color=red, 
   base={39,69,99,129,159}, 
   adBonus=1.8,
@@ -101,14 +101,16 @@ function Run()
    end
 
    if HotKey() and CanAct() then
+      UseItems()
       if Action() then
-         return
+         return true
       end
    end
 
    if VeryAlone() and IsOn("lasthit") then
       if KillMinionsInCone("strike", 3) then
          PrintAction("Strike for lasthits")
+         return true
       end
    end    
 
@@ -137,8 +139,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-
    if CanUse("spear") then
       local target = GetMarkedTarget() or GetWeakestEnemy("spear")
       if target and FacingMe(target) then
@@ -161,7 +161,7 @@ function Action()
 
    if CanUse("strike") then
       -- I want to hit them a couple times so don't go for things right on the edge
-      local target = GetWeakEnemy("PHYS", 300)
+      local target = GetWeakEnemy("PHYS", 400)
       if target then
          Cast("strike", target)
          PrintAction("Strike", target)
@@ -178,7 +178,7 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if AA(target) then
       PrintAction("AA", target)
       return true
@@ -204,15 +204,7 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
+      if MeleeMove() then
          return false
       end
    end
