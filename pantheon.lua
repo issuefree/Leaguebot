@@ -96,7 +96,7 @@ function Run()
    end
 
    if isSkyfall() then
-      PrintAction("Skyfalling") 
+      PrintAction("Skyfalling")  
       return true
    end
 
