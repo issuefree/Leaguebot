@@ -90,7 +90,7 @@ function Run()
       return true
    end 
 
-   if isStriking() then 
+   if isStriking() then
       PrintAction("Striking") 
       return true
    end
