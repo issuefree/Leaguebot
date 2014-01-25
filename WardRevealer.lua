@@ -93,9 +93,11 @@ function drawWards()
 		end
 	end
 
-	for _,spot in ipairs(wardSpots) do
-		Circle(Point(spot), 25, yellow, 2)
-	end 
+	if GetMap() == 1 then
+		for _,spot in ipairs(wardSpots) do
+			Circle(Point(spot), 25, yellow, 2)
+		end 
+	end
 end
 
 function cleanUpWards()
