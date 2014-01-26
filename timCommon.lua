@@ -98,6 +98,8 @@ spells["AA"] = {
    name="attack"   
 }
 
+CHAR_SPELLS = {}
+
 HOME = nil
 
 repeat
@@ -225,6 +227,14 @@ function doCreateObj(object)
 
    createForPersist(object)
    
+   if IsHero(object) and not CHAR_SPELLS[object.name] then
+      CHAR_SPELLS[object.name] = LoadConfig("charSpells/"..object.name)
+      pp("loading "..object.name)
+      if not CHAR_SPELLS[object.name] then
+         CHAR_SPELLS[object.name] = {}
+      end
+   end
+
    for i, callback in ipairs(OBJECT_CALLBACKS) do
       callback(object)
    end
@@ -1155,6 +1165,12 @@ function OnProcessSpell(unit, spell)
       StartChannel(1)
    end
 
+   if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
+      CHAR_SPELLS[unit.name][spell.name] = "true"
+      pp("Adding "..spell.name.." to "..unit.name) 
+      SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
+   end
+
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
    --    callback(unit, spell)
    -- end   
@@ -1263,8 +1279,7 @@ function TimTick()
 end
 
 function AA(target)
-   -- CanAttack() and
-   if  ValidTarget(target) then
+   if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
       return true
    end
@@ -1304,7 +1319,7 @@ end
 
 function ModAAFarm(thing, pObj)
    if CanUse(thing) and not pObj then
-      local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
+      local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]
       if target and WillKill(thing, target) and JustAttacked() then
          Cast(thing, me)
          PrintAction(thing.." lasthit", target)
