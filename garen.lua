@@ -47,21 +47,21 @@ points = {}
 
 lastPoint = nil
 function Run()
-   PrintState(0, mousePos.x..","..mousePos.y..","..mousePos.z)
-   PrintState(1, GetMap())
-   PrintState(2, IsWall(mousePos.x, mousePos.y, mousePos.z))
+   -- PrintState(0, mousePos.x..","..mousePos.y..","..mousePos.z)
+   -- PrintState(1, GetMap())
+   -- PrintState(2, IsWall(mousePos.x, mousePos.y, mousePos.z))
 
-   if KeyDown(string.byte("X")) then
-      if not lastPoint or GetDistance(mousePos, lastPoint) > 75 then
-         printtext("("..mousePos.x..", "..mousePos.z.."),")
-         lastPoint = Point(mousePos)
-         table.insert(points, Point(mousePos))
-      end
-   end
+   -- if KeyDown(string.byte("X")) then
+   --    if not lastPoint or GetDistance(mousePos, lastPoint) > 75 then
+   --       printtext("("..mousePos.x..", "..mousePos.z.."),")
+   --       lastPoint = Point(mousePos)
+   --       table.insert(points, Point(mousePos))
+   --    end
+   -- end
 
-   for _,point in ipairs(points) do
-      Circle(point, 5)
-   end
+   -- for _,point in ipairs(points) do
+   --    Circle(point, 5)
+   -- end
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -78,6 +78,17 @@ function Run()
       elseif #bestMinions >= 3 then 
          spinT = GetCenter(bestMinions)
          Circle(spinT, 50, yellow, 6)
+      end
+   end
+
+   if CanUse("justice") then
+      local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
+      for i,target in ipairs(targets) do
+         if target.health < getJusticeDam(target) then
+            Cast("justice", target)
+            PrintAction("Justice", target)
+            return true            
+         end
       end
    end
 
@@ -113,17 +124,6 @@ function Run()
 end
 
 function Action()
-   if CanUse("justice") then
-      local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
-      for _,target in ipairs(targets) do
-         if target.health < getJusticeDam(target) then
-            Cast("justice", target)
-            PrintAction("Justice", target)
-            return true            
-         end
-      end
-   end
-
    local strikeUp = false
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target and not isSpinning() and CanUse("strike") and not P.strike then
