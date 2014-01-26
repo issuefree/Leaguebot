@@ -30,9 +30,9 @@ require "objectFind"
 ModuleConfig:addParam("debug", "Debug Objects", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("debug")
 
-require "testTargets"
-ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
-ModuleConfig:permaShow("testtargets")
+-- require "testTargets"
+-- ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
+-- ModuleConfig:permaShow("testtargets")
 
 require "autoLane"
 ModuleConfig:addParam("autolane", "Auto Lane", SCRIPT_PARAM_ONOFF, false)
