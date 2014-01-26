@@ -214,9 +214,6 @@ function SortByHealth(things)
 end
 
 function SortByDistance(things, target)
-   if not target or not target.x then
-      return {}
-   end   
    table.sort(things, 
       function(a,b)
          if not b or not b.x then return false end
