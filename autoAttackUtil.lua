@@ -62,14 +62,14 @@ function GetAAData()
       Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack"}, aaSpellName = "attack", startAttackSpeed = "0.625",  },
 
       Amumu        = { melee=true, aaParticles = {"SadMummyBasicAttack"} },
-      Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"JaxEmpowerTwo"} },
+      Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
       Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
       Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
       Olaf         = { melee=true },
       LeeSin       = { melee=true, aaSpellName={"LeeSinBasic", "LeeSinCrit"} },
       Leona        = { melee=true, aaParticles={"leona_basicattack_hit"}, aaSpellName={"LeonaBasicAttack", "LeonaCritAttack"} },
       Blitzcrank   = { melee=true, windup=.625 },
-      MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.525 },
+      MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.625 },
       Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
       Warwick      = { melee=true }
    }
