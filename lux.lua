@@ -155,7 +155,9 @@ function Run()
 
       local minions = GetInRange(P.singularity, spell.radius, MINIONS)
       local kills = GetKills("singularity", minions)
-      if #kills > 2 then
+      if ( Alone() and #kills >= 2 ) or
+         #kills >= 3
+      then
          Cast(spell, me, true)
          PrintAction("Pop to kill "..#kills.." minions")
       end
