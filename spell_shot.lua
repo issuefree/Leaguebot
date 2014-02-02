@@ -54,7 +54,7 @@ local spells = {
 		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN},
 	},
 	Blitzcrank = {
-		{name="RocketGrabMissile", key="Q", range=925, radius=80, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB},
+		{name="RocketGrabMissile", key="Q", range=925, radius=90, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB},
 	},
 	Brand = {
 		{name="BrandBlazeMissile", range=1050, radius=70, time=1, ss=true, isline=true, cc=STUN},
