@@ -6,13 +6,13 @@ function Point:__init(a, b, c)
       return nil
    end
    if not b and not c then
-      self.x = a.x
-      self.y = a.y
-      self.z = a.z
+      self.x = a.x+1-1
+      self.y = a.y+1-1
+      self.z = a.z+1-1
    else
-      self.x = a
-      self.y = b
-      self.z = c
+      self.x = a+1-1
+      self.y = b+1-1
+      self.z = c+1-1
    end
 end
 function Point:__add(p)
@@ -24,6 +24,11 @@ end
 function Point:__eq(p)
    return self.x == p.x and self.y == p.y and self.z == p.z
 end
+
+function Point:near(p)
+   return GetDistance(p, self) < 10
+end
+
 function Point:unpack()
    return self.x, self.y, self.z
 end
@@ -90,7 +95,7 @@ function Projection(source, target, dist) -- returns a point on the line between
    return Point(source.x+math.sin(a)*dist, y, source.z+math.cos(a)*dist)
 end
 
-function ProjectionA(source, angle, dist) -- returns a point on the line between two objects at a certain distance
+function ProjectionA(source, angle, dist)
    local y = source.y
    return Point(source.x+math.sin(angle)*dist, y, source.z+math.cos(angle)*dist)
 end
