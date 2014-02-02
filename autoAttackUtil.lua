@@ -10,67 +10,240 @@ end
 
 function GetAAData()
    return {  
-      Ahri         = { projSpeed = 1.6, aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, aaSpellName = "ahribasicattack", startAttackSpeed = "0.668",  },
-      Anivia       = { projSpeed = 1.05, aaParticles = {"cryo_BasicAttack"}, aaSpellName = "aniviabasicattack", startAttackSpeed = "0.625",  },
-      Annie        = { projSpeed = 1.0, aaParticles = {"annie_basicattack"}, aaSpellName = "AnnieBasicAttack", startAttackSpeed = "0.579",  },
-      Ashe         = { projSpeed = 2.0, aaParticles = {"bowmaster"}, aaSpellName = {"attack", "frostarrow"}, startAttackSpeed = "0.658" },
-      Brand        = { projSpeed = 1.975, aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"}, aaSpellName = "brandbasicattack", startAttackSpeed = "0.625" },
-      Caitlyn      = { projSpeed = 2.5, aaParticles = {"caitlyn_passive_mis", "caitlyn_mis"}, aaSpellName = {"CaitlynBasicAttack", "CaitlynHeadshotMissile", "CaitlynPiltoverPeacemaker"}, startAttackSpeed = "0.668", windup=.525, speed=.95 },
-      Cassiopeia   = { projSpeed = 1.22, aaParticles = {"CassBasicAttack_mis"}, aaSpellName = "cassiopeiabasicattack", startAttackSpeed = "0.644" },
-      Corki        = { projSpeed = 2.0, aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"}, aaSpellName = "CorkiBasicAttack", startAttackSpeed = "0.658" },
-      Draven       = { projSpeed = 1.4, aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"}, aaSpellName = "dravenbasicattack", startAttackSpeed = "0.679",  },
-      Ezreal       = { projSpeed = 2.0, aaParticles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}, aaSpellName = "ezrealbasicattack", startAttackSpeed = "0.625" },
-      FiddleSticks = { projSpeed = 1.75, aaParticles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"}, aaSpellName = "fiddlesticksbasicattack", startAttackSpeed = "0.625" },
-      Graves       = { projSpeed = 3.0, aaParticles = {"Graves_BasicAttack_mis",}, aaSpellName = "gravesbasicattack", startAttackSpeed = "0.625" },
-      Heimerdinger = { projSpeed = 1.4, aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"}, aaSpellName = "heimerdingerbasicAttack", startAttackSpeed = "0.625", windup=.575 },
-      Janna        = { projSpeed = 1.2, aaParticles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"}, aaSpellName = "jannabasicattack", startAttackSpeed = "0.625" },
-      Jayce        = { projSpeed = 2.2, aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"}, aaSpellName = "jaycebasicattack", startAttackSpeed = "0.658",  },
-      Jinx         = { projSpeed = 2.4, aaParticles = {"Jinx_Q_Minigun_Mis", "Jinx_Q_Rocket_mis"}, startAttackSpeed = "0.625" },
-      Karma        = { projSpeed = nil, aaParticles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"}, aaSpellName = "karmabasicattack", startAttackSpeed = "0.658",  },
-      Karthus      = { projSpeed = 1.25, aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"}, aaSpellName = "karthusbasicattack", startAttackSpeed = "0.625" },
-      Kayle        = { projSpeed = 1.8, aaParticles = {"RighteousFury_nova"}, aaSpellName = "KayleBasicAttack", startAttackSpeed = "0.638",  }, -- Kayle doesn't have a particle when auto attacking without E buff..
-      Kennen       = { projSpeed = 1.35, aaParticles = {"KennenBasicAttack_mis"}, aaSpellName = "kennenbasicattack", startAttackSpeed = "0.690" },
-      KogMaw       = { projSpeed = 1.8, aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"}, aaSpellName = {"kogmawbasicattack", "KogMawBioArcaneBarrageAttack"}, startAttackSpeed = "0.665", },
-      Leblanc      = { projSpeed = 1.7, aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"}, aaSpellName = "leblancbasicattack", startAttackSpeed = "0.625" },
-      Lulu         = { projSpeed = 2.5, aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"}, aaSpellName = "LuluBasicAttack", startAttackSpeed = "0.625" },
-      Lux          = { projSpeed = 1.55, aaParticles = {"LuxBasicAttack"}, aaSpellName = "luxbasicattack", startAttackSpeed = "0.625" },
-      Malzahar     = { projSpeed = 1.5, aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"}, aaSpellName = "malzaharbasicattack", startAttackSpeed = "0.625" },
-      MissFortune  = { projSpeed = 2.0, aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}, aaSpellName = "missfortunebasicattack", startAttackSpeed = "0.656", windup=.48 },
-      Morgana      = { projSpeed = 1.6, aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"}, aaSpellName = "Morganabasicattack", startAttackSpeed = "0.579" },
-      Nidalee      = { projSpeed = 1.7, aaParticles = {"nidalee_javelin_mis"}, aaSpellName = "nidaleebasicattack", startAttackSpeed = "0.670" },
-      Orianna      = { projSpeed = 1.4, aaParticles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"}, aaSpellName = "oriannabasicattack", startAttackSpeed = "0.658" },
-      Quinn        = { projSpeed = 1.85, aaParticles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"}, aaSpellName = "QuinnBasicAttack", startAttackSpeed = "0.668" },  --Quinn's critical attack has the same particle name as his basic attack.
-      Ryze         = { projSpeed = 2.4, aaParticles = {"ManaLeach_mis"}, aaSpellName = {"RyzeBasicAttack"}, startAttackSpeed = "0.625", windup=.55 },
-      Sivir        = { projSpeed = 1.4, aaParticles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"}, aaSpellName = "sivirbasicattack", startAttackSpeed = "0.658" },
-      Sona         = { projSpeed = 1.6, aaParticles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"}, aaSpellName = "sonabasicattack", startAttackSpeed = "0.644" },
-      Soraka       = { projSpeed = 1.0, aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625" },
-      Swain        = { projSpeed = 1.6, aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"}, aaSpellName = "swainbasicattack", startAttackSpeed = "0.625" },
-      Syndra       = { projSpeed = 1.2, aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"}, aaSpellName = "sorakabasicattack", startAttackSpeed = "0.625",  },
-      Teemo        = { projSpeed = 1.3, aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"}, aaSpellName = {"teemobasicattack", "ToxicShotAttack"}, startAttackSpeed = "0.690" },
-      Tristana     = { projSpeed = 2.25, aaParticles = {"TristannaBasicAttack_mis"}, aaSpellName = "tristanabasicattack", startAttackSpeed = "0.656", windup=.45 },
-      TwistedFate  = { projSpeed = 1.5, aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"}, aaSpellName = "twistedfatebasicattack", startAttackSpeed = "0.651",  },
-      Twitch       = { projSpeed = 2.5, aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"}, aaSpellName = "twitchbasicattack", startAttackSpeed = "0.679" },
-      Urgot        = { projSpeed = 1.3, aaParticles = {"UrgotBasicAttack_mis"}, aaSpellName = "urgotbasicattack", startAttackSpeed = "0.644" },
-      Vayne        = { projSpeed = 2.0, aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" }, aaSpellName = "vaynebasicattack", startAttackSpeed = "0.658",  },
-      Varus        = { projSpeed = 2.0, aaParticles = {"Attack"}, aaSpellName = "basic", startAttackSpeed = "0.658",  },
-      Veigar       = { projSpeed = 1.05, aaParticles = {"permission_basicAttack_mis"}, aaSpellName = "veigarbasicattack", startAttackSpeed = "0.625" },
-      Viktor       = { projSpeed = 2.25, aaParticles = {"ViktorBasicAttack_cas", "ViktorBasicAttack_mis", "ViktorBasicAttack_tar"}, aaSpellName = "viktorbasicattack", startAttackSpeed = "0.625" },
-      Vladimir     = { projSpeed = 1.4, aaParticles = {"VladBasicAttack_mis", "VladBasicAttack_mis_bloodless", "VladBasicAttack_tar", "VladBasicAttack_tar_bloodless"}, aaSpellName = "vladimirbasicattack", startAttackSpeed = "0.658" },
-      Xerath       = { projSpeed = 1.2, aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"}, aaSpellName = "xerathbasicattack", startAttackSpeed = "0.625" },
-      Ziggs        = { projSpeed = 1.5, aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"}, aaSpellName = "ziggsbasicattack", startAttackSpeed = "0.656" },
-      Zilean       = { projSpeed = 1.25, aaParticles = {"ChronoBasicAttack_mis"}, aaSpellName = "zileanbasicattack" },
-      Zyra         = { projSpeed = 1.7, aaParticles = {"Zyra_basicAttack"}, aaSpellName = "attack", startAttackSpeed = "0.625",  },
+      Ahri         = { projSpeed = 1.6, startAttackSpeed = "0.668",
+                       aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, 
+                       aaSpellName = {"attack"} },
 
-      Amumu        = { melee=true, aaParticles = {"SadMummyBasicAttack"} },
-      Jax          = { melee=true, aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"}, aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
-      Garen        = { melee=true, aaParticles = {"Garen_Base_AA_Tar"}},
-      Nasus        = { melee=true, aaParticles = {"nassus_siphonStrike_tar"} },
+      Anivia       = { projSpeed = 1.05, startAttackSpeed = "0.625",
+                       aaParticles = {"cryo_BasicAttack"},
+                       aaSpellName = {"attack"} },
+
+      Annie        = { projSpeed = 1.0, startAttackSpeed = "0.579",
+                       aaParticles = {"annie_basicattack"},
+                       aaSpellName = {"attack"} },
+
+      Ashe         = { projSpeed = 2.0, startAttackSpeed = "0.658",
+                       aaParticles = {"bowmaster"},
+                       aaSpellName = {"attack", "frostarrow"} },
+
+      Brand        = { projSpeed = 1.975, startAttackSpeed = "0.625",
+                       aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Caitlyn      = { projSpeed = 2.5, startAttackSpeed = "0.668", windup=.525, speed=.95,
+                       aaParticles = {"caitlyn_passive_mis", "caitlyn_mis"},
+                       aaSpellName = {"attack", "CaitlynHeadshotMissile"} },
+
+      Cassiopeia   = { projSpeed = 1.22, startAttackSpeed = "0.644",
+                       aaParticles = {"CassBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Corki        = { projSpeed = 2.0, startAttackSpeed = "0.658",
+                       aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"},
+                       aaSpellName = {"attack"} },
+
+      Draven       = { projSpeed = 1.4, startAttackSpeed = "0.679",
+                       aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"},
+                       aaSpellName = {"attack"} },
+
+      Ezreal       = { projSpeed = 2.0, startAttackSpeed = "0.625",
+                       aaParticles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"},
+                       aaSpellName = {"attack"} },
+
+      FiddleSticks = { projSpeed = 1.75, startAttackSpeed = "0.625",
+                       aaParticles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Graves       = { projSpeed = 3.0, startAttackSpeed = "0.625",
+                       aaParticles = {"Graves_BasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Heimerdinger = { projSpeed = 1.4, startAttackSpeed = "0.625", windup=.575,
+                       aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Janna        = { projSpeed = 1.2, startAttackSpeed = "0.625",
+                       aaParticles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"},
+                       aaSpellName = {"attack"} },
+
+      Jayce        = { projSpeed = 2.2, startAttackSpeed = "0.658",
+                       aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"},
+                       aaSpellName = {"attack"} },
+
+      Jinx         = { projSpeed = 2.4, startAttackSpeed = "0.625",
+                       aaParticles = {"Jinx_Q_Minigun_Mis", "Jinx_Q_Rocket_mis"},
+                       aaSpellName = {"attack"} },
+
+      Karma        = { projSpeed = nil, startAttackSpeed = "0.658",
+                       aaParticles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"},
+                       aaSpellName = {"attack"} },
+
+      Karthus      = { projSpeed = 1.25, startAttackSpeed = "0.625",
+                       aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Kayle        = { projSpeed = 1.8, startAttackSpeed = "0.638",
+                       aaParticles = {"RighteousFury_nova"},
+                       aaSpellName = {"attack"} },
+
+      Kennen       = { projSpeed = 1.35, startAttackSpeed = "0.690",
+                       aaParticles = {"KennenBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      KogMaw       = { projSpeed = 1.8, startAttackSpeed = "0.665",
+                       aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"},
+                       aaSpellName = {"attack"} },
+
+      Leblanc      = { projSpeed = 1.7, startAttackSpeed = "0.625",
+                       aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Lulu         = { projSpeed = 2.5, startAttackSpeed = "0.625",
+                       aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Lux          = { projSpeed = 1.55, startAttackSpeed = "0.625",
+                       aaParticles = {"LuxBasicAttack"},
+                       aaSpellName = {"attack"} },
+
+      Malzahar     = { projSpeed = 1.5, startAttackSpeed = "0.625",
+                       aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      MissFortune  = { projSpeed = 2.0, startAttackSpeed = "0.656", windup=.48,
+                       aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"},
+                       aaSpellName = {"attack"} },
+
+      Morgana      = { projSpeed = 1.6, startAttackSpeed = "0.579",
+                       aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"},
+                       aaSpellName = {"attack"} },
+
+      Nidalee      = { projSpeed = 1.7, startAttackSpeed = "0.670",
+                       aaParticles = {"nidalee_javelin_mis"},
+                       aaSpellName = {"attack"} },
+
+      Orianna      = { projSpeed = 1.4, startAttackSpeed = "0.658",
+                       aaParticles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Quinn        = { projSpeed = 1.85, startAttackSpeed = "0.668",  --Quinn's critical attack has the same particle name as his basic attack.
+                       aaParticles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"},
+                       aaSpellName = {"attack"} },
+
+      Ryze         = { projSpeed = 2.4, startAttackSpeed = "0.625", windup=.55,
+                       aaParticles = {"ManaLeach_mis"},
+                       aaSpellName = {"attack"} },
+
+      Sivir        = { projSpeed = 1.4, startAttackSpeed = "0.658",
+                       aaParticles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Sona         = { projSpeed = 1.6, startAttackSpeed = "0.644",
+                       aaParticles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"},
+                       aaSpellName = {"attack"} },
+
+      Soraka       = { projSpeed = 1.0, startAttackSpeed = "0.625",
+                       aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Swain        = { projSpeed = 1.6, startAttackSpeed = "0.625",
+                       aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Syndra       = { projSpeed = 1.2, startAttackSpeed = "0.625",
+                       aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Teemo        = { projSpeed = 1.3, startAttackSpeed = "0.690",
+                       aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"},
+                       aaSpellName = {"attack"} },
+
+      Tristana     = { projSpeed = 2.25, startAttackSpeed = "0.656", windup=.45,
+                       aaParticles = {"TristannaBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      TwistedFate  = { projSpeed = 1.5, startAttackSpeed = "0.651",
+                       aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Twitch       = { projSpeed = 2.5, startAttackSpeed = "0.679",
+                       aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"},
+                       aaSpellName = {"attack"} },
+
+      Urgot        = { projSpeed = 1.3, startAttackSpeed = "0.644",
+                       aaParticles = {"UrgotBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Vayne        = { projSpeed = 2.0, startAttackSpeed = "0.658",
+                       aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" },
+                       aaSpellName = {"attack"} },
+
+      Varus        = { projSpeed = 2.0, startAttackSpeed = "0.658",
+                       aaParticles = {},
+                       aaSpellName = {"attack"} }, --varusemissiledummy?
+
+      Veigar       = { projSpeed = 1.05, startAttackSpeed = "0.625",
+                       aaParticles = {"permission_basicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Viktor       = { projSpeed = 2.25, startAttackSpeed = "0.625",
+                       aaParticles = {"ViktorBasicAttack_cas", "ViktorBasicAttack_mis", "ViktorBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Vladimir     = { projSpeed = 1.4, startAttackSpeed = "0.658",
+                       aaParticles = {"VladBasicAttack_mis", "VladBasicAttack_mis_bloodless", "VladBasicAttack_tar", "VladBasicAttack_tar_bloodless"},
+                       aaSpellName = {"attack"} },
+
+      Xerath       = { projSpeed = 1.2, startAttackSpeed = "0.625",
+                       aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"},
+                       aaSpellName = {"attack"} },
+
+      Ziggs        = { projSpeed = 1.5, startAttackSpeed = "0.656",
+                       aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"},
+                       aaSpellName = {"attack"} },
+
+      Zilean       = { projSpeed = 1.25,
+                       aaParticles = {"ChronoBasicAttack_mis"},
+                       aaSpellName = {"attack"} },
+
+      Zyra         = { projSpeed = 1.7, startAttackSpeed = "0.625",
+                       aaParticles = {"Zyra_basicAttack"},
+                       aaSpellName = {"attack"} },
+
+
+      Amumu        = { melee=true,
+                       aaParticles = {"SadMummyBasicAttack"} },
+
+      JarvanIV     = { melee=true,
+                       aaSpellName={"JarvanIVBasicAttack"} },
+
+      Jax          = { melee=true,
+                       aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
+                       aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
+
+      Garen        = { melee=true,
+                       aaParticles = {"Garen_Base_AA_Tar"}},
+      Nasus        = { melee=true,
+                       aaParticles = {"nassus_siphonStrike_tar"} },
+
       Olaf         = { melee=true },
-      LeeSin       = { melee=true, aaSpellName={"LeeSinBasic", "LeeSinCrit"} },
-      Leona        = { melee=true, aaParticles={"leona_basicattack_hit"}, aaSpellName={"LeonaBasicAttack", "LeonaCritAttack"} },
+
+      LeeSin       = { melee=true,
+                       aaSpellName={"attack"} },
+
+      Leona        = { melee=true,
+                       aaParticles={"leona_basicattack_hit"},
+                       aaSpellName={"attack"} },
+
       Blitzcrank   = { melee=true, windup=.625 },
-      MasterYi     = { melee=true, aaParticles = {"Wuju_Trail"}, windup=.625 },
-      Tryndamere   = { melee=true, aaParticles = {"tryndamere_weapontrail"}, aaSpellName = {"attack", "Bloodlust"} },
+
+      MasterYi     = { melee=true, windup=.625,
+                       aaParticles = {"Wuju_Trail"} },
+
+      Tryndamere   = { melee=true,
+                       aaParticles = {"tryndamere_weapontrail"},
+                       aaSpellName = {"attack", "Bloodlust"} },
+
       Warwick      = { melee=true }
    }
 end
@@ -86,8 +259,10 @@ if not aaData.aaParticles then
    -- aaData.aaParticles = {"globalhit_bloodslash"}
 end
 if not aaData.aaSpellName then
-  aaData.aaSpellName = "attack"
+  aaData.aaSpellName = {"attack"}
 end
+table.insert(aaData.aaSpellName, "ItemTiamatCleave")
+
 if not aaData.windup then
    aaData.windup = .55
 end
