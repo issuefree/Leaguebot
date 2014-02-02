@@ -43,13 +43,15 @@ spells["justice"] = {
 
 local spinT
 
-points = {}
-
-lastPoint = nil
 function Run()
-   -- PrintState(0, mousePos.x..","..mousePos.y..","..mousePos.z)
-   -- PrintState(1, GetMap())
-   -- PrintState(2, IsWall(mousePos.x, mousePos.y, mousePos.z))
+   PrintState(0, mousePos.x..","..mousePos.y..","..mousePos.z)
+   if MAPNAME then
+      PrintState(1, MAPNAME)
+   end
+   -- local collision = WillCollide(me, mousePos)
+   -- if collision then
+   --    Circle(collision, 15, red, 5)
+   -- end
 
    -- if KeyDown(string.byte("X")) then
    --    if not lastPoint or GetDistance(mousePos, lastPoint) > 75 then
@@ -67,6 +69,8 @@ function Run()
       PrintAction("Recalling or dead")
       return true
    end
+
+   
 
    spinT = nil
    if CanUse("judgement") then
@@ -231,4 +235,4 @@ end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
-SetTimerCallback("Run")
+AddOnTick(Run)
