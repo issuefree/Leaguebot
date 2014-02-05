@@ -23,4 +23,17 @@ function foo(...)
    pp(arg)
 end
 
-foo(1,2,3)
+
+
+a = "2450,0,1500"
+b = "2450,-193,1550"
+
+reg = "(%d+),([-]*%d+),(%d+)"
+
+for x,y,z in string.gmatch(a, reg) do
+    pp(x..","..y..","..z)
+end
+
+for x,y,z in string.gmatch(b, reg) do
+    pp(x..","..y..","..z)
+end
