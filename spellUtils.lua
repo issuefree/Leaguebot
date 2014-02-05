@@ -316,6 +316,20 @@ function getSBDam(item, buff, needActive)
    return Damage()
 end
 
+function GetKnockback(thing, source, target)
+   local spell = GetSpell(thing)
+   local a = target.x - source.x
+   local b = target.z - source.z 
+   
+   local angle = math.atan(a/b)
+   
+   if b < 0 then
+      angle = angle+math.pi
+   end
+
+   return ProjectionA(target, angle, spell.knockback)
+end
+
 local trackTicks = 8
 tfas = {}
 function TrackSpellFireahead(thing, target)
