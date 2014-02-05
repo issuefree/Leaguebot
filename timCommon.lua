@@ -9,6 +9,7 @@ require "autoAttackUtil"
 require "persist"
 require "spellUtils"
 require "toggles"
+require "walls"
 
 
 if me.SpellLevelQ == 0 and
@@ -49,26 +50,9 @@ end
 
 LOADING = true
 
-OBJECT_CALLBACKS = {}
-SPELL_CALLBACKS = {}
-
 ACTIVE_SKILL_SHOTS = {}
 function addSkillShot(spellShot)
    table.insert(ACTIVE_SKILL_SHOTS, spellShot)
-end
-
-function AddOnTick(callback)
-   RegisterLibraryOnTick(callback)
-end
-
-function AddOnCreate(callback)
-   table.insert(OBJECT_CALLBACKS, callback)
-   -- RegisterLibraryOnCreateObj(callback)
-end
-
-function AddOnSpell(callback)
-   -- table.insert(SPELL_CALLBACKS, callback)
-   RegisterLibraryOnProcessSpell(callback)
 end
 
 local function OnKey(msg, key)
@@ -112,9 +96,9 @@ repeat
    end
 until playerTeam ~= nil and playerTeam ~= "0"
 
--- local wall = {}
+local wall = {}
 
--- for line in io.lines("walls.txt") do
+-- for line in io.lines("walls4.txt") do
 --    for x, z in string.gmatch(line, "(%d+)%.*%d*, (%d+)%.*%d*") do
 --       table.insert(wall, Point(x, 0, z))
 --    end
@@ -125,11 +109,11 @@ local function drawCommon()
       return
    end
 
-   -- for i=1,#wall-1,1 do
-   --    if GetDistance(wall[i], wall[i+1]) < 250 then
-   --       LineBetween(wall[i], wall[i+1])
-   --    end
-   -- end
+   for i=1,#wall-1,1 do
+      if GetDistance(wall[i], wall[i+1]) < 250 then
+         LineBetween(wall[i], wall[i+1])
+      end
+   end
 
    for _,turret in ipairs(TURRETS) do
       Circle(turret, 950, red)
@@ -229,7 +213,6 @@ function doCreateObj(object)
    
    if IsHero(object) and not CHAR_SPELLS[object.name] then
       CHAR_SPELLS[object.name] = LoadConfig("charSpells/"..object.name)
-      pp("loading "..object.name)
       if not CHAR_SPELLS[object.name] then
          CHAR_SPELLS[object.name] = {}
       end
@@ -368,7 +351,11 @@ function throttle(id, millis)
 end
 
 -- "mark" the enemy closest to a mouse click (i.e. click to mark)
-function MarkTarget()
+function MarkTarget(target)
+   if target then
+      Persist("markedTarget", target)
+      return target
+   end
    if #GetInRange(GetMousePos(), 500, ENEMIES) == 0 then
       P.markedTarget = nil
       return
@@ -376,6 +363,7 @@ function MarkTarget()
    local targets = SortByDistance(GetInRange(mousePos, 200, ENEMIES), GetMousePos())
    if targets[1] then
       Persist("markedTarget", targets[1])
+      return targets[1]
    end
 end
 function GetMarkedTarget()
@@ -1165,10 +1153,12 @@ function OnProcessSpell(unit, spell)
       StartChannel(1)
    end
 
-   if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
-      CHAR_SPELLS[unit.name][spell.name] = "true"
-      pp("Adding "..spell.name.." to "..unit.name) 
-      SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
+   if CHAR_SPELLS[unit.name] then
+      if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
+         CHAR_SPELLS[unit.name][spell.name] = "new"
+         pp("Adding "..spell.name.." to "..unit.name) 
+         SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
+      end
    end
 
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
@@ -1227,7 +1217,10 @@ function Unblock()
 end
 
 -- Common stuff that should happen every time
+local tt = time()
 function TimTick()
+   DrawText(trunc(1/(time()-tt),1),1800,60,0xFFCCEECC);
+   tt = time()
    if not LOADING then
       for i = 1, objManager:GetMaxNewObjects(), 1 do
          local object = objManager:GetNewObject(i)
@@ -1512,4 +1505,4 @@ function UseItem(itemName, target)
 end
 
 
-SetTimerCallback("TimTick")
+AddOnTick(TimTick)

@@ -142,6 +142,23 @@ function copy(orig)
    return copy
 end
 
+OBJECT_CALLBACKS = {}
+SPELL_CALLBACKS = {}
+
+function AddOnTick(callback)
+   RegisterLibraryOnTick(callback)
+end
+
+function AddOnCreate(callback)
+   table.insert(OBJECT_CALLBACKS, callback)
+   -- RegisterLibraryOnCreateObj(callback)
+end
+
+function AddOnSpell(callback)
+   -- table.insert(SPELL_CALLBACKS, callback)
+   RegisterLibraryOnProcessSpell(callback)
+end
+
 function FilterList(list, f)
    local res = {}
    for _,item in ipairs(list) do
