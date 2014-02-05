@@ -13,7 +13,7 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", 
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 local function feastRange()
-	return GetWidth(me)+150
+	return GetWidth(me)+125
 end
 
 spells["rupture"] = {
