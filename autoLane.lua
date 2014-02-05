@@ -31,11 +31,24 @@ function AutoLane()
    else
       p = Point(myTurret)
    end
-   if p and not UnderTower(p) and GetDistance(p) > 150 then
+
+   if IsAttacking() then
+      loc = nil
+   end
+
+   if p and not UnderTower(p) and GetDistance(p) > 250 and CanMove() then
       Circle(p)
       MoveToXYZ(p:unpack())
    -- Circle(pointMinion)
+   elseif CanMove() and not loc then
+      local dist = 150
+      local angle = math.random(0, math.pi/2)
+      loc = ProjectionA(me, angle, dist)
+      Circle(loc)
+      -- local loc = Point(me) + Point(math.random(-150, 150), 0, math.random(-150, 150))
+      MoveToXYZ(loc:unpack())
    end
+
    KillMinion("AA")
 end
 
