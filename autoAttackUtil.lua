@@ -174,7 +174,7 @@ function GetAAData()
                        aaParticles = {"UrgotBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
-      Vayne        = { projSpeed = 2.0, startAttackSpeed = "0.658",
+      Vayne        = { projSpeed = 2.0, startAttackSpeed = "0.658", windup=.525,
                        aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" },
                        aaSpellName = {"attack"} },
 
