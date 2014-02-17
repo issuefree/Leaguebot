@@ -57,7 +57,7 @@ local function onCreateObjectSupport(object)
 end
 
 function CheckShield(thing, unit, spell, type)
-   if find(unit.name, "Minion") or
+   if not IsEnemy(unit) or
       IsRecalling(me) or
       not CanUse(thing) or
       unit.team == me.team
@@ -95,7 +95,7 @@ function CheckShield(thing, unit, spell, type)
    for _,ally in ipairs(allies) do
       local shot = SpellShotTarget(unit, spell, ally)
       if shot then
-         if type == "MAGIC" and shot.spell.physical then
+         if type == "MAGIC" and shot.physical then
             return false
          end
 
