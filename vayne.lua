@@ -174,16 +174,7 @@ end
 
 -- give me a set of possible tumble location
 function GetTumbleLocs()
-   local dist = GetSpellRange("tumble")
-   local num = 16
-
-   local locs = {}
-   for i=1,num,1 do
-      local angle = 2*math.pi/num*i
-      local loc = ProjectionA(me, angle, dist)
-      table.insert(locs, loc)
-   end
-   return locs
+   return GetCircleLocs(me, GetSpellRange("tumble"))
 end
 
 local function onCreate(object)
