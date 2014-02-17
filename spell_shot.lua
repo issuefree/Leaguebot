@@ -16,6 +16,7 @@ Tim's modified version of...
 --]]
 
 require "telemetry"
+require "walls"
 
 -- "hardness" of the cc
 local GRAB = 4
@@ -42,12 +43,12 @@ local spells = {
 		{name="BandageToss", range=1100, radius=80, time=1, ss=true, isline=true, cc=STUN},
 	},
 	Annie = {
-		{name="disintigrate", key="Q", cc=STUN},
-		{name="infernalguardian", key="R", range=600, perm=true, cc=STUN},
+		{name="Disintegrate", key="Q", cc=STUN},
+		{name="InfernalGuardian", key="R", range=600, perm=true, cc=STUN},
 	},
 	Anivia = {
 		{name="FlashFrostSpell", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=STUN},
-		{name="frostbite"},
+		{name="Frostbite"},
 	},
 	Ashe = {
 		{name="volley", cc=SLOW, physical=true},
@@ -93,7 +94,7 @@ local spells = {
 		{name="DravenRCast", range=50000, radius=100, time=4, ss=true, show=true, isline=true, physical=true},
 	},
 	DrMundo = {
-		{name="InfectedCleaverMissile", key="Q", range=1000, radius=80, time=1, ss=true, perm=true, block=true, isline=true, cc=SLOW},
+		{name="InfectedCleaverMissileCast", key="Q", range=1000, radius=60, time=1, ss=true, perm=true, block=true, isline=true, cc=SLOW},
 	},
 	Elise = {
 		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true},
@@ -153,7 +154,7 @@ local spells = {
 	},
 	Jinx = {
 		{name="JinxQ", key="Q"},
-		{name="JinxW", key="W", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
+		{name="JinxWMissile", key="W", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
 		{name="JinxE", key="E"},
 		{name="JinxR", key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true}
 	},
@@ -201,7 +202,7 @@ local spells = {
 		{name="leonasolarflare", cc=STUN},
 	},
 	Lissandra = {
-		{name="LissandraQ", range=725, radius=100, time=1, ss=true, isline=true, cc=SLOW},
+		{name="LissandraQMissile", range=725, radius=100, time=1, ss=true, isline=true, cc=SLOW},
 		{name="LissandraE", range=1050, radius=100, time=1.5, ss=true, isline=true},
 	},
 	Lucian = {
@@ -435,108 +436,92 @@ function GetSpellShot(unit, spell)
 
 	local spellShot = GetSpellDef(unit.name, spell.name)
 	if spellShot then
-		if spellShot.isline then
-			local shotDistance
-			if spell.point then -- make sure we get the whole line if necessary
-				shotDistance = GetDistance(startPos, spell.endPos) + spell.radius
-			else
-				shotDistance = spellShot.range + spellShot.radius
-			end
-			if spellShot.point then
-				return {
-					spell=spellShot,
-					time=os.clock()+spellShot.time,
-					startPoint=Point(unit),
-					endPoint=Projection(Point(unit), spell.endPos, shotDistance)
-				}
-			else
-				return {
-					spell=spellShot,
-					time=os.clock()+spellShot.time,
-					startPoint=startPos,
-					endPoint=spell.endPos
-				}
-			end
+		if not spellShot.time then
+			spellShot.time = 1
 		end
+		if not spellShot.radius then
+			spellShot.radius = 0
+		end
+		spellShot.timeOut = os.clock()+spellShot.time
+		spellShot.startPoint = Point(unit)
+		spellShot.endPoint = spell.endPos
+
+		if spellShot.point or not spellShot.isline then
+			spellShot.maxDist = GetDistance(spellShot.startPoint, spellShot.endPoint) + spellShot.radius
+		else
+			spellShot.maxDist = spellShot.range + spellShot.radius
+			spellShot.endPoint = Projection(spellShot.startPoint, spellShot.endPoint, spellShot.maxDist)
+		end
+
+		return spellShot
 	else
 		return nil
 	end
 end
+
+local function isSafe(safePoint, spell, spellShot)
+	if not safePoint then
+		return false
+	end
+
+	if spellShot.isline and not spellShot.point then
+		local dist = GetDistance(spellShot.startPoint, safePoint)
+
+		if dist < spellShot.maxDist then
+			local impactPoint = Projection(spellShot.startPoint, spellShot.endPoint, dist)
+			local impactDistance = GetDistance(impactPoint, safePoint)
+			if impactDistance <= spellShot.safeDist then -- hit
+				return false
+			end
+		end
+	else
+		if GetDistance(safePoint, spellShot.endPoint) < spellShot.safeDist then
+			return false
+		end
+	end
+	return true
+end
+
 function SpellShotTarget(unit, spell, target)
 	if unit and spell and unit.team ~= target.team then
-		local spellShot = GetSpellDef(unit.name, spell.name)
-		local startPos = Point(unit) -- always start them at the unit casting them
-		if spellShot and spellShot.ss then
-			local safeDist = spellShot.radius + GetDistance(target, GetMinBBox(target))
-			if spellShot.isline then
-				local shotDistance 
-				if spell.point then -- make sure we get the whole line if necessary
-					shotDistance = GetDistance(startPos, spell.endPos) + spell.radius
-				else
-					shotDistance = spellShot.range + spellShot.radius
+		local shot = GetSpellShot(unit, spell)
+		if shot and shot.ss then
+			
+			shot.safeDist = shot.radius + GetWidth(target)/2
+			
+			-- calculate a safe points if I'm the target
+			if IsMe(target) and not isSafe(me, spell, shot) then
+				
+				local impactPoint = shot.endPoint
+				if shot.isline and not shot.point then
+					impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
+				end
+				
+				-- is where I'll be in half a second clear?
+				local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
+
+				if not isSafe(safePoint, spell, shot) then					
+					safePoint = Projection(impactPoint, target, shot.safeDist)
 				end
 
-				local targetDistance = GetDistance(startPos, target)
-
-				if targetDistance < shotDistance then -- target is in range
-					local point = Projection(startPos, spell.endPos, targetDistance) -- "impact" point
-					local impactDistance = GetDistance(target, point)
-					if impactDistance <= spellShot.radius then -- hit
-
-						-- calculate a safe points if I'm the target
-						if IsMe(target) then
-							-- is where I'll be in half a second clear?
-							local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
-							if GetDistance(point, safePoint) < safeDist then
-								safePoint = Projection(point, target, safeDist)
-							end
-
-							if IsWall(safePoint:unpack()) == 1 then -- if safe is into a wall go the other direction
-								safePoint = Projection(safePoint, point, safeDist*2)
-								if IsWall(safePoint:unpack()) == 1 then -- if that's still a wall give up, it's meant to be
-									return nil
-								end
-							end
-						end
-
-						local ret = {
-							spell=spellShot,
-							time=os.clock()+spellShot.time, 
-							startPoint=startPos,
-							endPoint=Projection(Point(unit), spell.endPos, shotDistance),
-							safePoint=safePoint, 
-							isline=true
-						}
-						return ret
-					end
-				end
-			else
-				local impactDistance = GetDistance(target, spell.endPos)
-				if impactDistance <= spellShot.radius then
-					
-					-- calculate a safe points if I'm the target
-					if IsMe(target) then
-						local point = spell.endPos
-						local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
-						if GetDistance(point, safePoint) < safeDist then
-							safePoint = Projection(point, target, safeDist)
-						end
-						if IsWall(safePoint.x, safePoint.y, safePoint.z) == 1 then
-							safePoint = nil
+				if IsSolid(safePoint) then -- if safe is into a wall go the other direction
+					safePoint = nil
+					local locs = SortByDistance(GetCircleLocs(impactPoint, shot.safeDist))
+					for _,loc in ipairs(locs) do
+						if not IsSolid(loc) and isSafe(loc, spell, shot) then
+							safePoint = loc
+							break
 						end
 					end
-
-					local ret = {
-						spell=spellShot,
-						time=os.clock()+spellShot.time,
-						startPoint=startPos,
-						endPoint=spell.endPos,
-						safePoint=safePoint,
-						isline=false
-					}
-					return ret
 				end
+
+				-- if safePoint then
+					shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
+				-- end
+
+				return shot
 			end
+
 		end
 	end
 	return nil
