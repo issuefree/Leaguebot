@@ -214,6 +214,12 @@ function GetAAData()
       Amumu        = { melee=true,
                        aaParticles = {"SadMummyBasicAttack"} },
 
+      Elise        = { melee=true, windup=.55, speed=1.1,
+                       aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
+
+      Garen        = { melee=true,
+                       aaParticles = {"Garen_Base_AA_Tar"}},
+
       JarvanIV     = { melee=true,
                        aaSpellName={"JarvanIVBasicAttack"} },
 
@@ -221,8 +227,6 @@ function GetAAData()
                        aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
 
-      Garen        = { melee=true,
-                       aaParticles = {"Garen_Base_AA_Tar"}},
       Nasus        = { melee=true,
                        aaParticles = {"nassus_siphonStrike_tar"} },
 
