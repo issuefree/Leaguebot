@@ -12,7 +12,7 @@ spells["reckoning"] = {
   range=650, 
   color=violet, 
   base={60,110,160,210,260}, 
-  ap=1,
+  ap=.6,
   bonusAd=1
 }
 spells["blessing"] = {
@@ -20,7 +20,7 @@ spells["blessing"] = {
   range=900, 
   color=green, 
   base={60,105,150,195,240}, 
-  ap=.35
+  ap=.45
 }
 spells["fury"] = {
   key="E", 
