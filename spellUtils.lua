@@ -2,6 +2,7 @@ require "basicUtils"
 require "items"
 require "persist"
 require "telemetry"
+require "walls"
 
 -- common spell defs
 spells = {}
@@ -244,8 +245,11 @@ function GetSpellDamage(thing, target)
    if spell.percMaxHealth and target then
       damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
    end
-   if spell.targetMissingHealth and target then
-      damage = damage + GetLVal(spell, "targetMissingHealth")*(target.maxHealth - target.health)
+   if spell.percHealth and target then
+      damage = damage + GetLVal(spell, "percHealth")*target.health
+   end
+   if spell.percMissingHealth and target then
+      damage = damage + GetLVal(spell, "percMissingHealth")*(target.maxHealth - target.health)
    end
    if spell.onHit then
       damage = damage + GetOnHitDamage(target, false)
@@ -330,7 +334,7 @@ function GetKnockback(thing, source, target)
    return ProjectionA(target, angle, spell.knockback)
 end
 
-local trackTicks = 8
+local trackTicks = 10
 tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   
@@ -343,8 +347,9 @@ function TrackSpellFireahead(thing, target)
    if not ValidTarget(target) or not tfas[key][tcn] then
       tfas[key][tcn] = {}
    end
-
-   table.insert(tfas[key][tcn], Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target))
+   local p = Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target)
+   p.y = 0
+   table.insert(tfas[key][tcn], p)
    if #tfas[key][tcn] > trackTicks then
       table.remove(tfas[key][tcn], 1)
    end
@@ -352,12 +357,14 @@ end
 
 function GetSpellFireahead(thing, target)   
    local spell = GetSpell(thing)
-   if not tfas[spell.key] or not tfas[spell.key][target.charName] then
-      pp("faking fireahead")
-      return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   end
+   return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   -- local spell = GetSpell(thing)
+   -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
+   --    pp("faking fireahead")
+   --    return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   -- end
 
-   return Point(target) + GetCenter(tfas[spell.key][target.charName])
+   -- return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
 function GetFireaheads(thing, targets)
@@ -381,12 +388,12 @@ function IsGoodFireahead(thing, target)
       point = OverShoot(me, point, spell.overShoot)
    end
 
-   if GetDistance(point) > GetSpellRange(spell) then
+   if IsSolid(point) then -- don't shoot into walls
       return false
    end
 
-   if GetDistance(target, point) < 75 then
-      return true
+   if GetDistance(point) > GetSpellRange(spell) then
+      return false
    end
 
    -- for collision skill shots dead on or dead away people are easy to hit
@@ -397,13 +404,14 @@ function IsGoodFireahead(thing, target)
       end
    end
 
-   -- local r = spell.width or spell.radius
+   local r = spell.width or spell.radius
 
    local tps = tfas[spell.key][target.charName]
-   local point = GetCenter(tps)
-   if GetDistance(tps[1], point) < 50 and
-      GetDistance(tps[#tps], point) < 50
-   then
+   -- local point = GetCenter(tps)
+   -- if GetDistance(tps[1], point) < r and
+   --    GetDistance(tps[#tps], point) < r
+   -- then
+   if GetDistance(tps[1], tps[#tps]) < r/2 then
       return true
    end
 
