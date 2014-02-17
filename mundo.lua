@@ -9,9 +9,10 @@ spells["cleaver"] = {
    color=violet, 
    base={80,130,180,230,280},
    type="M",
-   width=80,
+   width=60,
    delay=2,
-   speed=20
+   speed=20,
+   showFireahead=true   
 }
 spells["agony"] = {
    key="W",
