@@ -102,6 +102,18 @@ function Run()
       end
    end
 
+   if CanUse("bloom") then
+      local target = GetWeakest("bloom", GetWithBuff("cc", GetInRange(me, spells["bloom"].range+50, ENEMIES)))
+      if target then
+         if canSeed() then
+            CastXYZ("seed", target)
+         end
+         CastXYZ("bloom", target)
+         PrintAction("Bloom stunned", target)
+         return true
+      end
+   end
+
    -- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") and Alone() then
       if KillMinionsInArea("bloom", 2) then
