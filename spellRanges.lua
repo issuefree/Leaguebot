@@ -11,7 +11,7 @@ function rangeTick()
 
    for name,info in pairs(spells) do
       if info.range and info.color and 
-         ( not info.key or GetSpellLevel(info.key) > 0 ) 
+         ( not info.key or ( #info.key == 1 and GetSpellLevel(info.key) > 0 ) ) 
       then
          local range = GetSpellRange(info)
          local time 
