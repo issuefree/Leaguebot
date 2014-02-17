@@ -52,7 +52,7 @@ spells["artillery"] = {
    base={80,120,160},
    ap=.3,
    bonusAd=.5,
-   delay=8,
+   delay=10,
    speed=0,
    noblock=true,
    radius=200,
@@ -144,7 +144,7 @@ function Action()
       end
    end
 
-   if CanUse("ooze") then
+   if CanUse("ooze") and GetMPerc(me) > .5 then
       local target = GetMarkedTarget() or GetWeakestEnemy("ooze")
       if target then
          if CastFireahead("ooze", target) then
@@ -207,11 +207,6 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
 
    return false
 end
