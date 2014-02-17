@@ -73,7 +73,8 @@ ccNames = {
    "summoner_banish", 
    "tempkarma_spiritbindroot",
    "VarusRHitFlash",
-   "Vi_R_land"
+   "Vi_R_land",
+   "Zyra_E_sequence_root"
 }
 
 
