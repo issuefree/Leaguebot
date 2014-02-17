@@ -156,9 +156,9 @@ local function drawCommon()
                if GetDistance(point) < GetSpellRange(activeSpell)+100 then
 
                   if IsGoodFireahead(key, target) then
-                     Circle(point, 75, green, 3)
+                     Circle(point, GetDistance(trackedPoints[1], trackedPoints[#trackedPoints]), green, 3)
                   else
-                     Circle(point, 75, yellow, 1)
+                     -- Circle(point, GetDistance(trackedPoints[1], trackedPoints[#trackedPoints]), yellow, 1)
                   end
                   LineBetween(target, point)
 
@@ -168,14 +168,18 @@ local function drawCommon()
       end
    end
 
-   for i,spellShot in rpairs(ACTIVE_SKILL_SHOTS) do
-      if spellShot.time < time() then
+   for i,shot in rpairs(ACTIVE_SKILL_SHOTS) do
+      if shot.timeOut < time() then
          table.remove(ACTIVE_SKILL_SHOTS, i)
       else
-         if spellShot.spell.isline then            
-            LineBetween(spellShot.startPoint, spellShot.endPoint, spellShot.spell.radius)
-         else
-            Circle(spellShot.endPoint, spellShot.spell.radius, blue, 4)
+         if shot.safePoint then
+            Circle(shot.safePoint)
+         end
+         if shot.isline then
+            LineBetween(shot.startPoint, shot.endPoint, shot.radius)
+         end
+         if not shot.isline or shot.point then
+            Circle(shot.endPoint, shot.radius, blue, 4)
          end
       end
    end
@@ -348,6 +352,20 @@ function throttle(id, millis)
       return false
    end
    return true
+end
+
+function CastBest(thing)
+   local spell = GetSpell(thing)
+   if not spell or not CanUse(spell) then
+      return false
+   end
+   local target = GetMarkedTarget() or GetWeakestEnemy(thing)
+   if target then
+      Cast(thing, target)
+      PrintAction(thing, target)
+      return true
+   end
+   return false
 end
 
 -- "mark" the enemy closest to a mouse click (i.e. click to mark)
@@ -1128,23 +1146,25 @@ function CastBuff(spell)
 end
 
 function OnProcessSpell(unit, spell)
-   if ModuleConfig.ass then
+   if ModuleConfig.ass and unit.team ~= me.team then
+      local shot
       if me.dead == 0 and
          not Engaged() and
          not IsChannelling()
       then
-         local spellShot = SpellShotTarget(unit, spell, me)
-         if spellShot then
-            if not Engaged() and spellShot.safePoint then
-               BlockingMove(spellShot.safePoint)
+         shot = SpellShotTarget(unit, spell, me)
+         if shot then
+            if not Engaged() and shot.safePoint then
+               BlockingMove(shot.safePoint)
                PrintAction("Dodge "..unit.name.."'s "..spell.name)
             end
-            addSkillShot(spellShot)
-         else
-            spellShot = GetSpellShot(unit, spell)
-            if spellShot and spellShot.show then
-               addSkillShot(spellShot)
-            end
+            addSkillShot(shot)
+         end
+      end
+      if not shot then
+         shot = GetSpellShot(unit, spell)
+         if shot and shot.show then
+            addSkillShot(shot)
          end
       end
    end
@@ -1239,6 +1259,16 @@ function TimTick()
    end
    
    spells["AA"].range = GetAARange()
+
+   for _,spell in pairs(spells) do
+      if spell.key == "Q" or
+         spell.key == "W" or
+         spell.key == "E" or
+         spell.key == "R"
+      then
+         spell.spellLevel = GetSpellLevel(spell.key)
+      end
+   end
 
    checkToggles()
    updateObjects()
