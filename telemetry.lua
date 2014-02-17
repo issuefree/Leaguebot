@@ -233,3 +233,15 @@ function SortByAngle(things)
    table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
    return things
 end
+
+function GetCircleLocs(center, dist)
+   local num = 16
+
+   local locs = {}
+   for i=1,num,1 do
+      local angle = 2*math.pi/num*i
+      local loc = ProjectionA(center, angle, dist)
+      table.insert(locs, loc)
+   end
+   return locs
+end
