@@ -132,7 +132,7 @@ end
    
 
 local function onObject(object)
-   PersistBuff("frost", object, "iceSparkle", 125)
+   PersistBuff("frost", object, "Ashe_Base_q_buf", 125)
 end
 
 local function onSpell(unit, spell)
