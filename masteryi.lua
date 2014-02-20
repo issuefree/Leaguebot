@@ -4,7 +4,11 @@ require "modules"
 pp("\nTim's Master Yi")
 
 function getADam()
-	return GetSpellDamage("alpha") + GetLVal(spells["alpha"], "mmBonus")
+   if spells["alpha"].spellLevel > 0 then
+      return GetSpellDamage("alpha") + GetLVal(spells["alpha"], "mmBonus")
+   else
+      return 0
+   end
 end
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
