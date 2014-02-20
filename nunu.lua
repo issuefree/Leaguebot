@@ -17,12 +17,14 @@ spells["consume"] = {
 	key="Q",
 	range=225,
 	base={400,550,700,850,1000},
+	type="T",
 	color=yellow,
 	cost=60
 }
 spells["fed"] = {
 	key="Q",
 	base={70,115,160,205,250},
+	type="H",
 	ap=.75
 }
 spells["boil"] = {
@@ -36,6 +38,7 @@ spells["iceblast"] = {
 	range=575,  
 	color=violet, 
 	base={85,130,175,225,275}, 
+	type="M",
 	ap=1,
 	cost={75,85,95,105,115}
 }
@@ -45,6 +48,7 @@ spells["zero"] = {
 	color=red,    
 	base={625,875,1125}, 
 	ap=2.5,
+	type="M",
 	cost=100
 }
 
