@@ -56,6 +56,13 @@ function Run()
       return
    end
    
+   if CastAtCC("spear") then
+      return true
+   end
+   if CastAtCC("trap") then
+      return true
+   end
+
    if HotKey() and CanAct() then
       UseItems()
       if Action() then

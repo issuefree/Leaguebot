@@ -84,6 +84,22 @@ local function isSkyfall()
 end
 
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "aegis") then return true end
+
+   if Disrupt("Grasp", "aegis") then return true end
+
+   if Disrupt("BulletTime", "aegis") then return true end
+
+   if Disrupt("Duress", "aegis") then return true end
+
+   if Disrupt("Monsoon", "aegis") then return true end
+
+   if Disrupt("Drain", "aegis") then return true end
+
+   return false
+end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -97,6 +113,10 @@ function Run()
 
    if isSkyfall() then
       PrintAction("Skyfalling")  
+      return true
+   end
+
+   if CheckDisrupt() then
       return true
    end
 

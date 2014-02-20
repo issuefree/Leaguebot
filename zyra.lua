@@ -95,21 +95,16 @@ function Run()
       end
    end
 
-   if HotKey() then
-      UseItems()
-      if Action() then
+   if CanUse("bloom") then
+      CastAtCC("seed")
+      if CastAtCC("bloom") then
          return true
       end
    end
 
-   if CanUse("bloom") then
-      local target = GetWeakest("bloom", GetWithBuff("cc", GetInRange(me, spells["bloom"].range+50, ENEMIES)))
-      if target then
-         if canSeed() then
-            CastXYZ("seed", target)
-         end
-         CastXYZ("bloom", target)
-         PrintAction("Bloom stunned", target)
+   if HotKey() then
+      UseItems()
+      if Action() then
          return true
       end
    end

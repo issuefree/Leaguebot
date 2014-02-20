@@ -74,7 +74,17 @@ ccNames = {
    "tempkarma_spiritbindroot",
    "VarusRHitFlash",
    "Vi_R_land",
-   "Zyra_E_sequence_root"
+   "Zyra_E_sequence_root",
+
+   -- self inflicted ccs
+   "pantheon_heartseeker_cas2",
+   "gragas_drunkenRage_attack_buf",
+   "Katarina_deathLotus_cas",
+   "drain.troy",
+   "ReapTheWhirlwind_green_cas",
+   "missFortune_ult_cas",
+   "AbsoluteZero2",
+   "InfiniteDuress_tar"
 }
 
 

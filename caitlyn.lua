@@ -85,13 +85,17 @@ function Run()
       PrintAction("Recalling or dead")
       return true
    end
-
+   
    if IsOn("execute") and CanUse("ace") then
       local target = GetWeakestEnemy("ace")
       if target and WillKill("ace", target) then
          LineBetween(me, target, 3)
          Circle(target, 100, red, 6)
       end
+   end
+
+   if CastAtCC("trap") then
+      return true
    end
 
    if HotKey() then

@@ -59,6 +59,32 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / 
 local tibbersHasTarget = false
 local tibbersRange = 300
 
+function CheckDisrupt()
+   if not P.stun then
+      return false
+   end
+
+   if Disrupt("DeathLotus", "dis") then return true end
+
+   if Disrupt("Grasp", "dis") then return true end
+
+   if Disrupt("AbsoluteZero", "dis") then return true end
+
+   if Disrupt("BulletTime", "dis") then return true end
+
+   if Disrupt("Duress", "dis") then return true end
+
+   if Disrupt("Idol", "dis") then return true end
+
+   if Disrupt("Monsoon", "dis") then return true end
+
+   if Disrupt("Meditate", "dis") then return true end
+
+   if Disrupt("Drain", "dis") then return true end
+
+   return false
+end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -66,6 +92,10 @@ function Run()
    end
 
    autoTibbers()   
+
+   if CheckDisrupt() then
+      return true
+   end
 
    if HotKey() and CanAct() then
       UseItems()
@@ -85,6 +115,7 @@ function Run()
       return true
    end
    
+
    -- if we're alone blast everything.
    -- if there's a near, try to save stun
    -- if we're alone blast 2 or more

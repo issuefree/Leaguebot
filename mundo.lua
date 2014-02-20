@@ -56,6 +56,10 @@ function Run()
       return true
    end
 
+   if CastAtCC("cleaver") then
+      return true
+   end
+
    if HotKey() then
       UseItems()
       if Action() then

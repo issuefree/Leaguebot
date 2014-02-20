@@ -89,7 +89,10 @@ function Run()
       return true
    end
 
-	
+   if CastAtCC("wild") then
+      return true
+   end
+
 	if GetWeakEnemy("MAGIC", 1000) then
 		card = "Yellow"
 		

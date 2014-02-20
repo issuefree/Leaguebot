@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -15,6 +14,8 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 local function feastRange()
 	return GetWidth(me)+125
 end
+
+MAX_FEAST_RANGE = 161
 
 spells["rupture"] = {
 	key="Q",
@@ -59,6 +60,42 @@ spells["feastCreep"] = {
 	type="T"
 }
 
+spells["AA"].damOnTarget = 
+   function(target)
+      return 0
+   end
+
+
+function CheckDisrupt()
+	if Disrupt("DeathLotus", "scream") then return true end
+	if Disrupt("DeathLotus", "rupture") then return true end
+
+	if Disrupt("Grasp", "scream") then return true end
+	if Disrupt("Grasp", "rupture") then return true end
+
+	if Disrupt("AbsoluteZero", "scream") then return true end
+	if Disrupt("AbsoluteZero", "rupture") then return true end
+
+	if Disrupt("BulletTime", "scream") then return true end
+	if Disrupt("BulletTime", "rupture") then return true end
+
+	if Disrupt("Duress", "scream") then return true end
+	if Disrupt("Duress", "rupture") then return true end
+
+	if Disrupt("Idol", "rupture") then return true end
+
+	if Disrupt("Monsoon", "scream") then return true end
+	if Disrupt("Monsoon", "rupture") then return true end
+
+	if Disrupt("Meditate", "scream") then return true end
+	if Disrupt("Meditate", "rupture") then return true end
+
+	if Disrupt("Drain", "scream") then return true end
+	if Disrupt("Drain", "rupture") then return true end
+
+	return false
+end
+
 function Run()
 	spells["AA"].bonus = GetSpellDamage("vorpal")
 
@@ -77,6 +114,14 @@ function Run()
 
 	end	
 
+	if CheckDisrupt() then
+		return true
+	end
+
+   if CastAtCC("rupture") then
+      return true
+   end
+
 	if HotKey() then
 		UseItems()
 		if Action() then
@@ -84,12 +129,15 @@ function Run()
 		end
 	end
 
+
    if IsOn("lasthit") then
    	if VeryAlone() then
-   		if KillMinion("feastCreep") then
-   			PrintAction("Feast on creep")
-   			return true
-   		end
+   		if me.range < MAX_FEAST_RANGE then   		
+	   		if KillMinion("feastCreep") then
+	   			PrintAction("Feast on creep")
+	   			return true
+	   		end
+	   	end
    	end
 
    	if Alone() then
@@ -103,11 +151,19 @@ function Run()
 
 
 	if IsOn("jungle") and Alone() then
-		for _,creep in ipairs(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)) do
-			if WillKill("feastCreep", creep) then
-				Cast("feast", creep)
-				PrintAction("Feast", creep)
-				return true
+		if CanUse("feast") then
+			local creeps = MAJORCREEPS
+			
+			if me.range < MAX_FEAST_RANGE then
+				creeps = concat(creeps, BIGCREEPS)
+			end
+
+			for _,creep in ipairs(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)) do
+				if WillKill("feastCreep", creep) then
+					Cast("feast", creep)
+					PrintAction("Feast", creep)
+					return true
+				end
 			end
 		end
 	end

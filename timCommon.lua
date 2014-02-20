@@ -208,13 +208,29 @@ function SaveConfig(name, config)
    file:close()
 end
 
+DISRUPTS = {
+   DeathLotus={char="Katarina", obj="Katarina_deathLotus_cas"},
+   Meditate={char="MasterYi", obj="MasterYi_Base_W_Buf"},
+   Drain={char="FiddleSticks", obj="drain.troy"},
+   -- Idol={char="Galio", obj=""},
+   Monsoon={char="Janna", obj="ReapTheWhirlwind_green_cas"},
+   BulletTime={char="MissFortune", obj="missFortune_ult_cas"},
+   AbsoluteZero={char="Nunu", obj="AbsoluteZero2"},
+   Duress={char="Warwick", obj="InfiniteDuress_tar"},
+   Grasp={char="Malzahar", obj=""}
+}
+
 function doCreateObj(object)
    if not (object and object.x and object.z) then
       return
    end
 
    createForPersist(object)
-   
+
+   for spell, info in pairs(DISRUPTS) do
+      persistForDisrupt(info.char, info.obj, spell, object)
+   end
+
    if IsHero(object) and not CHAR_SPELLS[object.name] then
       CHAR_SPELLS[object.name] = LoadConfig("charSpells/"..object.name)
       if not CHAR_SPELLS[object.name] then
@@ -226,6 +242,49 @@ function doCreateObj(object)
       callback(object)
    end
 end 
+
+function persistForDisrupt(char, oName, label, object)
+   if find(object.charName, oName) then
+      for _,enemy in ipairs(ENEMIES) do
+         if enemy.name == char and GetDistance(enemy, object) < 150 then
+            Persist(char, enemy, enemy.charName)
+            break
+         end
+      end
+      if P[char] and GetDistance(P[char], object) < 150 then
+         Persist(label, object, oName)
+      end
+   end
+end
+
+function Disrupt(targetSpell, thing)
+   local spell = GetSpell(thing)
+   if not CanUse(spell) then 
+      return false
+   end
+   if P[targetSpell] then
+      local target = P[DISRUPTS[targetSpell].char]
+      if IsInRange(target, spell) then
+         if spell.delay then
+            if spell.noblock then
+               CastXYZ(spell, target)
+            else
+               if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+                  CastXYZ(spell, target)
+               else
+                  return false
+               end
+            end
+         else
+            Cast(spell, target)
+         end         
+         PrintAction(thing.." to disrupt "..targetSpell, target)
+         P[targetSpell] = nil
+         return true
+      end
+   end
+   return false
+end
 
 function DumpCloseObjects(object)
    if GetDistance(object) < 50 then
@@ -786,6 +845,15 @@ function GetUnblocked(source, thing, ...)
    return unblocked
 end
 
+function IsUnblocked(me, thing, target, ...)
+   local unblocked = GetUnblocked(me, thing, concat(...))
+   for _,t in ipairs(unblocked) do
+      if SameUnit(t, target) then
+         return true
+      end
+   end
+   return false
+end
 
 function HotKey()
    return IsKeyDown(hotKey) ~= 0
@@ -1299,6 +1367,14 @@ function TimTick()
    TrackMyPosition()
 
    UseAutoItems()
+
+   for spell, info in pairs(DISRUPTS) do
+      if P[spell] then
+         Circle(P[info.char], 100, green, 10)
+      end
+   end
+
+
 end
 
 function AA(target)
@@ -1532,6 +1608,29 @@ function UseItem(itemName, target)
       -- CastSpellTarget(slot, me)
    end
 
+end
+
+function CastAtCC(thing)
+   local spell = GetSpell(thing)
+
+   if not CanUse(spell) then return end
+
+   local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell)+50, ENEMIES)))
+   if target and IsInRange(target, spell) then
+      if spell.noblock then
+         CastXYZ(spell, target)
+      else
+         if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+            CastXYZ(spell, target)
+         else
+            return false
+         end
+      end
+
+      PrintAction(thing.." on immobile", target)
+      return true
+   end
+   return false
 end
 
 

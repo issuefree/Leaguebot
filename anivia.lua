@@ -51,6 +51,28 @@ spells["storm"] = {
    radius=400
 }
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "orb") then return true end
+
+   if Disrupt("Grasp", "orb") then return true end
+
+   if Disrupt("AbsoluteZero", "orb") then return true end
+
+   if Disrupt("BulletTime", "orb") then return true end
+
+   if Disrupt("Duress", "orb") then return true end
+
+   if Disrupt("Idol", "orb") then return true end
+
+   if Disrupt("Monsoon", "orb") then return true end
+
+   if Disrupt("Meditate", "orb") then return true end
+
+   if Disrupt("Drain", "orb") then return true end
+
+   return false
+end
+
 function Run()
    for _,t in ipairs(GetWithBuff("freeze", ENEMIES)) do
       Circle(hero, nil, blue, 3)
@@ -70,6 +92,14 @@ function Run()
             PrintAction("Detonate orb", inRange[1])
          end
       end
+   end
+
+   if CheckDisrupt() then
+      return true
+   end
+
+   if CastAtCC("orb") then
+      return true
    end
 
    if HotKey() then   

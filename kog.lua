@@ -104,6 +104,10 @@ function Run()
       return
    end
 
+   if CastAtCC("artillery") then
+      return true
+   end
+
 	if HotKey() and CanAct() then
       UseItems()
 		if Action() then

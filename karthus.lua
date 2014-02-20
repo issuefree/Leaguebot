@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -48,6 +47,10 @@ function Run()
    if IsRecalling(me) then
       return
    end
+
+   if CastAtCC("lay") then
+      return true
+   end   
 
    if CanUse("defile") and P.defiling then
       if #GetAllInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then

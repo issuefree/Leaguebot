@@ -77,6 +77,10 @@ function Run()
 
    end
 
+   if CastAtCC("barrel") then
+      return true
+   end
+
    if HotKey() and CanAct() then
       UseItems()
       if Action() then

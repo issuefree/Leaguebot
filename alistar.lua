@@ -39,10 +39,41 @@ local wantHealPercent  = .8 -- top off
 local shouldHealPercent = .66 -- important
 local needHealPercent  = .5 -- critical
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "pulverize") then return true end
+   if Disrupt("DeathLotus", "headbutt") then return true end
+
+   if Disrupt("Grasp", "pulverize") then return true end
+   if Disrupt("Grasp", "headbutt") then return true end
+
+   if Disrupt("AbsoluteZero", "pulverize") then return true end
+
+   if Disrupt("BulletTime", "pulverize") then return true end
+   if Disrupt("BulletTime", "headbutt") then return true end
+
+   if Disrupt("Duress", "pulverize") then return true end
+   if Disrupt("Duress", "headbutt") then return true end
+
+   if Disrupt("Idol", "pulverize") then return true end
+
+   if Disrupt("Monsoon", "pulverize") then return true end
+   if Disrupt("Monsoon", "headbutt") then return true end
+
+   if Disrupt("Meditate", "pulverize") then return true end
+
+   if Disrupt("Drain", "pulverize") then return true end
+
+   return false
+end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
+   end
+
+   if CheckDisrupt() then
+      return true
    end
 
    if CanUse("headbutt") then

@@ -73,6 +73,10 @@ function Run()
       UseItem("Muramana", me)
    end
    
+   if CastAtCC("charge") then
+      return true
+   end
+
    if HotKey() then
       UseItems()
       if Action() then

@@ -62,6 +62,37 @@ local function isDraining()
    return false
 end
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "fear") then return true end
+   if Disrupt("DeathLotus", "wind") then return true end
+
+   if Disrupt("Grasp", "fear") then return true end
+   if Disrupt("Grasp", "wind") then return true end
+
+   if Disrupt("AbsoluteZero", "fear") then return true end
+   if Disrupt("AbsoluteZero", "wind") then return true end
+
+   if Disrupt("BulletTime", "fear") then return true end
+   if Disrupt("BulletTime", "wind") then return true end
+
+   if Disrupt("Duress", "fear") then return true end
+   if Disrupt("Duress", "wind") then return true end
+
+   if Disrupt("Idol", "fear") then return true end
+   if Disrupt("Idol", "wind") then return true end
+
+   if Disrupt("Monsoon", "fear") then return true end
+   if Disrupt("Monsoon", "wind") then return true end
+
+   if Disrupt("Meditate", "fear") then return true end
+   if Disrupt("Meditate", "wind") then return true end
+
+   if Disrupt("Drain", "fear") then return true end
+   if Disrupt("Drain", "wind") then return true end
+
+   return false
+end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -70,6 +101,10 @@ function Run()
 
    if isDraining() then
       PrintAction("Draining")
+      return true
+   end
+
+   if CheckDisrupt() then
       return true
    end
 

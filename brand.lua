@@ -61,6 +61,12 @@ spells["pyro"] = {
 
 
 function Run()
+
+   if CastAtCC("pillar") then
+      return true
+   end
+
+
 	if HotKey() then
 		UseItems()
 	end

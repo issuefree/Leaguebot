@@ -67,6 +67,28 @@ spells["AA"].damOnTarget =
       return 0
    end
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "scream") then return true end
+
+   if Disrupt("Grasp", "scream") then return true end
+
+   if Disrupt("AbsoluteZero", "scream") then return true end
+
+   if Disrupt("BulletTime", "scream") then return true end
+
+   if Disrupt("Duress", "scream") then return true end
+
+   if Disrupt("Idol", "rupture") then return true end
+
+   if Disrupt("Monsoon", "scream") then return true end
+
+   if Disrupt("Meditate", "scream") then return true end
+
+   if Disrupt("Drain", "scream") then return true end
+
+   return false
+end
+
 function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -77,6 +99,9 @@ function Run()
    end
 
    -- auto stuff that always happen
+   if CheckDisrupt() then
+      return true
+   end
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then

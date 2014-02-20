@@ -56,6 +56,9 @@ function Run()
    -- local c = GetCenter(hits)
    -- DrawLineObject(me, spell.range, blue, AngleBetween(me, c), spell.width)
 
+   if CastAtCC("boomerang") then
+      return true
+   end
 
    if HotKey() and CanAct() then
       UseItems()

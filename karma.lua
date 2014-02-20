@@ -58,6 +58,10 @@ function Run()
       return true
    end
 
+   if CastAtCC("flame") then
+      return true
+   end
+
 	if HotKey() and CanAct() then
       UseItems()
 		if Action() then

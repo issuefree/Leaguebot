@@ -53,6 +53,30 @@ spells["AA"].damOnTarget =
       end
    end
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "condemn") then return true end
+
+   if Disrupt("Grasp", "condemn") then return true end
+
+   if Disrupt("AbsoluteZero", "condemn") then return true end
+
+   if Disrupt("BulletTime", "condemn") then return true end
+
+   if Disrupt("Duress", "condemn") then return true end
+
+   if Disrupt("Idol", "condemn") then return true end
+
+   if Disrupt("Monsoon", "condemn") then return true end
+
+   if Disrupt("Meditate", "condemn") then return true end
+
+   if Disrupt("Drain", "condemn") then return true end
+
+   if Disrupt("HeartSeeker", "condemn") then return true end
+
+   return false
+end
+
 function Tick()
    if P.tumble then
       spells["AA"].bonus = GetSpellDamage("tumble")      
@@ -69,6 +93,9 @@ function Tick()
    end
 
    -- auto stuff that always happen
+   if CheckDisrupt() then
+      return true
+   end
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then

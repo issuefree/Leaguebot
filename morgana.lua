@@ -56,6 +56,10 @@ function Run()
       return true
    end
    
+   if IsChannelling() then
+      return true
+   end
+
    if HotKey() and CanAct() then
       UseItems()
       if Action() then
@@ -63,18 +67,8 @@ function Run()
       end
    end
 
-   if IsOn("soil") and CanUse("soil") then
-      local target = 
-         SortByHealth( 
-            GetWithBuff("cc", 
-               GetInRange(me, GetSpellRange("soil")+spells["soil"].radius-25, ENEMIES) ) )[1]
-      if target then
-         -- If they're out of range cast where the edge of soil will hit em
-         local point = Projection(me, target, math.min(GetDistance(target), GetSpellRange("soil")))
-         CastXYZ("soil", point)
-         PrintAction("Soil ccd", target)
-         return true
-      end
+   if CastAtCC("soil") then
+      return true
    end
 
    if HotKey() and CanAct() then
