@@ -26,19 +26,6 @@ function LineBetween(object1, object2, thickness)
    end
 end
 
-function DrawKnockback(object2, dist)
-   local a = object2.x - me.x
-   local b = object2.z - me.z 
-   
-   local angle = math.atan(a/b)
-   
-   if b < 0 then
-      angle = angle+math.pi
-   end
-   
-   DrawLineObject(object2, dist, 0, angle, 0)
-end
-
 function DrawBB(t, color)
    if not color then color = yellow end
    DrawCircle(t.x, t.y, t.z, GetWidth(t), color)
