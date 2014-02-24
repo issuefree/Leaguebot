@@ -131,7 +131,7 @@ function Action()
 
    if CanUse("dance") then
       local target = GetMarkedTarget() or GetWeakestEnemy("dance")
-      if target and GetDistance(target) > GetSpellRange("slash") then
+      if target and GetDistance(target) > GetSpellRange("AA") then
          Cast("dance", target)
          PrintAction("Dance", target)
          return true
