@@ -1478,7 +1478,24 @@ function RangedMove()
    return false
 end
 
-function Dance()
+function DrawKnockback(object2, thing)
+   local dist
+   if type(thing) == "number" then
+      dist = thing
+   else
+      local spell = GetSpell(thing)
+      dist = spell.knockback
+   end
+   local a = object2.x - me.x
+   local b = object2.z - me.z 
+   
+   local angle = math.atan(a/b)
+   
+   if b < 0 then
+      angle = angle+math.pi
+   end
+   
+   DrawLineObject(object2, dist, 0, angle, 0)
 end
 
 function UseItems(target)
