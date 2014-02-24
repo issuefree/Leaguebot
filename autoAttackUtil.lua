@@ -213,6 +213,8 @@ function GetAAData()
 
       Amumu        = { melee=true,
                        aaParticles = {"SadMummyBasicAttack"} },
+      
+      Blitzcrank   = { melee=true, windup=.625 },
 
       Elise        = { melee=true, windup=.55, speed=1.1,
                        aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
@@ -227,11 +229,6 @@ function GetAAData()
                        aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
 
-      Nasus        = { melee=true,
-                       aaParticles = {"nassus_siphonStrike_tar"} },
-
-      Olaf         = { melee=true },
-
       LeeSin       = { melee=true,
                        aaSpellName={"attack"} },
 
@@ -239,10 +236,16 @@ function GetAAData()
                        aaParticles={"leona_basicattack_hit"},
                        aaSpellName={"attack"} },
 
-      Blitzcrank   = { melee=true, windup=.625 },
-
       MasterYi     = { melee=true, windup=.625,
                        aaParticles = {"Wuju_Trail"} },
+
+      Nasus        = { melee=true,
+                       aaParticles = {"nassus_siphonStrike_tar"} },
+
+      Olaf         = { melee=true },
+
+      Poppy        = { melee=true, windup=.575, speed=1.1,
+                       aaParticles = {"Poppy_DevastatingBlow"} },                       
 
       Tryndamere   = { melee=true,
                        aaParticles = {"tryndamere_weapontrail"},
