@@ -46,8 +46,6 @@ spells["curse"] = {
   cost={100,150,200}
 }
 
-local despairClearTime = 0
-
 function Run()
 
    if IsRecalling(me) or me.dead == 1 then
@@ -68,7 +66,7 @@ function Run()
       end
    end
 
-	if HotKey() and CanAct() then
+	if HotKey() then
       UseItems()
 		if Action() then
 			return true
@@ -91,11 +89,13 @@ function Run()
       end
    end
 
-	if IsOn("lasthit") and CanUse("tantrum") and not Engaged() then
-      if #GetKills("tantrum", GetInRange(me, "tantrum", MINIONS)) >= 2 then
-         Cast("tantrum", me)
-         PrintAction("Tantrum for lasthit")
-         return true
+	if IsOn("lasthit") then
+      if CanUse("tantrum") and not Engaged() then
+         if #GetKills("tantrum", GetInRange(me, "tantrum", MINIONS)) >= 2 then
+            Cast("tantrum", me)
+            PrintAction("Tantrum for lasthit")
+            return true
+         end
       end
    end
 
@@ -150,11 +150,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
+   -- amumu is melee but not really an aa champ. Don't bother forcing auto attack
 
    return false
 end
