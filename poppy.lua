@@ -6,7 +6,7 @@ pp("\nTim's Poppy")
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("jungle", {on=true, key=114, label="Jungle"})
-AddToggle("", {on=true, key=115, label=""})
+AddToggle("kb", {on=true, key=115, label="Auto KB"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "blow"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
@@ -15,24 +15,31 @@ spells["blow"] = {
    key="Q", 
    base={20,40,60,80,100}, 
    max={75,150,225,300,375},
-   perMaxHealth=.08,
+   percMaxHealth=.08,
    ap=.6, 
    ad=1,
    onHit=true,
+   type="M",
    cost=55
+}
+spells["paragon"] = {
+   key="W"
 }
 spells["charge"] = {
    key="E", 
    range=525, 
    color=violet, 
    base={50,75,100,125,150}, 
-   ap=.4
+   ap=.4,
+   type="M",
+   knockback=400
 }
 spells["collision"] = {
    key="E", 
    range=300, 
    base={75,125,175,225,275}, 
-   ap=.4
+   ap=.4,
+   type="M"
 }
 spells["immunity"] = {
    key="R", 
@@ -64,6 +71,13 @@ function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return
+   end
+
+   if CanUse("charge") then
+      local target = GetWeakestEnemy("charge")
+      if target then
+         DrawKnockback(target, "charge")
+      end
    end
 
    if HotKey() then
@@ -99,7 +113,16 @@ function Run()
 end
 
 function Action()
-   checkCharge()
+   local enemy = checkCharge()
+   if enemy then
+      Cast("charge", enemy)
+      PrintAction("Charge for slam", enemy)
+      if CanUse("blow") then
+         Cast("blow", me)
+         PrintAction("  w/blow")
+      end
+      return true
+   end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target and ModAA("blow", target) then
@@ -110,21 +133,10 @@ function Action()
 end
 
 function FollowUp()
+
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
          return true
-      end
-
-      if CanUse("blow") then
-         local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]        
-         if target and WillKill("blow", target) and
-            ( JustAttacked() or not WillKill("AA", target) )
-         then
-            Cast("blow", me)
-            PrintAction("Blow lasthit")
-            AttackTarget(target)
-            return true
-         end
       end
    end
 
@@ -134,25 +146,20 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 
 function checkCharge()
-   if CanUse("charge") then
-      local inRange = GetInRange(me, spells["charge"].range, ENEMIES)
-      for _,enemy in ipairs(inRange) do
-         if WillHitWall(enemy, spells["collision"].range) == 1 then
-            CastSpellTarget("E", enemy) 
-            return
+   if IsOn("kb") and CanUse("charge") then
+      local enemies = SortByHealth(GetInRange(me, "charge", ENEMIES))
+      for _,enemy in ipairs(enemies) do
+         local kb = GetKnockback("charge", me, enemy)
+         if WillCollide(enemy, kb) then
+            return enemy
          end
       end
    end
+   return nil
 end
 
 local function onObject(object)
