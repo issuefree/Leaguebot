@@ -44,10 +44,6 @@ spells["justice"] = {
 local spinT
 
 function Run()
-   PrintState(0, mousePos.x..","..mousePos.y..","..mousePos.z)
-   if MAPNAME then
-      PrintState(1, MAPNAME)
-   end
    -- local collision = WillCollide(me, mousePos)
    -- if collision then
    --    Circle(collision, 15, red, 5)
