@@ -22,6 +22,7 @@ spells["shot"] = {
    delay=2,
    speed=20,    
    type="P",
+   onHit=true,
    cost={28,31,34,37,40}
 }
 spells["flux"] = {
