@@ -515,9 +515,11 @@ function SpellShotTarget(unit, spell, target)
 					end
 				end
 
-				-- if safePoint then
+				if safePoint then
 					shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
-				-- end
+				else
+					pp("No safe point dodging "..spell.name)
+				end
 
 				return shot
 			end
