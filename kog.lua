@@ -21,7 +21,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["spittle"] = {
    key="Q", 
-   range=625, 
+   range=600, 
    color=violet, 
    base={60,110,160,210,260}, 
    ap=.7,
@@ -211,6 +211,13 @@ function FollowUp()
       end
    end
 
+   local target = GetMarkedTarget()
+   if target then
+      if AA(target) then
+         PrintAction("AA marked", target)
+         return true
+      end
+   end
 
    return false
 end
