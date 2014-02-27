@@ -33,7 +33,7 @@ spells["slam"] = {
   color=yellow, 
   base={80,120,160,200,240}, 
   ap=.5,
-  ad=.66,
+  ad={.3,.4,.5,.6,.7},
   delay=2,
   speed=9,
   area=150,
@@ -44,11 +44,11 @@ spells["cask"] = {
   range=1050,
   color=red, 
   base={200,325,450}, 
-  ap=1,
+  ap=.9,
   delay=2,
   speed=30,
   radius=400,
-  cost={100,125,150}
+  cost=100
 }
 
 
