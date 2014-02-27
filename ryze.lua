@@ -11,7 +11,7 @@ local attackObject = "ManaLeach_mis"
 
 spells["overload"] = {
    key="Q", 
-   range=602, 
+   range=625, 
    color=violet, 
    base={60,85,110,135,160}, 
    ap=.4, 
