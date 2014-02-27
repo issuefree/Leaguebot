@@ -9,15 +9,15 @@ spells["sphere"] = {
 	key="Q", 
 	range=650, 
 	color=yellow, 
-	base={80,115,150,185,220}, 
+	base={80,110,140,170,200}, 
 	ap=.7,
 	cost={70,75,80,85,90}
 }
 spells["pulse"] = {
 	key="E", 
 	range=650, 
-	color=red,    
-	base={80,130,180,230,280}, 
+	color=red,
+	base={80,120,160,200,240}, 
 	ap=.7
 }
 spells["rift"] = {
