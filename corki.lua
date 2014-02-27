@@ -11,12 +11,12 @@ AddToggle("tear", {on=true, key=115, label="Tear"})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-spells["phos"] = {
+spells["bomb"] = {
    key="Q", 
    range=825,
    color=violet,
    base={80,130,180,230,280},
-   ap=.5,
+   bonusAd=.5,
    delay=2,
    speed=20,
    radius=300,
@@ -112,7 +112,7 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") and Alone() then
 
-      if KillMinionsInArea("phos", 3) then
+      if KillMinionsInArea("bomb", 3) then
          return true
       end
 
@@ -141,7 +141,7 @@ function Run()
 end
 
 function Action()
-   if SkillShot("phos") then
+   if SkillShot("bomb") then
       return true
    end
 
