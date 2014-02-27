@@ -16,6 +16,7 @@ spells["bomb"] = {
    range=825,
    color=violet,
    base={80,130,180,230,280},
+   ap=.5,
    bonusAd=.5,
    delay=2,
    speed=20,
