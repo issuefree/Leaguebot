@@ -204,14 +204,14 @@ end
 function GetSpellDamage(thing, target)
    local spell = GetSpell(thing)
    if not spell or not spell.base then
-      return Damage()
+      return 0
    end
 
    local lvl 
    if spell.key and not (spell.key == "D" or spell.key == "F") then
       lvl = GetSpellLevel(spell.key)
       if lvl == 0 then
-         return Damage()
+         return 0
       end
    else 
       lvl = 1
