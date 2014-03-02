@@ -30,7 +30,7 @@ spells["shroom"] = {
 	range=230,
 	color=green,	
 	base={200,325,450},
-	ap=.8,
+	ap=.5,
 	radius=115,
 	cost={75,100,125}
 }

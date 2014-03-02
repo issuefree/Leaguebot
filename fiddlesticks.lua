@@ -22,7 +22,7 @@ spells["fear"] = {
 }
 spells["drain"] = {
    key="W", 
-   range=475,
+   range=575,
    color=green,
    cost={80,90,100,110,120}
 }
