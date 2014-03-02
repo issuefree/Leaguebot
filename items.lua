@@ -9,6 +9,8 @@ ITEMS["Tiamat"]                   = {id=3077, range=350, type="active", color=re
 ITEMS["Ravenous Hydra"]           = {id=3074, range=350, type="active", color=red}
 ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=300, type="active"}
 ITEMS["Randuin's Omen"]           = {id=3143, range=500, type="active", color=yellow}
+ITEMS["Frost Queen's Claim"]      = {id=3092, range=600, type="active", radius=200, color=blue}
+
 
 --Active defense
 ITEMS["Locket of the Iron Solari"] = {id=3190, range=700, type="active", color=green}
