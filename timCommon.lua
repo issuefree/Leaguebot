@@ -1223,8 +1223,10 @@ function OnProcessSpell(unit, spell)
          shot = SpellShotTarget(unit, spell, me)
          if shot then
             if not Engaged() and shot.safePoint then
-               BlockingMove(shot.safePoint)
-               PrintAction("Dodge "..unit.name.."'s "..spell.name)
+               if not IsChannelling() or (shot.cc and shot.cc >= 3) then
+                  BlockingMove(shot.safePoint)
+                  PrintAction("Dodge "..unit.name.."'s "..spell.name)
+               end
             end
             addSkillShot(shot)
          end
@@ -1535,7 +1537,30 @@ function UseItem(itemName, target)
    elseif itemName == "Tiamat" or
           itemName == "Ravenous Hydra"
    then
+      if not target then
+         target = GetMeleeTarget()
+      end
+      if target and JustAttacked() then
+         CastSpellTarget(slot, me)
+         return true
+      end
 
+   elseif itemName == "Frost Queen's Claim" then
+      local target = SelectFromList(ENEMIES, function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
+      -- local nearCount = 0
+      -- target = nil
+      -- for i,hero in ipairs(ENEMIES) do
+      --    if GetDistance(me, hero) < item.range then
+      --       local near = #GetInRange(hero, item.radius, ENEMIES)
+      --       if near > nearCount then
+      --          target = hero
+      --          nearCount = near
+      --       end
+      --    end
+      -- end
+      if target then
+         CastSpellTarget(slot, target)
+      end
 
    elseif itemName == "Shard of True Ice" then
       -- shard
