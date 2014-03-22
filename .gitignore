@@ -224,3 +224,5 @@ pip-log.txt
 .mr.developer.cfg
 sample.lua
 test.lua
+script_gui.lua
+script_loader.lua
