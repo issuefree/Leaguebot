@@ -130,7 +130,8 @@ function Run()
 end
 
 function Action()
-
+   -- TestSkillShot("hunter")
+   
    -- if I have a charged enemy just hit it. It may not be as ideal
    -- as hitting a very weak guy with a skill shot but I could miss
    -- that one and it's only 5 seconds...
