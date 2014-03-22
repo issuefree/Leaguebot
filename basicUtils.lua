@@ -84,6 +84,14 @@ function reverse(t)
    return reversedTable
 end
 
+function sum(t)
+   local total = 0
+   for _,v in ipairs(t) do
+      total = total + v
+   end
+   return total
+end
+
 function concat(...)
    local resTable = {}
    for _,tablex in ipairs(GetVarArg(...)) do
