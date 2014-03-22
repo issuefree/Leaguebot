@@ -8,7 +8,33 @@ local range = 200
 
 local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX"}
 
+local testShot
+local testShotDelays = {}
+local testShotSpeeds = {}
+
 function debugTick()
+   if testShot then
+      if testShot.object and GetDistance(testShot.object) > 200 then
+         if not testShot.firstPoint then
+            testShot.firstPoint = Point(testShot.object)
+            testShot.firstTime = time()
+         elseif not testShot.nextPoint then
+            testShot.nextPoint = Point(testShot.object)
+            testShot.nextTime = time()
+         else
+            local d = GetDistance(testShot.firstPoint, Point(testShot.object))
+            local t = time() - testShot.firstTime
+            local speed = d/t
+            table.insert(testShotSpeeds, speed)
+            pp("Speed: "..trunc(speed))
+            pp("\n -> "..trunc(sum(testShotDelays)/#testShotDelays).." "..trunc(sum(testShotSpeeds)/#testShotSpeeds/100).." <-")
+            testShot = nil
+         end
+      elseif time() - testShot.castTime > 2 then
+         testShot = nil
+      end
+   end
+
    if not ModuleConfig.debug then
       return
    end
@@ -74,6 +100,23 @@ local function onSpell(unit, spell)
 end
 
 local function onObject(object)
+   if testShot and not testShot.object then
+      if GetDistance(object) < 1000 and
+         -- not object.charName == "LineMissile" and
+         not find(object.charName, "DrawFX") and
+       --   not find(object.charName, "FountainHeal") and
+         ( not testShot.charName or find(object.charName, testShot.charName) )
+      then
+         pp("Particle: "..object.charName)
+         local delay = trunc(time() - testShot.castTime)
+         delay = delay - 2*.05 -- lag
+         delay = delay * 10 - 1  -- leaguebot units 
+         table.insert(testShotDelays, delay)
+         pp("Delay: "..delay)
+         testShot.object = object
+      end
+   end
+
    if not ModuleConfig.debug then
       return
    end
@@ -81,6 +124,18 @@ local function onObject(object)
       if not ListContains(object.charName, ignoredObjects) then
          pp(object.charName.."      "..object.charName)
       end
+   end
+end
+
+function TestSkillShot(thing, charName)
+   local spell = GetSpell(thing)
+
+   if CanUse(spell) then
+      CastXYZ(spell, mousePos)
+      testShot = {}
+      testShot.spell = spell
+      testShot.charName = charName
+      testShot.castTime = time()
    end
 end
 
