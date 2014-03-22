@@ -1,2 +1,2 @@
-LALT LOADSCRIPT=soraka.lua
+LALT LOADSCRIPT=issuefree/soraka.lua
  

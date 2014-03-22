@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 function rangeTick()
    if not ModuleConfig.ranges then

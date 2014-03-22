@@ -15,9 +15,9 @@ Tim's modified version of...
             			end
 --]]
 
-require "telemetry"
-require "walls"
-require "basicUtils"
+require "issuefree/telemetry"
+require "issuefree/walls"
+require "issuefree/basicUtils"
 
 -- "hardness" of the cc
 local GRAB = 4

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=karma.lua
+LALT LOADSCRIPT=issuefree/karma.lua
  
  
  

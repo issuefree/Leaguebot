@@ -1,32 +1,32 @@
 require "Utils"
 
-require "spellRanges"
+require "issuefree/spellRanges"
 ModuleConfig:addParam("ranges", "Draw Spell Ranges", SCRIPT_PARAM_ONOFF, true)
 ModuleConfig:permaShow("ranges")
 
-require "smite"
+require "issuefree/smite"
 ModuleConfig:addParam("smite", "Auto Smite", SCRIPT_PARAM_ONOFF, true)
 ModuleConfig:permaShow("smite")
 
-require "WardRevealer"
+require "issuefree/WardRevealer"
 -- ModuleConfig:addParam("wardRevealer", "Ward Revealer", SCRIPT_PARAM_ONOFF, true)
 -- ModuleConfig:permaShow("wardRevealer")
 
-require "cleanse"
+require "issuefree/cleanse"
 ModuleConfig:addParam("cleanse", "Auto Cleanse", SCRIPT_PARAM_ONOFF, true)
 ModuleConfig:permaShow("cleanse")
 
-require "ignite"
+require "issuefree/ignite"
 if spells["ignite"] then
    ModuleConfig:addParam("ignite", "Auto Ignite", SCRIPT_PARAM_ONOFF, true)
    ModuleConfig:permaShow("ignite")
 end
 
-require "antiSkillShot"
+require "issuefree/antiSkillShot"
 ModuleConfig:addParam("ass", "AntiSkillShot", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("ass")
 
-require "objectFind"
+require "issuefree/objectFind"
 ModuleConfig:addParam("debug", "Debug Objects", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("debug")
 
@@ -34,16 +34,16 @@ ModuleConfig:permaShow("debug")
 -- ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
 -- ModuleConfig:permaShow("testtargets")
 
-require "autoLane"
+require "issuefree/autoLane"
 ModuleConfig:addParam("autolane", "Auto Lane", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("autolane")
 
 ModuleConfig:addParam("aaDebug", "Debug AA", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("aaDebug")
 
-require "JungleTimer"
+require "issuefree/JungleTimer"
 
-require "support"
+require "issuefree/support"
 
 
 

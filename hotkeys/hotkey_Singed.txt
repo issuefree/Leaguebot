@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=singed.lua
+LALT LOADSCRIPT=issuefree/singed.lua
  
  
  

@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=sivir.lua
+LALT LOADSCRIPT=issuefree/sivir.lua

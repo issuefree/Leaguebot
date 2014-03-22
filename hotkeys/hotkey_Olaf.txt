@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=olaf.lua
+LALT LOADSCRIPT=issuefree/olaf.lua

@@ -1,5 +1,5 @@
-require "basicUtils"
-require "telemetry"
+require "issuefree/basicUtils"
+require "issuefree/telemetry"
 
 local minAttackTime = .66
 local meleeRange = 100+15

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=lux.lua
+LALT LOADSCRIPT=issuefree/lux.lua
  
  
  

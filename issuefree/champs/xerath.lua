@@ -1,5 +1,5 @@
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Xerath")
 
@@ -15,51 +15,52 @@ local locusRange = 400
 
 spells["bolt"] = {
    key="Q", 
-   range=1050,
-   baseRange=1050,
-   locusRange=1600,
+   range=750,
+   maxRange=1400,
    color=violet, 
-   base={75,115,155,195,235}, 
-   ap=.6,
+   base={80 / 120 / 160 / 200 / 240}, 
+   ap=.75,
    delay=7,
    speed=0,
    width=75,
    noblock=true,
-   cost={65,70,75,80,85}
+   cost={80 / 90 / 100 / 110 / 120}
 } 
-spells["locus"] = {
+spells["eye"] = {
    key="W",
-   duration=8,
-   name="XerathLocusOfPower"
-} 
-spells["chains"] = {
-   key="E", 
-   range=650,
-   baseRange=650,
-   locusRange=925,
-   color=yellow, 
-   base={70,120,170,220,270}, 
-   ap=.8,
-   cost={70,75,80,85,90}
-} 
-spells["barrage"] = {
-   key="R",
-   range=1050,
-   baseRange=1050,
-   locusRange=1550,
-   color=red,
-   base={125,200,275},
+   range=1100,
+   color="blue",
+   base={60 / 90 / 120 / 150 / 180},
    ap=.6,
+   delay=7,
+   speed=0,
+   radius=200,
+   cost={70 / 80 / 90 / 100 / 110}
+} 
+spells["orb"] = {
+   key="E", 
+   range=1050,
+   color=yellow, 
+   base={80 / 110 / 140 / 170 / 200}, 
+   ap=.45,
+   delay=2,
+   speed=14,
+   width=90,
+   cost={60 / 65 / 70 / 75 / 80}
+} 
+spells["rite"] = {
+   key="R",
+   range={3200,4400,5600},
+   color=red,
+   base={190 / 245 / 300},
+   ap=.43,
    delay=5,
    speed=0,
    noblock=true,
    radius=200,
-   cost={150,180,210}
+   cost=100
 } 
 
-local locusStart = 0
-
-function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -69,33 +70,9 @@ function Run()
       return true
    end
 
-   if me.SpellNameW == "XerathLocusOfPower" then
-      spells["bolt"].range = spells["bolt"].baseRange
-      spells["chains"].range = spells["chains"].baseRange
-      spells["barrage"].range = spells["barrage"].baseRange
-   else
-      spells["bolt"].range = spells["bolt"].locusRange
-      spells["chains"].range = spells["chains"].locusRange
-      spells["barrage"].range = spells["barrage"].locusRange
-
-      local cd = 99
-      if GetSpellLevel(spells["bolt"].key) > 0 then
-         cd = math.min(cd, GetCD("bolt"))
-      end
-      if GetSpellLevel(spells["chains"].key) > 0 then
-         cd = math.min(cd, GetCD("chains"))
-      end
-      if GetSpellLevel(spells["barrage"].key) > 0 then
-         cd = math.min(cd, GetCD("barrage"))
-      end
-
-      if 8 - (time() - locusStart) < cd then
-         Cast("locus", me)
-         PrintAction("Power down")
-         return true
-      end
+   if CastAtCC("eye") then
+      return true
    end
-
 
    -- auto stuff that always happen
 
@@ -109,17 +86,17 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
 
-   if IsOn("lasthit") and CanUse("bolt") then
-      if VeryAlone() then
-         if KillMinionsInLine("bolt", 2) then
-            return true
-         end
-      elseif Alone() then
-         if KillMinionsInLine("bolt", 3) then
-            return true
-         end
-      end
-   end
+   -- if IsOn("lasthit") and CanUse("bolt") then
+   --    if VeryAlone() then
+   --       if KillMinionsInLine("bolt", 2) then
+   --          return true
+   --       end
+   --    elseif Alone() then
+   --       if KillMinionsInLine("bolt", 3) then
+   --          return true
+   --       end
+   --    end
+   -- end
 
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
@@ -132,49 +109,6 @@ function Run()
 end
 
 function Action()
-   if CanUse("chains") and
-      ( ( CanUse("bolt") and me.mana > GetSpellCost("chains") + GetSpellCost("bolt") ) or
-        ( CanUse("barrage") and me.mana > GetSpellCost("chains") + GetSpellCost("barrage") ) )
-   then
-      local target = GetMarkedTarget() or GetWeakestEnemy("chains")
-      if target then
-         Cast("chains", target)
-         PrintAction("Chains", target)
-         return true
-      end
-   end
-
-   local target = GetWithBuff("unstable", ENEMIES)[1]
-   if target then
-      if CanUse("barrage") then
-         if IsGoodFireahead("barrage", target) then
-            CastFireahead("barrage", target)
-            PrintAction("Barrage chained", target)
-            return true
-         end
-      end
-
-      if CanUse("bolt") then
-         if IsGoodFireahead("bolt", target) then
-            CastFireahead("bolt", target)
-            PrintAction("Bolt chained", target)
-         end
-         -- return always. I want this to happen
-         return true
-      end
-   end
-
-   if CanUse("barrage") then
-      if SkillShot("barrage") then
-         return true
-      end
-   end
-
-   if CanUse("bolt") then
-      if SkillShot("bolt") then
-         return true
-      end
-   end
 
    return false
 end
@@ -195,20 +129,14 @@ function FollowUp()
 end
 
 local function onObject(object)
-   PersistOnTargets("unstable", object, "xerath_magechains_buf", ENEMIES)
 end
 
 local function onSpell(unit, spell)
-   if ICast("chains", unit, spell) then
-      StartChannel()
-   end
-   if ICast("locus", unit, spell) and me.SpellNameW == "xerathlocusofpowertoggle" then
-      StartChannel()
-      locusStart = time()
-   end
 end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
 
+
+function Run()

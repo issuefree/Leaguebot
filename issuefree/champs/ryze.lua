@@ -1,6 +1,5 @@
-require "Utils"
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("Tim's Ryze")
 pp(" - prison > overload > flux")

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=fiddlesticks.lua
+LALT LOADSCRIPT=issuefree/fiddlesticks.lua
  
  
  

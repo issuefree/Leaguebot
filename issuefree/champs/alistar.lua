@@ -1,7 +1,5 @@
-require "Utils"
-require "timCommon"
-require "modules"
-require "support"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Alistar")
 pp(" - Heal nearby allies")

@@ -1,2 +1,2 @@
-LALT LOADSCRIPT=katarina.lua
+LALT LOADSCRIPT=issuefree/katarina.lua
 

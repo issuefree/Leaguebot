@@ -1,5 +1,5 @@
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Akali")
 pp(" - Mark enemies that have no mark")
@@ -13,7 +13,7 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "mark"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "mark", "slash"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["mark"] = {

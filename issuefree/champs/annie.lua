@@ -1,5 +1,5 @@
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Annie")
 

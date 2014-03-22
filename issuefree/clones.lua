@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 local load = false
 local clones = {}

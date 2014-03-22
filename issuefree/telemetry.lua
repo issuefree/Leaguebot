@@ -1,4 +1,4 @@
-require "basicUtils"
+require "issuefree/basicUtils"
 
 Point = class()
 function Point:__init(a, b, c)

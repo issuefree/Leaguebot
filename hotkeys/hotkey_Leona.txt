@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=leona.lua
+LALT LOADSCRIPT=issuefree/leona.lua
  
  
  

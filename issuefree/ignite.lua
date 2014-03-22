@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 local ignite = {range=600, color=red, base={50}, lvl=20, type="T"}
 

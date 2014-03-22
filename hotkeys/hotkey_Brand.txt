@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=brand.lua
+LALT LOADSCRIPT=issuefree/brand.lua
 
  
 

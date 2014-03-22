@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 local num = 10
 local objects = {}

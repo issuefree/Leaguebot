@@ -1,4 +1,4 @@
-require "telemetry"
+require "issuefree/telemetry"
 
 local EDITMODE = false
 
@@ -131,7 +131,7 @@ local function savePoints()
          end
       end
 
-      local file = io.open(MAPNAME..".wall", "w")
+      local file = io.open("issuefree/"..MAPNAME..".wall", "w")
 
       for _,row in ipairs(POINTS) do
          for _,p in ipairs(row) do
@@ -148,7 +148,7 @@ end
 
 local function loadPoints()
    if MAPNAME then
-      local f = io.open(MAPNAME..".wall", "r")
+      local f = io.open("issuefree/"..MAPNAME..".wall", "r")
       if not f then
          POINTS = {}
          for x=1,14500/RES,1 do
@@ -169,7 +169,7 @@ local function loadPoints()
                table.insert(POINTS[x], Point(0,0,0))
             end
          end
-         for line in io.lines(MAPNAME..".wall") do
+         for line in io.lines("issuefree/"..MAPNAME..".wall") do
             for x,y,z in string.gmatch(line, "(%d+),([-]*%d+),(%d+)") do
                local p = Point(x,y,z)
                local ix,iy = pointToIndex(p)
@@ -266,9 +266,9 @@ end
 
 load = true
 local function Tick()
-   if #ALLIES > 1 then
+   -- if #ALLIES > 1 then
       EDITMODE = false
-   end
+   -- end
    if load then
       if loadPoints() then
          load = false

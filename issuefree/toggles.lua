@@ -1,5 +1,5 @@
-require "basicUtils"
-require "spellUtils"
+require "issuefree/basicUtils"
+require "issuefree/spellUtils"
 
 -- globals for the toggle menus
 keyToggles = {}

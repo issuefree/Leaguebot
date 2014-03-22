@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=morde.lua
+LALT LOADSCRIPT=issuefree/morde.lua

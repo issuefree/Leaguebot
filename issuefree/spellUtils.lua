@@ -1,8 +1,8 @@
-require "basicUtils"
-require "items"
-require "persist"
-require "telemetry"
-require "walls"
+require "issuefree/basicUtils"
+require "issuefree/items"
+require "issuefree/persist"
+require "issuefree/telemetry"
+require "issuefree/walls"
 
 -- common spell defs
 spells = {}
@@ -334,7 +334,9 @@ function GetKnockback(thing, source, target)
    return ProjectionA(target, angle, spell.knockback)
 end
 
-local trackTicks = 10
+-- local trackTicks = 10
+local trackFactor = 2.5 -- higher means track longer
+local tickTime = .05 -- roughly .05s between ticks
 tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   
@@ -350,6 +352,15 @@ function TrackSpellFireahead(thing, target)
    local p = Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target)
    p.y = 0
    table.insert(tfas[key][tcn], p)
+   local speed = spell.speed
+   if speed == 0 then
+      speed = 50
+   end
+   local delay = spell.delay
+   if not delay or delay == 0 then
+      delay = 2
+   end
+   local trackTicks = delay/speed*trackFactor/tickTime
    if #tfas[key][tcn] > trackTicks then
       table.remove(tfas[key][tcn], 1)
    end
@@ -357,14 +368,14 @@ end
 
 function GetSpellFireahead(thing, target)   
    local spell = GetSpell(thing)
-   return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   -- local spell = GetSpell(thing)
-   -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
-   --    pp("faking fireahead")
-   --    return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   -- end
+   -- return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   local spell = GetSpell(thing)
+   if not tfas[spell.key] or not tfas[spell.key][target.charName] then
+      pp("faking fireahead")
+      return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
+   end
 
-   -- return Point(target) + GetCenter(tfas[spell.key][target.charName])
+   return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
 function GetFireaheads(thing, targets)

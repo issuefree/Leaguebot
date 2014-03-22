@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=twistedfate.lua
+LALT LOADSCRIPT=issuefree/twistedfate.lua
  
  
  

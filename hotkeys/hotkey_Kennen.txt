@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=kennen.lua
+LALT LOADSCRIPT=issuefree/kennen.lua

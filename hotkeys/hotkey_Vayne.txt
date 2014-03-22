@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=vayne.lua
+LALT LOADSCRIPT=issuefree/vayne.lua
  
  
  

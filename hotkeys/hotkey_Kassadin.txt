@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=kassadin.lua
+LALT LOADSCRIPT=issuefree/kassadin.lua

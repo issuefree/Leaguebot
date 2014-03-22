@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=alistar.lua
+LALT LOADSCRIPT=issuefree/alistar.lua
  
  
  

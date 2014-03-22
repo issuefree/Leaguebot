@@ -1,10 +1,20 @@
-LALT LOADSCRIPT=template.lua
- 
- 
- 
- 
- 
- 
- 
- 
- 
+LALT LOADSCRIPT=issuefree/template.lua
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+

@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=kog.lua 
+LALT LOADSCRIPT=issuefree/kog.lua 

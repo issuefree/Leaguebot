@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=janna.lua
+LALT LOADSCRIPT=issuefree/janna.lua
  
 
  

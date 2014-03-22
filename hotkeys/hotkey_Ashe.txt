@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=ashe.lua
+LALT LOADSCRIPT=issuefree/ashe.lua

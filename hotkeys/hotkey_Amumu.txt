@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=amumu.lua
+LALT LOADSCRIPT=issuefree/amumu.lua

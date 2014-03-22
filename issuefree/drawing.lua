@@ -1,4 +1,4 @@
-require "telemetry"
+require "issuefree/telemetry"
 
 -- circle colors
 yellow = 0

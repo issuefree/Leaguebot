@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=nunu.lua
+LALT LOADSCRIPT=issuefree/nunu.lua

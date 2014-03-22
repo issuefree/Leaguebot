@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=talon.lua
+LALT LOADSCRIPT=issuefree/talon.lua
  
  
  

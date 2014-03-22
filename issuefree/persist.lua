@@ -1,4 +1,4 @@
-require "basicUtils"
+require "issuefree/basicUtils"
 
 -- object arrays
 MINIONS = {}

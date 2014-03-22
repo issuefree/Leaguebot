@@ -1,15 +1,15 @@
 require "Utils"
 ModuleConfig = scriptConfig("Module Config", "modules")
-require "basicUtils"
-require "spell_shot"
-require "telemetry"
-require "drawing"
-require "items"
-require "autoAttackUtil"
-require "persist"
-require "spellUtils"
-require "toggles"
-require "walls"
+require "issuefree/basicUtils"
+require "issuefree/spell_shot"
+require "issuefree/telemetry"
+require "issuefree/drawing"
+require "issuefree/items"
+require "issuefree/autoAttackUtil"
+require "issuefree/persist"
+require "issuefree/spellUtils"
+require "issuefree/toggles"
+require "issuefree/walls"
 
 
 if me.SpellLevelQ == 0 and
@@ -816,6 +816,10 @@ function GetUnblocked(source, thing, ...)
    local blocked = {}
    
    local width = spell.width or spell.radius
+   if not width then
+      pp("No width for:")
+      pp(spell)
+   end
 
    for i,target in ipairs(targets) do
       local d = GetDistance(source, target)
@@ -1223,9 +1227,14 @@ function OnProcessSpell(unit, spell)
          shot = SpellShotTarget(unit, spell, me)
          if shot then
             if not Engaged() and shot.safePoint then
-               if not IsChannelling() or (shot.cc and shot.cc >= 3) then
+               if not shot.range then
+                  pp(shot)
+               end
+               if not shot.block or ( shot.block and IsUnblocked(spell.target, shot, me, MINIONS, ENEMIES) ) then
+               -- if not IsChannelling() or (shot.cc and shot.cc >= 3) then
                   BlockingMove(shot.safePoint)
                   PrintAction("Dodge "..unit.name.."'s "..spell.name)
+               -- end
                end
             end
             addSkillShot(shot)
@@ -1375,7 +1384,6 @@ function TimTick()
          Circle(P[info.char], 100, green, 10)
       end
    end
-
 
 end
 
@@ -1674,6 +1682,5 @@ function CastAtCC(thing)
    end
    return false
 end
-
 
 AddOnTick(TimTick)

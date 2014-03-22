@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 local showTimerRadius = 100
 local showVisionRangeKey = 18

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=zilean.lua
+LALT LOADSCRIPT=issuefree/zilean.lua
  
  
  

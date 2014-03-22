@@ -1,4 +1,4 @@
-require "timCommon"
+require "issuefree/timCommon"
 
 local camps = {
 	bWolf = {id=2, timeout=50, num=3},

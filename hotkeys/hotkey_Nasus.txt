@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=nasus.lua
+LALT LOADSCRIPT=issuefree/nasus.lua

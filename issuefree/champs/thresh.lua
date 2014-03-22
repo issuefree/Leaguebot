@@ -7,7 +7,7 @@ require "issuefree/modules"
 --   true if they perform an action that takes time (most spells attacks)
 --   false if no action or the spell takes no time
 
-pp("\nTim's Leona")
+pp("\nTim's Thresh")
 
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
@@ -17,50 +17,70 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
-spells["shield"] = {
+spells["hook"] = {
    key="Q", 
-   base={40,70,100,130,160}, 
-   ap=.3,
-   type="M",
-   cost={45,50,55,60,65}
-} 
-spells["eclipse"] = {
-   key="W", 
-   base={60,110,160,210,260}, 
-   ap=.4,
-   type="M",
-   cost=60
-} 
-spells["blade"] = {
-   key="E", 
-   range=700, 
+   range=1075, 
    color=violet, 
-   base={60,100,140,180,220}, 
-   ap=.7,
-   type="M",
-   delay=2,
-   speed=20,
-   width=100,
-   noblock=true,
-   showFireahead=true,
-   cost=60
+   base={80,120,160,200,240}, 
+   ap=.5,
+   delay=1.5,
+   speed=12,
+   width=80,
+   cost=80
 } 
-spells["flare"] = {
+spells["lantern"] = {
+   key="W", 
+   range=950, 
+   color=blue, 
+   base={60,100,140,180,220}, 
+   ap=.4,
+   cost={50,55,60,65,70}
+} 
+spells["flay"] = {
+   key="E", 
+   range=400, 
+   color=yellow, 
+   base={65,95,125,155,185}, 
+   ap=.4,
+   cost={60,65,70,75 / 80}
+} 
+spells["box"] = {
    key="R", 
-   range=1200, 
+   range=450, 
    color=red, 
-   base={150,250,350}, 
-   ap=.8,
-   type="M",
-   radius=250,
-   cost={100,150,200}
+   base={250,400,550}, 
+   ap=1,
+   cost=100
 } 
 
+spells["AA"].damOnTarget = 
+   function(target)
+      return 0
+   end
+
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "scream") then return true end
+
+   if Disrupt("Grasp", "scream") then return true end
+
+   if Disrupt("AbsoluteZero", "scream") then return true end
+
+   if Disrupt("BulletTime", "scream") then return true end
+
+   if Disrupt("Duress", "scream") then return true end
+
+   if Disrupt("Idol", "rupture") then return true end
+
+   if Disrupt("Monsoon", "scream") then return true end
+
+   if Disrupt("Meditate", "scream") then return true end
+
+   if Disrupt("Drain", "scream") then return true end
+
+   return false
+end
 
 function Run()
-   if P.shield then
-      PrintState(0, "shield")
-   end
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -70,13 +90,12 @@ function Run()
    end
 
    -- auto stuff that always happen
-
-   -- turn on eclipse and shield when blade hits
-
-
+   if CheckDisrupt() then
+      return true
+   end
 
    -- high priority hotkey actions, e.g. killing enemies
-	if HotKey() then
+	if HotKey() and CanAct() then
       UseItems()
 		if Action() then
 			return true
@@ -84,15 +103,6 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
-   if IsOn("lasthit") then
-      if Alone() then
-         if GetMPerc(me) > .5 then
-            if ModAAFarm("shield", P.shield) then
-               return true
-            end
-         end
-      end
-   end
 
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
@@ -105,11 +115,20 @@ function Run()
 end
 
 function Action()
-
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("shield", target) then
+-- ranged
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AA(target) then
+      PrintAction("AA", target)
       return true
    end
+
+-- melee
+   -- local target = GetMarkedTarget() or GetMeleeTarget()
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
+   -- end
+
 
    return false
 end
@@ -126,45 +145,22 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
+   -- if IsOn("move") then
+   --    if MeleeMove() then
+   --       return true
+   --    end
+   -- end
 
    return false
 end
 
 local function onCreate(object)
-   PersistBuff("shield", object, "Leona_ShieldOfDaybreak")
-   if find(object.charName, "Leona_ZenithBlade_arrive") then
-      if CanUse("eclipse") then
-         Cast("eclipse", me)
-         PrintAction("Zenith -> Eclipse")
-      end
-      if CanUse("shield") then
-         DoIn(
-            function() 
-               Cast("shield", me)
-               PrintAction("Zenith -> Shield")
-            end,
-            .15
-         )
-      end
-      PrintAction("Zenith lands")
-   end
 end
 
 local function onSpell(unit, spell)
-   if IAttack(unit, spell) then
-
-      -- if w and CanUse("shield") then
-      --    Cast("shield", me)
-      --    DoIn(function() ClickSpellXYZ("M", w.x, w.y, w.z, 0) end, .1)
-      -- end
-   end
 end
 
 AddOnCreate(onCreate)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
+

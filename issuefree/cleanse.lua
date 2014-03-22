@@ -1,5 +1,5 @@
 require "Utils"
-require "timCommon"
+require "issuefree/timCommon"
 
 local cleanse = {"stun", "banish", 
 -- "taunt", 

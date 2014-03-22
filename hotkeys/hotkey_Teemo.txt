@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=teemo.lua
+LALT LOADSCRIPT=issuefree/teemo.lua

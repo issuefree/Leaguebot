@@ -1,5 +1,5 @@
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Garen")
 pp(" - if justice will kill, use justice (probably worth chasing)")

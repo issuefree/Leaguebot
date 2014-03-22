@@ -1,6 +1,5 @@
-require "Utils"
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 -- Try to stick to one "action" per loop.
 -- Action function should return 

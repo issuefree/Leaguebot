@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=shyvana.lua
+LALT LOADSCRIPT=issuefree/shyvana.lua

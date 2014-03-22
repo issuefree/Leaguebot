@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=morgana.lua
+LALT LOADSCRIPT=issuefree/morgana.lua

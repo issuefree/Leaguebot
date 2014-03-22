@@ -1,5 +1,5 @@
-require "timCommon"
-require "modules"
+require "issuefree/timCommon"
+require "issuefree/modules"
 
 pp("\nTim's Veigar")
 pp(" - Farm up Baleful Strike")
@@ -49,6 +49,30 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "strike"}})
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
+function CheckDisrupt()
+   -- need to figure out how to place this exactly on the target
+   
+   -- if Disrupt("DeathLotus", "event") then return true end
+
+   -- if Disrupt("Grasp", "event") then return true end
+
+   -- if Disrupt("AbsoluteZero", "event") then return true end
+
+   -- if Disrupt("BulletTime", "event") then return true end
+
+   -- if Disrupt("Duress", "event") then return true end
+
+   -- if Disrupt("Idol", "event") then return true end
+
+   -- if Disrupt("Monsoon", "event") then return true end
+
+   -- if Disrupt("Meditate", "event") then return true end
+
+   -- if Disrupt("Drain", "event") then return true end
+
+   return false
+end
+
 function Run()
 
    local ccs = GetWithBuff("cc", ENEMIES)
@@ -61,16 +85,15 @@ function Run()
       return true
    end
 
+   if CheckDisrupt() then
+      return true
+   end
+
    -- I want all not moving targets.
    -- I think I want to do this by looking for the stun obj and throwing darks at it
    -- This might even catch other people's stuns.   
-   if CanUse("dark") then
-      local target = GetWeakest("dark", GetWithBuff("cc", GetInRange(me, spells["dark"].range+50, ENEMIES)))
-      if target then
-         CastXYZ("dark", target)
-         PrintAction("Dark Matter stunned", target)
-         return true
-      end
+   if CastAtCC("dark") then
+      return true
    end
 
    if HotKey() then

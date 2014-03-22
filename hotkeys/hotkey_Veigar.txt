@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=veigar.lua
+LALT LOADSCRIPT=issuefree/veigar.lua
