@@ -10,7 +10,7 @@ spells["cleaver"] = {
    base={80,130,180,230,280},
    type="M",
    width=60,
-   delay=2,
+   delay=1.3,
    speed=20,
    showFireahead=true   
 }
