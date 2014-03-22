@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/jax.lua
+LALT LOADSCRIPT=issuefree/champs/jax.lua
  
  
  

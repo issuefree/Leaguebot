@@ -1,2 +1,2 @@
-LALT LOADSCRIPT=issuefree/soraka.lua
+LALT LOADSCRIPT=issuefree/champs/soraka.lua
  

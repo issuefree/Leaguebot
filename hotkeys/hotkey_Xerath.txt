@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/xerath.lua
+LALT LOADSCRIPT=issuefree/champs/xerath.lua
  
  
  

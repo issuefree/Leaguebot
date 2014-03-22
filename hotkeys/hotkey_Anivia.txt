@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/anivia.lua 
+LALT LOADSCRIPT=issuefree/champs/anivia.lua 

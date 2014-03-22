@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/leesin.lua
+LALT LOADSCRIPT=issuefree/champs/leesin.lua
  
  
  

@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/poppy.lua
+LALT LOADSCRIPT=issuefree/champs/poppy.lua

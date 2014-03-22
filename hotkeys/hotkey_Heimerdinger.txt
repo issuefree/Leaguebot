@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/heimerdinger.lua
+LALT LOADSCRIPT=issuefree/champs/heimerdinger.lua
  
  
  

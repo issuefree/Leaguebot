@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/nidalee.lua
+LALT LOADSCRIPT=issuefree/champs/nidalee.lua

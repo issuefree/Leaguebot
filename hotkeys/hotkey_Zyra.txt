@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/zyra.lua
+LALT LOADSCRIPT=issuefree/champs/zyra.lua

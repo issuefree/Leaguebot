@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/elise.lua
+LALT LOADSCRIPT=issuefree/champs/elise.lua

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/issuefree/champs/urgot.lua
+LALT LOADSCRIPT=issuefree/champs/issuefree/champs/urgot.lua
  
  
  

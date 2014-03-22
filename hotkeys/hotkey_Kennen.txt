@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/kennen.lua
+LALT LOADSCRIPT=issuefree/champs/kennen.lua

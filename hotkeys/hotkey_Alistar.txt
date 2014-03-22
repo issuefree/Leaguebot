@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/alistar.lua
+LALT LOADSCRIPT=issuefree/champs/alistar.lua
  
  
  

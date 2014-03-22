@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/template.lua
+LALT LOADSCRIPT=issuefree/champs/template.lua

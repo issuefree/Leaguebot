@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/mundo.lua
+LALT LOADSCRIPT=issuefree/champs/mundo.lua

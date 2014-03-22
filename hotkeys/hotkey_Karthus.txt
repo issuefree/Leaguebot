@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/karthus.lua
+LALT LOADSCRIPT=issuefree/champs/karthus.lua
  
  
  

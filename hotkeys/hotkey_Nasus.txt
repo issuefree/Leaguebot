@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/nasus.lua
+LALT LOADSCRIPT=issuefree/champs/nasus.lua

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/akali.lua
+LALT LOADSCRIPT=issuefree/champs/akali.lua
  
  
  

@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/ezreal.lua
+LALT LOADSCRIPT=issuefree/champs/ezreal.lua

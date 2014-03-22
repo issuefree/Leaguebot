@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/gangplank.lua
+LALT LOADSCRIPT=issuefree/champs/gangplank.lua
  
 
  

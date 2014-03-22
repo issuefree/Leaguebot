@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/sona.lua
+LALT LOADSCRIPT=issuefree/champs/sona.lua

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/karma.lua
+LALT LOADSCRIPT=issuefree/champs/karma.lua
  
  
  

@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/annie.lua
+LALT LOADSCRIPT=issuefree/champs/annie.lua
  
  
  

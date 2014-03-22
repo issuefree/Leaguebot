@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/gragas.lua
+LALT LOADSCRIPT=issuefree/champs/gragas.lua

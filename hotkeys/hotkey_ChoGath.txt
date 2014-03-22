@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/chogath.lua
+LALT LOADSCRIPT=issuefree/champs/chogath.lua

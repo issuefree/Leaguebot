@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/tristana.lua
+LALT LOADSCRIPT=issuefree/champs/tristana.lua

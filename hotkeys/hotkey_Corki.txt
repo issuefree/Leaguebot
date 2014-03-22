@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/corki.lua
+LALT LOADSCRIPT=issuefree/champs/corki.lua
 
  
 

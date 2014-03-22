@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/blitz.lua
+LALT LOADSCRIPT=issuefree/champs/blitz.lua
  
  
  

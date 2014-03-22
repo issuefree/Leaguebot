@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/kayle.lua
+LALT LOADSCRIPT=issuefree/champs/kayle.lua
  
  
  

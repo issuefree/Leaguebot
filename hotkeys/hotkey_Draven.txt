@@ -1,2 +1,2 @@
-LALT LOADSCRIPT=issuefree/draven.lua
+LALT LOADSCRIPT=issuefree/champs/draven.lua
  

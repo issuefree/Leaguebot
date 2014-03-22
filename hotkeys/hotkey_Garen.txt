@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/garen.lua
+LALT LOADSCRIPT=issuefree/champs/garen.lua
  
  
  

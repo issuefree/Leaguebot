@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/pantheon.lua
+LALT LOADSCRIPT=issuefree/champs/pantheon.lua
  
  
  

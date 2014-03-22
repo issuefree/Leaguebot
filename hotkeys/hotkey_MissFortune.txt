@@ -1,2 +1,2 @@
-LALT LOADSCRIPT=issuefree/missfortune.lua
+LALT LOADSCRIPT=issuefree/champs/missfortune.lua
 

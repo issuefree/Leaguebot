@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/jinx.lua
+LALT LOADSCRIPT=issuefree/champs/jinx.lua
  
  
  

@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/masteryi.lua
+LALT LOADSCRIPT=issuefree/champs/masteryi.lua

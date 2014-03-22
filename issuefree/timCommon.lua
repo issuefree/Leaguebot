@@ -1266,39 +1266,12 @@ function OnProcessSpell(unit, spell)
 end
 AddOnSpell(OnProcessSpell)
 
-local send = require 'SendInputScheduled'
-local function makeStateMatch(changes)
-   for scode,flag in pairs(changes) do    
-      -- if flag then pp('went down') else pp('went up') end
-      local vk = winapi.map_virtual_key(scode, 3)
-      local is_down = winapi.get_async_key_state(vk)
-      if flag then -- went down
-         if is_down then
-            send.wait(60)
-            send.key_down(scode)
-            send.wait(60)
-         else
-            -- up before, up after, down during, we don't care
-         end            
-      else -- went up
-         if is_down then
-            -- down before, down after, up during, we don't care
-         else
-            send.wait(60)
-            send.key_up(scode)
-            send.wait(60)
-         end
-      end
-   end
-end
-
 local blockAndMove = nil
 local blockTimeout = .25
 local blockStart = 0
 function BlockingMove(move_dest)
    blockStart = time()
 
-   -- send.block_input(true, blockTimeout*1000, makeStateMatch)
    MoveToXYZ(move_dest.x, 0, move_dest.z)
 
    -- blockAndMove = function()
@@ -1357,7 +1330,6 @@ function TimTick()
       if blockAndMove then 
          blockAndMove() 
       end
-      send.tick()
    end
 
    for key,doLater in pairs(DOLATERS) do

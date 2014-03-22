@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/taric.lua
+LALT LOADSCRIPT=issuefree/champs/taric.lua

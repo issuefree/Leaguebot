@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/irelia.lua
+LALT LOADSCRIPT=issuefree/champs/irelia.lua
  
  
  

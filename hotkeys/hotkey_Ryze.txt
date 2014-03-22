@@ -1,1 +1,1 @@
-LALT LOADSCRIPT=issuefree/ryze.lua
+LALT LOADSCRIPT=issuefree/champs/ryze.lua
