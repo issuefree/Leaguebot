@@ -19,7 +19,7 @@ spells["bandage"] = {
   color=violet, 
   base={80,130,180,230,280}, 
   ap=.7,
-  delay=2,
+  delay=1.6,
   speed=20,
   width=80,
   cost={80,90,100,110,120}
@@ -107,6 +107,8 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("bandage")
+   
    if CanUse("despair") and not P.despair then
       if GetWeakestEnemy("despair") then
          CastBuff("despair")
