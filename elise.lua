@@ -15,18 +15,18 @@ spells["toxin"] = {
    key="Q", 
    range=625, 
    color=green,
-   base={40,80,120,160,200}, 
+   base={40,75,110,145,180}, 
    percHealth=.08,
-   maxOnMobs={60,120,180,240,300},
+   maxOnMobs={50,75,100,125,150},
    cost={80,85,90,95,100}
 } 
 spells["bite"] = {
    key="Q",
    range=475, 
    color=violet,
-   base={60,110,160,210,260}, 
+   base={60,100,140,180,220}, 
    percMissingHealth=.08,
-   maxOnMobs={60,120,180,240,300}
+   maxOnMobs={50,75,100,125,150}
 } 
 
 spells["spiderling"] = {
