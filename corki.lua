@@ -18,8 +18,8 @@ spells["bomb"] = {
    base={80,130,180,230,280},
    ap=.5,
    bonusAd=.5,
-   delay=2,
-   speed=20,
+   delay=1.4,
+   speed=11,
    radius=300,
    cost={60,70,80,90,100},
    noblock=true
@@ -51,8 +51,8 @@ spells["barrage"] = {
    base={100,180,260}, 
    ap=.3,
    ad={.2,.3,.4},
-   delay=1.5,
-   speed=19,
+   delay=.7,
+   speed=20,
    width=80,
    cost={30,35,40},
    missileTime={12,10,8},
@@ -142,6 +142,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("bomb", "Q_Mis")
+   -- TestSkillShot("barrage")
+
    if SkillShot("bomb") then
       return true
    end
