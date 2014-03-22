@@ -18,7 +18,7 @@ spells["axe"] = {
    base={70,115,160,205,250}, 
    adBonus=1, 
    type="P",
-   delay=2,
+   delay=1,
    speed=16,
    noblock=true,
    width=75,
@@ -131,7 +131,7 @@ function Run()
    PrintAction()
 end
 
-function Action()   
+function Action()
    if SkillShot("axe") then
       return true
    end
