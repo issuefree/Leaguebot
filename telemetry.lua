@@ -37,6 +37,7 @@ end
 function GetDistance(p1, p2)
     p2 = p2 or myHero
     if not p1 or not p1.x or not p2.x then
+      pp("Incomplete object")
         print(debug.traceback())
         return 99999 
     end
