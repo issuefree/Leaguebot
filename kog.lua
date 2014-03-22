@@ -1,4 +1,3 @@
-require "Utils"
 require "timCommon"
 require "modules"
 
@@ -21,15 +20,17 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["spittle"] = {
    key="Q", 
-   range=600, 
+   range=1000, 
    color=violet, 
-   base={60,110,160,210,260}, 
-   ap=.7,
-   cost=60
+   base={80,130,180,230,280}, 
+   ap=.5,
+   cost=60,
+   delay=1.2,
+   speed=17.5,
+   width=80
 }
 spells["barrage"] = {
    key="W", 
-   cost=50,
    range={130,150,170,190,210},
    healthPerc=0
 }
@@ -39,7 +40,7 @@ spells["ooze"] = {
    color=yellow, 
    base={60,110,160,210,260}, 
    ap=.7,
-   delay=2.65,
+   delay=1.65,
    speed=14,
    noblock=true,
    width=200,
@@ -138,14 +139,11 @@ function Run()
 end
 
 function Action()
-   if CanUse("spittle") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("spittle")
-      if target then
-         if Cast("spittle", target) then
-            PrintAction("Spittle", target)
-            return true
-         end
-      end
+
+   TestSkillShot("spittle")
+
+   if SkillShot("spittle") then
+      return true
    end
 
    if CanUse("ooze") and GetMPerc(me) > .5 then
