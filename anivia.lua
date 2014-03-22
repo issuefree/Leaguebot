@@ -22,7 +22,7 @@ spells["orb"] = {
    color=blue, 
    base={60,90,120,150,180}, 
    ap=.5,
-   delay=2.5,
+   delay=1.5,
    speed=8.5,
    width=80,
    radius=150,
@@ -52,23 +52,25 @@ spells["storm"] = {
 }
 
 function CheckDisrupt()
-   if Disrupt("DeathLotus", "orb") then return true end
+   if not P.orb then
+      if Disrupt("DeathLotus", "orb") then return true end
 
-   if Disrupt("Grasp", "orb") then return true end
+      if Disrupt("Grasp", "orb") then return true end
 
-   if Disrupt("AbsoluteZero", "orb") then return true end
+      if Disrupt("AbsoluteZero", "orb") then return true end
 
-   if Disrupt("BulletTime", "orb") then return true end
+      if Disrupt("BulletTime", "orb") then return true end
 
-   if Disrupt("Duress", "orb") then return true end
+      if Disrupt("Duress", "orb") then return true end
 
-   if Disrupt("Idol", "orb") then return true end
+      if Disrupt("Idol", "orb") then return true end
 
-   if Disrupt("Monsoon", "orb") then return true end
+      if Disrupt("Monsoon", "orb") then return true end
 
-   if Disrupt("Meditate", "orb") then return true end
+      if Disrupt("Meditate", "orb") then return true end
 
-   if Disrupt("Drain", "orb") then return true end
+      if Disrupt("Drain", "orb") then return true end
+   end
 
    return false
 end
@@ -98,8 +100,10 @@ function Run()
       return true
    end
 
-   if CastAtCC("orb") then
-      return true
+   if not P.orb then
+      if CastAtCC("orb") then
+         return true
+      end
    end
 
    if HotKey() then   
