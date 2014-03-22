@@ -17,7 +17,7 @@ spells["bloom"] = {
    color=violet, 
    base={70,105,140,175,210}, 
    ap=.65,
-   delay=5,
+   delay=7,
    speed=0,
    noblock=true,
    radius=250,
@@ -29,6 +29,7 @@ spells["seed"] = {
    range=825, 
    color=green,
    recharge={17,16,15,14,13},
+   width=150,
    name="ZyraSeed"
 }
 spells["roots"] = {
@@ -37,8 +38,8 @@ spells["roots"] = {
    color=yellow, 
    base={60,95,130,165,200}, 
    ap=.5,
-   delay=2,
-   speed=11.5, --?
+   delay=1.2,
+   speed=11.5,
    noblock=true,
    width=90,  --?
    growWidth=315,
@@ -54,7 +55,7 @@ spells["strangle"] = {
    delay=2,
    speed=0,
    noblock=true,
-   area=600,  --?
+   radius=600,  --?
    cost={100,120,140}
 }
 
