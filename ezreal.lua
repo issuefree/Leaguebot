@@ -18,8 +18,8 @@ spells["shot"] = {
    color=violet, 
    base={35,55,75,95,115}, 
    ad=1, 
-   ap=.2,
-   delay=2,
+   ap=.4,
+   delay=1.4,
    speed=20,    
    type="P",
    onHit=true,
@@ -31,8 +31,8 @@ spells["flux"] = {
    color=yellow, 
    base={70,115,160,205,250}, 
    ap=.8,
-   delay=2,
-   speed=15,
+   delay=1.3,
+   speed=16,
    noblock=true,
    width=75,
    cost={50,60,70,80,90}
@@ -55,7 +55,7 @@ spells["barrage"] = {
    base={350,500,650}, 
    ad=1, 
    ap=.9,
-   delay=12,
+   delay=9,
    speed=20,
    width=150,
    range=99999,
@@ -133,6 +133,10 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("shot")
+   -- TestSkillShot("flux")
+   -- TestSkillShot("barrage", "Trueshot")
+
    local minFluxLevel = 0
    -- flux enemy if flux is over level 1 (waste of mana at low levels)
    if GetSpellLevel("W") > minFluxLevel then
