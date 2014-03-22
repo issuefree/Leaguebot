@@ -17,6 +17,7 @@ Tim's modified version of...
 
 require "telemetry"
 require "walls"
+require "basicUtils"
 
 -- "hardness" of the cc
 local GRAB = 4
@@ -31,7 +32,7 @@ local SILENCE = 1
 local spells = {
 	Ahri = {
 		{name="AhriOrbofDeception", range=880, radius=80, time=1, ss=true, isline=true},
-		{name="AhriSeduce", range=975, radius=80, time=1, ss=true, isline=true, cc=TAUNT, nodamage=true},
+		{name="AhriSeduce", range=975, radius=80, time=1, ss=true, isline=true, block=true, cc=TAUNT, nodamage=true},
 	},
 	Akali = {
 		{name="akalimota"},
@@ -40,7 +41,7 @@ local spells = {
 		{name="headbutt", cc=KNOCK},
 	},
 	Amumu = {
-		{name="BandageToss", range=1100, radius=80, time=1, ss=true, isline=true, cc=STUN},
+		{name="BandageToss", range=1100, radius=80, time=1, ss=true, isline=true, block=true, cc=STUN},
 	},
 	Annie = {
 		{name="Disintegrate", key="Q", cc=STUN},
@@ -51,14 +52,14 @@ local spells = {
 		{name="Frostbite"},
 	},
 	Ashe = {
-		{name="volley", cc=SLOW, physical=true},
+		{name="volley", block=true, cc=SLOW, physical=true},
 		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN},
 	},
 	Blitzcrank = {
 		{name="RocketGrabMissile", key="Q", range=925, radius=90, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB},
 	},
 	Brand = {
-		{name="BrandBlazeMissile", range=1050, radius=70, time=1, ss=true, isline=true, cc=STUN},
+		{name="BrandBlazeMissile", range=1050, radius=70, time=1, ss=true, isline=true, block=true, cc=STUN},
 		{name="brandconflagration"},
 		{name="BrandFissure", range=900, radius=250, time=4, ss=true, isline=false},
 		{name="brandwildfire"},
@@ -78,9 +79,9 @@ local spells = {
 		{name="feast"},			
 	},
 	Corki = {
-		{name="MissileBarrageMissile", range=1225, radius=80, time=1, ss=true, isline=true},
-		{name="MissileBarrageMissile2", range=1225, radius=100, time=1, ss=true, isline=true},
-		{name="CarpetBomb", range=800, radius=150, time=1, ss=true, isline=true, point=true},
+		{name="MissileBarrageMissile", range=1225, radius=80, time=1, ss=true, isline=true, block=true},
+		{name="MissileBarrageMissile2", range=1225, radius=100, time=1, ss=true, isline=true, block=true},
+		--{name="CarpetBomb", range=800, radius=150, time=1, ss=true, isline=true, point=true},
 	},
 	Darius = {
 		{name="dariusaxegrabcone", key="E", range=540, perm=true, cc=GRAB, nodamage=true},
@@ -94,13 +95,13 @@ local spells = {
 		{name="DravenRCast", range=50000, radius=100, time=4, ss=true, show=true, isline=true, physical=true},
 	},
 	DrMundo = {
-		{name="InfectedCleaverMissileCast", key="Q", range=1000, radius=60, time=1, ss=true, perm=true, block=true, isline=true, cc=SLOW},
+		{name="InfectedCleaverMissileCast", key="Q", range=1000, radius=60, time=1, ss=true, perm=true, block=true, isline=true, block=true, cc=SLOW},
 	},
 	Elise = {
-		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true},
+		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true, block=true},
 	},
 	Ezreal = {
-		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, physical=true},
+		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
 		{name="EzrealEssenceFluxMissile", range=900, radius=100, time=1, ss=true, isline=true},
 		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, show=true, isline=true},
 	},
@@ -110,7 +111,7 @@ local spells = {
 		{name="Crowstorm", range=800, radius=600, time=1.5, ss=true, isline=false},
 	},
 	Fizz = {
-		{name="FizzMarinerDoom", range=1275, radius=100, time=1.5, ss=true, isline=true, point=true, cc=SLOW},
+		{name="FizzMarinerDoom", range=1275, radius=100, time=1.5, ss=true, isline=true, point=true, block=true, cc=SLOW},
 	},
 	Galio = {
 		{name="GalioResoluteSmite", range=905, radius=200, time=1.5, ss=true, isline=false, cc=SLOW},
@@ -129,7 +130,7 @@ local spells = {
 	},
 	Gragas = {
 		{name="GragasBarrelRoll", range=1100, radius=320, time=2.5, ss=true, show=true, isline=false},
-		{name="GragasBodySlam", range=650, radius=150, time=1.5, ss=true, isline=true, point=true, cc=SLOW},
+		{name="GragasBodySlam", range=650, radius=150, time=1.5, ss=true, isline=true, point=true, block=true, cc=SLOW},
 		{name="GragasExplosiveCask", range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
 	},
 	Heimerdinger = {
@@ -150,7 +151,7 @@ local spells = {
 		{name="JarvanIVCataclysm", range=650, radius=300, time=1.5, ss=true, isline=false, physical=true},
 	},
 	Jayce = {
-		{name="jayceshockblast", range=1470, radius=100, time=1, ss=true, show=true, isline=true, physical=true},
+		{name="jayceshockblast", range=1470, radius=100, time=1, ss=true, show=true, isline=true, block=true, physical=true},
 	},
 	Jinx = {
 		{name="JinxQ", key="Q"},
@@ -173,7 +174,7 @@ local spells = {
 		{name="judicatorreckoning", cc=SLOW},
 	},	
 	Kennen = {
-		{name="KennenShurikenHurlMissile1", range=1050, radius=75, time=1, ss=true, isline=true},
+		{name="KennenShurikenHurlMissile1", range=1050, radius=75, time=1, ss=true, isline=true, block=true},
 	},
 	Khazix = {
 		{name="KhazixW", range=1000, radius=120, time=0.5, ss=true, isline=true, cc=SLOW, physical=true},
@@ -186,15 +187,15 @@ local spells = {
 		{name="KogMawLivingArtillery", range=2200, radius=200, time=1.5, ss=true, show=true, isline=false},
 	},
 	Leblanc = {
-		{name="LeblancSoulShackle", range=1000, radius=80, time=1, ss=true, isline=true, cc=BIND},
-		{name="LeblancSoulShackleM", range=1000, radius=80, time=1, ss=true, isline=true, cc=BIND},
+		{name="LeblancSoulShackle", range=1000, radius=80, time=1, ss=true, isline=true, block=true, cc=BIND},
+		{name="LeblancSoulShackleM", range=1000, radius=80, time=1, ss=true, isline=true, block=true, cc=BIND},
 		{name="LeblancSlide", range=600, radius=250, time=1, ss=true, isline=false},
 		{name="LeblancSlideM", range=600, radius=250, time=1, ss=true, isline=false},
 		{name="leblancslidereturn", range=1000, radius=50, time=1, ss=true, isline=false},
 		{name="leblancslidereturnm", range=1000, radius=50, time=1, ss=true, isline=false},
 	},
 	LeeSin = {
-		{name="BlindMonkQOne", key="Q", range=975, radius=150, time=1, ss=true, block=true, perm=true, isline=true, physical=true},
+		{name="BlindMonkQOne", key="Q", range=975, radius=150, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
 		{name="BlindMonkRKick", range=1200, radius=100, time=1, ss=true, isline=true, physical=true},
 	},
 	Leona = {
@@ -352,7 +353,7 @@ local spells = {
 		{name="TwitchVenomCask", cc=SLOW, nodamage=true},
 	},
 	Urgot = {
-		{name="UrgotHeatseekingLineMissile", range=1000, radius=80, time=0.8, ss=true, isline=true, physical=true},
+		{name="UrgotHeatseekingLineMissile", range=1000, radius=80, time=0.8, ss=true, isline=true, block=true, physical=true},
 		{name="UrgotPlasmaGrenade", range=950, radius=300, time=1, ss=true, isline=false, physical=true},
 	},
 	Vayne = {
@@ -395,7 +396,7 @@ local spells = {
 		{name="zedw2", range=550, radius=150, time=0.5, ss=true, isline=false, physical=true},
 	},
 	Ziggs = {
-		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true},
+		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true, block=true},
 		{name="ZiggsW", range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
 		{name="ZiggsE", range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},
@@ -405,16 +406,6 @@ local spells = {
 		{name="ZyraGraspingRoots", range=1100, radius=90, time=2, ss=true, show=true, isline=true, cc=BIND},
 	},
 }
-
-function find(source, target)
-   if not source then
-      return false
-   end
-   if string.len(target) == 0 then
-      return false
-   end
-   return string.find(string.lower(source), string.lower(target))
-end
 
 function GetSpellDef(name, spellName)
 	local spellTable = spells[name]
