@@ -19,18 +19,17 @@ spells["double"] = {
    key="Q", 
    range=spells["AA"].range, 
    color=violet, 
-   base={30,72,114,156,198},
-   ad=.9,
+   base={40,70,100,130,160},
+   ad=1,
    type="P",
-   cost={70,75,80,85,90},
+   cost={43,46,49,52,55},
    radius=500,
    onhit=true -- not sheen so watch for that
 }
 spells["impure"] = {
    key="W",
-   base={6,8,10,12,14},
-   ap=.05,
-   cost=50
+   ad=.06,
+   cost={30,35,40,45,50}
 }
 spells["rain"] = {
    key="E", 
@@ -45,8 +44,7 @@ spells["bullet"] = {
    key="R", 
    range=1400, 
    color=red, 
-   base={520,760,1000}, 
-   adBonus=2.8,
+   base={400,600,1000}, 
    ap=1.6,
    cost=100
 }
