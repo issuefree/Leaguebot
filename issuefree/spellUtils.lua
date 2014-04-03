@@ -46,7 +46,7 @@ function CastFireahead(thing, target)
 
    local spell = GetSpell(thing)   
    if not spell.speed then spell.speed = 20 end
-   if not spell.delay then spell.delay = 2 end
+   if not spell.delay then spell.delay = 1.6 end
 
    local point = GetSpellFireahead(spell, target)
    if spell.overShoot then
@@ -366,7 +366,7 @@ function TrackSpellFireahead(thing, target)
    end
 end
 
-function GetSpellFireahead(thing, target)   
+function GetSpellFireahead(thing, target)
    local spell = GetSpell(thing)
    -- return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
    local spell = GetSpell(thing)
@@ -388,6 +388,9 @@ function GetFireaheads(thing, targets)
    return fas
 end
 
+-- HACK CAST MOAR
+local simple = true
+
 function IsGoodFireahead(thing, target)
    local spell = GetSpell(thing)
    if not ValidTarget(target) then return false end   
@@ -405,6 +408,10 @@ function IsGoodFireahead(thing, target)
 
    if GetDistance(point) > GetSpellRange(spell) then
       return false
+   end
+
+   if simple then
+      return true
    end
 
    -- for collision skill shots dead on or dead away people are easy to hit
