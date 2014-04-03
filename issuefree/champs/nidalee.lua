@@ -19,8 +19,8 @@ spells["jav"] = {
    ap=.65,
    cost={50,60,70,80,90},
    width=80,
-   delay=2.5,
-   speed=13
+   delay=1.5,
+   speed=12.5
 }
 
 spells["trap"] = {
@@ -63,20 +63,20 @@ function Run()
       return true
    end
 
-   if HotKey() and CanAct() then
-      UseItems()
-      if Action() then
-         return true
-      end
-   end
-
    if IsOn("healTeam") and not isCougar then
       if HealTeam("heal") then
          return true
       end
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
+      UseItems()
+      if Action() then
+         return true
+      end
+   end
+
+   if HotKey() then
       if FollowUp() then
          return true
       end
@@ -84,7 +84,9 @@ function Run()
    
 end
 
-function Action()   
+function Action()
+   -- TestSkillShot("jav")
+
    if not isCougar then
       if SkillShot("jav") then
          return true
