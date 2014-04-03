@@ -65,8 +65,11 @@ ccNames = {
    "leBlanc_shackle", 
    "LOC_Stun",
    "LOC_Suppress",
+   "LOC_Taunt",
    "LuxLightBinding",
    "maokai_elementalAdvance_root_01", 
+   "monkey_king_ult_unit_tar_02",
+   "xenZiou_ChainAttack_03",
    "RengarEMax",
    "RunePrison",
    "Stun_glb", 
@@ -77,8 +80,8 @@ ccNames = {
    "Zyra_E_sequence_root",
 
    -- self inflicted ccs
-   "pantheon_heartseeker_cas2",
-   "gragas_drunkenRage_attack_buf",
+   -- "pantheon_heartseeker_cas2",
+   -- "gragas_drunkenRage_attack_buf",
    "Katarina_deathLotus_cas",
    "drain.troy",
    "ReapTheWhirlwind_green_cas",
