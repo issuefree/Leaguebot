@@ -11,10 +11,11 @@ spells["shot"] = {
    color=violet, 
    base={60,95,130,165,200}, 
    adBonus=.8,
-   delay=2,
-   speed=50,
+   delay=2.4,
+   speed=20,
    cone=30,
-   noblock=true
+   noblock=true,
+   cost={60,70,80,90,100}
 }
 spells["smoke"] = {
    key="W", 
@@ -22,14 +23,16 @@ spells["smoke"] = {
    color=yellow, 
    base={60,110,160,210,260}, 
    ap=.6,
-   delay=2,
-   speed=0,
+   delay=2.3,
+   speed=15,
    noblock=true,
-   radius=250
+   radius=250,
+   cost={70,75,80,85,90}
 }
 spells["dash"] = {
-   key="W", 
+   key="E", 
    range=425, 
+   cost=40,
    color=blue
 }
 spells["boom"] = {
@@ -37,16 +40,17 @@ spells["boom"] = {
    range=1000, 
    color=red, 
    base={250,350,450}, 
-   adBonus=1.4,
+   adBonus=1.5,
    delay=2,
    speed=50,
-   noblock=true
+   noblock=true,
+   cost=100
 }
 spells["boomCone"] = {
    key="R", 
    range=1800, 
    color=red, 
-   base={140,250,360}, 
+   base={200,280,360}, 
    adBonus=1.2,
    delay=2,
    speed=50
@@ -69,6 +73,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("shot")
+   TestSkillShot("smoke")
+
    if SkillShot("shot") then
       return true
    end
