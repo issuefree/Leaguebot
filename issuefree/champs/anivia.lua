@@ -193,7 +193,7 @@ local function onObject(object)
    PersistOnTargets("freeze", object, "Global_Freeze", ENEMIES)
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
