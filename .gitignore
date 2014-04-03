@@ -10,9 +10,10 @@
 *.bin
 *.cfg
 externalScripts/
+Common/
 
 *.pydevproject
-.project*
+.prCoject*
 .metadata
 bin/
 tmp/
@@ -227,3 +228,7 @@ test.lua
 script_gui.lua
 script_loader.lua
 difftool.bat
+extrasettings
+ward_circles.lua
+smart_wards.lua
+showskillshots.lua
