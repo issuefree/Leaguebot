@@ -105,6 +105,10 @@ local function onObject(object)
          object.charName ~= "LineMissile" and
          not find(object.charName, "DrawFX") and
          not find(object.charName, "FountainHeal") and
+         not find(object.charName, "LevelProp") and
+         not find(object.charName, "Minion") and
+         not find(object.charName, "Audio") and
+         not find(object.charName, "Mfx") and
          ( not testShot.charName or find(object.charName, testShot.charName) )
       then
          pp("Particle: "..object.charName)

@@ -26,8 +26,8 @@ spells["hunter"] = {
    base={10,40,70,100,130}, 
    ad=.85,
    type="P",
-   delay=2,
-   speed=18,
+   delay=1.5,
+   speed=15.5,
    width=85,
    cost=40
 }
@@ -43,8 +43,8 @@ spells["charge"] = {
    base={75,130,185,240,295}, 
    bonusAd=.6,
    type="P",
-   delay=2.5,
-   speed=18,
+   delay=2.7,
+   speed=15,
    noblock=true,
    radius=300,
    cost={50,55,60,65,70}
@@ -131,6 +131,7 @@ end
 
 function Action()
    -- TestSkillShot("hunter")
+   -- TestSkillShot("charge", "UrgotPlasmaGrenade_mis")
    
    -- if I have a charged enemy just hit it. It may not be as ideal
    -- as hitting a very weak guy with a skill shot but I could miss
