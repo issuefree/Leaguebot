@@ -181,7 +181,7 @@ end
 local function onObject(object)
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
