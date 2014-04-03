@@ -129,8 +129,8 @@ local spells = {
 		{name="GravesChargeShot", range=1000, radius=110, time=1, ss=true, isline=true, physical=true},
 	},
 	Gragas = {
-		{name="GragasBarrelRoll", range=1100, radius=320, time=2.5, ss=true, show=true, isline=false},
-		{name="GragasBodySlam", range=650, radius=150, time=1.5, ss=true, isline=true, point=true, block=true, cc=SLOW},
+		{name="GragasBarrelRoll", range=850, radius=320, time=2.5, ss=true, show=true, isline=false},
+		{name="GragasBodySlam", range=650, radius=150, time=1.5, ss=true, isline=true, point=true, block=true, cc=STUN},
 		{name="GragasExplosiveCask", range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
 	},
 	Heimerdinger = {
@@ -396,7 +396,7 @@ local spells = {
 		{name="zedw2", range=550, radius=150, time=0.5, ss=true, isline=false, physical=true},
 	},
 	Ziggs = {
-		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true, block=true},
+		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true, point=true, block=true},
 		{name="ZiggsW", range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
 		{name="ZiggsE", range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},
@@ -425,26 +425,29 @@ end
 
 function GetSpellShot(unit, spell)
 
-	local spellShot = GetSpellDef(unit.name, spell.name)
-	if spellShot then
-		if not spellShot.time then
-			spellShot.time = 1
+	local shot = GetSpellDef(unit.name, spell.name)
+	if shot then
+		if not shot.time then
+			shot.time = 1
 		end
-		if not spellShot.radius then
-			spellShot.radius = 0
+		if not shot.radius then
+			shot.radius = 0
 		end
-		spellShot.timeOut = os.clock()+spellShot.time
-		spellShot.startPoint = Point(unit)
-		spellShot.endPoint = spell.endPos
+		shot.timeOut = os.clock()+shot.time
+		shot.startPoint = Point(unit)
+		shot.endPoint = spell.endPos
 
-		if spellShot.point or not spellShot.isline then
-			spellShot.maxDist = GetDistance(spellShot.startPoint, spellShot.endPoint) + spellShot.radius
+		if shot.point or not shot.isline then
+			if GetDistance(shot.startPoint, shot.endPoint) > shot.range then
+				shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
+			end
+			shot.maxDist = GetDistance(shot.startPoint, shot.endPoint) + shot.radius
 		else
-			spellShot.maxDist = spellShot.range + spellShot.radius
-			spellShot.endPoint = Projection(spellShot.startPoint, spellShot.endPoint, spellShot.maxDist)
+			shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
+			shot.maxDist = shot.range + shot.radius
 		end
 
-		return spellShot
+		return shot
 	else
 		return nil
 	end
@@ -506,7 +509,16 @@ function SpellShotTarget(unit, spell, target)
 					end
 				end
 
+				-- if I'm moving and the safepoint is out of my way don't bother
 				if safePoint then
+					if GetDistance(me, GetMyLastPosition()) > 0 and
+						RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50)) > 45
+					then
+						safePoint = nil
+					end
+				end
+
+				if safePoint then					
 					shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
 				else
 					pp("No safe point dodging "..spell.name)

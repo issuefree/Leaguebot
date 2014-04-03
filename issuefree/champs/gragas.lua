@@ -13,49 +13,58 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["barrel"] = {
   key="Q", 
-  range=950, 
+  range=850, 
   color=violet, 
-  base={85,135,185,235,285},
-  ap=.9,
+  base={80,120,160,200,240},
+  ap=.6,
   delay=2,
   speed=12,
   radius=275,
-  cost={80,90,100,110,120},
+  cost={60,65,70,75,80},
   noblock=true,
   overShoot=50
 }
 spells["rage"] = {
-  key="W"
+  key="W",
+  base={20,50,80,110,140},
+  ap=.3,
+  percMaxHealth={.08,.09,.10,.11,.12}
 }
 spells["slam"] = {
   key="E", 
   range=650,
   color=yellow, 
-  base={80,120,160,200,240}, 
-  ap=.5,
-  ad={.3,.4,.5,.6,.7},
-  delay=2,
+  base={80,130,180,230,280}, 
+  ap=.6,
+  delay=1.6,
   speed=9,
   area=150,
-  cost=75
+  cost=50
 }
 spells["cask"] = {
   key="R", 
   range=1050,
   color=red, 
-  base={200,325,450}, 
-  ap=.9,
-  delay=2,
+  base={200,300,400}, 
+  ap=.7,
+  delay=1.6,
   speed=30,
   radius=400,
   cost=100
 }
 
+spells["AA"].damOnTarget = 
+   function(target)
+      if P.rage then
+         return GetSpellDamage("rage", target)
+      end
+   end
 
 function Run()
-   if P.barrel then
-      Circle(P.barrel)
-   end
+   if P.rage then
+      spells["AA"].bonus = GetSpellDamage("vorpal")
+   else
+      spells["AA"].bonus = 0
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
@@ -119,13 +128,14 @@ end
 
 local function onObject(object)
   Persist("barrel", object, "gragas_barrelfoam")
+  Persist("rage", object, "DRUNKEN RAGE OBJECT")
 end
 
 local function onSpell(unit, spell)
-   if find(spell.name, "GragasDrunkenRage") and unit.team == me.team then
-      CHANNELLING = true
-      DoIn(function() CHANNELLING = false end, 1000, "DrunkenRage")
-   end
+   -- if find(spell.name, "GragasDrunkenRage") and unit.team == me.team then
+   --    CHANNELLING = true
+   --    DoIn(function() CHANNELLING = false end, 1000, "DrunkenRage")
+   -- end
 end
 
 AddOnCreate(onObject)
