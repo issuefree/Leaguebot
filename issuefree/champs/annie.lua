@@ -125,20 +125,20 @@ function Run()
       if VeryAlone() then
          if KillMinionsInCone(spells["inc"], 2, 0, false) then
             PrintAction("Incinerate 2")
-            PauseToggle("lasthit", .25)
+            PauseToggle("lasthit", .5)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinionsInCone(spells["inc"], 2, 0, P.stun) then
                PrintAction("Incinerate 2")
-               PauseToggle("lasthit", .25)
+               PauseToggle("lasthit", .5)
                return true
             end
          else
             if KillMinionsInCone(spells["inc"], 3, 0, false) then
                PrintAction("Incinerate 3")
-               PauseToggle("lasthit", .25)
+               PauseToggle("lasthit", .5)
                return true
             end
          end
@@ -146,11 +146,13 @@ function Run()
 
       if VeryAlone() then
          if KillMinion("dis") then
+            PauseToggle("lasthit", .5)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinion("dis") then
+               PauseToggle("lasthit", .5)
                return true
             end
          end    
