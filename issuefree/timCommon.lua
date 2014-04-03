@@ -286,6 +286,108 @@ function Disrupt(targetSpell, thing)
    return false
 end
 
+STALLERS = {
+   'katarinar',
+   'drain',
+   'crowstorm',
+   'consume',
+   'absolutezero',
+   'rocketgrab',
+   'staticfield',
+   'cassiopeiapetrifyinggaze',
+   'ezrealtrueshotbarrage',
+   'galioidolofdurand',
+   'gragasdrunkenrage',
+   'luxmalicecannon',
+   'reapthewhirlwind',
+   'jinxw',
+   'jinxr',
+   'missfortunebullettime',
+   'shenstandunited',
+   'threshe',
+   'threshrpenta',
+   'infiniteduress',
+   'meditate',
+}
+
+GAPCLOSERS = {
+   'AkaliShadowDance', 
+   'Headbutt', 
+   'DariusExecute', 
+   'DianaTeleport', 
+   'EliseSpiderQCast', 
+   'FioraQ', 
+   'UrchinStrike', 
+   'IreliaGatotsu', 
+   'JarvanIVCataclysm', 
+   'JaxLeapStrike', 
+   'JayceToTheSkies', 
+   'blindmonkqtwo', 
+   'BlindMonkWOne', 
+   'MaokaiUnstableGrowth', 
+   'AlphaStrike', 
+   'NocturneParanoia', 
+   'Pantheon_LeapBash', 
+   'MonkeyKingNimbus', 
+   'XenZhaoSweep', 
+   'ViR', 
+   'YasuoDashWrapper', 
+   'TalonCutthroat', 
+   'KatarinaE', 
+   'InfiniteDuress'
+}
+
+DASHES = {
+   AatroxQ=650,
+   AhriTumble=550,
+   CarpetBomb=800,
+   GragasBodySlam=600,
+   GravesMove=425,
+   LucianE=425,
+   RenektonSliceAndDice=450,
+   SejuaniArcticAssault=650,
+   ShenShadowDash=600,
+   ShyvanaTransformCast=1000,
+   slashCast=660,
+   ViQ=725,
+   FizzJump=400,
+   HecarimUlt=1000,
+   KhazixE=600,
+   khazixelong=900,
+   LeblancSlide=600,
+   LeblancSlideM=600,
+   UFSlash=1000,
+   Pounce=375,
+   Deceive=400,
+   VayneTumble=300,
+   RivenTriCleave=260,
+   RivenFeint=325,
+   EzrealArcaneShift=475,
+   RiftWalk=700,
+   RocketJump=900,
+}
+
+function PredictEnemy(unit, spell)
+   if IsEnemy(unit) then
+      if ListContains(spell.name, STALLERS) then
+         return Point(unit), unit
+      elseif ListContains(spell.name, GAPCLOSERS) then
+         return Point(spell.endPos), unit
+      end
+      for name,range in pairs(DASHES) do
+         if spell.name == name then
+            local p = Point(spell.endPos)
+            if GetDistance(unit, p) > range then
+               p = Projection(unit, p, range)
+               return p, unit
+            end
+         end
+      end
+   end
+   return nil
+end
+
+
 function DumpCloseObjects(object)
    if GetDistance(object) < 50 then
       pp(object.name.." "..object.charName)
@@ -1227,7 +1329,8 @@ function OnProcessSpell(unit, spell)
          shot = SpellShotTarget(unit, spell, me)
          if shot then
             if not Engaged() and shot.safePoint then
-               if not shot.range then
+               if shot.block and not shot.range then
+                  pp("Blocking SS without defined range")
                   pp(shot)
                end
                if not shot.block or ( shot.block and IsUnblocked(spell.target, shot, me, MINIONS, ENEMIES) ) then
@@ -1252,13 +1355,13 @@ function OnProcessSpell(unit, spell)
       StartChannel(1)
    end
 
-   if CHAR_SPELLS[unit.name] then
-      if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
-         CHAR_SPELLS[unit.name][spell.name] = "new"
-         pp("Adding "..spell.name.." to "..unit.name) 
-         SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
-      end
-   end
+   -- if CHAR_SPELLS[unit.name] then
+   --    if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
+   --       CHAR_SPELLS[unit.name][spell.name] = "new"
+   --       pp("Adding "..spell.name.." to "..unit.name) 
+   --       SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
+   --    end
+   -- end
 
    -- for i, callback in ipairs(SPELL_CALLBACKS) do
    --    callback(unit, spell)
