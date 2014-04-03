@@ -59,6 +59,7 @@ end
 function CheckShield(thing, unit, spell, type)
    if not IsEnemy(unit) or
       IsRecalling(me) or
+      me.dead == 1 or
       not CanUse(thing) or
       unit.team == me.team
    then
