@@ -103,12 +103,14 @@ local function onObject(object)
    if testShot and not testShot.object then
       if GetDistance(object) < 1000 and
          object.charName ~= "LineMissile" and
+         object.charName ~= "missile" and
          not find(object.charName, "DrawFX") and
          not find(object.charName, "FountainHeal") and
          not find(object.charName, "LevelProp") and
          not find(object.charName, "Minion") and
          not find(object.charName, "Audio") and
          not find(object.charName, "Mfx") and
+         not find(object.charName, "ElixirSight") and
          ( not testShot.charName or find(object.charName, testShot.charName) )
       then
          pp("Particle: "..object.charName)
