@@ -89,9 +89,7 @@ function Run()
       return true
    end
 
-   -- I want all not moving targets.
-   -- I think I want to do this by looking for the stun obj and throwing darks at it
-   -- This might even catch other people's stuns.   
+   -- looking for the stun obj and throwing darks at it
    if CastAtCC("dark") then
       return true
    end
@@ -118,16 +116,16 @@ end
 function Action()
    UseItems()
    
-   local target = GetWeakEnemy('MAGIC', GetSpellRange("event")+200)
+   local target = GetWeakEnemy('MAGIC', GetSpellRange("event")+250)
    if target then
       if CanUse("event") then
          if FacingMe(target) then
-            local point = Projection(me, target, GetDistance(target)-150)
+            local point = Projection(me, target, GetDistance(target)-250)
             CastXYZ("event", point)
             PrintAction("Event Horizon <-", target)
             return true
          else
-            local point = Projection(me, target, math.min(GetSpellRange("event"), GetDistance(target)+150))
+            local point = Projection(me, target, math.min(GetSpellRange("event"), GetDistance(target)+250))
             CastXYZ("event", point)
             PrintAction("Event Horizon ->", target)
             return true
