@@ -42,7 +42,8 @@ ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
 --On Hit
 ITEMS["Wit's End"] = {id=3091, base={42}, type="M"}
 ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15, type="M"}
-ITEMS["Kitae's Bloodrazor"]= {id=3186, type="M"}
+ITEMS["Kitae's Bloodrazor"] = {id=3186, type="M"}
+ITEMS["Feral Flare"] = {id=3160, base=100}
 
 ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
 ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=2, type="P"}
