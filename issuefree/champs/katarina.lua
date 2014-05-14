@@ -225,7 +225,7 @@ function Action()
       end
 
       local target = GetMarkedTarget()
-      if target and IsInRange(target, "shunpo") and ( CanUse("sinister") or HasBuff("daggered") ) then
+      if target and IsInRange(target, "shunpo") and ( CanUse("sinister") or HasBuff("daggered", target) ) then
          Cast("shunpo", target)
          PrintAction("Shunpo (harrass)", target)
          return true
@@ -249,7 +249,8 @@ end
 -- will keep throwing until heroes get pretty close.
 function Farm()
    if CanUse("sinister") then
-      if GetWeakestEnemy("sinister") and UnderTower() then
+      local weakest = GetWeakestEnemy("sinister")
+      if weakest and UnderTower() and UnderTower(weakest) then
          PrintAction("-Sinister: Tower danger")
       else
          local sinRange = GetInRange(me, "sinister", MINIONS)
