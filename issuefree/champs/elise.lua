@@ -210,7 +210,7 @@ function Run()
             end
 
          else
-            if #creeps >= 2 and CanUse("spiderling") and GetMPerc(me) > .66 then
+            if GetMPerc(me) >= .85 or ( #creeps >= 2 and CanUse("spiderling") and GetMPerc(me) > .33 ) then
                CastXYZ("spiderling", me)            
                PrintAction("Spiderling in jungle")
                return true
