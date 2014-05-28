@@ -34,14 +34,16 @@ spells["hawkshot"] = {
 }
 
 spells["arrow"] = {
-   key="R", 
+   key="R",
    base={250,425,600}, 
    ap=1,
-   delay=2,
+   delay=2.6,
    speed=16,
    width=160,
    radius=250,
-   cost=100
+   cost=100,
+   particle="Ashe_Base_R_mis.troy",
+   spellName="EnchantedCrystalArrow"
 }
 
 function Run()
@@ -67,6 +69,7 @@ function Run()
    end
 
    if HotKey() and CanAct() then
+      UseItems()
       if Action() then
          return true
       end
@@ -82,7 +85,7 @@ function Run()
 end
 
 function Action()   
-   UseItems()
+   -- TestSkillShot("arrow")
 
    if CanUse("volley") then
       local target = GetMarkedTarget() or GetWeakestEnemy("volley")
