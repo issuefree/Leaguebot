@@ -16,7 +16,7 @@ spells["gale"] = {
 }
 spells["galeShort"] = {
    key="Q",
-	range=1100, 
+	range=1000, 
 	color=violet, 
 	base={60,85,110,135,160}, 
 	ap=.35
