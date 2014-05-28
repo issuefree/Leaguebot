@@ -7,7 +7,7 @@ spells["starfall"] = {
 	key="Q", 
 	range=650,  
 	color=red,    
-	base={60,95,130,165,200},
+	base={40,65,90,115,140},
 	ap=.4,
 	cost={30,40,50,60,70}
 }
