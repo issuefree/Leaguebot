@@ -124,11 +124,11 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if AA(target) then
-      PrintAction("AA", target)
-      return true
-   end
+   -- local target = GetMarkedTarget() or GetMeleeTarget()
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
+   -- end
 
    return false
 end
