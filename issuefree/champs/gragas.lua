@@ -60,22 +60,42 @@ spells["AA"].damOnTarget =
       end
    end
 
+local barrelTime = 0
+
 function Run()
-   if P.rage then
-      spells["AA"].bonus = GetSpellDamage("vorpal")
+   if P.barrel then
+      local mult = .5*math.min(time() - barrelTime, 2) / 2
+      spells["barrel"].bonus = GetSpellDamage("barrel") * mult
    else
-      spells["AA"].bonus = 0
+      spells["barrel"].bonus = 0
+   end
 
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
    end
 
-   if P.barrel and isBarrelActive() then
-      if #GetInRange(P.barrel, spells["barrel"].radius, ENEMIES) > 0 then
-         Cast("barrel", me, true)
-         PrintAction("BOOM")
+   if P.barrel then
+      local spell = GetSpell("barrel")
+      local enemies = GetInRange(P.barrel, spell.radius, ENEMIES)
+      for _,enemy in ipairs(enemies) do
+         if GetSpellDamage("barrel", enemy) > enemy.health then
+            Cast(spell, me, true)
+            PrintAction("Pop to kill", enemy)
+            break
+         end
+         local nextPos = Point(GetFireahead(enemy, 4, 0))
+         if GetDistance(P.barrel, nextPos) > spell.radius then
+            Cast(spell, me, true)
+            PrintAction("Pop escapees")
+            break
+         end
       end
+
+      -- if #GetInRange(P.barrel, spells["barrel"].radius, ENEMIES) > 0 then
+      --    Cast("barrel", me, true)
+      --    PrintAction("BOOM")
+      -- end
 
       local minions = GetInRange(P.barrel, spells["barrel"].radius, MINIONS)
       local kills = GetKills("barrel", minions)
@@ -86,8 +106,10 @@ function Run()
 
    end
 
-   if CastAtCC("barrel") then
-      return true
+   if not P.barrel then
+      if CastAtCC("barrel") then
+         return true
+      end
    end
 
    if HotKey() and CanAct() then
@@ -112,30 +134,22 @@ function Run()
 end
 
 function Action()
-   if not isBarrelActive() then
-      if SkillShot("barrel") then
-         return true
-      end
+   if SkillShot("barrel") then
+      return true
    end
 end
 
 function FollowUp()
 end
 
-function isBarrelActive()
-   return me.SpellNameQ == "gragasbarrelrolltoggle"
-end
-
 local function onObject(object)
-  Persist("barrel", object, "gragas_barrelfoam")
-  Persist("rage", object, "DRUNKEN RAGE OBJECT")
+   if Persist("barrel", object, "Gragas_Base_Q_Ally") then
+      barrelTime = time()
+   end
+   Persist("rage", object, "Gragas_Base_W_Buf_Hands")
 end
 
 local function onSpell(unit, spell)
-   -- if find(spell.name, "GragasDrunkenRage") and unit.team == me.team then
-   --    CHANNELLING = true
-   --    DoIn(function() CHANNELLING = false end, 1000, "DrunkenRage")
-   -- end
 end
 
 AddOnCreate(onObject)
