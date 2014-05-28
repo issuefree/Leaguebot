@@ -107,11 +107,11 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if AA(target) then
-      PrintAction("AA", target)
-      return true
-   end
+   -- local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
+   -- end
 
    return false
 end
@@ -132,19 +132,19 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
-      end
-   end
+   -- if IsOn("move") then
+   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   --    if target then
+   --       if GetDistance(target) > spells["AA"].range then
+   --          MoveToTarget(target)
+   --          return false
+   --       end
+   --    else        
+   --       MoveToCursor() 
+   --       PrintAction("Move")
+   --       return false
+   --    end
+   -- end
 
    return false
 end
