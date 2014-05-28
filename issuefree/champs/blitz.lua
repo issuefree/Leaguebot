@@ -20,7 +20,7 @@ spells["grab"] = {
    delay=2,
    speed=17,
    width=80,
-   cost=120
+   cost=100
 }
 spells["drive"] = {
    key="W", 
@@ -41,7 +41,7 @@ spells["field"] = {
    color=yellow, 
    base={250,375,500}, 
    ap=1,
-   cost=150
+   cost=100
 }
 
 function Run()
