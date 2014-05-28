@@ -18,41 +18,41 @@ spells["bolt"] = {
    range=750,
    maxRange=1400,
    color=violet, 
-   base={80 / 120 / 160 / 200 / 240}, 
+   base={80,120,160,200,240}, 
    ap=.75,
    delay=7,
    speed=0,
    width=75,
    noblock=true,
-   cost={80 / 90 / 100 / 110 / 120}
+   cost={80,90,100,110,120}
 } 
 spells["eye"] = {
    key="W",
    range=1100,
    color="blue",
-   base={60 / 90 / 120 / 150 / 180},
+   base={60,90,120,150,180},
    ap=.6,
    delay=7,
    speed=0,
    radius=200,
-   cost={70 / 80 / 90 / 100 / 110}
+   cost={70,80,90,100,110}
 } 
 spells["orb"] = {
    key="E", 
    range=1050,
    color=yellow, 
-   base={80 / 110 / 140 / 170 / 200}, 
+   base={80,110,140,170,200}, 
    ap=.45,
    delay=2,
    speed=14,
    width=90,
-   cost={60 / 65 / 70 / 75 / 80}
+   cost={60,65,70,75,80}
 } 
 spells["rite"] = {
    key="R",
    range={3200,4400,5600},
    color=red,
-   base={190 / 245 / 300},
+   base={190,245,300},
    ap=.43,
    delay=5,
    speed=0,
@@ -61,6 +61,7 @@ spells["rite"] = {
    cost=100
 } 
 
+function Run()
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
@@ -77,7 +78,7 @@ spells["rite"] = {
    -- auto stuff that always happen
 
    -- high priority hotkey actions, e.g. killing enemies
-	if HotKey() and CanAct() then
+	if HotKey() then
       UseItems()
 		if Action() then
 			return true
@@ -99,7 +100,7 @@ spells["rite"] = {
    -- end
 
    -- low priority hotkey actions, e.g. killing minions, moving
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return true
       end
