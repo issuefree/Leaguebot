@@ -168,12 +168,11 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
-      return true
-   end
-
+   -- local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
+   -- end
 
    return false
 end
