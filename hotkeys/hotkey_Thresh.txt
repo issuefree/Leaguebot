@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/champs/template.lua
+LALT LOADSCRIPT=issuefree/champs/thresh.lua
  
  
  
