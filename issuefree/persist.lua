@@ -101,6 +101,25 @@ function Persist(name, object, charName)
    end
 end
 
+function PersistToTrack(object, charName, champName, spellName)
+   if Persist(spellName, object, charName) then
+
+      -- check if it's an ally casting the spell
+      -- if the object comes into creation very close to a character on my team with the right name...
+      for _,ally in ipairs(ALLIES) do
+         if ally.name == champName then
+            if GetDistance(ally, object) < 100 then
+               return
+            end
+         end
+      end
+      PData[spellName].startPoint = Point(object)
+      PData[spellName].type = "trackedSpell"
+      PData[spellName].champName = champName
+      PData[spellName].spellName = spellName      
+   end
+end
+
 function PersistAll(name, object, charName)
    if object and (not charName or find(object.charName, charName)) then      
       Persist(name..object.id, object)
@@ -174,6 +193,16 @@ function GetWithBuff(buffName, ...)
    )
 end
 
+function GetTrackedSpells()
+   local ts = {}
+   for pName,obj in pairs(P) do
+      if PData[pName].type == "trackedSpell" then
+         table.insert(ts, pName)
+      end
+   end
+   return ts
+end
+
 function CleanPersistedObjects()
    for name,obj in pairs(P) do
       if not obj or 
@@ -241,6 +270,18 @@ local function updateMinions()
          isDupMinion(MYMINIONS, minion)
       then
          table.remove(MYMINIONS,i)
+      end
+   end
+end
+
+local function updateTrackedSpells()
+   for pName,obj in pairs(P) do
+      if PData[pName].type == "trackedSpell" then
+         if PData[pName].lastPos then
+            PData[pName].direction = AngleBetween(PData[pName].lastPos, Point(P[pName]))
+            -- DrawLine(P[pName].x,P[pName].y,P[pName].z, 1000, 0, PData[pName].direction, 100)
+         end
+         PData[pName].lastPos = Point(P[pName])
       end
    end
 end
@@ -334,10 +375,8 @@ function createForPersist(object)
       end
    end
 
-   if ( find(object.name, "OrderTurret") or
-        find(object.name, "ChaosTurret") )
-   then
-      if object.team ~= me.team then        
+   if startsWith(object.charName, "Turret_T") then
+      if object.team ~= me.team then
          table.insert(TURRETS, object)
       else
          table.insert(MYTURRETS, object)
@@ -353,6 +392,10 @@ function createForPersist(object)
    if find(object.charName, "Ward") then
       table.insert(WARDS, object)
    end
+
+   PersistToTrack(object, "Ashe_Base_R_mis", "Ashe", "EnchantedCrystalArrow")
+   PersistToTrack(object, "HowlingGale_mis", "Janna", "HowlingGale")
+   PersistToTrack(object, "Ezreal_TrueShot_mis", "Ezreal", "EzrealTrueshotBarrage")
 
    --sheen / trinity
    PersistBuff("enrage", object, "enrage_buf", 100)
@@ -370,13 +413,16 @@ function createForPersist(object)
 end
 
 function persistTick()
-   updateMinions()
-   updateCreeps()
-   updateHeroes()
    Clean(WARDS, "charName", "Ward")
    Clean(TURRETS, "name", "Turret")
    Clean(MYTURRETS, "name", "Turret")
    CleanPersistedObjects()
+
+   updateMinions()
+   updateCreeps()
+   updateHeroes()
+   updateTrackedSpells()
+
 end
 
 function getADC(list)

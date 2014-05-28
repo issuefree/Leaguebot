@@ -70,9 +70,6 @@ hotKey = GetScriptKey()
 playerTeam = ""
 
 
--- do fireahead calculations with a speedup to account for player direction changes
-SS_FUDGE = 1.33
-
 spells["AA"] = {
    range=GetAARange(), 
    base={0}, 
@@ -176,7 +173,7 @@ local function drawCommon()
             Circle(shot.safePoint)
          end
          if shot.isline then
-            LineBetween(shot.startPoint, shot.endPoint, shot.radius)
+            LineBetween(shot.startPoint, Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint, shot.endPoint)+shot.radius), shot.radius)
          end
          if not shot.isline or shot.point then
             Circle(shot.endPoint, shot.radius, blue, 4)
@@ -1319,35 +1316,54 @@ function CastBuff(spell)
    end
 end
 
-function OnProcessSpell(unit, spell)
-   if ModuleConfig.ass and unit.team ~= me.team then
-      local shot
-      if me.dead == 0 and
-         not Engaged() and
-         not IsChannelling()
-      then
-         shot = SpellShotTarget(unit, spell, me)
-         if shot then
-            if not Engaged() and shot.safePoint then
-               if shot.block and not shot.range then
-                  pp("Blocking SS without defined range")
-                  pp(shot)
-               end
-               if not shot.block or ( shot.block and IsUnblocked(spell.target, shot, me, MINIONS, ENEMIES) ) then
-               -- if not IsChannelling() or (shot.cc and shot.cc >= 3) then
-                  BlockingMove(shot.safePoint)
-                  PrintAction("Dodge "..unit.name.."'s "..spell.name)
-               -- end
-               end
-            end
+function checkDodge(shot)
+   if shot.safePoint then
+      if shot.block and not shot.range then
+         pp("Blocking SS without defined range")
+         pp(shot)
+      end
+      if not shot.block or ( shot.block and IsUnblocked(spell.target, shot, me, MINIONS, ENEMIES) ) then
+      -- if not IsChannelling() or (shot.cc and shot.cc >= 3) then
+         BlockingMove(shot.safePoint)
+         PrintAction("Dodge "..shot.name)
+      -- end
+      end
+   end
+end
+
+function processShot(shot)
+   if not shot then return end
+
+   if shot.show then
+      addSkillShot(shot)
+   end
+
+   if Engaged() then
+      pp("Don't dodge because I'm engaged")
+   end
+   if IsChannelling() then
+      pp("Don't dodge because I'm channelling")
+   end
+
+   if me.dead == 0 and
+      not Engaged() and
+      not IsChannelling()
+   then
+      shot = ShotTarget(shot, me)
+      if shot then
+         checkDodge(shot)
+         if not shot.show then
             addSkillShot(shot)
          end
       end
-      if not shot then
-         shot = GetSpellShot(unit, spell)
-         if shot and shot.show then
-            addSkillShot(shot)
-         end
+   end
+end
+
+function OnProcessSpell(unit, spell)
+   if ModuleConfig.ass and unit.team ~= me.team then
+      local shot = GetSpellShot(unit, spell)
+      if shot and not shot.dodgeByObject then
+         processShot(shot)
       end
    end
 
@@ -1372,10 +1388,13 @@ AddOnSpell(OnProcessSpell)
 local blockAndMove = nil
 local blockTimeout = .25
 local blockStart = 0
+local lastMove = 0 
 function BlockingMove(move_dest)
-   blockStart = time()
-
-   MoveToXYZ(move_dest.x, 0, move_dest.z)
+   if time() - lastMove > 1 then
+      blockStart = time()
+      MoveToXYZ(move_dest.x, 0, move_dest.z)
+      lastMove = time()
+   end
 
    -- blockAndMove = function()
    --    Circle(move_dest, 75, green)
@@ -1460,6 +1479,25 @@ function TimTick()
       end
    end
 
+   if ModuleConfig.ass then -- TODO and unit.team ~= me.team then
+
+      for _,pName in ipairs(GetTrackedSpells()) do
+         if P[pName] and PData[pName].direction then
+            local pd = PData[pName]
+            local shot = GetSpellDef(pd.champName, pd.spellName)
+
+            if shot then
+               shot.timeOut = os.clock()+shot.time
+               shot.startPoint = pd.startPoint
+               shot.endPoint = ProjectionA(pd.lastPos, pd.direction, shot.range)
+               SetEndPoints(shot)
+
+               processShot(shot)
+            end
+         end
+      end
+
+   end
 end
 
 function AA(target)
@@ -1615,6 +1653,7 @@ function UseItem(itemName, target)
       end
       if target then
          CastSpellTarget(slot, target)
+         return true
       end
 
    elseif itemName == "Tiamat" or
@@ -1630,19 +1669,10 @@ function UseItem(itemName, target)
 
    elseif itemName == "Frost Queen's Claim" then
       local target = SelectFromList(ENEMIES, function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
-      -- local nearCount = 0
-      -- target = nil
-      -- for i,hero in ipairs(ENEMIES) do
-      --    if GetDistance(me, hero) < item.range then
-      --       local near = #GetInRange(hero, item.radius, ENEMIES)
-      --       if near > nearCount then
-      --          target = hero
-      --          nearCount = near
-      --       end
-      --    end
-      -- end
       if target then
-         CastSpellTarget(slot, target)
+         CastXYZ(slot, target)
+         PrintAction("Frost Queen's Claim", target)
+         return true
       end
 
    elseif itemName == "Shard of True Ice" then
@@ -1688,11 +1718,13 @@ function UseItem(itemName, target)
       -- may expand this to trigger when a spell is cast on me that will kill me
       if not Alone() and GetHPerc(me) < .25 then
          CastSpellTarget(slot, me)
+         return true
       end
 
    elseif itemName == "Muramana" then
       if target then
          CastSpellTarget(slot, target)
+         return true
       end
 
    elseif itemName == "Mikael's Crucible" then

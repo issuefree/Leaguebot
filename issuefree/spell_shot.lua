@@ -53,7 +53,7 @@ local spells = {
 	},
 	Ashe = {
 		{name="volley", block=true, cc=SLOW, physical=true},
-		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN},
+		{name="EnchantedCrystalArrow", range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN, dodgeByObject=true},
 	},
 	Blitzcrank = {
 		{name="RocketGrabMissile", key="Q", range=925, radius=90, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB},
@@ -64,9 +64,12 @@ local spells = {
 		{name="BrandFissure", range=900, radius=250, time=4, ss=true, isline=false},
 		{name="brandwildfire"},
 	},
+	Braum = {
+		{name="SpellNameQ", range=1000, radius=175, time=1, ss=true, isline=true, block=true, cc=SLOW},
+	},
 	Caitlyn = {
 		{name="CaitlynEntrapmentMissile", range=1000, radius=50, time=1, ss=true, isline=true, cc=SLOW, physical=true},
-		{name="CaitlynPiltoverPeacemaker", range=1300, radius=80, time=1, ss=true, isline=true},
+		{name="CaitlynPiltoverPeacemaker", range=1300, radius=80, time=1, ss=true, isline=true, physical=true},
 		{name="caitlynaceinthehole", physical=true},
 	},
 	Cassiopeia = {
@@ -103,7 +106,7 @@ local spells = {
 	Ezreal = {
 		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
 		{name="EzrealEssenceFluxMissile", range=900, radius=100, time=1, ss=true, isline=true},
-		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, show=true, isline=true},
+		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, show=true, isline=true, dodgeByObject=true},
 	},
 	FiddleSticks = {
 		{name="terrify", cc=FEAR, nodamage=true},
@@ -142,7 +145,7 @@ local spells = {
 		{name="ireliaequilibriumstrike", cc=STUN},
 	},
 	Janna = {
-		{name="HowlingGale", range=1700, radius=100, time=3, ss=true, show=true, isline=true},
+		{name="HowlingGale", range=1700, radius=100, time=3, ss=true, show=true, isline=true, dodgeByObject=true},
 		{name="sowthewind", cc=SLOW}
 	},
 	JarvanIV = {
@@ -157,7 +160,7 @@ local spells = {
 		{name="JinxQ", key="Q"},
 		{name="JinxWMissile", key="W", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
 		{name="JinxE", key="E"},
-		{name="JinxR", key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true}
+		{name="JinxR", key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true, dodgeByObject=true}
 	},
 	Karthus = {
 		{name="LayWaste", range=875, radius=150, time=1, ss=true, isline=false},
@@ -317,7 +320,7 @@ local spells = {
 		{name="skarnerimpale", cc=GRAB},
 	},
 	Sona = {
-		{name="SonaCrescendo", range=1000, radius=150, time=1, ss=true, isline=true, cc=STUN},
+		{name="SonaCrescendo", range=1000, radius=350, time=1, ss=true, isline=true, cc=STUN},
 	},
 	Swain = {
 		{name="SwainShadowGrasp", range=900, radius=265, time=1.5, ss=true, isline=false, cc=STUN},
@@ -412,7 +415,14 @@ function GetSpellDef(name, spellName)
 	if spellTable ~= nil then
 		for i=1, #spellTable, 1 do
 			if find(spellName, spellTable[i].name) then
-				return spellTable[i]
+				local shot = spellTable[i]
+				if not shot.time then
+					shot.time = 1
+				end
+				if not shot.radius then
+					shot.radius = 0
+				end
+				return shot
 			end
 		end
 	end
@@ -427,16 +437,20 @@ function GetSpellShot(unit, spell)
 
 	local shot = GetSpellDef(unit.name, spell.name)
 	if shot then
-		if not shot.time then
-			shot.time = 1
-		end
-		if not shot.radius then
-			shot.radius = 0
-		end
-		shot.timeOut = os.clock()+shot.time
 		shot.startPoint = Point(unit)
 		shot.endPoint = spell.endPos
+		shot.timeOut = os.clock()+shot.time
 
+		SetEndPoints(shot)
+
+		return shot
+	else
+		return nil
+	end
+end
+
+function SetEndPoints(shot)
+	if shot.range then
 		if shot.point or not shot.isline then
 			if GetDistance(shot.startPoint, shot.endPoint) > shot.range then
 				shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
@@ -446,19 +460,15 @@ function GetSpellShot(unit, spell)
 			shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
 			shot.maxDist = shot.range + shot.radius
 		end
-
-		return shot
-	else
-		return nil
 	end
 end
 
-local function isSafe(safePoint, spell, spellShot)
+local function isSafe(safePoint, spellShot)
 	if not safePoint then
 		return false
 	end
 
-	if spellShot.isline and not spellShot.point then
+	if spellShot.range and spellShot.isline and not spellShot.point then
 		local dist = GetDistance(spellShot.startPoint, safePoint)
 
 		if dist < spellShot.maxDist then
@@ -479,54 +489,62 @@ end
 function SpellShotTarget(unit, spell, target)
 	if unit and spell and unit.team ~= target.team then
 		local shot = GetSpellShot(unit, spell)
-		if shot and shot.ss then
+		return ShotTarget(shot, target)
+	end
+	return nil
+end
+
+function ShotTarget(shot, target)
+	if shot and shot.ss then
+		
+		shot.safeDist = shot.radius + GetWidth(target)/2
+
+		if not IsMe(target) and not isSafe(target, shot) then
+			return shot
+		end
+
+		-- calculate a safe points if I'm the target
+		if IsMe(target) and not isSafe(me, shot) then
 			
-			shot.safeDist = shot.radius + GetWidth(target)/2
+			local impactPoint = shot.endPoint
+			if shot.isline and not shot.point then
+				impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
+			end
 			
-			-- calculate a safe points if I'm the target
-			if IsMe(target) and not isSafe(me, spell, shot) then
-				
-				local impactPoint = shot.endPoint
-				if shot.isline and not shot.point then
-					impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
-				end
-				
-				-- is where I'll be in half a second clear?
-				local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
+			-- is where I'll be in half a second clear?
+			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
 
-				if not isSafe(safePoint, spell, shot) then					
-					safePoint = Projection(impactPoint, target, shot.safeDist)
-				end
-
-				if IsSolid(safePoint) then -- if safe is into a wall go the other direction
-					safePoint = nil
-					local locs = SortByDistance(GetCircleLocs(impactPoint, shot.safeDist))
-					for _,loc in ipairs(locs) do
-						if not IsSolid(loc) and isSafe(loc, spell, shot) then
-							safePoint = loc
-							break
-						end
-					end
-				end
-
-				-- if I'm moving and the safepoint is out of my way don't bother
-				if safePoint then
-					if GetDistance(me, GetMyLastPosition()) > 0 and
-						RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50)) > 45
-					then
-						safePoint = nil
-					end
-				end
-
-				if safePoint then					
-					shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
-				else
-					pp("No safe point dodging "..spell.name)
-				end
-
-				return shot
+			if not isSafe(safePoint, shot) then					
+				safePoint = Projection(impactPoint, target, shot.safeDist)
 			end
 
+			if IsSolid(safePoint) then -- if safe is into a wall go the other direction
+				safePoint = nil
+				local locs = SortByDistance(GetCircleLocs(impactPoint, shot.safeDist))
+				for _,loc in ipairs(locs) do
+					if not IsSolid(loc) and isSafe(loc, shot) then
+						safePoint = loc
+						break
+					end
+				end
+			end
+
+			-- if I'm moving and the safepoint is out of my way don't bother
+			if safePoint then
+				if GetDistance(me, GetMyLastPosition()) > 0 and
+					RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50)) > 45
+				then
+					safePoint = nil
+				end
+			end
+
+			if safePoint then					
+				shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
+			else
+				pp("No safe point dodging "..shot.name)
+			end
+
+			return shot
 		end
 	end
 	return nil
