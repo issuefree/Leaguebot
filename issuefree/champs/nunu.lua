@@ -59,7 +59,8 @@ function Run()
       return true
    end
 
-	if HotKey() and CanAct() then 
+	if HotKey() then 
+		UseItems()
 		if Action() then
 			return true
 		end
@@ -76,7 +77,6 @@ function Run()
 end
 
 function Action()
-	UseItems()
 	if IsOn("boil") then
 		if CanUse("boil") and
 		   time() - lastBoil > 12 and 
@@ -98,7 +98,7 @@ function Action()
 				PrintAction("Iceblast EADC", EADC)
 				return true
 			else
-				local target = GetWeakestEnemy("iceblast")
+				local target =  GetMarkedTarget() or GetWeakestEnemy("iceblast")
 				if target then
 					Cast("iceblast", target)
 					PrintAction("Iceblast", target)
@@ -108,12 +108,12 @@ function Action()
 		end
 	end
 
-	local target = GetWeakestEnemy("AA")
-	if target then
-		if AA(target) then
-			return true
-		end
-	end
+	-- local target = GetWeakestEnemy("AA")
+	-- if target then
+	-- 	if AA(target) then
+	-- 		return true
+	-- 	end
+	-- end
 
    return false
 end
