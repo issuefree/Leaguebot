@@ -136,6 +136,14 @@ function find(source, target)
    return string.find(string.lower(source), string.lower(target))
 end
 
+function startsWith(source, target)
+   local s, e = find(source, target)
+   if s then
+      return s == 1
+   end
+   return false
+end
+
 function copy(orig)
    local orig_type = type(orig)
    local copy
