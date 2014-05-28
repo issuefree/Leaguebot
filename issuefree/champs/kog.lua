@@ -140,7 +140,7 @@ end
 
 function Action()
 
-   TestSkillShot("spittle")
+   -- TestSkillShot("spittle")
 
    if SkillShot("spittle") then
       return true
