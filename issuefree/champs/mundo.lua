@@ -134,10 +134,10 @@ function Action()
          PrintAction("Burn in my agony")
       end
 
-      if AA(target) then
-         PrintAction("AA", target)
-         return true
-      end
+      -- if AA(target) then
+      --    PrintAction("AA", target)
+      --    return true
+      -- end
    end
 end
 
