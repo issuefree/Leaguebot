@@ -13,7 +13,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 spells["bomb"] = {
   key="Q", 
-  range=700, 
+  range=695, 
   color=violet, 
   base={90,145,200,260,320}, 
   ap=.9,
@@ -26,7 +26,7 @@ spells["rewind"] = {
 }
 spells["warp"] = {
   key="E", 
-  range=702, 
+  range=700, 
   color=yellow, 
   cost=80
 }
