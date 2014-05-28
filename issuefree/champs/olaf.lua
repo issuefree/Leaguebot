@@ -3,7 +3,7 @@ require "issuefree/modules"
 
 pp("\nTim's Olaf")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=false, key=112, label="Move to Mouse"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -149,10 +149,10 @@ function Action()
          return true
       end
 
-      if AA(target) then
-         PrintAction("AA", target)
-         return true
-      end
+      -- if AA(target) then
+      --    PrintAction("AA", target)
+      --    return true
+      -- end
    end
 
    return false
