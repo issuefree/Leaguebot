@@ -23,7 +23,9 @@ spells["shot"] = {
    speed=20,    
    type="P",
    onHit=true,
-   cost={28,31,34,37,40}
+   cost={28,31,34,37,40},
+   particle="Ezreal_TrueShot_mis.troy",
+   spellName="EzrealTrueshotBarrage"
 }
 spells["flux"] = {
    key="W", 
@@ -112,9 +114,8 @@ function Run()
       if CanUse("shot") then
          for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
             if WillKill("shot", minion) and
-               -- ( JustAttacked() or
-                 GetDistance(minion) > spells["AA"].range 
-                 -- )
+               ( CanAct() or
+                 GetDistance(minion) > spells["AA"].range )
             then
                CastXYZ("shot", minion)
                PrintAction("Shot for lasthit")
@@ -124,12 +125,19 @@ function Run()
       end
    end
 
+   if IsOn("clearminions") then
+      if HitMinion("shot") then
+         return true
+      end
+   end
+
    if HotKey() and CanAct() then
       if FollowUp() then
          return true
       end
    end
-   
+
+   PrintAction()   
 end
 
 function Action()
