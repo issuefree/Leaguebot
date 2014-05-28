@@ -8,7 +8,7 @@ require "issuefree/walls"
 spells = {}
 
 function IsCooledDown(key)
-   return me["SpellTime"..key] >= 1
+   return me["SpellTime"..key] >= .95
 end
 
 function Cast(thing, target, force)
@@ -366,16 +366,24 @@ function TrackSpellFireahead(thing, target)
    end
 end
 
+-- do fireahead calculations with a speedup to account for player direction changes
+SS_FUDGE = .75
+
 function GetSpellFireahead(thing, target)
    local spell = GetSpell(thing)
    -- return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   local spell = GetSpell(thing)
-   if not tfas[spell.key] or not tfas[spell.key][target.charName] then
-      pp("faking fireahead")
-      return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   end
+   -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
+   --    pp("faking fireahead")
 
-   return Point(target) + GetCenter(tfas[spell.key][target.charName])
+   local trackedPoints = tfas[spell.key][target.charName]
+   local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
+   local r = spell.width or spell.radius
+
+   local fudge = 1 + (SS_FUDGE * (trackError / r) / 2)
+   return Point(GetFireahead(target, spell.delay/fudge, spell.speed*fudge))
+   -- end
+
+   -- return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
 function GetFireaheads(thing, targets)
