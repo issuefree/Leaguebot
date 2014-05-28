@@ -44,9 +44,17 @@ local poisons = {}
 function Run()
    drawPoisons()
 
-	if HotKey() and CanAct() then
-		Action()
-	end
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return
+   end
+
+   if HotKey() and CanAct() then
+      UseItems()
+      if Action() then
+         return true
+      end
+   end
 end
 
 function drawPoisons()
@@ -64,14 +72,7 @@ function drawPoisons()
 end
 
 function Action()
-   UseItems()
-      
-   local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   if target then
-      if AA(target) then
-         return
-      end
-   end
+
 
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
@@ -89,11 +90,18 @@ function Action()
       end
    end
 
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
+   -- local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
+   -- if target then
+   --    if AA(target) then
+   --       return
+   --    end
+   -- end
+
+   -- if IsOn("move") then
+   --    if RangedMove() then
+   --       return true
+   --    end
+   -- end
 end
 
 local function onObject(object)
