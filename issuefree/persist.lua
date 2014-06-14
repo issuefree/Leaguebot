@@ -26,6 +26,8 @@ APC = nil
 EADC = nil
 EAPC = nil
 
+CURSOR = nil
+
 -- persisted particles
 P = {}
 pOn = {}
@@ -410,6 +412,12 @@ function createForPersist(object)
 
    PersistBuff("muramana", object, "ItemMuramanaToggle")
 
+   if Persist("cursorA", object, "Cursor_MoveTo_Red") then
+      PData.cursorA.lastPos = Point(P.cursorA)
+   end
+   if Persist("cursorM", object, "Cursor_MoveTo.troy") then
+      PData.cursorM.lastPos = Point(P.cursorM)
+   end
 end
 
 function persistTick()
