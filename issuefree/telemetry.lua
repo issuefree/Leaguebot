@@ -26,7 +26,7 @@ function Point:__eq(p)
 end
 
 function Point:near(p)
-   return GetDistance(p, self) < 10
+   return GetDistance(self, p) < 25
 end
 
 function Point:unpack()
@@ -38,8 +38,8 @@ function GetDistance(p1, p2)
     p2 = p2 or myHero
     if not p1 or not p1.x or not p2.x then
       pp("Incomplete object")
-        print(debug.traceback())
-        return 99999 
+      print(debug.traceback())      
+      return 99999 
     end
     
     return math.sqrt(GetDistanceSqr(p1, p2))    
