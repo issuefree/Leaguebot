@@ -11,6 +11,7 @@ require "issuefree/spellUtils"
 require "issuefree/toggles"
 require "issuefree/walls"
 
+SetScriptTimer(10)
 
 if me.SpellLevelQ == 0 and
    me.SpellLevelW == 0 and
@@ -598,7 +599,7 @@ function KillMinion(thing, method, extraRange)
    for _,minion in ipairs(minions) do
       if WillKill(thing, minion) then
          if spell.name and spell.name == "attack" then
-            AttackTarget(minion)
+            AA(minion)
             PrintAction("AA "..method.." minion")
             return true
          else
@@ -634,7 +635,7 @@ function HitMinion(thing, method, extraRange)
 
    for _,minion in ipairs(minions) do
       if spell.name and spell.name == "attack" then
-         AttackTarget(minion)
+         AA(minion)
          PrintAction("AA "..method.." minion")
          return true
       else
@@ -1322,7 +1323,7 @@ function checkDodge(shot)
          pp("Blocking SS without defined range")
          pp(shot)
       end
-      if not shot.block or ( shot.block and IsUnblocked(spell.target, shot, me, MINIONS, ENEMIES) ) then
+      if not shot.block or ( shot.block and IsUnblocked(shot.target, shot, me, MINIONS, ENEMIES) ) then
       -- if not IsChannelling() or (shot.cc and shot.cc >= 3) then
          BlockingMove(shot.safePoint)
          PrintAction("Dodge "..shot.name)
@@ -1339,10 +1340,10 @@ function processShot(shot)
    end
 
    if Engaged() then
-      pp("Don't dodge because I'm engaged")
+      pp("Don't dodge because I'm engaged - "..shot.name)
    end
    if IsChannelling() then
-      pp("Don't dodge because I'm channelling")
+      pp("Don't dodge because I'm channelling - "..shot.name)
    end
 
    if me.dead == 0 and
@@ -1471,6 +1472,29 @@ function TimTick()
 
    TrackMyPosition()
 
+   if GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
+      CURSOR = P.cursorM
+      PData.cursorM.lastPos = Point(P.cursorM)
+      if IsAttacking() and Alone() then
+         ResetAttack()
+      end
+   elseif GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
+      CURSOR = nil --P.cursorA
+      PData.cursorA.lastPos = Point(P.cursorA)
+      if IsAttacking() then
+         ResetAttack()
+      end
+   end
+
+   if GetDistance(me, CURSOR) < 100 then
+      CURSOR = nil
+   end
+
+   if CURSOR then
+      Circle(CURSOR, 100, red)
+      LineBetween(me, CURSOR)
+   end
+
    UseAutoItems()
 
    for spell, info in pairs(DISRUPTS) do
@@ -1500,9 +1524,40 @@ function TimTick()
    end
 end
 
+function StartTickActions()
+   if IsRecalling(me) or me.dead == 1 then
+      PrintAction("Recalling or dead")
+      return true
+   end
+
+   if IsChannelling() then
+      return true
+   end
+
+   return false
+end
+
+function EndTickActions()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true         
+      end
+   end
+
+   if IsOn("move") and CanMove() and needMove and CURSOR then
+      MoveToXYZ(Point(CURSOR):unpack())
+      needMove = false
+   end
+
+   PrintAction()
+   return false
+end
+
 function AA(target)
    if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
+      AA_TARGET = target
+      needMove = true
       return true
    end
    return false
@@ -1521,7 +1576,7 @@ function ModAA(thing, target)
            dist < range+100 )
       then
          Cast(thing, me)
-         AttackTarget(target)
+         AA(target)
          mod = true
       end
    end
@@ -1545,7 +1600,7 @@ function ModAAFarm(thing, pObj)
       if target and WillKill(thing, target) and JustAttacked() then
          Cast(thing, me)
          PrintAction(thing.." lasthit", target)
-         AttackTarget(target)
+         AA(target)
          return true
       end
    end   
@@ -1590,14 +1645,16 @@ function GetMeleeTarget()
 end
 
 function RangedMove()
-   if IsOn("move") then
+   -- if CURSOR then
+   --    MoveToXYZ(Point(CURSOR):unpack())
+   --    return true
+   -- end
       -- if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
       --    #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
       -- then
       --    MoveToCursor()
       --    return false   
       -- end
-   end
    return false
 end
 

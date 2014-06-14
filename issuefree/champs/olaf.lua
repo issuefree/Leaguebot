@@ -3,7 +3,7 @@ require "issuefree/modules"
 
 pp("\nTim's Olaf")
 
-AddToggle("move", {on=false, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -53,9 +53,8 @@ Ganking
 ]]--
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    if HotKey() and CanAct() then
@@ -69,6 +68,7 @@ function Run()
       if KillMinion("swing") then
          return true
       end
+
       if KillMinionsInLine("axe", 2) then
          PrintAction("Axe for lasthit")
          return true
@@ -78,10 +78,6 @@ function Run()
    if IsOn("jungle") then
       local creeps = GetAllInRange(me, GetSpellRange("swing"), CREEPS)
       
-      for i,creep in ipairs(CREEPS) do
-         PrintState(i, creep.charName.." "..creep.dead.." "..GetDistance(creep))
-      end
-
       if #creeps > 0 and JustAttacked() then -- justattacked keeps me from aggroing by accident
          if CanUse("axe") and GetMPerc(me) > .5 then
             local hits, _, score = GetBestLine(me, "axe", 1, 2, creeps)
@@ -128,7 +124,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
@@ -149,10 +145,10 @@ function Action()
          return true
       end
 
-      -- if AA(target) then
-      --    PrintAction("AA", target)
-      --    return true
-      -- end
+      if AA(target) then
+         PrintAction("AA", target)
+         return true
+      end
    end
 
    return false
@@ -195,11 +191,11 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return false
-      end
-   end
+   -- if IsOn("move") then
+   --    if MeleeMove() then
+   --       return false
+   --    end
+   -- end
    return false
 end
 

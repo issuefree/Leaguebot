@@ -1,7 +1,6 @@
 require "issuefree/timCommon"
 require "issuefree/modules"
 
-
 pp("\nTim's Caitlyn")
 pp(" - alert for snipe")
 pp(" - try to trap to kite or chase")
@@ -23,7 +22,7 @@ spells["pp"] = {
    base={20,60,100,140,180}, 
    ad=1.3,
    cost={50,60,70,80,90},
-   delay=5,
+   delay=7,
    speed=22,
    type="P",
    width=80,
@@ -35,8 +34,9 @@ spells["trap"] = {
    base={80,130,180,230,280}, 
    ap=.6,
    cost=50,
-   delay=7,
+   delay=8,
    speed=0,
+   radius=75,
    noblock=true
 }
 spells["net"] = {
@@ -46,7 +46,9 @@ spells["net"] = {
    base={80,130,180,230,280}, 
    ap=.8,
    type="M",
-   cost=75
+   cost=75,
+   delay=2.25,
+   speed=20
 }
 spells["recoil"] = {
    key="E", 
@@ -81,8 +83,7 @@ function Run()
       spells["AA"].bonus = 0
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
    
@@ -111,9 +112,15 @@ function Run()
          return true
       end
    end
+
+   EndTickActions()
 end
 
 function Action()
+   -- TestSkillShot("pp")
+   -- TestSkillShot("trap")
+   -- TestSkillShot("net")
+
    if IsOn("trap") and 
       CanUse("trap") and 
       me.mana > GetSpellCost("net") + GetSpellCost("trap") 
@@ -167,12 +174,6 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
-   
    return false
 end
 

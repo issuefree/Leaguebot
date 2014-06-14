@@ -67,11 +67,7 @@ spells["barrage"] = {
 
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -109,17 +105,19 @@ function Run()
       return true
    end
 
-
    if IsOn("lasthit") and Alone() then
       if CanUse("shot") then
          for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
-            if WillKill("shot", minion) and
-               ( CanAct() or
-                 GetDistance(minion) > spells["AA"].range )
-            then
-               CastXYZ("shot", minion)
-               PrintAction("Shot for lasthit")
-               return true
+            if not SameUnit(minion, AA_TARGET) then
+               if WillKill("shot", minion) and
+                  ( not CanAttack() or not WillKill("AA", minion) ) and
+                  ( CanAct() or
+                    GetDistance(minion) > spells["AA"].range )
+               then
+                  CastXYZ("shot", minion)
+                  PrintAction("Shot for lasthit")
+                  return true
+               end
             end
          end
       end
@@ -137,7 +135,7 @@ function Run()
       end
    end
 
-   PrintAction()   
+   EndTickActions()
 end
 
 function Action()

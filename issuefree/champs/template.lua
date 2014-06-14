@@ -90,11 +90,7 @@ function CheckDisrupt()
 end
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -113,6 +109,12 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
 
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true         
+      end
+   end
+   
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -120,16 +122,16 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
 -- ranged
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
-      return true
-   end
+   -- local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   -- if AA(target) then
+   --    PrintAction("AA", target)
+   --    return true
+   -- end
 
 -- melee
    -- local target = GetMarkedTarget() or GetMeleeTarget()

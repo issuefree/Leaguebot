@@ -39,7 +39,7 @@ spells["condemn"] = {
    bonusAd=.5,
    type="P",
    cost=90,
-   knockback=435
+   knockback=435+25
 } 
 spells["final"] = {
    key="R", 
@@ -84,11 +84,7 @@ function Tick()
       spells["AA"].bonus = 0
    end
    
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -138,7 +134,7 @@ function Tick()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function TumbleCondemn(enemy)
@@ -157,6 +153,21 @@ function TumbleCondemn(enemy)
 end
 
 function Action()
+   -- if CanAttack() then
+   --    if HitMinion("AA", "weak") then
+   --       return true
+   --    end
+   --    if GetGolem() then
+   --       AttackTarget(GetGolem())
+   --       return true
+   --    end
+   -- end
+   -- if CanMove() then
+   --    MoveToMouse()
+   --    PrintAction("MTM")
+   --    return true
+   -- end   
+
    local target = GetMarkedTarget()
    if target then
       if TumbleCondemn(target) then
@@ -183,6 +194,7 @@ function Action()
 
    return false
 end
+
 function FollowUp()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
