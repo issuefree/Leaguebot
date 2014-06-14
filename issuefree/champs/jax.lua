@@ -10,7 +10,7 @@ pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
 pp(" - lasthit with empower")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"smite"}})
 AddToggle("", {on=true, key=115, label=""})
@@ -50,9 +50,8 @@ spells["might"] = {
 }
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
 	if IsKeyDown(string.byte("X")) == 1 then
@@ -108,7 +107,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 -- jump to good targets
@@ -148,6 +147,7 @@ function Action()
 
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target and ModAA("empower", target) then
+   	CURSOR = nil
       return true
    end
 
