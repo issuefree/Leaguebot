@@ -11,6 +11,8 @@ require "issuefree/spellUtils"
 require "issuefree/toggles"
 require "issuefree/walls"
 
+require "issuefree/champWealth"
+
 SetScriptTimer(10)
 
 if me.SpellLevelQ == 0 and
@@ -103,6 +105,8 @@ local wall = {}
 -- end
 
 local function drawCommon()
+   DrawHeroWealth()
+
    if me.dead == 1 then
       return
    end
@@ -1578,6 +1582,7 @@ function ModAA(thing, target)
          Cast(thing, me)
          AA(target)
          mod = true
+         return target
       end
    end
 
@@ -1625,12 +1630,13 @@ function MeleeMove()
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
          if GetDistance(target) > spells["AA"].range+25 then
+            CURSOR = nil
             MoveToTarget(target)
             return true
          end
       else        
-         MoveToCursor() 
-         return false
+         -- MoveToCursor() 
+         -- return false
       end
    end
    return false
