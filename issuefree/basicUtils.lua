@@ -92,6 +92,16 @@ function sum(t)
    return total
 end
 
+function max(t)
+   local max
+   for _,v in ipairs(t) do
+      if not max or v > max then
+         max = v
+      end
+   end
+   return max
+end
+
 function concat(...)
    local resTable = {}
    for _,tablex in ipairs(GetVarArg(...)) do
@@ -212,6 +222,7 @@ function GetIntersection(list1, list2)
 end
 
 function SameUnit(o1, o2)
+   if not o1 or not o2 then return false end
    return o1.name == o2.name and
           o1.charName == o2.charName and
           o1.x == o2.x and
