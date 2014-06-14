@@ -500,12 +500,13 @@ function ShotTarget(shot, target)
 		shot.safeDist = shot.radius + GetWidth(target)/2
 
 		if not IsMe(target) and not isSafe(target, shot) then
+			shot.target = target
 			return shot
 		end
 
 		-- calculate a safe points if I'm the target
 		if IsMe(target) and not isSafe(me, shot) then
-			
+			shot.target = me
 			local impactPoint = shot.endPoint
 			if shot.isline and not shot.point then
 				impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
