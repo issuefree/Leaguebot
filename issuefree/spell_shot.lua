@@ -211,7 +211,7 @@ local spells = {
 	},
 	Lucian = {
 		{name="LucianQ", range=1100, radius=100, time=0.75, ss=true, isline=true, physical=true},
-		{name="LucianW", range=1000, radius=150, time=1.5, ss=true, isline=true},
+		{name="LucianW", range=1000, radius=150, time=1.5, ss=true, isline=true, physical=true},
 		{name="LucianR", range=1400, radius=250, time=3, ss=true, isline=true, physical=true},
 	},
 	Lux = {
