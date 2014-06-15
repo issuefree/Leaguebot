@@ -27,6 +27,9 @@ EADC = nil
 EAPC = nil
 
 CURSOR = nil
+function ClearCursor()
+   CURSOR = nil
+end
 
 -- persisted particles
 P = {}
