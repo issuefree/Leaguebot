@@ -556,6 +556,7 @@ function MoveToTarget(t)
    if CanMove() then
       local x,y,z = GetFireahead(t, 2, 0)
       MoveToXYZ(x,y,z)
+      CURSOR = Point(x,y,z)
       PrintAction("MTT", t)
    end
 end
@@ -1343,10 +1344,10 @@ function processShot(shot)
       addSkillShot(shot)
    end
 
-   if Engaged() then
+   if Engaged() and shot.safePoint then
       pp("Don't dodge because I'm engaged - "..shot.name)
    end
-   if IsChannelling() then
+   if IsChannelling() and shot.safePoint then
       pp("Don't dodge because I'm channelling - "..shot.name)
    end
 
@@ -1491,7 +1492,7 @@ function TimTick()
    end
 
    if GetDistance(me, CURSOR) < 100 then
-      CURSOR = nil
+      ClearCursor()
    end
 
    if CURSOR then
@@ -1567,36 +1568,62 @@ function AA(target)
    return false
 end
 
-function ModAA(thing, target)
-   local dist = GetDistance(target)
-   local range = GetSpellRange("AA")
-   
-   local mod = false
-
-   if CanUse(thing) then
-      if ( dist <= range and
-           JustAttacked() ) or
-         ( dist > range and 
-           dist < range+100 )
-      then
+function MeleeAA(thing)
+   local mod = ""
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if target and GetDistance(target) < GetSpellRange("AA") then
+      if thing and CanUse(thing) and JustAttacked() then
          Cast(thing, me)
-         AA(target)
-         mod = true
-         return target
+         ResetAttack()
+         mod = " ("..thing..")"
+      end
+
+      if AA(target) then
+         ClearCursor()
+         PrintAction("AA"..mod, target)
+         return true
+      end
+   else
+      target = GetWeakestEnemy("AA")
+      if target and AA(target) then
+         PrintAction("AA driveby..mod", target)
+         return true
       end
    end
-
-   if AA(target) then
-      if mod then
-         PrintAction("AA ("..thing..")", target)
-      else
-         PrintAction("AA", target)
-      end
-      return target
-   end
-
    return false
 end
+
+-- function ModAA(thing, target)
+--    local dist = GetDistance(target)
+--    local range = GetSpellRange("AA")
+   
+--    local mod = false
+
+--    if CanUse(thing) then
+--       if ( dist <= range and
+--            JustAttacked() ) or
+--          ( dist > range and 
+--            dist < range+100 )
+--       then
+--          Cast(thing, me)
+--          ResetAttack()
+--          AA(target)
+--          mod = true
+--          return target
+--       end
+--    end
+
+--    if AA(target) then
+--       if mod then
+--          PrintAction("AA ("..thing..")", target)
+--       else
+--          PrintAction("AA", target)
+--       end
+--       return target
+--    end
+
+--    return false
+-- end
 
 
 function ModAAFarm(thing, pObj)
@@ -1630,7 +1657,6 @@ function MeleeMove()
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
          if GetDistance(target) > spells["AA"].range+25 then
-            CURSOR = nil
             MoveToTarget(target)
             return true
          end
