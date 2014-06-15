@@ -85,6 +85,13 @@ function CheckShield(thing, unit, spell, type)
          end
       end
 
+      if type == "CC" then
+         local shot = GetSpellDef(unit.name, spell.name)
+         if not shot or not shot.CC or shot.CC <= 1 then
+            return false
+         end
+      end         
+
       if type ~= "CHECK" then
          Cast(shield, spell.target)
       end
@@ -99,6 +106,13 @@ function CheckShield(thing, unit, spell, type)
          if type == "MAGIC" and shot.physical then
             return false
          end
+
+         if type == "CC" then
+            local shot = GetSpellDef(unit.name, spell.name)
+            if not shot or not shot.CC or shot.CC <= 1 then
+               return false
+            end
+         end         
 
          if type ~= "CHECK" then
             Cast(shield, ally)
