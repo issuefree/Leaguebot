@@ -60,6 +60,9 @@ spells["pyro"] = {
 
 
 function Run()
+   if StartTickActions() then
+      return true
+   end
 
    if CastAtCC("pillar") then
       return true

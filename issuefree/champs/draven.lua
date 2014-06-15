@@ -26,6 +26,10 @@ spells["standaside"] = {
 
 
 function Run()
+   if StartTickActions() then
+      return true
+   end
+
 	if HotKey() then
 		UseItems()
 	end

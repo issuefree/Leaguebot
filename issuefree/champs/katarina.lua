@@ -106,11 +106,6 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 pp("Tim's Katarina")
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-
    if IsChannelling(P.lotus) then
 
       for _,enemy in ipairs(ENEMIES) do -- early abort for execute
@@ -129,7 +124,9 @@ function Run()
          return true
       end
 
-   elseif IsChannelling() then
+   end
+   
+   if StartTickActions() then
       return true
    end
 
@@ -157,7 +154,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 

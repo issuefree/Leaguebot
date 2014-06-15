@@ -37,6 +37,11 @@ spells["intervention"] = {
 --   if someone is under 25% and becomes the target of an enemy ability intervene
 
 function Run()
+
+   if StartTickActions() then
+      return true
+   end
+
    -- if P.fury then
    --    PrintState(0, "FURY")
    -- else

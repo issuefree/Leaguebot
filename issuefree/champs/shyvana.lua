@@ -54,8 +54,7 @@ function Run()
       spells["bite"].base[lvl] = (me.baseDamage+me.addDamage)*p
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -112,7 +111,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
@@ -129,7 +128,7 @@ function Action()
       end      
    end
 
-   if target and ModAA("bite", target) then
+   if MeleeAA("bite") then
       return true
    end
 

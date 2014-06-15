@@ -40,9 +40,8 @@ spells["hunt"] = {
 }
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    local spell = GetSpell("boomerang")

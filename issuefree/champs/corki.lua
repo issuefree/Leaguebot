@@ -90,8 +90,7 @@ function Run()
       PrintState(1, "BIGONE")
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -138,7 +137,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

@@ -67,8 +67,7 @@ end
 local victim
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
    
@@ -106,7 +105,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
@@ -147,8 +146,7 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("strike", target) then
+   if MeleeAA("strike") then
       return true
    end
 

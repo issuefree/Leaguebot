@@ -80,10 +80,10 @@ function Run()
       Circle(hero, nil, blue, 3)
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
+
 
    if P.orb then
       Circle(P.orb, spells["orb"].radius, blue)

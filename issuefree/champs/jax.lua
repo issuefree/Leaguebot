@@ -145,12 +145,10 @@ function Action()
 		PrintAction("start counter")
 	end
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("empower", target) then
-   	CURSOR = nil
+
+   if MeleeAA("empower") then
       return true
    end
-
 
 	return false
 end

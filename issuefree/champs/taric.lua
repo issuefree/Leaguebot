@@ -84,9 +84,8 @@ function Run()
 		spells["AA"].bonus = 0
 	end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    if CheckDisrupt() then

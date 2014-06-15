@@ -100,9 +100,8 @@ function Run()
 
    Circle(P.artillery, spells["artillery"].radius, green, 4)
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    if CastAtCC("artillery") then

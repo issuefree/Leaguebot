@@ -65,9 +65,8 @@ function CheckDisrupt()
 end
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    if CheckDisrupt() then
@@ -91,7 +90,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

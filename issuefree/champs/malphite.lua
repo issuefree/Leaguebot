@@ -57,11 +57,7 @@ spells["AA"].damOnTarget =
    end
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -84,7 +80,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

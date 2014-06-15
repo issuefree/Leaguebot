@@ -8,7 +8,7 @@ pp(" -   don't activate if I'm spinning")
 pp(" - If someone targets me and I'm < 75% activate courage")
 pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -61,12 +61,9 @@ function Run()
    --    Circle(point, 5)
    -- end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
-
-   
 
    spinT = nil
    if CanUse("judgement") then
@@ -120,7 +117,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
@@ -144,15 +141,21 @@ function Action()
       return true
    end
 
-   if AA(target) then
-      if strikeUp then
-         PrintAction("AA (strike)", target)
-      else
-         PrintAction("AA", target)
-      end
-   	return true
+
+   if MeleeAA() then
+      return true
    end
 
+   -- if AA(target) then
+   --    if strikeUp then
+   --       PrintAction("AA (strike)", target)
+   --    else
+   --       PrintAction("AA", target)
+   --    end
+   -- 	return true
+   -- end
+
+   return false
 end
 
 function FollowUp()
@@ -196,6 +199,7 @@ function FollowUp()
          return true
       end
    end
+   
    return false
 end
 

@@ -7,7 +7,7 @@ function doubleUpDam()
    return GetSpellDamage("double")*1.2
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 -- AddToggle("double", {on=false, key=113, label="DoubleUp Enemies", auxLabel="{0}", args={doubleUpDam}})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -84,18 +84,17 @@ end
 function Run()
    spells["AA"].bonus = GetSpellDamage("impure")
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
-   end
-
-   if IsChannelling(P.bulletTime) then
-      CHANNELLING = true
+   if StartTickActions() then
       return true
    end
-   if CHANNELLING then
-   end
-   CHANNELLING = false
+
+   -- if IsChannelling(P.bulletTime) then
+   --    CHANNELLING = true
+   --    return true
+   -- end
+   -- if CHANNELLING then
+   -- end
+   -- CHANNELLING = false
 
    if HotKey() and CanAct() then
       UseItems()
@@ -125,6 +124,7 @@ function Run()
       end
    end
    
+   EndTickActions()
 end
 
 function Action()

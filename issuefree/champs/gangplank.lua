@@ -8,7 +8,7 @@ pp(" - shoot for lasthit")
 pp(" - morale if near enemies")
 
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("ult", {on=true, key=115, label="Ult Alert"})
@@ -47,11 +47,7 @@ spells["barrage"] = {
 }
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -90,6 +86,8 @@ function Run()
 	   	return true
 	   end
 	end
+
+	EndTickActions()
 end
 
 function Action()
@@ -113,11 +111,9 @@ function Action()
 		end
 	end
 
-   -- local target = GetMarkedTarget() or GetMeleeTarget()
-   -- if AA(target) then
-   --    PrintAction("AA", target)
-   --    return true
-   -- end
+	if MeleeAA() then
+		return true
+	end
 
    return false
 end

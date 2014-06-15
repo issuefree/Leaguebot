@@ -100,13 +100,10 @@ function Run()
       spells["rappel"].key = "--"
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
-   if IsChannelling() then
-      return true
-   end
+
 
    -- auto stuff that always happen
 
@@ -224,7 +221,7 @@ function Run()
       end
    end   
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()   

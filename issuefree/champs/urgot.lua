@@ -61,11 +61,7 @@ function Run()
       Circle(enemy, nil, green, 3)
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -125,7 +121,7 @@ function Run()
       return true
    end
 
-   PrintAction()
+   EndTickActions()
 
 end
 

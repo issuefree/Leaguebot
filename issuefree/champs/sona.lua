@@ -43,9 +43,8 @@ pcGreen = nil
 pcViolet = nil
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
    if IsOn("healTeam") and CanUse("green") then

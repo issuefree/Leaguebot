@@ -68,9 +68,9 @@ function CheckDisrupt()
 end
 
 function Run()
-	if IsRecalling(me) then
-		return
-	end
+   if StartTickActions() then
+      return true
+   end
 
    if CheckDisrupt() then
       return true

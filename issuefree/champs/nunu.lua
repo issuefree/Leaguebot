@@ -54,8 +54,7 @@ spells["zero"] = {
 local lastBoil = time()
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 

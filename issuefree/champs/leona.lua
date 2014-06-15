@@ -61,11 +61,7 @@ function Run()
    if P.shield then
       PrintState(0, "shield")
    end
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -101,13 +97,12 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("shield", target) then
+   if MeleeAA("shield") then
       return true
    end
 

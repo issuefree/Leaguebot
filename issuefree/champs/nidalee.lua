@@ -52,8 +52,8 @@ function Run()
       PrintState(0, "RAWR")
    end
    
-   if IsRecalling(me) or me.dead == 1 then
-      return
+   if StartTickActions() then
+      return true
    end
    
    if CastAtCC("spear") then

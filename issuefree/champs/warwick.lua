@@ -46,9 +46,8 @@ Q minions if I have lots of mana or am low on health.
 function Run()
    updateThirstDamage()
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
+   if StartTickActions() then
+      return true
    end
 
 	if HotKey() and CanAct() then

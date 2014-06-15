@@ -65,11 +65,7 @@ function Run()
    local bonusHealth = me.maxHealth - 440*(me.selfLevel-1)*86
    spell["frenzy"].bonus = bonusHealth * .15
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return true
-   end
-   if IsChannelling() then
+   if StartTickActions() then
       return true
    end
 
@@ -95,7 +91,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

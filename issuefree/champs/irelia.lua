@@ -50,13 +50,10 @@ spells["blades"] = {
 }
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
-   if IsChannelling() then
-      return true
-   end
+
 
    for _,minion in ipairs(GetInRange(me, GetSpellRange("surge")+100, MINIONS)) do
       if WillKill("surge", minion) then

@@ -44,8 +44,8 @@ function Run()
       -- PlaySound("Beep")
    end 
 
-   if IsRecalling(me) then
-      return
+   if StartTickActions() then
+      return true
    end
 
    if CastAtCC("lay") then

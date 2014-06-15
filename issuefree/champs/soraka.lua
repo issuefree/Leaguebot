@@ -83,10 +83,9 @@ end
 function Run()
 	spells["infuseMana"].cost = me.maxMana * .05
 
-	if me.dead == 1 then
-		PrintAction("Dead")
-		return
-	end
+   if StartTickActions() then
+      return true
+   end
 		
 	Wish()
 

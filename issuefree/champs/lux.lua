@@ -86,8 +86,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions", auxLabel="{
 local singularity
 
 function Run()
-   if me.dead == 1 then
-      PrintAction("dead")
+   if StartTickActions() then
       return true
    end
 

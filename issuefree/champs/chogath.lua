@@ -99,8 +99,7 @@ end
 function Run()
 	spells["AA"].bonus = GetSpellDamage("vorpal")
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -219,19 +218,11 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
-      end
-   end
+   -- if IsOn("move") then
+   --    if MeleeMove() then
+   --       return false
+   --    end
+   -- end
    return false
 end
 

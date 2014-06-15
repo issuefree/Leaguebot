@@ -69,16 +69,14 @@ function Run()
    end
 
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
-      return
-   end
-
    if IsChannelling(P.med) then
       CHANNELLING = true
       return true
    end
 
+   if StartTickActions() then
+      return true
+   end
 
    if HotKey() then
       UseItems()
@@ -113,7 +111,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

@@ -45,8 +45,7 @@ spells["field"] = {
 }
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -74,13 +73,12 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()   
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("fist", target) then
+   if MeleeAA("fist") then
       return true
    end
 

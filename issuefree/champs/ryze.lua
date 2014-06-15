@@ -49,11 +49,10 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", 
 AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
-   
+
    if HotKey() then
       UseItems()
       if Action() then

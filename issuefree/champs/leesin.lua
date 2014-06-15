@@ -254,14 +254,9 @@ function Run()
       PrintState(0, watched.charName)
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
-   if IsChannelling() then
-      return true
-   end
-
 
    if IsKeyDown(string.byte("X")) == 1 then
       if CanUse("safeguard") then
@@ -366,7 +361,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

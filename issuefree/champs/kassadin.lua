@@ -63,6 +63,10 @@ end
 AddToggle("execute", {on=false, key=112, label="Execute", auxLabel="{0}", args={getExecuteLabel}})
 
 function Run()
+   if StartTickActions() then
+      return true
+   end
+	
 	if IsKeyDown(hotKey) ~= 0 then
 		if IsOn("execute") then
 			local qDam = 0

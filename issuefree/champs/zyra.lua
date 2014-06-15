@@ -3,7 +3,7 @@ require "issuefree/modules"
 
 pp("\nTim's Zyra")
 
-AddToggle("", {on=true, key=112, label=""})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -78,8 +78,7 @@ function Run()
       end
    end
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -124,7 +123,7 @@ function Run()
       end
    end
 
-   PrintAction()
+   EndTickActions()
 end
 
 function Action()

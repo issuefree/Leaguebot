@@ -41,7 +41,7 @@ function getMasochismDamage()
    return damage
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -51,8 +51,7 @@ AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
 
 
 function Run()
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
@@ -115,9 +114,12 @@ function Run()
          return true
       end
    end
+   
+   EndTickActions()
 end
 
 function Action()
+   OrbWalk()
    if SkillShot("cleaver") then
       return true
    end
