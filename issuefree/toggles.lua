@@ -11,7 +11,7 @@ function AddToggle(key, value)
 end
 
 function IsOn(key)
-   return keyToggles[key].on
+   return keyToggles[key] and keyToggles[key].on
 end
 
 function Toggle(key, value)
