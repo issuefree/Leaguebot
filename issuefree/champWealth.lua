@@ -217,7 +217,7 @@ local myTeamWealth = {}
 local enemyTeamWealth = {}
 
 
-local xc, yc = 10, 750
+local xc, yc = 1675, 50
 
 local function PrintLine(str, line, col)
    DrawText(str,xc+col*5,yc+line*15,0xFFCCEECC);
