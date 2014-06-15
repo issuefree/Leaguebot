@@ -113,7 +113,7 @@ function initAAData()
                        aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
-      MissFortune  = { projSpeed = 2.0,
+      MissFortune  = { projSpeed = 2.0, windup=.21,
                        aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"},
                        aaSpellName = {"attack"} },
 
@@ -190,15 +190,15 @@ function initAAData()
                        aaSpellName = {"attack"} },
 
       Viktor       = { projSpeed = 2.25,
-                       aaParticles = {"ViktorBasicAttack_cas", "ViktorBasicAttack_mis", "ViktorBasicAttack_tar"},
+                       aaParticles = {"ViktorBasicAttack"},
                        aaSpellName = {"attack"} },
 
       Vladimir     = { projSpeed = 1.4,
-                       aaParticles = {"VladBasicAttack_mis", "VladBasicAttack_mis_bloodless", "VladBasicAttack_tar", "VladBasicAttack_tar_bloodless"},
+                       aaParticles = {"VladBasicAttack"},
                        aaSpellName = {"attack"} },
 
       Xerath       = { projSpeed = 1.2,
-                       aaParticles = {"XerathBasicAttack_mis", "XerathBasicAttack_tar"},
+                       aaParticles = {"XerathBasicAttack"},
                        aaSpellName = {"attack"} },
 
       Ziggs        = { projSpeed = 1.5,
@@ -213,22 +213,30 @@ function initAAData()
                        aaParticles = {"Zyra_basicAttack"},
                        aaSpellName = {"attack"} },
 
+      Akali        = { melee=true, windup = .2 },
 
       Amumu        = { melee=true,
                        aaParticles = {"SadMummyBasicAttack"} },
       
       Blitzcrank   = { melee=true },
 
+      Chogath      = { melee=true, windup = .2,
+                     aaParticles = {"vorpal_spikes_mis"} },
+
+      DrMundo      = { melee=true, windup = .2 },
+
       Elise        = { melee=true,
                        aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
       Garen        = { melee=true,
-                       aaParticles = {"Garen_Base_AA_Tar"}},
+                       aaParticles = {"Garen_Base_AA"},
+                       aaSpellName = {"attack"},
+                       resetSpell = {"GarenQ"} },
 
       JarvanIV     = { melee=true,
                        aaSpellName={"JarvanIVBasicAttack"} },
 
-      Jax          = { melee=true,
+      Jax          = { melee=true, windup=.2,
                        aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
 
@@ -264,18 +272,24 @@ function initAAData()
       if GetAARange() == me.range + meleeRange then      
          aaData = { melee=true }
       end
-   end
+   end   
+
    if not aaData.aaParticles then
       aaData.aaParticles = {}
-      -- aaData.aaParticles = {"globalhit_bloodslash"}
    end
+   -- aaData.aaParticles = {"globalhit_bloodslash"}
+
    if not aaData.aaSpellName then
      aaData.aaSpellName = {"attack"}
    end
    table.insert(aaData.aaSpellName, "ItemTiamatCleave")
 
    if not aaData.windup then
-      aaData.windup = .33
+      if aaData.melee then
+         aaData.windup = .25
+      else
+         aaData.windup = .33
+      end
    end
    if not aaData.duration then
       aaData.duration = 1/me.baseattackspeed
@@ -292,6 +306,18 @@ end
 
 function getWindup()
    return aaData.windup / getAttackSpeed()
+end
+
+function OrbWalk()
+   CURSOR = Point(mousePos())
+   local targets = SortByDistance(GetInRange(me, "AA", MINIONS, CREEPS, ENEMIES))
+   if targets[1] and CanAttack() then
+      if AA(targets[1]) then
+         return true
+      end
+   elseif CanMove() then
+      MoveToCursor()
+   end
 end
 
 initAAData()
@@ -459,7 +485,7 @@ end
 
 function onObjAA(object)
    if ListContains(object.charName, aaData.aaParticles) 
-      and GetDistance(object) < GetWidth(me)+150
+      and GetDistance(object) < GetWidth(me)+250
    then
       if ModuleConfig.aaDebug then
          local delta = time() - lastAAState
@@ -513,12 +539,30 @@ function trackWindup()
 end
 
 
+function isResetSpell(spell)
+   local spellName = aaData.aaSpellName
+   if type(spellName) == "table" then
+      if ListContains(spell.name, spellName) then
+         return true
+      end
+   else
+      if find(spell.name, spellName) then                       
+         return true
+      end
+   end
+   return false
+end
+
 function onSpellAA(unit, spell)
 
    if not unit or not IsMe(unit) then
       return false
    end
    
+   if isResetSpell(spell) then
+      ResetAttack()
+   end
+
    if IAttack(unit, spell) then
 
       -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
