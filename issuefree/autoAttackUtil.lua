@@ -173,7 +173,7 @@ function initAAData()
                        aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"},
                        aaSpellName = {"attack"} },
 
-      Urgot        = { projSpeed = 1.3,
+      Urgot        = { projSpeed = 1.3, windup = .2,
                        aaParticles = {"UrgotBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
@@ -181,8 +181,8 @@ function initAAData()
                        aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" },
                        aaSpellName = {"attack"} },
 
-      Varus        = { projSpeed = 2.0,
-                       aaParticles = {},
+      Varus        = { projSpeed = 2.0, windup = .2666,
+                       aaParticles = {"Varus_basicAttack_mis"},
                        aaSpellName = {"attack"} }, --varusemissiledummy?
 
       Veigar       = { projSpeed = 1.05,
@@ -333,7 +333,7 @@ local lastAADelta = getAADuration()
 local lastWUDelta = getWindup()
 
 
-local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes"}
+local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow"}
 local aaObjects = {}
 
 local testDurs = {}
