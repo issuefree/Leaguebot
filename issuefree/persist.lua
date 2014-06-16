@@ -15,6 +15,9 @@ BARON = {}
 TURRETS = {}
 MYTURRETS = {}
 
+INHIBS = {}
+MYINHIBS = {}
+
 WARDS = {}
 
 ALLIES = {}
@@ -30,6 +33,8 @@ CURSOR = nil
 function ClearCursor()
    CURSOR = nil
 end
+
+AA_TARGET = nil
 
 -- persisted particles
 P = {}
@@ -388,6 +393,14 @@ function createForPersist(object)
       end
    end
 
+   if startsWith(object.charName, "Inhibit_Gem") then
+      if object.team ~= me.team then
+         table.insert(INHIBS, object)
+      else
+         table.insert(MYINHIBS, object)
+      end
+   end
+
    PersistOnTargets("recall", object, "TeleportHome", ENEMIES, ALLIES)
 
    if ListContains(object.charName, ccNames) then
@@ -427,6 +440,8 @@ function persistTick()
    Clean(WARDS, "charName", "Ward")
    Clean(TURRETS, "name", "Turret")
    Clean(MYTURRETS, "name", "Turret")
+   Clean(INHIBS, "name", "Inhibit_Gem")
+   Clean(MYINHIBS, "name", "Inhibit_Gem")
    CleanPersistedObjects()
 
    updateMinions()
