@@ -652,6 +652,19 @@ function HitMinion(thing, method, extraRange)
    return false
 end
 
+function HitObjectives()
+   local targets = GetAllInRange(me, "AA", CREEPS, TURRETS, INHIBS)
+   table.sort(targets,   function(a,b) return a.maxhealth > b.maxhealth end)
+
+   if targets[1] and CanAttack() then
+      if AA(targets[1]) then
+         PrintAction("Hit objective", target)
+         return true
+      end
+   end
+   return false
+end
+
 -- returns hits, kills (if scored), score
 function GetBestArea(source, thing, hitScore, killScore, ...)
    local spell = GetSpell(thing)
@@ -1486,9 +1499,9 @@ function TimTick()
    elseif GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
       CURSOR = nil --P.cursorA
       PData.cursorA.lastPos = Point(P.cursorA)
-      if IsAttacking() then
-         ResetAttack()
-      end
+      -- if IsAttacking() then
+      --    ResetAttack()
+      -- end
    end
 
    if GetDistance(me, CURSOR) < 100 then
@@ -1496,7 +1509,7 @@ function TimTick()
    end
 
    if CURSOR then
-      Circle(CURSOR, 100, red)
+      Circle(CURSOR, 33, blue)
       LineBetween(me, CURSOR)
    end
 
@@ -1549,6 +1562,12 @@ function EndTickActions()
       end
    end
 
+   if HotKey() and IsOn("clear") then
+      if HitObjectives() then
+         return true
+      end
+   end
+
    if IsOn("move") and CanMove() and needMove and CURSOR then
       MoveToXYZ(Point(CURSOR):unpack())
       needMove = false
@@ -1568,9 +1587,8 @@ function AA(target)
    return false
 end
 
-function MeleeAA(thing)
+function AutoAA(target, thing)
    local mod = ""
-   local target = GetMarkedTarget() or GetMeleeTarget()
    if target and GetDistance(target) < GetSpellRange("AA") then
       if thing and CanUse(thing) and JustAttacked() then
          Cast(thing, me)
@@ -1579,7 +1597,9 @@ function MeleeAA(thing)
       end
 
       if AA(target) then
-         ClearCursor()
+         if me.range < 300 then
+            ClearCursor()
+         end
          PrintAction("AA"..mod, target)
          return true
       end
