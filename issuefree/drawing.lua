@@ -19,10 +19,11 @@ function LineBetween(object1, object2, thickness)
    end
 
    local angle = AngleBetween(object1, object2) 
+   local dist = GetDistance(object1, object2)*1.06
    if type(object1) == "table" then
-      DrawLine(object1.x,object1.y,object1.z, GetDistance(object1, object2), 0, angle, thickness)
+      DrawLine(object1.x,object1.y,object1.z, dist, 0, angle, thickness)
    else
-      DrawLineObject(object1, GetDistance(object1, object2), 0, angle, thickness)
+      DrawLineObject(object1, dist, 0, angle, thickness)
    end
 end
 
