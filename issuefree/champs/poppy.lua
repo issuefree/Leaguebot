@@ -9,7 +9,7 @@ AddToggle("jungle", {on=true, key=114, label="Jungle"})
 AddToggle("kb", {on=true, key=115, label="Auto KB"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "blow"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["blow"] = {
    key="Q", 
@@ -139,7 +139,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

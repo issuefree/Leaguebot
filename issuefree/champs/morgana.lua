@@ -2,10 +2,17 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 pp("\nTim's Morgana")
+pp(" - Auto shield CC")
+pp(" - Soil CC'd enemies")
 
 AddToggle("shield", {on=true, key=112, label="Auto Shield"})
 AddToggle("soil", {on=true, key=113, label="Auto Soil"})
 AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["binding"] = {
    key="Q", 
@@ -45,10 +52,6 @@ spells["shackles"] = {
    cost=100
 }
 
--- shield if someone is going to be hit by a stun
--- shield other random spells
--- binding people
--- soil people
 
 function Run()
    if StartTickActions() then
@@ -84,10 +87,11 @@ function Action()
          return true
       end
    end
+   return false
 end
 
 function FollowUp()
-
+   return false
 end
 
 local function onObject(object)

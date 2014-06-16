@@ -9,7 +9,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["blind"] = {
 	key="Q", 
@@ -103,7 +103,7 @@ function Action()
 	
 	-- hit the highest health minion in range that isn't poisoned	
 	-- if there isn't one, hit the highest health minion
-	if IsOn("clearminions") and Alone() then
+	if IsOn("clear") and Alone() then
 		local nearMinions = SortByHealth(GetInRange(me, "AA", MINIONS))
 
 		for _,minion in rpairs(nearMinions) do
@@ -129,7 +129,7 @@ end
 --Toxicshot_mis.troy
 
 local function onObject(object)
-	if IsOn("clearminions") and GetDistance(object) < 1000 then
+	if IsOn("clear") and GetDistance(object) < 1000 then
 		if find(object.charName, "Global_poison") then
 			table.insert(poisons, object)
 		end 

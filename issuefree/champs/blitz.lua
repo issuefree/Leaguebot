@@ -9,7 +9,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "fist"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["grab"] = {
    key="Q", 
@@ -78,7 +78,7 @@ end
 
 function Action()   
 
-   if MeleeAA("fist") then
+   if AutoAA("fist") then
       return true
    end
 
@@ -105,7 +105,7 @@ function FollowUp()
 
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

@@ -209,7 +209,7 @@ AddToggle("qrq", {on=false, key=114, label="QRQ Combo", auxLabel="{0}", args={qr
 AddToggle("jungle", {on=true, key=115, label="Jungle"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 
 
@@ -434,7 +434,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

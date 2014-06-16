@@ -7,13 +7,13 @@ pp(" - try to trap to kite or chase")
 pp(" - piltover people out of AA range")
 pp(" - farming w/headshot clears with piltover")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("pp", {on=true, key=113, label="Piltover", auxLabel="{0}", args={"pp"}})
-AddToggle("trap", {on=true, key=114, label="Trap"})
-AddToggle("execute", {on=true, key=115, label="AutoExecute", auxLabel="{0}", args={"ace"}})
+AddToggle("pp", {on=true, key=112, label="Piltover", auxLabel="{0}", args={"pp"}})
+AddToggle("trap", {on=true, key=113, label="Trap"})
+AddToggle("execute", {on=true, key=114, label="AutoExecute", auxLabel="{0}", args={"ace"}})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["pp"] = {
    key="Q", 
@@ -22,7 +22,7 @@ spells["pp"] = {
    base={20,60,100,140,180}, 
    ad=1.3,
    cost={50,60,70,80,90},
-   delay=7,
+   delay=7-3, -- reduce delay for less leading
    speed=22,
    type="P",
    width=80,
@@ -34,7 +34,7 @@ spells["trap"] = {
    base={80,130,180,230,280}, 
    ap=.6,
    cost=50,
-   delay=8,
+   delay=8-3, -- reduce delay for less leading
    speed=0,
    radius=75,
    noblock=true
@@ -99,7 +99,7 @@ function Run()
       return true
    end
 
-   if HotKey() then
+   if HotKey() and CanAct() then
       UseItems()
 
       if Action() then
@@ -123,7 +123,8 @@ function Action()
 
    if IsOn("trap") and 
       CanUse("trap") and 
-      me.mana > GetSpellCost("net") + GetSpellCost("trap") 
+      me.mana > GetSpellCost("net") + GetSpellCost("trap") and
+      ( not CanUse("ace") or me.mana > GetSpellCost("ace") + GetSpellCost("trap") )
    then
       if SkillShot("trap") then
          return true
@@ -131,22 +132,17 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
    if IsOn("pp") and 
       CanUse("pp") and 
-      me.mana > GetSpellCost("net") + GetSpellCost("pp") 
+      me.mana > GetSpellCost("net") + GetSpellCost("pp") and
+      ( not CanUse("ace") or me.mana > GetSpellCost("ace") + GetSpellCost("pp") )
+      not GetWeakestEnemy("AA")
    then
-      -- get the weakest target within pp range but out of AA range
-      local targets = GetGoodFireaheads("pp", ENEMIES)
-      targets = FilterList(targets, function(item) return GetDistance(item) > GetSpellRange("AA") end)
-      local target = GetWeakest("pp", targets)
-      if target then
-         CastFireahead("pp", target)
-         PrintAction("PP", target)
+      if SkillShot("pp") then
          return true
       end
    end
@@ -161,7 +157,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       -- check for a big clear from pp
       if IsOn("pp") then
          if HitMinionsInLine("pp", 4) then

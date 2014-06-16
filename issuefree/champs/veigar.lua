@@ -47,7 +47,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "strike"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 function CheckDisrupt()
    -- need to figure out how to place this exactly on the target
@@ -190,7 +190,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") then
+   if IsOn("clear") then
       if HitMinionsInArea("dark", 3) then
          return true
       end

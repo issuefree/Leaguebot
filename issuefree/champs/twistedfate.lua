@@ -94,7 +94,7 @@ function Run()
 		local target = GetWeakEnemy("MAGIC", spells["AA"].range+100) 
 		if HotKey() and target then
          UseItems()
-         if CanUse("pick") and not selecting then
+         if IsOn("pick") and CanUse("pick") and not selecting then
             Cast("pick", me)
             selecting = true
          end
@@ -144,7 +144,7 @@ function onCreateObj(object)
 	-- if find(object.charName, "Card") then
 	-- 	pp(object.charName)
 	-- end
-	if PersistBuff("card", object, "Card_", 200) then		
+	if PersistBuff("card", object, "Card.troy", 200) then		
 		if IsOn("pick") then
 			if find(object.charName, card) then
 				CastSpellTarget("W", me, 0)
@@ -184,7 +184,7 @@ function onSpell(unit, spell)
 		if spell.name == "Destiny" then
          card = "Yellow"         
          gating = true
-         if CanUse("pick") then
+         if IsOn("pick") and CanUse("pick") then
             CastSpellTarget("W", me)
          end
       end

@@ -15,7 +15,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["shield"] = {
    key="Q", 
@@ -102,7 +102,7 @@ end
 
 function Action()
 
-   if MeleeAA("shield") then
+   if AutoAA("shield") then
       return true
    end
 
@@ -115,7 +115,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

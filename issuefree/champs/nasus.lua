@@ -21,7 +21,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}      {2}", args={GetAADamage, "strike", strikeBonus}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["strike"] = {
    key="Q", 
@@ -146,7 +146,7 @@ function Action()
       end
    end
 
-   if MeleeAA("strike") then
+   if AutoAA("strike") then
       return true
    end
 
@@ -160,7 +160,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       if AA(minions[#minions]) then
          PrintAction("AA clear minions")

@@ -7,7 +7,7 @@ require "issuefree/modules"
 --   true if they perform an action that takes time (most spells attacks)
 --   false if no action or the spell takes no time
 
-pp("\nTim's Template")
+pp("\nTim's Varus")
 
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})

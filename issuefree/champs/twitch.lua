@@ -9,7 +9,7 @@ AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 -- AddToggle("execute", {on=true, key=115, label="AutoExecute", auxLabel="{0}", args={"ace"}})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["cask"] = {
    key="W", 
@@ -79,7 +79,7 @@ function Action()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       -- hit the highest health minion
       local minions = GetInRange(me, "AA", MINIONS)
       SortByHealth(minions)

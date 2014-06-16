@@ -9,14 +9,14 @@ pp(" - auto homing hunters")
 pp(" - auto ss hunters")
 pp(" - minion farming")
 
-
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("capacitor", {on=true, key=113, label="Capacitor"})
-AddToggle("tear", {on=true, key=114, label="Charge tear"})
-AddToggle("harrass", {on=true, key=115, label="Harass"})
+AddToggle("capacitor", {on=true, key=112, label="Capacitor"})
+AddToggle("tear", {on=true, key=113, label="Charge tear"})
+AddToggle("harrass", {on=true, key=114, label="Harass"})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "hunter"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["hunter"] = {
    key="Q", 
@@ -90,11 +90,12 @@ function Run()
       if GetMPerc(me) > .33 or CanChargeTear() then
          local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))
          for _,minion in ipairs(minions) do
-            if JustAttacked() or 
-               GetDistance(minion) > GetSpellRange("AA") or 
-               not WillKill("AA", minion)
-            then
-               if WillKill("hunter", minion) then
+            if not SameUnit(minion, AA_TARGET) then
+               if WillKill("hunter", minion) and
+                  ( not CanAttack() or not WillKill("AA", minion) ) and
+                  ( CanAct() or
+                    GetDistance(minion) > spells["AA"].range )
+               then
                   CastXYZ("hunter", minion)
                   PrintAction("Hunter for lasthit")
                   return true
@@ -174,7 +175,7 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if CanUse("hunter") then
          local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
          local mp = GetMPerc(me)

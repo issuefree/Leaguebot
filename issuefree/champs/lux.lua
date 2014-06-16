@@ -81,7 +81,7 @@ AddToggle("barrier", {on=true, key=114, label="Barrier Team"})
 AddToggle("spark", {on=false, key=115, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
 
 local singularity
 
@@ -271,7 +271,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if CanUse("singularity") then
          local hits, kills, score = GetBestArea(me, "singularity", 1, 1, MINIONS)
          if score >= 7 then

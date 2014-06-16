@@ -9,7 +9,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bloom"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["bloom"] = {
    key="Q", 
@@ -165,7 +165,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       if AA(minions[#minions]) then

@@ -8,13 +8,14 @@ pp(" - shoot for lasthit")
 pp(" - morale if near enemies")
 
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("ult", {on=true, key=115, label="Ult Alert"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "gun"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["gun"] = {
 	key="Q", 
@@ -111,7 +112,7 @@ function Action()
 		end
 	end
 
-	if MeleeAA() then
+	if AutoAA() then
 		return true
 	end
 
@@ -125,7 +126,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

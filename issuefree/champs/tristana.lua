@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Tristana")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("jump", {on=false, key=113, label="Jumps"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function getShotRange()
    return 675+(9*(me.selflevel-1))
@@ -132,8 +133,7 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
@@ -141,16 +141,10 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then      
       if HitMinion("AA", "strong") then
          return true
-      end
+      end      
    end
 
    return false
@@ -160,11 +154,6 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
-   if ICast("shot", unit, spell) then
-      pp(spell.name)
-      pp("range "..getShotRange())
-      pp("actual "..GetDistance(GetLizard()))
-   end
 end
 
 AddOnCreate(onObject)

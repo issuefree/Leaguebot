@@ -11,7 +11,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["fear"] = {
    key="Q", 
@@ -174,7 +174,7 @@ function FollowUp()
    end
 
    -- clear with wind if there's 3 or more
-   if IsOn("clearminions") and Alone() and
+   if IsOn("clear") and Alone() and
       me.mana/me.maxMana > .5 
    then
       if CanUse("wind") then

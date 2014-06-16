@@ -54,7 +54,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 function CheckDisrupt()
    if Disrupt("DeathLotus", "infuse") then return true end
@@ -194,7 +194,7 @@ function FollowUp()
       end
 	end
 
-	if IsOn("clearminions") and Alone() then
+	if IsOn("clear") and Alone() then
 		if CanUse("starfall") then
 			if #GetInRange(me, "starfall", MINIONS) > 2 then
 				Cast("starfall", me)

@@ -16,7 +16,7 @@ AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"sm
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["leap"] = {
 	key="Q", 
@@ -146,7 +146,7 @@ function Action()
 	end
 
 
-   if MeleeAA("empower") then
+   if AutoAA("empower") then
       return true
    end
 
@@ -160,7 +160,7 @@ function FollowUp()
       end
 	end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

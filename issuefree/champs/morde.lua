@@ -14,7 +14,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["mace"] = {
   key="Q", 
@@ -159,7 +159,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if CanUse("mace") then
          local target = SortByDistance(GetInRange(me, 200, MINIONS))[1]
          if #GetInRange(target, spells["mace"].radius, MINIONS) > 2 then

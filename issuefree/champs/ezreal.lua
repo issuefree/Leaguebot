@@ -9,7 +9,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("tear", {on=true, key=115, label="Charge tear"})
 
 AddToggle("lasthit", {on=true, key=116, label="Farm", auxLabel="{0} / {1}", args={GetAADamage, "shot"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["shot"] = {
    key="Q", 
@@ -123,7 +123,7 @@ function Run()
       end
    end
 
-   if IsOn("clearminions") then
+   if IsOn("clear") then
       if HitMinion("shot") then
          return true
       end
@@ -171,7 +171,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

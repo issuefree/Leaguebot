@@ -2,14 +2,18 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 pp("\nTim's Olaf")
+pp(" - Swing for last hits")
+pp(" - Ham in jungle")
+pp(" - Axe peeps")
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "swing"}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["axe"] = {
    key="Q", 
@@ -161,7 +165,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if me.mana/me.maxMana > .75 then
          if HitMinionsInLine("axe", 3) then
             PrintAction("Axe for clear")

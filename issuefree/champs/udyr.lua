@@ -15,7 +15,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["tiger"] = {
    key="Q",   
@@ -83,7 +83,7 @@ function Run()
       end            
    end
 
-   if IsOn("clearminions") and GetMPerc(me) > .66 and JustAttacked() then
+   if IsOn("clear") and GetMPerc(me) > .66 and JustAttacked() then
       if CanUse("phoenix") and
          #GetInRange(me, spells["phoenix"].radius, MINIONS) >= 3 and 
          spells["phoenix"].spellLevel > spells["tiger"].spellLevel
@@ -189,7 +189,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

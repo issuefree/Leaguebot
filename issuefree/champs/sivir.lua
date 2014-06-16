@@ -7,7 +7,7 @@ AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("block", {on=true, key=113, label="SpellShield"})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["boomerang"] = {
    key="Q", 
@@ -86,7 +86,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end

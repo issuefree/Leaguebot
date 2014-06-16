@@ -14,7 +14,7 @@ AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clearminions", {on=false, key=117, label="Clear Minions"})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["orb"] = {
    key="Q", 
@@ -113,7 +113,7 @@ function Run()
       end
    end      
 
-   if IsOn("clearminions") and CanUse("storm") and Alone() and not P.storm then
+   if IsOn("clear") and CanUse("storm") and Alone() and not P.storm then
       local hits = GetBestArea(me, "storm", 1, 0, MINIONS)
       if (GetMPerc(me) > .33 and #hits >= 4) or
          (GetMPerc(me) > .66 and #hits >= 3)
@@ -176,7 +176,7 @@ function FollowUp()
       end
    end
 
-   if IsOn("clearminions") and Alone() then
+   if IsOn("clear") and Alone() then
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
       if AA(minions[#minions]) then
