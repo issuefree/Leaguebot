@@ -1,8 +1,8 @@
+UTILS_VERSION = 217
+
 --[[
     ====================================
     |    Leaguebot Utility Library     |
-    |          Version 2.1.0           |
-    |                                  |
     ====================================
 
         This library consolidates functions that are often repeated in scripts as well as including
@@ -82,7 +82,7 @@
     1.3.5
         - Fixed bug in GetLowestHealthEnemyMinion
     1.3.6
-        - Updated to hotfix 5
+        - Updated to hotfix 5        
 
     2.0.0 - 5/19/2012 11:39:00 AM
           - requires script_loader v04
@@ -93,33 +93,46 @@
 
     2.0.1 - 5/20/2013 12:40:05 PM
           - fix for utils being loaded multiple times for some scripts, due to require casing
-
+          
     2.0.2 - 5/20/2013 2:04:19 PM
           - undo 2.0.1 change in favor of a case insensitive require wrapper in script_loader
-
+          
     2.0.3 - 5/20/2013 7:24:36 PM
           - looks like OnCreateObj needed the same fix the rest got, removed FindNewObjects
-
+    
     2.0.4 - 5/31/2013 12:04:39 PM
           - RegisterLibraryOnTick, RegisterLibraryOnWndMsg, RegisterLibraryOnProcessSpell, RegisterLibraryOnCreateObj
-
+          
     2.0.5 - 6/3/2013 8:49:27 AM
           - added Common to lua path and SCRIPT_PATH global for easier porting, no longer uses ListScripts for sending to scripts, no more myHero messages when lol not loaded
-
+          
     2.0.6 - 6/3/2013 11:29:19 AM
-          - throws an error if not using the lua jit
-
+          - throws an error if not using the lua jit  
+          
     2.0.7 - 6/3/2013 9:56:28 PM
           - added IsScriptActive, fixing the problem knowingly introduced in 2.0.5 where callbacks still ran for disabled scripts
 
     2.0.8 - 6/9/2013 5:58:59 PM
           - deprecated Util__Ontick(), tick now called directly from dotimercallback in script_loader
-
+          
     2.0.9 - 6/10/2013 9:18:42 AM
           - revert the change in 2.0.8 for calling tick directly from dotimercallback, cannot support LOADSCRIPT
-
+          
     2.1.0 - 6/14/2013 11:50:51 AM
           - added UTILS_VERSION global, for script authors
+          
+    2.1.1 - skipped
+
+    2.1.2 - added GetEnemyMinion(range, sort_order), GetHighestHealthEnemyMinion(range)
+    
+    2.1.3 - make MINION_SORT_HEALTH_DEC follow legacy logic
+
+    2.1.6 - 6/14/2014 10:51 AM
+          - RegisterLibraryOnDraw, math.close, other small changes
+
+    2.1.7 - 6/14/2014 8:06 PM
+          - Proxy AttackTarget and MoveToXYZ to emulate old throttling, optional final param uses real api when true
+          - GetInventorySlot now supports trinket slot, slot 7
 
     ====================================
     |               API                |
@@ -367,11 +380,9 @@
 
 if not jit then
     local msg = "ERROR: The Lua JIT dll is required to use utils 2+"
-    PrintError(msg)
+    PrintError(msg)    
     error(msg)
 end
-
-UTILS_VERSION = 210
 
 --print=printtext -- new print is defined in script_loader
 KEY_DOWN = 256
@@ -390,6 +401,7 @@ if myHero ~= nil then
 end
 
 local libraryOnTick = {}
+local libraryOnDraw = {}
 local libraryOnWndMsg = {}
 local libraryOnProcessSpell = {}
 local libraryOnCreateObj = {}
@@ -440,25 +452,30 @@ end
 mousePos = {x=0,y=0,z=0}
 function Util__Callback()
     --printtext('~')
+    mousePos.x = GetCursorWorldX() -- faster
+    mousePos.y = GetCursorWorldY()
+    mousePos.z = GetCursorWorldZ()
     SendTickToLibraries()
+    SendDrawToLibraries()
+    minionManager__OnTick()
     HandleOnDraw()
     HandleOnProcessSpell()
     HandleOnWndMsg()
     HandleOnCreateObj()
-    --FindDeletedObjects()
-    minionManager__OnTick()
-    mousePos.x = GetCursorWorldX() -- faster
-    mousePos.y = GetCursorWorldY()
-    mousePos.z = GetCursorWorldZ()
+    --FindDeletedObjects()           
 end
 
 function Util__OnTick()
     -- deprecated to prevent double ticking
 end
 
--- library callbacks, dont need draw --
+-- library callbacks --
 function RegisterLibraryOnTick(fn)
     libraryOnTick[fn] = true
+end
+
+function RegisterLibraryOnDraw(fn)
+    libraryOnDraw[fn] = true
 end
 
 function RegisterLibraryOnWndMsg(fn)
@@ -515,7 +532,7 @@ function SendObjectsToLibraries(objects)
         if bool then
             SendObjectsToFunction(objects, fn)
         end
-    end
+    end    
 end
 
 function SendSpellsToLibraries(spells)
@@ -524,7 +541,7 @@ function SendSpellsToLibraries(spells)
         if bool then
             SendSpellsToFunction(spells, fn)
         end
-    end
+    end    
 end
 
 function SendTickToLibraries()
@@ -533,7 +550,16 @@ function SendTickToLibraries()
         if bool then
             fn()
         end
-    end
+    end    
+end
+
+function SendDrawToLibraries()
+    local dict = libraryOnDraw
+    for fn,bool in pairs(dict) do
+        if bool then
+            fn()
+        end
+    end    
 end
 
 -- send msg to all script
@@ -541,7 +567,7 @@ function HandleOnWndMsg()
     local messages = {}
     local msg, key, param = GetMessage()
     local g=0
-    while (msg ~= nil) do
+    while (msg ~= nil) do        
         table.insert(messages, {msg,key,param})
         msg,key,param=GetMessage()
     end
@@ -549,14 +575,14 @@ function HandleOnWndMsg()
     SendMessagesToFunction(messages, SC__OnWndMsg)
     for i,fn in ipairs(GetScriptFunctions('OnWndMsg')) do
         SendMessagesToFunction(messages, fn)
-    end
+    end    
 end
 
 function HandleOnCreateObj()
     local objects = {}
     for i=1, objManager:GetMaxNewObjects() do
         local object = objManager:GetNewObject(i)
-        if object ~= nil then
+        if object ~= nil then            
             table.insert(objects, object)
         end
     end
@@ -564,13 +590,13 @@ function HandleOnCreateObj()
     SendObjectsToFunction(objects, minionManager__OnCreateObj)
     for i,fn in ipairs(GetScriptFunctions('OnCreateObj')) do
         SendObjectsToFunction(objects, fn)
-    end
+    end    
 end
 
 -- send spells to all scripts' OnProcessSpell
 function HandleOnProcessSpell()
     local spells={}
-    local a={GetCastSpell()}
+    local a={GetCastSpell()}    
     local g=0
     while (a~=nil and a[1] ~= nil and g<200) do
         local spell={}
@@ -584,10 +610,9 @@ function HandleOnProcessSpell()
         endPos.x=a[6]
         endPos.y=a[7]
         endPos.z=a[8]
-        spell.target=a[12]
-
+        spell.target=a[12]   
         spell.startPos=startPos
-        spell.endPos=endPos
+        spell.endPos=endPos                
         --
         table.insert(spells, spell)
         --
@@ -597,14 +622,14 @@ function HandleOnProcessSpell()
     SendSpellsToLibraries(spells)
     for i,fn in ipairs(GetScriptFunctions('OnProcessSpell')) do
         SendSpellsToFunction(spells, fn)
-    end
+    end    
 end
 
 function HandleOnDraw()
-    --printtext('.')
+    --printtext('.')    
     for i,fn in ipairs(GetScriptFunctions('OnDraw')) do
         fn()
-    end
+    end    
     SC__OnDraw()
 end
 
@@ -628,7 +653,7 @@ function GetScriptFunctions(function_name)
                 end
             end
         end
-    end
+    end    
     return functions
 end
 
@@ -742,13 +767,38 @@ function FindDeletedObjects()
 end
 
 function GetDistance(p1, p2)
-    p2 = p2 or myHero
-    if not p1 or not p1.x or not p2.x then
-        print(debug.traceback())
-        return 99999 
+    if p2 == nil then p2 = myHero end
+    if (p1.z == nil or p2.z == nil) and p1.x~=nil and p1.y ~=nil and p2.x~=nil and p2.y~=nil then
+        px=p1.x-p2.x
+        py=p1.y-p2.y
+        if px~=nil and py~=nil then
+            px2=px*px
+            py2=py*py
+            if px2~=nil and py2~=nil then
+                return math.sqrt(px2+py2)
+            else
+                return 99998
+            end
+        else
+            return 99997
+        end 
+    elseif p1.x~=nil and p1.z ~=nil and p2.x~=nil and p2.z~=nil then
+        px=p1.x-p2.x
+        pz=p1.z-p2.z
+        if px~=nil and pz~=nil then
+            px2=px*px
+            pz2=pz*pz
+            if px2~=nil and pz2~=nil then
+                return math.sqrt(px2+pz2)
+            else
+                return 99996
+            end
+        else    
+            return 99995
+        end
+    else
+        return 99994
     end
-    
-    return math.sqrt(GetDistanceSqr(p1, p2))    
 end
 
 function ValidTarget(object, distance, enemyTeam)
@@ -1419,7 +1469,7 @@ function __SC__DrawInstance(header, selected)
     _SC.draw.y1 = _SC.draw.y1 + _SC.draw.cellSize
 end
 
-function SC__OnWndMsg(msg,key)
+function SC__OnWndMsg(msg,key)    
     if __SC__init() then return end
 
     local msg, key = msg, key
@@ -1522,7 +1572,7 @@ function scriptConfig:__init(header, name)
 end
 
 function GetVarArg(...)
-    if arg==nil then
+    if arg==nil then    
         local n = select('#', ...)
         local t = {}
         local v
@@ -1563,7 +1613,7 @@ function scriptConfig:addParam(pVar, pText, pType, defaultValue, defaultKey, ...
         assert(type(defaultValue) == "number" and type(arg[1]) == "table", "addParam: wrong argument types (pVar, pText, pType, defaultValue, defaultKey, valuesTable) expected.")
         newParam.vls = arg[1]
     end
-
+    
     self[pVar] = defaultValue
     table.insert(self._param, newParam)
     self:load()
@@ -1786,6 +1836,12 @@ function math.round(num, idp)
     local mult = math.floor(10^(idp or 0))
     local value = (num >= 0 and math.floor(num * mult + 0.5) / mult or math.ceil(num * mult - 0.5) / mult)
     return tonumber(string.format("%." .. (idp or 0) .. "f", value))
+end
+
+function math.close(a, b, eps)
+    assert(type(a) == "number" and type(b) == "number", "math.close: wrong argument types (at least 2 <number> expected)")
+    eps = eps or 1e-9
+    return math.abs(a - b) <= eps
 end
 
 function CursorIsUnder(x, y, sizeX, sizeY)
@@ -2020,8 +2076,8 @@ end
 --################## START MINION MANAGER CLASS ##################--
 local allyMinions = {}
 local enemyMinions = {}
-MINION_SORT_HEALTH_ASC = function(a, b)  if a.health~=nil and b.health~=nil then return a.health < b.health else return false end end
-MINION_SORT_HEALTH_DEC = function(a, b) return a.health > b.health end
+MINION_SORT_HEALTH_ASC = function(a, b) if a.health~=nil and b.health~=nil then return a.health < b.health else return false end end
+MINION_SORT_HEALTH_DEC = function(a, b) if a.health~=nil and b.health~=nil then return a.health > b.health else return false end end
 MINION_SORT_MAXHEALTH_ASC = function(a, b) return a.maxHealth < b.maxHealth end
 MINION_SORT_MAXHEALTH_DEC = function(a, b) return a.maxHealth > b.maxHealth end
 MINION_SORT_AD_ASC = function(a, b) return a.ad < b.ad end
@@ -2067,8 +2123,8 @@ function GetEnemyMinions(sortMode)
     return enemyMinions
 end
 
-function GetLowestHealthEnemyMinion(range)
-    table.sort(enemyMinions, MINION_SORT_HEALTH_ASC)
+function GetEnemyMinion(range, sort_order)
+    table.sort(enemyMinions, sort_order)
     for i = 1, #enemyMinions, 1 do
         if GetDistance(enemyMinions[i]) <= range then
             return enemyMinions[i]
@@ -2076,9 +2132,18 @@ function GetLowestHealthEnemyMinion(range)
     end
     return nil
 end
+
+function GetLowestHealthEnemyMinion(range)
+    return GetEnemyMinion(range, MINION_SORT_HEALTH_ASC)
+end
+
+function GetHighestHealthEnemyMinion(range)
+    return GetEnemyMinion(range, MINION_SORT_HEALTH_DEC)
+end
+
 --################## END MINION MANAGER CLASS ##################--
 
-SetTimerCallback("Util__Callback")
+SetTimerCallback("Util__Callback")    
 print('*** UTILS SetTimerCallback ***', GetScriptNumber())
 
 if SCRIPT_PATH == nil then SCRIPT_PATH = '' end
