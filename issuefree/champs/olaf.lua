@@ -149,8 +149,7 @@ function Action()
          return true
       end
 
-      if AA(target) then
-         PrintAction("AA", target)
+      if AutoAA(target) then
          return true
       end
    end

@@ -41,14 +41,14 @@ function getMasochismDamage()
    return damage
 end
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true,  key=116, label="Cook / Butcher minions", auxLabel="{0} / {1}", args={"agony", "cleaver"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
-
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
    if StartTickActions() then
@@ -119,7 +119,6 @@ function Run()
 end
 
 function Action()
-   OrbWalk()
    if SkillShot("cleaver") then
       return true
    end
@@ -136,11 +135,11 @@ function Action()
          PrintAction("Burn in my agony")
       end
 
-      -- if AA(target) then
-      --    PrintAction("AA", target)
-      --    return true
-      -- end
+      if AutoAA(target) then
+         return true
+      end
    end
+   return false
 end
 
 function FollowUp()
