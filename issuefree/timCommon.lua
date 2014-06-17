@@ -6,12 +6,23 @@ require "issuefree/telemetry"
 require "issuefree/drawing"
 require "issuefree/items"
 require "issuefree/autoAttackUtil"
+-- yayo = require "Common/yayo"
 require "issuefree/persist"
 require "issuefree/spellUtils"
 require "issuefree/toggles"
 require "issuefree/walls"
 
 require "issuefree/champWealth"
+
+-- function CanAct()
+--    return yayo.CanMove()
+-- end
+-- function CanMove()
+--    return yayo.CanMove()
+-- end
+-- function CanAttack()
+--    return yayo.CanAttack()
+-- end
 
 SetScriptTimer(10)
 
@@ -1493,9 +1504,9 @@ function TimTick()
    if GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
       CURSOR = P.cursorM
       PData.cursorM.lastPos = Point(P.cursorM)
-      if IsAttacking() and Alone() then
-         ResetAttack()
-      end
+      -- if IsAttacking() and Alone() then
+      --    ResetAttack()
+      -- end
    elseif GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
       CURSOR = nil --P.cursorA
       PData.cursorA.lastPos = Point(P.cursorA)
@@ -1587,7 +1598,7 @@ function AA(target)
    return false
 end
 
-function AutoAA(target, thing)
+function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
    if target and GetDistance(target) < GetSpellRange("AA") then
       if thing and CanUse(thing) and JustAttacked() then
@@ -1597,7 +1608,7 @@ function AutoAA(target, thing)
       end
 
       if AA(target) then
-         if me.range < 300 then
+         if GetAARange() < 300 then
             ClearCursor()
          end
          PrintAction("AA"..mod, target)
@@ -1777,7 +1788,7 @@ function UseItem(itemName, target)
       end
 
    elseif itemName == "Frost Queen's Claim" then
-      local target = SelectFromList(ENEMIES, function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
+      local target = SelectFromList(GetInRange(me, item, ENEMIES), function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
       if target then
          CastXYZ(slot, target)
          PrintAction("Frost Queen's Claim", target)
