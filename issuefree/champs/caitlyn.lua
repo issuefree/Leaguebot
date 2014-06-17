@@ -101,7 +101,6 @@ function Run()
 
    if HotKey() and CanAct() then
       UseItems()
-
       if Action() then
          return true
       end
@@ -139,7 +138,7 @@ function Action()
    if IsOn("pp") and 
       CanUse("pp") and 
       me.mana > GetSpellCost("net") + GetSpellCost("pp") and
-      ( not CanUse("ace") or me.mana > GetSpellCost("ace") + GetSpellCost("pp") )
+      ( not CanUse("ace") or me.mana > GetSpellCost("ace") + GetSpellCost("pp") ) and
       not GetWeakestEnemy("AA")
    then
       if SkillShot("pp") then
