@@ -11,8 +11,14 @@ function getCard()
    return card
 end
 
-AddToggle("farm", {on=true, key=112, label="Auto Farm", auxLabel="{0}", args={GetAADamage}})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("pick", {on=true, key=113, label="Auto Pick", auxLabel="{0}", args={getCard}})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["wild"] = {
 	key="Q", 
@@ -22,33 +28,33 @@ spells["wild"] = {
 	ap=.65,
 	delay=2,
 	speed=10,
+	width=75,
+	cost={60,70,80,90,100},
 	noblock=true
 }
 spells["pick"] = {
-	key="W"
+	key="W",
+	cost={40,55,70,85,100}
 }
 spells["blue"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={40,60,80,100,120}, 
-	ap=.4,
-	ad=1,
+	ap=.5,
 	type="M"
 }
 spells["red"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={30,45,60,75,90}, 
-	ap=.4, 
-	ad=1,
+	ap=.5, 
 	type="M"
 }
-spells["yellow"]  = {
+spells["yellow"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={15,22.5,30,37.5,45}, 
-	ap=.4, 
-	ad=1,
+	ap=.5, 
 	type="M"
 }
 
@@ -56,29 +62,47 @@ spells["stacked"] = {
 	key="E", 
 	range=spells["AA"].range, 
 	base={55,80,105,130,155}, 
-	ap=.4, 
+	ap=.5, 
 	type="M"
 }
 
 spells["card"] = nil
-spells["stack"] = nil
 
 function Run()
 	if selecting then
 		PrintState(1, "SELECTING")
 	end
 	
+	if P.card then
+		PrintState(1, P.card.charName)
+	end	
+
 	if not P.card then
       spells["card"] = nil
    end
 
-   spells["AA"].bonus = GetSpellDamage("card") + GetSpellDamage("stack")
-   if spells["card"] then
-      spells["AA"].ad = 0
+   if P.stacked then
    else
-      spells["AA"].ad = 1
-	end
+   end
 
+
+   if Alone() then
+   	card = "blue"
+   else
+   	card = "gold"
+   end
+
+   local dam = GetSpellDamage("card")
+   if dam ~= 0 then
+   	dam = dam:toNum()
+   end
+
+   PrintState(2, dam)
+
+   spells["AA"].bonus = GetSpellDamage("card")
+   if P.stacked then 
+   	spells["AA"].bonus = spells["AA"].bonus + GetSpellDamage("stacked")
+   end
 
    if StartTickActions() then
       return true
@@ -88,107 +112,98 @@ function Run()
       return true
    end
 
-	if GetWeakEnemy("MAGIC", 1000) then
-		card = "Yellow"
-		
-		local target = GetWeakEnemy("MAGIC", spells["AA"].range+100) 
-		if HotKey() and target then
-         UseItems()
-         if IsOn("pick") and CanUse("pick") and not selecting then
-            Cast("pick", me)
-            selecting = true
+	if HotKey() then
+      UseItems()
+      if Action() then
+      	return true
+      end         
+   end
+
+	if IsOn("lasthit") and Alone() and not gating then
+
+		if not selecting and CanUse("pick") and not P.card then
+			local minions = GetInRange(me, "AA", MINIONS)
+			for _,minion in ipairs(minions) do
+            if minion.health < GetAADamage(minion)+GetSpellDamage(card, minion) and
+            	not WillKill("AA", minion)
+            then
+					Cast("pick", me)
+					PrintAction("Pick for lasthit")
+					StartChannel()
+					return true
+            end
          end
-
-         if SkillShot("wild") then
-         	return true
-         end
-         
-         -- AttackTarget(target)
-      end
-	else
-		if IsOn("farm") and not gating then
-         card = "Blue"
-         
-			if not selecting and CanUse("pick") and not P.card then
-				local minions = GetInRange(me, "AA", MINIONS)
-				for _,minion in ipairs(minions) do
-	            if minion.health < GetAADamage(minion)+GetSpellDamage("blue", minion) then
-						CastSpellTarget("W", me)
-						PrintAction("Pick for farm")
-						StartChannel()
-						return true
-	            end
-	         end
-			end
-
-         if P.card and not selecting then
-         	if KillMinion("AA") then
-         		return true
-         	end
-         end
-
-
-			-- local nearMinions = GetInRange(me, me.range+200, MINIONS)
-			-- for _, minion in ipairs(nearMinions) do
-			-- 	if minion.health < GetAADamage(minion) then
-			-- 		AA(minion)
-			-- 		break
-			-- 	end
-				
-			-- end
 		end
+
 	end
+
+	EndTickActions()
+end
+
+function Action()
+   if IsOn("pick") and CanUse("pick") and not selecting then
+   	if GetWeakestEnemy("AA",100) then
+	      Cast("pick", me)
+	      PrintAction("Picking action card", card)
+     	end
+   end
+
+   if SkillShot("wild") then
+   	return true
+   end
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+   return false
 end
 
 function onCreateObj(object)
-	-- if find(object.charName, "Card") then
-	-- 	pp(object.charName)
-	-- end
-	if PersistBuff("card", object, "Card.troy", 200) then		
-		if IsOn("pick") then
-			if find(object.charName, card) then
+	if PersistBuff("card", object, "Card_", 200) then		
+		selecting = false
+		if find(object.charName, "gold") then
+			spells["card"] = spells["yellow"]
+		elseif find(object.charName, "red") then
+			spells["card"] = spells["red"]
+		elseif find(object.charName, "blue") then
+			spells["card"] = spells["blue"]
+		end
+	end
+
+	if find(object.charName, "Card.troy") and GetDistance(object) < 200 then
+		if find(object.charName, card) then
+			if IsOn("pick") then
 				CastSpellTarget("W", me, 0)
 				PrintAction("Pick "..card)
 			end
 		end
 	end
 
-	if find(object.charName, "stackready") then
-		spells["stack"] = spells["stacked"]
-	end
-
-	if find(object.charName, "TF_Attack") then
-      spells["stack"] = nil
-	end
+	Persist("stacked", object, "stackready")
 end
 
 function onSpell(unit, spell)
 --Destiny, gate
 	if IsMe(unit) then
 		
-		if spell.name == "goldcardlock" then
-			spells["card"] = spells["yellow"]
-		elseif spell.name == "redcardlock" then
-			spells["card"] = spells["red"]
-		elseif spell.name == "bluecardlock" then
-			spells["card"] = spells["blue"]
+
+		if find(spell.name, "cardlock") then
+			selecting = false
 		end
 
 		if spell.name == "PickACard" then
 			selecting = true
-		end
-		if find(spell.name, "cardlock") then
-			selecting = false
 		end
 		
 		if spell.name == "Destiny" then
          card = "Yellow"         
          gating = true
          if IsOn("pick") and CanUse("pick") then
-            CastSpellTarget("W", me)
+            Cast("pick", me)
          end
       end
-		if spell.name == "gate"then
+		if spell.name == "gate" then
          gating = false
       end
 	end

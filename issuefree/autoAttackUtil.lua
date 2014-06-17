@@ -165,8 +165,8 @@ function initAAData()
                        aaParticles = {"TristannaBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
-      TwistedFate  = { projSpeed = 1.5,
-                       aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis"},
+      TwistedFate  = { projSpeed = 1.5, windup = .367,
+                       aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"},
                        aaSpellName = {"attack"} },
 
       Twitch       = { projSpeed = 2.5,
