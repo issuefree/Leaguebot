@@ -1501,7 +1501,7 @@ function TimTick()
 
    TrackMyPosition()
 
-   if GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
+   if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
       CURSOR = P.cursorM
       PData.cursorM.lastPos = Point(P.cursorM)
       -- if IsAttacking() and Alone() then
@@ -1600,8 +1600,10 @@ end
 
 function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
-   if target and GetDistance(target) < GetSpellRange("AA") then
-      if thing and CanUse(thing) and JustAttacked() then
+   if target and GetDistance(target) < GetAARange()+100 then
+      if thing and CanUse(thing) and 
+         ( JustAttacked() or GetDistance(target) > GetAARange() ) 
+      then
          Cast(thing, me)
          ResetAttack()
          mod = " ("..thing..")"
