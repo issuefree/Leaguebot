@@ -146,7 +146,8 @@ function Action()
       end
    end
 
-   if AutoAA("strike") then
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target, "strike") then
       return true
    end
 
