@@ -78,8 +78,21 @@ function Run()
 
 	if HotKey() then	
 		UseItems()
+		if Action() then
+			return true
+		end
 	end
 end 
+
+function Action()
+	if CanUse("zephyr") then
+		if CastBest("zephyr") then
+			return true
+		end
+	end
+
+	return false
+end
 
 local function onSpell(unit, spell)
 	if IsOn("shield") then
