@@ -91,7 +91,7 @@ function CheckDisrupt()
 end
 
 function Run()
-   if StartTickActions() then
+  if StartTickActions() then
       return true
    end
 
@@ -127,20 +127,12 @@ function Run()
 end
 
 function Action()
--- ranged
-   -- local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   -- if AA(target) then
-   --    PrintAction("AA", target)
-   --    return true
-   -- end
 
--- melee
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
    -- local target = GetMarkedTarget() or GetMeleeTarget()
-   -- if AA(target) then
-   --    PrintAction("AA", target)
-   --    return true
-   -- end
-
+   if AutoAA(target) then
+      return true
+   end
 
    return false
 end
