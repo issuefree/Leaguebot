@@ -416,6 +416,10 @@ function IsMinion(unit)
    return find(unit.name, "Minion")
 end
 
+function IsBigMinion(minion)
+   return find(minion.name, "MechCannon")
+end
+
 function IsHero(unit)
    for _,hero in ipairs(concat(ALLIES, ENEMIES)) do
       if SameUnit(unit, hero) then
@@ -612,19 +616,35 @@ function KillMinion(thing, method, extraRange)
       minions = reverse(minions)
    end
 
+   local target = nil
+
+   -- first pass to prioritize big minions
    for _,minion in ipairs(minions) do
-      if WillKill(thing, minion) then
-         if spell.name and spell.name == "attack" then
-            AA(minion)
-            PrintAction("AA "..method.." minion")
-            return true
-         else
-            Cast(spell, minion)
-            PrintAction(thing.." "..method.." minion")
-            return true
-         end
+      if IsBigMinion(minion) and WillKill(thing, minion) then
+         target = minion
+         break
       end
    end
+
+   for _,minion in ipairs(minions) do
+      if WillKill(thing, minion) then
+         target = minion
+         break
+      end
+   end
+
+   if ValidTarget(target) then
+      if spell.name and spell.name == "attack" then
+         AA(minion)
+         PrintAction("AA "..method.." minion")
+         return true
+      else
+         Cast(spell, minion)
+         PrintAction(thing.." "..method.." minion")
+         return true
+      end
+   end
+
    return false
 end
 
@@ -1566,6 +1586,8 @@ function StartTickActions()
    return false
 end
 
+needMove = false
+
 function EndTickActions()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
@@ -1581,6 +1603,7 @@ function EndTickActions()
 
    if IsOn("move") and CanMove() and needMove and CURSOR then
       MoveToXYZ(Point(CURSOR):unpack())
+      PrintAction("move")
       needMove = false
    end
 
@@ -1592,6 +1615,7 @@ function AA(target)
    if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
       AA_TARGET = target
+      -- DoIn(function() AA_TARGET = nil end, .33)
       needMove = true
       return true
    end
@@ -1600,12 +1624,11 @@ end
 
 function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
-   if target and GetDistance(target) < GetAARange()+100 then
+   if target and GetDistance(target) < GetAARange()+150 then
       if thing and CanUse(thing) and 
          ( JustAttacked() or GetDistance(target) > GetAARange() ) 
       then
          Cast(thing, me)
-         ResetAttack()
          mod = " ("..thing..")"
       end
 
@@ -1661,11 +1684,12 @@ end
 
 function ModAAFarm(thing, pObj)
    if CanUse(thing) and not pObj then
-      local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]
-      if target and WillKill(thing, target) and JustAttacked() then
+      local minion = SortByHealth(GetInRange(me, "AA", MINIONS))[1]
+      if ValidTarget(minion) and WillKill(thing, "AA", minion) and 
+         ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) and CanAttack() ) )
+      then
          Cast(thing, me)
-         PrintAction(thing.." lasthit", target)
-         AA(target)
+         PrintAction(thing.." lasthit", minion)
          return true
       end
    end   
