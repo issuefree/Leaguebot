@@ -10,12 +10,16 @@ pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
 pp(" - lasthit with empower")
 
+function getEmpowerDam()
+	return GetSpellDamage("empower") + Damage(me.baseDamage+me.addDamage, "P")
+end
+
 AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"smite"}})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, getEmpowerDam}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["leap"] = {
@@ -32,7 +36,6 @@ spells["empower"] = {
 	key="W", 
 	base={40,75,110,145,180}, 
 	ap=.6,
-	ad=1,
 	type="M",
 	onHit=true,
 	cost=30
@@ -50,6 +53,12 @@ spells["might"] = {
 }
 
 function Run()
+	if P.empower then
+		spells["AA"].bonus = GetSpellDamage("empower")
+	else
+		spells["AA"].bonus = 0
+	end
+
    if StartTickActions() then
       return true
    end
@@ -76,11 +85,17 @@ function Run()
 		if CanUse("leap") and VeryAlone() then
 			local minions = GetInRange(me, "leap", MINIONS)
 			for _,minion in ipairs(minions) do
-				if find(minion.name, "MechCannon") then
+				if IsBigMinion(minion) then
 					if WillKill("leap", minion) then
-						Cast("leap", minion)
-						PrintAction("Leap cannon")
-						return true
+						if GetDistance(minion) < GetAARange() and
+						   ( WillKill("AA", minion) or 
+						     ( CanUse("empower") and WillKill("empower", "AA", minion) ) )
+						then
+						else
+							Cast("leap", minion)
+							PrintAction("Leap cannon")
+							return true
+						end
 					end
 				end
 			end
@@ -145,8 +160,8 @@ function Action()
 		PrintAction("start counter")
 	end
 
-
-   if AutoAA("empower") then
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target, "empower") then
       return true
    end
 
@@ -154,12 +169,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-	end
-
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
@@ -194,6 +203,11 @@ local function onSpell(unit, spell)
 	      PrintAction("Might", spell.name)
 	   end
    end
+
+   if IsMe(unit) and spell.name == me.SpellNameW then
+      ResetAttack()
+   end
+
 end
 
 AddOnCreate(onObject)
