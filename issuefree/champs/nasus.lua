@@ -15,13 +15,14 @@ function setStrikes(val)
    SaveConfig("nasus", config)
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}      {2}", args={GetAADamage, "strike", strikeBonus}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["strike"] = {
    key="Q", 
@@ -85,10 +86,13 @@ function Run()
          for _,target in ipairs(targets) do 
             if WillKill("strike", target) then
                Cast("strike", target)
-               if ListContains(target, CREEPS) then
+               if not ValidTarget(target) then
+               -- if ListContains(target, CREEPS) then
                   ClickSpellXYZ("M", target.x, target.y, target.z, 0)
+                  needMove = true
                else 
                   AttackTarget(target) -- not using AA as I want to interupt auto attacks
+                  needMove = true
                end
                victim = target
                PrintAction("strike lasthit")
@@ -182,18 +186,20 @@ local function onObject(object)
    if find(object.charName, "DeathsCaress") then
       if GetDistance(object) < 300 then
          setStrikes(spells["strike"].bonus + 3)
-         if ListContains(victim.name, BigCreepNames, true) then
-            setStrikes(spells["strike"].bonus + 3)
-         elseif ListContains(victim.name, MajorCreepNames, true) then
-            setStrikes(spells["strike"].bonus + 3)
-         elseif find(victim.name, "Mech") then
-            setStrikes(spells["strike"].bonus + 3)
+         if victim then
+            if ListContains(victim.name, BigCreepNames, true) then
+               setStrikes(spells["strike"].bonus + 3)
+            elseif ListContains(victim.name, MajorCreepNames, true) then
+               setStrikes(spells["strike"].bonus + 3)
+            elseif find(victim.name, "Mech") then
+               setStrikes(spells["strike"].bonus + 3)
+            end
          end
       end 
    end
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 function onKey(msg, key)
