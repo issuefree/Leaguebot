@@ -3,22 +3,23 @@ require "issuefree/modules"
 
 pp("\nTim's Nidalee")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("healTeam", {on=true, key=113, label="Heal Team", auxLabel="{0}", args={"heal"}})
-AddToggle("trap", {on=true, key=114, label="Auto Trap", auxLabel="{0}", args={"trap"}})
+AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
+AddToggle("trap", {on=true, key=113, label="Auto Trap", auxLabel="{0}", args={"trap"}})
+AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["jav"] = {
    key="Q", 
    range=1500, 
    color=violet, 
-   base={55,95,140,185,230}, 
-   ap=.65,
+   base={50,75,100,125,150}, 
+   ap=.4,
    cost={50,60,70,80,90},
-   width=80,
+   width=30,
    delay=1.5,
    speed=12.5
 }
@@ -26,10 +27,11 @@ spells["jav"] = {
 spells["trap"] = {
    key="W", 
    range=900,
-   base={80,125,170,215,260},
-   ap=.4,   
+   base={20,40,60,80,100},
+   percHealth={.12,.14,.16,.18,.20},
+   percHealthAP=.0002,
    color=yellow,
-   cost={60,75,90,105,120},
+   cost={40,45,50,55,60},
    delay=5,
    speed=0,
    noblock=true
@@ -39,8 +41,8 @@ spells["heal"] = {
    key="E", 
    range=600, 
    color=green, 
-   base={50,85,120,155,190}, 
-   ap=.7,
+   base={45,85,125,165,205}, 
+   ap=.5,
    type="H",
    cost={60,80,100,120,140}
 }
@@ -103,13 +105,20 @@ function Action()
          end
       end
 
-      local target = GetWeakestEnemy("AA")
-      if AA(target) then
-         PrintAction("AA", target)
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      if AutoAA(target) then
          return true
       end
       
+   else
+
+      local target = GetMarkedTarget() or GetMeleeTarget()
+      if AutoAA(target) then
+         return true
+      end
+
    end
+
 
    return false
 end
