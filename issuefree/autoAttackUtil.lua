@@ -236,9 +236,10 @@ function initAAData()
       JarvanIV     = { melee=true,
                        aaSpellName={"JarvanIVBasicAttack"} },
 
-      Jax          = { melee=true, windup=.2,
+      Jax          = { melee=true, windup=.35,
                        aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
-                       aaSpellName={"JaxEmpower", "JaxBasicAttack", "JaxCritAttack", "jaxrelentless"} },
+                       aaSpellName={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
+                       resetSpell = {me.SpellNameW} },
 
       LeeSin       = { melee=true,
                        aaSpellName={"attack"} },
@@ -251,7 +252,8 @@ function initAAData()
                        aaParticles = {"Wuju_Trail"} },
 
       Nasus        = { melee=true,
-                       aaParticles = {"nassus_siphonStrike_tar"} },
+                       aaParticles = {"nassus_siphonStrike_tar"},
+                       resetSpell = {me.SpellNameQ} },
 
       Olaf         = { melee=true, windup=.33
 
@@ -419,9 +421,15 @@ function aaTick()
          PrintState(10+i, ocn)
       end
    end
+
+   if CanAct() then
+      -- pp("UNBLOCK")
+      UnblockOrders()
+   end
 end
 
 function ResetAttack()
+   needMove = false
    lastAttack = time() - getAADuration()
 end
 
@@ -540,7 +548,7 @@ end
 
 
 function isResetSpell(spell)
-   local spellName = aaData.aaSpellName
+   local spellName = aaData.resetSpell
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
          return true
@@ -560,6 +568,7 @@ function onSpellAA(unit, spell)
    end
    
    if isResetSpell(spell) then
+      pp("Reset "..spell.name)
       ResetAttack()
    end
 
@@ -594,6 +603,8 @@ function onSpellAA(unit, spell)
          trackAADuration()         
       end
 
+      -- pp("BLOCK")
+      BlockOrders()
 
       lastAttack = time()
       shotFired = false
