@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Twitch")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
--- AddToggle("pp", {on=true, key=113, label="Piltover", auxLabel="{0}", args={"pp"}})
--- AddToggle("trap", {on=true, key=114, label="Trap"})
--- AddToggle("execute", {on=true, key=115, label="AutoExecute", auxLabel="{0}", args={"ace"}})
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["cask"] = {
    key="W", 
