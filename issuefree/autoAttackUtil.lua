@@ -549,6 +549,7 @@ end
 
 function isResetSpell(spell)
    local spellName = aaData.resetSpell
+   if not spellName then return false end
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
          return true
