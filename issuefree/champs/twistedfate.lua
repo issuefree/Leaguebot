@@ -50,7 +50,7 @@ spells["red"] = {
 	ap=.5, 
 	type="M"
 }
-spells["yellow"] = {
+spells["gold"] = {
 	key="W", 
 	range=spells["AA"].range, 
 	base={15,22.5,30,37.5,45}, 
@@ -81,12 +81,7 @@ function Run()
       spells["card"] = nil
    end
 
-   if P.stacked then
-   else
-   end
-
-
-   if Alone() then
+   if Alone() and not gating then
    	card = "blue"
    else
    	card = "gold"
@@ -96,8 +91,6 @@ function Run()
    if dam ~= 0 then
    	dam = dam:toNum()
    end
-
-   PrintState(2, dam)
 
    spells["AA"].bonus = GetSpellDamage("card")
    if P.stacked then 
@@ -119,6 +112,10 @@ function Run()
       end         
    end
 
+   if VeryAlone() and #GetInRange(me, "AA", MINIONS) >= 3 and CanUse("pick") and GetMPerc(me) < .9 then
+   	Cast("pick", me)
+   end
+
 	if IsOn("lasthit") and Alone() and not gating then
 
 		if not selecting and CanUse("pick") and not P.card then
@@ -128,8 +125,8 @@ function Run()
             	not WillKill("AA", minion)
             then
 					Cast("pick", me)
+					selecting = true
 					PrintAction("Pick for lasthit")
-					StartChannel()
 					return true
             end
          end
@@ -144,6 +141,7 @@ function Action()
    if IsOn("pick") and CanUse("pick") and not selecting then
    	if GetWeakestEnemy("AA",100) then
 	      Cast("pick", me)
+	      selecting = true
 	      PrintAction("Picking action card", card)
      	end
    end
@@ -160,10 +158,10 @@ function Action()
 end
 
 function onCreateObj(object)
-	if PersistBuff("card", object, "Card_", 200) then		
+	if PersistBuff("card", object, "Card_", 200) then
 		selecting = false
 		if find(object.charName, "gold") then
-			spells["card"] = spells["yellow"]
+			spells["card"] = spells["gold"]
 		elseif find(object.charName, "red") then
 			spells["card"] = spells["red"]
 		elseif find(object.charName, "blue") then
@@ -171,10 +169,11 @@ function onCreateObj(object)
 		end
 	end
 
-	if find(object.charName, "Card.troy") and GetDistance(object) < 200 then
+	if selecting and find(object.charName, "Card.troy") and GetDistance(object) < 200 then
 		if find(object.charName, card) then
 			if IsOn("pick") then
 				CastSpellTarget("W", me, 0)
+				selecting = false
 				PrintAction("Pick "..card)
 			end
 		end
@@ -197,7 +196,7 @@ function onSpell(unit, spell)
 		end
 		
 		if spell.name == "Destiny" then
-         card = "Yellow"         
+         card = "gold"         
          gating = true
          if IsOn("pick") and CanUse("pick") then
             Cast("pick", me)
