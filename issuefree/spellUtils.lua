@@ -246,7 +246,11 @@ function GetSpellDamage(thing, target)
       damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
    end
    if spell.percHealth and target then
-      damage = damage + GetLVal(spell, "percHealth")*target.health
+      local percHealth = GetLVal(spell, "percHealth")
+      if spell.percHealthAP then
+         percHealth = percHealth + GetLVal(spell, "percHealthAP")*me.ap
+      end
+      damage = damage + percHealth*target.health
    end
    if spell.percMissingHealth and target then
       damage = damage + GetLVal(spell, "percMissingHealth")*(target.maxHealth - target.health)
