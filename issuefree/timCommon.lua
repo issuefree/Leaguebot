@@ -635,11 +635,11 @@ function KillMinion(thing, method, extraRange)
 
    if ValidTarget(target) then
       if spell.name and spell.name == "attack" then
-         AA(minion)
+         AA(target)
          PrintAction("AA "..method.." minion")
          return true
       else
-         Cast(spell, minion)
+         Cast(spell, target)
          PrintAction(thing.." "..method.." minion")
          return true
       end
