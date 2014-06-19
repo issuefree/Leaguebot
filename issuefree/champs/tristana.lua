@@ -16,6 +16,10 @@ function getShotRange()
    return 675+(9*(me.selflevel-1))
 end
 
+function getBusterRange()
+   return 650+(9*(me.selflevel-1))
+end
+
 spells["rapid"] = {
    key="Q", 
    cost=50
@@ -29,7 +33,7 @@ spells["jump"] = {
    delay=2,
    speed=12, --?
    radius=300, --?
-   cost=80
+   cost=60
 } 
 spells["shot"] = {
    key="E", 
@@ -42,10 +46,12 @@ spells["shot"] = {
 } 
 spells["buster"] = {
    key="R", 
-   range=700, 
+   range=getBusterRange, 
    color=red, 
    base={300,400,500}, 
    ap=1.5,
+   knockback={600,800,1000),
+   radius=200,
    cost=100
 } 
 
