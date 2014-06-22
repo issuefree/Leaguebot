@@ -9,9 +9,19 @@ pp(" - Singularity into groups for hits/kills else at weakest")
 pp(" - Spark to hit 3 or more")
 pp(" - AA flared")
 
+SetChampStyle("caster")
+
 -- I'd like to find a way to use binding and singularity to peel off adc/apc
 
 -- final spark if people line up or for kills
+AddToggle("ks", {on=true, key=112, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
+AddToggle("barrier", {on=true, key=113, label="Barrier Team"})
+AddToggle("spark", {on=false, key=114, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
+AddToggle("", {on=false, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["binding"] = {
    key="Q", 
@@ -74,15 +84,6 @@ spells["AA"].damOnTarget =
 function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
 end
-
-AddToggle("ks", {on=true, key=112, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
-AddToggle("barrier", {on=true, key=113, label="Barrier Team"})
-AddToggle("spark", {on=false, key=114, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
-AddToggle("", {on=false, key=115, label=""})
-
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
-AddToggle("clear", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
-AddToggle("move", {on=true, key=118, label="Move"})
 
 local singularity
 
