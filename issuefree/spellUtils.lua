@@ -33,11 +33,33 @@ end
 function CastXYZ(thing, x,y,z)
    local spell = GetSpell(thing)
    if not spell then return end
-   if x and not y and not z then
-      Circle(x, 100, red, 5)
-      CastSpellXYZ(spell.key, x.x,x.y,x.z, 0)      
-   else
-      CastSpellXYZ(spell.key, x,y,z, 0)
+   local p = Point(x,y,z)
+   CastSpellXYZ(spell.key, p.x,p.y,p.z, 0)      
+end
+
+local sx, sy
+function CastClick(thing, x,y,z)
+   local spell = GetSpell(thing)
+   if not spell then return end
+   
+   local p = Point(x,y,z)
+
+   if IsLoLActive() and IsChatOpen() == 0 then
+      if sx == nil then
+         sx = GetCursorX()
+         sy = GetCursorY()
+      end
+      ClickSpellXYZ(spell.key, p.x, p.y, p.z, 0)
+      DoIn(
+         function() 
+            if sx then 
+               send.mouse_move(sx, sy) 
+               sx = nil
+               sy = nil
+            end
+         end, 
+         .1 
+      )
    end
 end
 
@@ -267,12 +289,26 @@ function GetSpellDamage(thing, target)
       if HasBuff("dfg", target) then
          damage.m = damage.m*1.2
       end
-      damage = CalculateDamage(target, damage)
+      damage = CalculateDamage(target, damage)      
    end
 
    if type(damage) ~= "number" and damage.type == "H" then
       damage = damage:toNum()
    end
+
+   local mult = 1
+   if HasMastery("havoc") then
+      mult = mult + .03
+   end
+   if HasMastery("des") then
+      mult = mult + .015
+   end
+   if HasMastery("executioner") then
+      if target and GetHPerc(target) < .5 then
+         mult = mult + .05
+      end
+   end
+   damage = damage*mult
 
    return damage
 end

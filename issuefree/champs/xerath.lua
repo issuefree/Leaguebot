@@ -10,31 +10,33 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bolt"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=112, label="Move"})
 
-local locusRange = 400
+SetChampStyle("caster")
 
 spells["bolt"] = {
    key="Q", 
    range=750,
+   baseRange=750,
    maxRange=1400,
    color=violet, 
    base={80,120,160,200,240}, 
    ap=.75,
-   delay=7,
+   delay=3,
    speed=0,
-   width=75,
+   width=50,
    noblock=true,
    cost={80,90,100,110,120}
 } 
 spells["eye"] = {
    key="W",
    range=1100,
-   color="blue",
+   color=blue,
    base={60,90,120,150,180},
    ap=.6,
    delay=7,
    speed=0,
-   radius=200,
+   radius=275,
    cost={70,80,90,100,110}
 } 
 spells["orb"] = {
@@ -57,12 +59,110 @@ spells["rite"] = {
    delay=5,
    speed=0,
    noblock=true,
-   radius=200,
-   cost=100
+   radius=150,
+   cost=100,
+   baseCost=100
 } 
 
+spells["maxBolt"] = copy(spells["bolt"])
+spells["maxBolt"].range = spells["maxBolt"].maxRange
+
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "orb") then return true end
+
+   if Disrupt("Grasp", "orb") then return true end
+
+   if Disrupt("AbsoluteZero", "orb") then return true end
+
+   if Disrupt("BulletTime", "orb") then return true end
+
+   if Disrupt("Duress", "orb") then return true end
+
+   if Disrupt("Idol", "orb") then return true end
+
+   if Disrupt("Monsoon", "orb") then return true end
+
+   if Disrupt("Meditate", "orb") then return true end
+
+   if Disrupt("Drain", "orb") then return true end
+
+   return false
+end
+
+local chargeStartTime = 0
+
+local x,y = me.x, me.z
+
 function Run()
+   if P.rite then
+      PrintState(0, "RITE")
+   end
+
+   if P.charging then
+      local chargeDuration = math.min(time() - chargeStartTime, 1.5)
+      local addRange = spells["bolt"].maxRange - spells["bolt"].baseRange
+      addRange = addRange * chargeDuration/1.5
+      spells["bolt"].range = spells["bolt"].baseRange + addRange
+   else
+      spells["bolt"].range = spells["bolt"].baseRange
+   end
+
+   if P.rite then
+      spells["rite"].cost = 0
+   else
+      spells["rite"].cost = spells["rite"].baseCost
+   end
+
+   if not IsCooledDown("bolt") and IsChatOpen() == 0 and IsLoLActive() then
+      ClearQ()
+   end
+
    if StartTickActions() then
+      return true
+   end
+
+   if CanUse("rite") then
+      local target = GetWeakestEnemy("rite")
+      if target then
+         if GetSpellDamage("rite", target)*3 > target.health then
+            LineBetween(me, target, 10)
+         end
+      end
+   end
+
+   if P.rite then
+      SkillShot("rite")
+      return true
+   end
+
+   if P.charging then
+      local _,_,maxScore = GetBestLine(me, "maxBolt", 0, 10, ENEMIES)
+      local hits,_,score = GetBestLine(me, "bolt", .1, 10, ENEMIES)
+      if score >= maxScore and score > 0 then
+         local target = GetWeakestEnemy("bolt")
+         if target then 
+            FinishBolt(GetSpellFireahead("bolt", target))
+            PrintAction("bolt", target)
+            return true
+         end
+      end
+
+      if Alone() then
+         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
+         local hits,_,score = GetBestLine(me, "bolt", .1, 1, MINIONS)
+         if score >= maxScore and score > 0 then
+            FinishBolt(GetCenter(hits))
+            PrintAction("bolt lh", score)
+            PauseToggle("lasthit", .5)
+            return true
+         end
+      end
+
+      return true
+   end
+
+   -- auto stuff that always happen
+   if CheckDisrupt() then
       return true
    end
 
@@ -70,7 +170,6 @@ function Run()
       return true
    end
 
-   -- auto stuff that always happen
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
@@ -82,17 +181,35 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
 
-   -- if IsOn("lasthit") and CanUse("bolt") then
-   --    if VeryAlone() then
-   --       if KillMinionsInLine("bolt", 2) then
-   --          return true
-   --       end
-   --    elseif Alone() then
-   --       if KillMinionsInLine("bolt", 3) then
-   --          return true
-   --       end
-   --    end
-   -- end
+   if IsOn("lasthit") and not P.rite then
+      local killsNeeded = 5
+      if GetMPerc(me) > .75 then
+         killsNeeded = 2
+      elseif GetMPerc(me) > .5 then
+         killsNeeded = 3
+      elseif GetMPerc(me) > .25 then
+         killsNeeded = 4
+      end
+
+      if Alone() and CanUse("eye") then
+         if KillMinionsInArea("eye", killsNeeded) then
+            PauseToggle("lasthit", .75)
+            return true
+         end
+      end
+
+      if Alone() and CanUse("bolt") then
+         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
+
+         if not P.charging then
+            if maxScore >= killsNeeded then
+               StartBolt()
+               return true
+            end
+         end
+      end
+
+   end
 
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() then
@@ -101,19 +218,27 @@ function Run()
       end
    end
 
+   P.markedTarget = nil
    EndTickActions()
 end
 
 function Action()
-
-   return false
-end
-function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
+   if CanUse("bolt") and not P.charging then
+      local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, ValidTargets(ENEMIES))
+      if maxScore >= 1 then
+         StartBolt()
          return true
       end
    end
+
+   if SkillShot("eye") then
+      return true
+   end
+
+   return false
+end
+
+function FollowUp()
 
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
@@ -124,15 +249,64 @@ function FollowUp()
    return false
 end
 
+function StartBolt()
+   if IsLoLActive() and IsChatOpen() == 0 then
+      if not qDown then
+         PrintAction("Q Down")
+         send.key_up(SKeys.Q)
+      end
+      send.key_down(SKeys.Q)
+      qDown = true
+   end
+end
+
+function ClearQ()
+   if qDown then
+      PrintAction("Q UP")
+      send.key_up(SKeys.Q)
+      qDown = false
+   end
+end
+
+local sx, sy
+function FinishBolt(t)
+   if IsLoLActive() and IsChatOpen() == 0 then
+      -- CastClick("bolt", t)
+      if sx == nil then
+         sx = GetCursorX()
+         sy = GetCursorY()
+      end
+      ClickSpellXYZ("Q", t.x, t.y, t.z, 0)
+      send.key_press(SKeys.Q)
+      ClearQ()
+      DoIn(
+         function() 
+            if sx then 
+               send.mouse_move(sx, sy) 
+               sx = nil
+               sy = nil
+            end
+         end, 
+         .1 
+      )
+   end
+end
+
+
 local function onObject(object)
+   if Persist("charging", object, "Xerath_Base_Q_cas_charge") then
+      chargeStartTime = time()
+   end
+
+   Persist("rite", object, "Xerath_Base_R_buf")
 end
 
 local function onSpell(unit, spell)
+   if IsMe(unit) and spell.name == "xeratharcanopulse2" then
+      P.charging = nil
+   end
 end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
-
-
-function Run()

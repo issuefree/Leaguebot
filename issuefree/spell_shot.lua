@@ -186,7 +186,7 @@ local spells = {
 		{name="khazixelong", range=900, radius=200, time=1, ss=true, isline=false, physical=true},
 	},
 	KogMaw = {
-		{name="KogMawVoidOozeMissile", range=1115, radius=100, time=1, ss=true, isline=true, cc=SLOW},
+		{name="KogMawVoidOozeMissile", range=1150, radius=100, time=1, ss=true, isline=true, cc=SLOW},
 		{name="KogMawLivingArtillery", range=2200, radius=200, time=1.5, ss=true, show=true, isline=false},
 	},
 	Leblanc = {
@@ -384,10 +384,9 @@ local spells = {
 		--{name="ViktorDeathRay", range=700, radius=80, time=2, ss=true, isline=true},
 	},
 	Xerath = {
-		{name="xeratharcanopulsedamage", range=900, radius=80, time=1, ss=true, show=true, isline=true},
-		{name="xeratharcanopulsedamageextended", range=1300, radius=80, time=1, ss=true, show=true, isline=true},
-		{name="xeratharcanebarragewrapper", range=900, radius=250, time=1, ss=true, isline=false},
-		{name="xeratharcanebarragewrapperext", range=1300, radius=250, time=1, ss=true, isline=false},
+		{name="xeratharcanopuls2", range=1500, radius=80, time=1, ss=true, show=true, isline=true},
+		{name="xeratharcanebarrage2", range=1100, radius=200, time=1, ss=true, isline=false},
+		{name="xerathrmissilewrapper", range=5600, radius=150, time=1, ss=true, isline=false},
 	},
 	Zac = {
 		{name="ZacQ", range=550, radius=100, time=1, ss=true, isline=true, cc=SLOW},

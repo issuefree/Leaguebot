@@ -1,4 +1,5 @@
 require "Utils"
+require "winapi"
 ModuleConfig = scriptConfig("Module Config", "modules")
 require "issuefree/basicUtils"
 require "issuefree/spell_shot"
@@ -13,6 +14,10 @@ require "issuefree/toggles"
 require "issuefree/walls"
 
 require "issuefree/champWealth"
+
+send = require "Common/SendInput"
+
+require "Common/SKeys"
 
 -- function CanAct()
 --    return yayo.CanMove()
@@ -33,14 +38,38 @@ then
    os.remove("lualog.txt")
 end
 
+MASTERIES = {}
+BLOCK_FOR_AA = true
+function SetChampStyle(style)
+   if style == "caster" then
+      MASTERIES = {"havoc", "des", "executioner"}
+      BLOCK_FOR_AA = false
+   elseif style == "marksman" then
+      MASTERIES = {"havoc", "executioner"}
+   end
+end
+
+function HasMastery(mastery)
+   return ListContains("havoc", MASTERIES)
+end
+
+
+local lastActions = {}
+local lastActionsTimes = {}
 local lastAction = nil
 local lastActionTime = time()
-function PrintAction(str, target)
+function PrintAction(str, target, timeout)
+   for i,t in rpairs(lastActionsTimes) do
+      if time() > t then
+         table.remove(lastActions, i)
+         table.remove(lastActionsTimes, i)
+      end
+   end
    if str == nil then 
       lastAction = nil
       return
    end
-   if str ~= lastAction then
+   if str ~= lastAction and not ListContains(str, lastActions) then
       local ttl = math.floor((time() - lastActionTime)*100)/100
       local out = " # "..str
       if target then
@@ -58,7 +87,12 @@ function PrintAction(str, target)
       end
       pp(out..spaces.."+"..ttl)
       lastActionTime = time()
-      lastAction = str
+      if not timeout then
+         lastAction = str
+      else      
+         table.insert(lastActions, str)
+         table.insert(lastActionsTimes, time()+timeout)
+      end
    end
 end
 
@@ -133,7 +167,7 @@ local function drawCommon()
    end
 
    for _,minion in ipairs(MINIONS) do
-      if minion.visible == 1 then
+      if ValidTarget(minion) then
          local hits = math.ceil(minion.health/GetAADamage(minion))
          if hits == 1 then
             DrawTextObject(hits.." hp", minion, blueT)
@@ -141,6 +175,7 @@ local function drawCommon()
          elseif hits <= 3 then
             DrawTextObject(hits.." hp", minion, greenT)
          end
+
       end
    end
 
@@ -486,7 +521,7 @@ function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestLine(me, thing, 0, 1, MINIONS)
+   local hits, kills, score = GetBestLine(me, thing, .1, 1, MINIONS)
    if #kills >= killsNeeded then
       local point = GetCenter(hits)
       if spell.overShoot then
@@ -736,6 +771,9 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
       if killScore ~= 0 then
          for _,hit in ipairs(hits) do
             if WillKill(thing, hit) then
+               if IsBigMinion(hit) then
+                  score = score + (killScore / 2)
+               end
                score = score + killScore
                table.insert(kills, hit)
             end
@@ -751,12 +789,15 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
 end
 
 
-function GetInLine(source, thing, primary, targets)
+function GetInLine(source, thing, target, targets)
    local spell = GetSpell(thing)
    SortByAngle(targets)
 
-   local hits = {primary}
-   local pw = GetWidth(primary)
+   local primary = Point(target)
+   primary.y = me.y   
+
+   local hits = {target}
+   local pw = GetWidth(target)
    for _,s in ipairs(targets) do
       if s ~= primary then
          local sw = GetWidth(s)
@@ -773,9 +814,10 @@ end
 
 function GetBestLine(source, thing, hitScore, killScore, ...)
    local spell = GetSpell(thing)
-   if not spell.width then
+   local width = spell.width or spell.radius
+   if not width then
       spell.width = 80
-      pp("No width set for.."..thing)
+      pp("No width set for "..thing)
    end
 
    local targets = GetAllInRange(source, spell, concat(...))
@@ -784,13 +826,16 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    local bestT = {}
    local bestK = {}
    for _,target in ipairs(targets) do
-      local hits = GetInLine(source, thing, target, targets)
-      local score = #hits
+      local hits = GetInLine(source, spell, target, targets)
+      local score = #hits*hitScore
       local kills = {}
 
       if killScore ~= 0 then     
          for _,hit in ipairs(hits) do
-            if WillKill(thing, hit) then
+            if WillKill(spell, hit) then
+               if IsBigMinion(hit) then
+                  score = score + (killScore / 2)
+               end
                score = score + killScore
                table.insert(kills, hit)
             end
@@ -1189,7 +1234,7 @@ function WillKill(...)
             damage = damage + GetSpellDamage(thing, target)
             usedMana = usedMana + GetSpellCost(thing)
          end
-      end
+      end      
       if damage > target.health then
          return true
       end
@@ -1527,7 +1572,7 @@ function TimTick()
       -- if IsAttacking() and Alone() then
       --    ResetAttack()
       -- end
-   elseif GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
+   elseif P.cursorA and GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
       CURSOR = nil --P.cursorA
       PData.cursorA.lastPos = Point(P.cursorA)
       -- if IsAttacking() then
@@ -1609,6 +1654,10 @@ function EndTickActions()
 
    PrintAction()
    return false
+end
+
+function IsLoLActive()
+   return tostring(winapi.get_foreground_window()) == "League of Legends (TM) Client"
 end
 
 function AA(target)

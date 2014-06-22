@@ -197,9 +197,9 @@ function initAAData()
                        aaParticles = {"VladBasicAttack"},
                        aaSpellName = {"attack"} },
 
-      Xerath       = { projSpeed = 1.2,
+      Xerath       = { projSpeed = 1.2, windup = .33,
                        aaParticles = {"XerathBasicAttack"},
-                       aaSpellName = {"attack"} },
+                       aaSpellName = {"Xerath_Base_BA_mis"} },
 
       Ziggs        = { projSpeed = 1.5,
                        aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"},
@@ -335,7 +335,7 @@ local lastAADelta = getAADuration()
 local lastWUDelta = getWindup()
 
 
-local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow"}
+local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
 local aaObjects = {}
 
 local testDurs = {}
@@ -604,8 +604,9 @@ function onSpellAA(unit, spell)
          trackAADuration()         
       end
 
-      -- pp("BLOCK")
-      BlockOrders()
+      if BLOCK_FOR_AA then
+         BlockOrders()
+      end
 
       lastAttack = time()
       shotFired = false
