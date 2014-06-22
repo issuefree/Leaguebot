@@ -75,13 +75,14 @@ function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
 end
 
-AddToggle("aa", {on=false, key=112, label="Attack flared enemies"}) --, auxLabel={0}, args={"flare"}})
-AddToggle("ks", {on=true, key=113, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
-AddToggle("barrier", {on=true, key=114, label="Barrier Team"})
-AddToggle("spark", {on=false, key=115, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
+AddToggle("ks", {on=true, key=112, label="Kill Steal Ult", auxLabel="{0}", args={"spark"}})
+AddToggle("barrier", {on=true, key=113, label="Barrier Team"})
+AddToggle("spark", {on=false, key=114, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
+AddToggle("", {on=false, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 local singularity
 
@@ -90,29 +91,12 @@ function Run()
       return true
    end
 
-   -- local tcreep
-
-   -- for _,creep in ipairs(SortByDistance(CREEPS)) do
-   --    if find(creep.name, "YoungLizard") then
-   --       tcreep = creep
-   --       break
-   --    end
-   -- end
-
-   -- Circle(tcreep)
-
    Circle(P.singularity, nil, blue)
 
    if KillSteal(P.BARON) then
       return true
    end
    if KillSteal(P.DRAGON) then
-      return true
-   end
-
-
-   if IsRecalling(me) then
-      PrintAction("Recalling")
       return true
    end
 
@@ -231,7 +215,7 @@ function Action()
    end
 
    -- try to hit the loweset health target with a flare on em
-   if IsOn("aa") and CanAttack() then
+   if CanAttack() then
       local targets = GetInRange(me, "AA", ENEMIES)
       targets = GetWithBuff("flare", targets)
       local target = SortByHealth(targets)[1]
@@ -241,12 +225,6 @@ function Action()
          return true
       end
    end
-
-   -- -- otherwise just hit the weakest guy in range
-   -- local target = GetWeakestEnemy("AA")
-   -- if target and AA(target) then
-   --    return true
-   -- end
 
    return false
 end
