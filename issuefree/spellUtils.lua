@@ -415,11 +415,15 @@ function GetSpellFireahead(thing, target)
    -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
    --    pp("faking fireahead")
 
+   local fudge = SS_FUDGE
    local trackedPoints = tfas[spell.key][target.charName]
-   local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
-   local r = spell.width or spell.radius
 
-   local fudge = 1 + (SS_FUDGE * (trackError / r) / 2)
+   if trackedPoints then   
+      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
+      local r = spell.width or spell.radius
+
+      fudge = 1 + (SS_FUDGE * (trackError / r) / 2)
+   end
    return Point(GetFireahead(target, spell.delay/fudge, spell.speed*fudge))
    -- end
 
