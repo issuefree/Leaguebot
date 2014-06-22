@@ -50,7 +50,7 @@ spells["buster"] = {
    color=red, 
    base={300,400,500}, 
    ap=1.5,
-   knockback={600,800,1000),
+   knockback={600,800,1000},
    radius=200,
    cost=100
 } 
