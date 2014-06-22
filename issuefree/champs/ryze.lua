@@ -6,6 +6,8 @@ pp(" - prison > overload > flux")
 pp(" - lasthit w/overload depending on mana")
 pp(" - clear w/overload/flux depending on mana")
 
+SetChampStyle("caster")
+
 local attackObject = "ManaLeach_mis"
 
 spells["overload"] = {
@@ -49,12 +51,15 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", 
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 function Run()
+   if not P.muramana then
+      UseItem("Muramana", me)
+   end
+
    if StartTickActions() then
       return true
    end
 
    if HotKey() then
-      UseItems()
       if Action() then
          return true
       end
@@ -76,9 +81,12 @@ function Run()
       end
    end
 
+   EndTickActions()
 end
 
 function Action()   
+   UseItems()
+
    if CanUse("prison") then
       local target = GetWeakestEnemy("prison", 0, 15)
       if target then
@@ -122,12 +130,6 @@ function CheckPower(target)
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       local minions = SortByHealth(GetInRange(me, "overload", MINIONS))
       local minion = minions[#minions]
@@ -142,11 +144,10 @@ function FollowUp()
          end
       end
 
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
+      if HitMinion("AA", "strong") then
          return true
       end
+
    end
 
    return false
