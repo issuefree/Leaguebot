@@ -42,13 +42,14 @@ spells["power"] = {
    radius=200
 }
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "overload"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
    if not P.muramana then
