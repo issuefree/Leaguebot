@@ -111,14 +111,27 @@ function Persist(name, object, charName)
    end
 end
 
+function enemyHasName(name)
+   for _,enemy in ipairs(ENEMIES) do
+      if enemy.name == name then
+         return true
+      end
+   end
+end
+
 function PersistToTrack(object, charName, champName, spellName)
    if Persist(spellName, object, charName) then
+
+      -- if the champ that can cast the spell isn't on the other team bail
+      if not enemyHasName(champName) then
+         return
+      end
 
       -- check if it's an ally casting the spell
       -- if the object comes into creation very close to a character on my team with the right name...
       for _,ally in ipairs(ALLIES) do
          if ally.name == champName then
-            if GetDistance(ally, object) < 100 then
+            if GetDistance(ally, object) < 200 then
                return
             end
          end
