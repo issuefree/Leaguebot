@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Xerath")
 
+SetChampStyle("caster")
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -12,7 +14,6 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", 
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=112, label="Move"})
 
-SetChampStyle("caster")
 
 spells["bolt"] = {
    key="Q", 
