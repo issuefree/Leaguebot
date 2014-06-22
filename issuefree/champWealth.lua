@@ -225,6 +225,13 @@ local function PrintLine(str, line, col)
    DrawText(str,xc+col*5,yc+line*15,0xFFCCEECC);
 end
 
+function sortWealth(a,b)
+   if a.wealth == b.wealth then
+      return a.name > b.name
+   end
+   return a.wealth > b.wealth
+end
+
 function DrawHeroWealth()
 	local myTeam, enemyTeam = 0, 0
 
@@ -256,8 +263,8 @@ function DrawHeroWealth()
 		end
 	end
 	
-	table.sort(myTeamWealth, function(a,b) return a.wealth > b.wealth end)
-	table.sort(enemyTeamWealth, function(a,b) return a.wealth > b.wealth end)
+	table.sort(myTeamWealth, sortWealth)
+	table.sort(enemyTeamWealth, sortWealth)
 
 	local total = 0
 	for i, cw in ipairs(myTeamWealth) do
