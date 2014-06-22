@@ -9,41 +9,42 @@ require "issuefree/modules"
 
 pp("\nTim's Malphite")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["shard"] = {
    key="Q", 
    range=625, 
    color=violet, 
-   base={70 / 120 / 170 / 220 / 270},
+   base={70,120,170,220,270},
    ap=.6,
    type="M",
-   cost={70 / 75 / 80 / 85 / 90}
+   cost={70,75,80,85,90}
 } 
 spells["strikes"] = {
    key="W", 
-   cost={50 / 55 / 60 / 65 / 70}
+   cost={50,55,60,65,70}
 } 
 spells["slam"] = {
    key="E", 
    range=200, 
    color=yellow, 
-   base={60 / 100 / 140 / 180 / 220}, 
+   base={60,100,140,180,220}, 
    ap=.2,
    armor=.3,
-   cost={50 / 55 / 60 / 65 / 70}
+   cost={50,55,60,65,70}
 } 
 spells["force"] = {
    key="R", 
    range=1000, 
    color=red, 
-   base={200 / 300 / 400}, 
+   base={200,300,400}, 
    ap=1,
    delay=2,
    speed=18,
@@ -64,7 +65,7 @@ function Run()
    -- auto stuff that always happen
 
    -- high priority hotkey actions, e.g. killing enemies
-	if HotKey() and CanAct() then
+	if HotKey() then
       UseItems()
 		if Action() then
 			return true
@@ -84,22 +85,30 @@ function Run()
 end
 
 function Action()
--- melee
+   if #GetInRange(me, "slam") > 0 then
+      if CanUse("strikes") then
+         Cast("strikes", me)
+         PrintAction("Strikes!")
+      end
+
+      if CanUse("slam") then
+         Cast("slam", me)
+         PrintAction("SLAM")
+         return true
+      end
+
+   end
+
+
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
-
    return false
 end
+
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
 
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
