@@ -7,7 +7,11 @@ function Point:__init(a, b, c)
    end
    if not b and not c then
       self.x = a.x+1-1
-      self.y = a.y+1-1
+      if not a.y then
+         self.y = 0
+      else
+         self.y = a.y+1-1
+      end
       self.z = a.z+1-1
    else
       self.x = a+1-1
@@ -133,6 +137,23 @@ function GetOrthDist(t1, t2)
    return math.abs(d)   
 end
 
+local function areaOfTriangleFromSides(a,b,c)
+   local s = (a+b+c)/2
+   return math.sqrt(s*(s-a)*(s-b)*(s-c))
+end
+
+local function heightOfTriangleFromAreaAndBase(area, base)
+   return 2*area/base
+end
+
+function GetOrthDist3(lp1, lp2, pOff)
+   local base = GetDistance(lp1, lp2)
+   local l1 = GetDistance(pOff, lp1)
+   local l2 = GetDistance(pOff, lp2)
+   local area = areaOfTriangleFromSides(base, l1, l2)
+   return heightOfTriangleFromAreaAndBase(area, base)
+end
+
 function RadsToDegs(rads)
    return rads*180/math.pi
 end
@@ -219,6 +240,59 @@ end
 function UnderTower(target)
    if not target then target = me end
    return #GetAllInRange(target, 950, TURRETS) > 0
+end
+
+function UnderMyTower(target)
+   if not target then target = me end
+   return #GetAllInRange(target, 950, MYTURRETS) > 0
+end
+
+function IsInRange(target, thing, source)
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
+   return GetDistance(target, source) < range
+end
+
+function GetInRange(target, thing, ...)
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
+   local result = {}
+   local list = ValidTargets(concat(...))
+   for _,test in ipairs(list) do
+      if target and test and
+         GetDistance(target, test) <= range 
+      then
+         table.insert(result, test)
+      end
+   end
+   return result
+end
+
+function GetAllInRange(target, thing, ...)
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
+   local result = {}
+   local list = concat(...)
+   for _,test in ipairs(list) do
+      if target and test and test.x and
+         GetDistance(target, test) < range 
+      then
+         table.insert(result, test)
+      end
+   end
+   return result
 end
 
 function SortByHealth(things)

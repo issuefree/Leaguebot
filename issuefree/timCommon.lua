@@ -1001,6 +1001,10 @@ function GetSkillShot(thing, purpose)
    return target
 end
 
+function GetOtherAllies()
+   return FilterList(ALLIES, function(ally) return not IsMe(ally) end)
+end
+
 function GetUnblocked(source, thing, ...)
    local spell = GetSpell(thing)
    local minionWidth = 55
@@ -1059,54 +1063,6 @@ end
 
 function IsRecalling(hero)
    return HasBuff("recall", hero)
-end
-
-function IsInRange(target, thing, source)
-   local range
-   if type(thing) ~= "number" then
-      range = GetSpellRange(thing)
-   else
-      range = thing
-   end
-   return GetDistance(target, source) < range
-end
-
-function GetInRange(target, thing, ...)
-   local range
-   if type(thing) ~= "number" then
-      range = GetSpellRange(thing)
-   else
-      range = thing
-   end
-   local result = {}
-   local list = ValidTargets(concat(...))
-   for _,test in ipairs(list) do
-      if target and test and
-         GetDistance(target, test) <= range 
-      then
-         table.insert(result, test)
-      end
-   end
-   return result
-end
-
-function GetAllInRange(target, thing, ...)
-   local range
-   if type(thing) ~= "number" then
-      range = GetSpellRange(thing)
-   else
-      range = thing
-   end
-   local result = {}
-   local list = concat(...)
-   for _,test in ipairs(list) do
-      if target and test and test.x and
-         GetDistance(target, test) < range 
-      then
-         table.insert(result, test)
-      end
-   end
-   return result
 end
 
 function UseAutoItems()
@@ -1663,8 +1619,6 @@ end
 function AA(target)
    if CanAttack() and ValidTarget(target) then
       AttackTarget(target)
-      AA_TARGET = target
-      -- DoIn(function() AA_TARGET = nil end, .33)
       needMove = true
       return true
    end
@@ -1733,13 +1687,16 @@ end
 
 function ModAAFarm(thing, pObj)
    if CanUse(thing) and not pObj then
-      local minion = SortByHealth(GetInRange(me, "AA", MINIONS))[1]
-      if ValidTarget(minion) and WillKill(thing, "AA", minion) and 
-         ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) and CanAttack() ) )
-      then
-         Cast(thing, me)
-         PrintAction(thing.." lasthit", minion)
-         return true
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      for i,minion in ipairs(minions) do
+         if WillKill(thing, "AA", minion) and 
+            not SameUnit(minion, WK_AA_TARGET) and
+            ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
+         then
+            Cast(thing, me)
+            PrintAction(thing.." lasthit", minion)
+            return true
+         end
       end
    end   
    return false
