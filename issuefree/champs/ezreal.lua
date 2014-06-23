@@ -3,13 +3,16 @@ require "issuefree/modules"
 
 pp("\nTim's Ezreal")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("harrass", {on=true, key=113, label="Harrass"})
-AddToggle("", {on=true, key=114, label=""})
-AddToggle("tear", {on=true, key=115, label="Charge tear"})
+SetChampStyle("marksman")
+
+AddToggle("harrass", {on=true, key=112, label="Harrass"})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("tear", {on=true, key=114, label="Charge tear"})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Farm", auxLabel="{0} / {1}", args={GetAADamage, "shot"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["shot"] = {
    key="Q", 
@@ -24,8 +27,8 @@ spells["shot"] = {
    type="P",
    onHit=true,
    cost={28,31,34,37,40},
-   particle="Ezreal_TrueShot_mis.troy",
-   spellName="EzrealTrueshotBarrage"
+   particle="Ezreal_mysticshot_mis",
+   spellName="EzrealMysticShot"
 }
 spells["flux"] = {
    key="W", 
@@ -42,7 +45,7 @@ spells["flux"] = {
 spells["arrow"] = {
    key="E", 
    range=475+750, 
-   color=violet, 
+   color=yellow, 
    base={75,125,175,225,275}, 
    ap=.75
 }
@@ -108,11 +111,11 @@ function Run()
    if IsOn("lasthit") and Alone() then
       if CanUse("shot") then
          for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
-            if not SameUnit(minion, AA_TARGET) then
-               if WillKill("shot", minion) and
-                  ( not CanAttack() or not WillKill("AA", minion) ) and
-                  ( CanAct() or
-                    GetDistance(minion) > spells["AA"].range )
+            if not SameUnit(minion, WK_AA_TARGET) then
+               if WillKill("shot", minion) and 
+                   ( JustAttacked() or
+                     GetDistance(minion) > GetAARange() or
+                     not WillKill("AA", minion) )
                then
                   CastXYZ("shot", minion)
                   PrintAction("Shot for lasthit")
