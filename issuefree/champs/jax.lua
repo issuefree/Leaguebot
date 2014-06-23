@@ -10,6 +10,8 @@ pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
 pp(" - lasthit with empower")
 
+-- SetChampStyle("bruiser")
+
 function getEmpowerDam()
 	return GetSpellDamage("empower") + Damage(me.baseDamage+me.addDamage, "P")
 end
@@ -51,13 +53,35 @@ spells["might"] = {
 	key="R",
 	cost=100
 }
+spells["relentless"] = {
+	base={100,160,220},
+	ap=.7,
+	type="M"
+}
+
+local ultCounter = 0
+
+function WillProcMight()
+	return GetSpellLevel("R") > 0 and ultCounter >= 2
+end
 
 function Run()
-	if P.empower then
-		spells["AA"].bonus = GetSpellDamage("empower")
-	else
-		spells["AA"].bonus = 0
+
+	if WillProcMight() then
 	end
+
+	local aaBonus = 0
+
+	if P.empower then
+		aaBonus = GetSpellDamage("empower")
+	end
+	if WillProcMight() then
+		aaBonus = aaBonus + GetSpellDamage("relentless")
+		if CanAct() then
+			Circle(me, GetAARange()+3, yellow, 3)
+		end
+	end
+	spells["AA"].bonus = aaBonus
 
    if StartTickActions() then
       return true
@@ -187,6 +211,11 @@ end
 local function onObject(object)
 	PersistBuff("counter", object, "jaxdodger")
 	PersistBuff("empower", object, "armsmaster_empower", 150)
+
+   if find(object.charName, "RelentlessAssault") and GetDistance(object) < 250 then
+   	ultCounter = 0
+   	pp("reset ultCounter on activate")
+   end
 end
 
 
@@ -204,10 +233,15 @@ local function onSpell(unit, spell)
 	   end
    end
 
-   if IsMe(unit) and spell.name == me.SpellNameW then
-      ResetAttack()
+   if IAttack(unit, spell) then
+   	ultCounter = ultCounter + 1
+   	DoIn(
+   		function() 
+   			ultCounter = 0 
+   			pp("reset ultCounter on timeout")
+   		end, 
+   		2.75, "ultCounter")
    end
-
 end
 
 AddOnCreate(onObject)
