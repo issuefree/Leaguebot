@@ -9,6 +9,8 @@ pp(" - auto homing hunters")
 pp(" - auto ss hunters")
 pp(" - minion farming")
 
+SetChampStyle("marksman")
+
 AddToggle("capacitor", {on=true, key=112, label="Capacitor"})
 AddToggle("tear", {on=true, key=113, label="Charge tear"})
 AddToggle("harrass", {on=true, key=114, label="Harass"})
@@ -90,11 +92,11 @@ function Run()
       if GetMPerc(me) > .33 or CanChargeTear() then
          local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))
          for _,minion in ipairs(minions) do
-            if not SameUnit(minion, AA_TARGET) then
+            if not SameUnit(minion, WK_AA_TARGET) then
                if WillKill("hunter", minion) and
-                  ( not CanAttack() or not WillKill("AA", minion) ) and
-                  ( CanAct() or
-                    GetDistance(minion) > spells["AA"].range )
+                   ( JustAttacked() or
+                     GetDistance(minion) > GetAARange() or
+                     not WillKill("AA", minion) )
                then
                   CastXYZ("hunter", minion)
                   PrintAction("Hunter for lasthit")
