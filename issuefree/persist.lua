@@ -34,7 +34,7 @@ function ClearCursor()
    CURSOR = nil
 end
 
-AA_TARGET = nil
+WK_AA_TARGET = nil
 
 -- persisted particles
 P = {}
