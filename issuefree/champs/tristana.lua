@@ -3,8 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Tristana")
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("jump", {on=false, key=113, label="Jumps"})
+SetChampStyle("marksman")
+-- SetChampStyle("caster")
+
+AddToggle("-", {on=true, key=112, label="- - -"})
+AddToggle("jump", {on=true, key=113, label="Jumps"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -55,16 +58,203 @@ spells["buster"] = {
    cost=100
 } 
 
+function CheckDisrupt()
+   if Disrupt("DeathLotus", "buster") then return true end
+
+   if Disrupt("Grasp", "orb") then return true end
+
+   if Disrupt("AbsoluteZero", "buster") then return true end
+
+   if Disrupt("BulletTime", "buster") then return true end
+
+   if Disrupt("Duress", "buster") then return true end
+
+   if Disrupt("Idol", "buster") then return true end
+
+   if Disrupt("Monsoon", "buster") then return true end
+
+   if Disrupt("Meditate", "buster") then return true end
+
+   -- if Disrupt("Drain", "orb") then return true end
+
+   return false
+end
+
+
 local jumpPoint = nil
+local kbPoint = nil
+local kbType = nil
+
+function getKBPoint()
+   kbType = nil
+   local kbDist = GetLVal(spells["buster"], "knockback")
+   local busterRange = GetSpellRange("buster")
+   local jumpRange = GetSpellRange("jump")
+
+   if GetDistance(HOME) < (850 + kbDist + busterRange + jumpRange) then
+      PrintState(0, "HOME")      
+      kbType = "HOME"
+      return Point(HOME)
+   end
+
+   local point = SortByDistance(GetAllInRange(me, 750+kbDist+busterRange+jumpRange, MYTURRETS))[1]
+   if point then 
+      PrintState(0, "TURRET")
+      kbType = "TURRET"
+      return point 
+   end
+
+   local otherAllies = GetOtherAllies()
+   for _,ally in ipairs(GetInRange(me, kbDist+busterRange, otherAllies)) do
+      local pick = SelectFromList(
+         ALLIES, 
+         function(a) 
+            return #GetInRange(a, 500, otherAllies)
+         end,
+         ally
+      )
+      local group = GetInRange(pick, 500, otherAllies)
+      if #group >= 2 or GetHPerc(pick) > .5 then
+         PrintState(0, "ALLIES")
+         kbType = "ALLIES"
+         return GetCenter(group)
+      end
+   end
+
+   -- for _,minion in ipairs(GetInRange(me, 1000, MYMINIONS)) do
+   --    local pick = SelectFromList(
+   --       MYMINIONS, 
+   --       function(a) 
+   --          return #GetInRange(minion, 450, MYMINIONS)
+   --       end,
+   --       minion
+   --    )
+   --    local group = GetInRange(minion, 450, MYMINIONS)
+   --    if #group >= 3 then
+   --       point = GetCenter(group)
+   --       if GetDistance(point, HOME) < GetDistance(me, HOME)+250 then         
+   --          PrintState(0, "MINIONS")
+   --          return point
+   --       end
+   --    end
+   -- end
+
+   return nil
+end
+
+function getJumpPoint()
+   local target = GetWeakestEnemy("jump", 500)
+
+   -- if I don't have a target or a place I want to knock em bail
+   if not target or not kbPoint then 
+      return nil
+   end
+
+   -- I have a target and a point I'd like to knock them to
+
+   local predTarget = GetSpellFireahead("jump", target) -- where they'll be when I land - ish
+
+   -- local predTarget = mousePos
+   
+   -- local point
+   -- if GetDistance(predTarget, kbPoint) > GetDistance(target, kbPoint) then 
+   --    -- they're moving away from the kb point, lead em
+   --    point = Projection(kbPoint, predTarget, GetDistance(kbPoint, predTarget)+100)
+   --    target = predTarget
+   -- else       
+   --    point = Projection(kbPoint, target, GetDistance(kbPoint, target)+300) 
+   -- end
+
+   local point = Projection(kbPoint, predTarget, GetDistance(kbPoint, predTarget)+GetSpellRange("buster"))
+   if GetDistance(point) > GetSpellRange("jump") then
+      local jd = GetSpellRange("jump")-5
+      local od = GetOrthDist3(kbPoint, predTarget, me)
+      local dx = math.sqrt(jd^2 - od^2) + math.sqrt(GetDistance(kbPoint)^2 - od^2)
+
+      point = Projection(kbPoint, predTarget, dx)
+   end
+
+   -- can't get to where I'd need to go
+   if GetDistance(point) > GetSpellRange("jump") then
+      return nil
+   end
+
+   if GetDistance(kbPoint, point) - GetDistance(predTarget, kbPoint) < 300 then -- I won't be able to lead them enough
+      return nil
+   end
+
+   -- don't jump into walls
+   if IsSolid(point) then
+      return nil
+   end
+
+   -- I have a point I'd like to jump to so I can kb
+   Circle(point, 50, red, 4)
+
+   -- If I'm closer to the kb point than I am to them don't jump yet
+   if GetDistance(kbPoint)+100 < GetDistance(predTarget) then 
+      return nil
+   end
+
+   -- make sure if I did KB them that they'd go where I want
+   local kbDist = GetLVal(spells["buster"], "knockback")
+   if kbType == "HOME" then
+      if GetDistance(predTarget, kbPoint) > kbDist + 800 then -- I can't knock them home
+         return nil
+      end
+      if GetDistance(predTarget, kbPoint) < 900 then -- already in poool don't bother
+         return nil
+      end
+   elseif kbType == "TURRET" then
+      if GetDistance(predTarget, kbPoint) > kbDist + 750 then -- I can't knock them into a turret
+         return nil
+      end
+      if GetDistance(predTarget, kbPoint) < 850 then -- already under tower don't bother
+         return nil
+      end
+   elseif kbType == "ALLIES" then
+      if GetDistance(predTarget, kbPoint) > kbDist + 250 then -- I can't knock them into allies
+         return nil
+      end
+   end
+
+   if UnderTower(point) then -- don't jump under towers
+      return nil
+   end
+
+   local numEnemies = #GetInRange(point, 650, ENEMIES)
+
+   if numEnemies > 2 then -- don't jump into groups
+      return nil
+   end
+
+   return point, predTarget
+end
 
 function Run()
+
    if StartTickActions() then
       return true
    end
 
-   if jumpPoint then
-      Circle(jumpPoint, 50, red, 4)
+   if CheckDisrupt() then
+      return true
    end
+
+   kbPoint = getKBPoint()
+   Circle(kbPoint)
+   if kbPoint then
+      jumpPoint, jumpTarget= getJumpPoint()
+      if jumpPoint and jumpTarget then
+         Circle(jumpPoint, 50, red, 4)
+         -- LineBetween(jumpTarget, GetKnockback("buster", jumpPoint, jumpTarget))
+         -- Circle(jumpTarget, nil, red)
+         -- LineBetween(me, jumpPoint)
+      end
+   end
+
+
+
 
    -- auto stuff that always happen
 
@@ -93,27 +283,24 @@ function Action()
       CanUse("jump") and CanUse("buster") and
       me.mana > (GetSpellCost("jump") + GetSpellCost("buster"))
    then
-      local target = GetWeakestEnemy("jump", -100)
-      if target then
-         local point = Projection(me, target, GetDistance(target)+100)
-         if not UnderTower(point) and 
-            #GetInRange(point, 650, ENEMIES) == 1 and
-            GetDistance(HOME) < GetDistance(point, HOME)
-         then
-            CastXYZ("jump", point)
-            jumpPoint = Point(me)
-            DoIn(function() jumpPoint = nil end, 3)
-            PrintAction("JUMP")
-            return true
-         end
+      if jumpPoint and GetDistance(jumpPoint) < GetSpellRange("jump") then
+         CastXYZ("jump", jumpPoint)
+         PrintAction("JUMP for kb to "..kbType)
+         return true
       end
    end
 
-   if CanUse("buster") and jumpPoint then
+   if CanUse("buster") and kbPoint then
       for _,target in ipairs(SortByDistance(GetInRange(me, "buster", ENEMIES))) do
-         if GetDistance(HOME) > GetDistance(target, HOME) then
+         local targetKb = GetKnockback("buster", me, target)
+         -- the kb will move them closer to the kbPoint than they are now (why kb if it won't move them where I want to move them)
+         if GetDistance(kbPoint, targetKb) < GetDistance(kbPoint, target) and
+            ( GetDistance(targetKb, kbPoint) < 500 or  -- they'll land where I want them
+              UnderMyTower(targetKb) or -- they'll land under tower
+              GetDistance(targetKb, HOME) < 800 ) -- they'll land in the pool 
+         then 
             Cast("buster", target)
-            PrintAction("KB", target)
+            PrintAction("KB to "..kbType, target)
             return true
          end
       end
