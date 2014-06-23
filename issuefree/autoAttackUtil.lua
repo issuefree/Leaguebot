@@ -569,7 +569,6 @@ function onSpellAA(unit, spell)
    end
    
    if isResetSpell(spell) then
-      pp("Reset "..spell.name)
       ResetAttack()
    end
 
@@ -587,6 +586,9 @@ function onSpellAA(unit, spell)
             else
                KillMinion("AA")
             end
+         else
+            WK_AA_TARGET = spell.target
+            DoIn(function() WK_AA_TARGET = nil end, .5)
          end
       end
 
