@@ -371,7 +371,7 @@ function GetKnockback(thing, source, target)
       angle = angle+math.pi
    end
 
-   return ProjectionA(target, angle, spell.knockback)
+   return ProjectionA(target, angle, GetLVal(spell, "knockback"))
 end
 
 -- local trackTicks = 10
@@ -416,6 +416,9 @@ function GetSpellFireahead(thing, target)
    --    pp("faking fireahead")
 
    local fudge = SS_FUDGE
+   if not tfas[spell.key] then
+      pp(spell)
+   end
    local trackedPoints = tfas[spell.key][target.charName]
 
    if trackedPoints then   
