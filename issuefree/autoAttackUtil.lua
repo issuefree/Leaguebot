@@ -588,7 +588,7 @@ function onSpellAA(unit, spell)
             end
          else
             WK_AA_TARGET = spell.target
-            DoIn(function() WK_AA_TARGET = nil end, .5)
+            DoIn(function() WK_AA_TARGET = nil end, .75)
          end
       end
 
