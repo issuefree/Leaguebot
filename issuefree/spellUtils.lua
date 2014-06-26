@@ -277,12 +277,30 @@ function GetSpellDamage(thing, target)
    if spell.percMissingHealth and target then
       damage = damage + GetLVal(spell, "percMissingHealth")*(target.maxHealth - target.health)
    end
-   if spell.onHit then
-      damage = damage + GetOnHitDamage(target, false)
-   end
 
    if P.muramana then
       damage = damage + me.mana*.06
+   end
+
+
+   if type(damage) ~= "number" and damage.type ~= "H" then
+      local mult = 1
+      if HasMastery("havoc") then
+         mult = mult + .03
+      end
+      if HasMastery("des") then
+         mult = mult + .015
+      end
+      if HasMastery("executioner") then
+         if target and GetHPerc(target) < .5 then
+            mult = mult + .05
+         end
+      end
+      damage = damage*mult
+   end
+
+   if spell.onHit then
+      damage = damage + GetOnHitDamage(target, false)
    end
 
    if target then
@@ -296,19 +314,6 @@ function GetSpellDamage(thing, target)
       damage = damage:toNum()
    end
 
-   local mult = 1
-   if HasMastery("havoc") then
-      mult = mult + .03
-   end
-   if HasMastery("des") then
-      mult = mult + .015
-   end
-   if HasMastery("executioner") then
-      if target and GetHPerc(target) < .5 then
-         mult = mult + .05
-      end
-   end
-   damage = damage*mult
 
    return damage
 end
@@ -330,7 +335,7 @@ function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage
 
    if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
       if target then
-         damage = damage + Damage(target.health*.05, "P")
+         damage = damage + Damage(target.health*.08, "P")
       end
    end
 
