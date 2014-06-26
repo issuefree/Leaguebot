@@ -95,8 +95,7 @@ function Run()
             if not SameUnit(minion, WK_AA_TARGET) then
                if WillKill("hunter", minion) and
                    ( JustAttacked() or
-                     GetDistance(minion) > GetAARange() or
-                     not WillKill("AA", minion) )
+                     GetDistance(minion) > GetAARange() )
                then
                   CastXYZ("hunter", minion)
                   PrintAction("Hunter for lasthit")
