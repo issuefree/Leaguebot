@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Miss Fortune")
 
+SetChampStyle("marksman")
+
 function doubleUpDam()
    return GetSpellDamage("double")*1.2
 end
@@ -97,7 +99,6 @@ function Run()
    -- CHANNELLING = false
 
    if HotKey() and CanAct() then
-      UseItems()
       if Action() then
          return true
       end
@@ -160,8 +161,7 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
@@ -169,12 +169,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true

@@ -8,6 +8,8 @@ pp(" - Dance to far enemies")
 pp(" - Mark for last hit")
 pp(" - Slash for last hit >= 2")
 
+SetChampStyle("caster")
+
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -68,13 +70,11 @@ function Run()
 
    spells["AA"].bonus = GetSpellDamage("AA")*(.06+(me.ap/6/100))
 
-   if IsRecalling(me) or me.dead == 1 then
-      PrintAction("Recalling or dead")
+   if StartTickActions() then
       return true
    end
 
 	if HotKey() and CanAct() then
-      UseItems()
 		if Action() then
 			return true
 		end
@@ -117,6 +117,8 @@ function Run()
          return true
       end
    end
+
+   EndTickActions()
 end
 
 function Action()
@@ -138,18 +140,12 @@ function Action()
       end
    end
 
-   if CanUse("slash") then
-      local target = GetWeakestEnemy("slash")
-      if target then
-         Cast("slash", me)
-         PrintAction("Slash", target)
-         return true
-      end
+   if CastBest("slash") then
+      return true
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
