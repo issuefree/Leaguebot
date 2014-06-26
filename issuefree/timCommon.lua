@@ -256,18 +256,6 @@ function SaveConfig(name, config)
    file:close()
 end
 
-DISRUPTS = {
-   DeathLotus={char="Katarina", obj="Katarina_deathLotus_cas"},
-   Meditate={char="MasterYi", obj="MasterYi_Base_W_Buf"},
-   Drain={char="FiddleSticks", obj="drain.troy"},
-   -- Idol={char="Galio", obj=""},
-   Monsoon={char="Janna", obj="ReapTheWhirlwind_green_cas"},
-   BulletTime={char="MissFortune", obj="missFortune_ult_cas"},
-   AbsoluteZero={char="Nunu", obj="AbsoluteZero2"},
-   Duress={char="Warwick", obj="InfiniteDuress_tar"},
-   Grasp={char="Malzahar", obj=""}
-}
-
 function doCreateObj(object)
    if not (object and object.x and object.z) then
       return
@@ -1390,10 +1378,10 @@ function processShot(shot)
    end
 
    if Engaged() and shot.safePoint then
-      pp("Don't dodge because I'm engaged - "..shot.name)
+      PrintAction("Don't dodge because I'm engaged - "..shot.name, nil, 1)
    end
    if IsChannelling() and shot.safePoint then
-      pp("Don't dodge because I'm channelling - "..shot.name)
+      PrintAction("Don't dodge because I'm channelling - "..shot.name, nil, 1)
    end
 
    if me.dead == 0 and
@@ -1553,7 +1541,7 @@ function TimTick()
       end
    end
 
-   if ModuleConfig.ass then -- TODO and unit.team ~= me.team then
+   if ModuleConfig.ass then
 
       for _,pName in ipairs(GetTrackedSpells()) do
          if P[pName] and PData[pName].direction then
@@ -1562,7 +1550,7 @@ function TimTick()
 
             if shot then
                shot.timeOut = os.clock()+shot.time
-               shot.startPoint = pd.startPoint
+               shot.startPoint = pd.lastPos
                shot.endPoint = ProjectionA(pd.lastPos, pd.direction, shot.range)
                SetEndPoints(shot)
 
@@ -1572,6 +1560,28 @@ function TimTick()
       end
 
    end
+end
+
+DISRUPTS = {
+   DeathLotus={char="Katarina", obj="Katarina_deathLotus_cas"},
+   -- StandUnited={char="Shen", obj=""},
+   Meditate={char="MasterYi", obj="MasterYi_Base_W_Buf"},
+   -- Idol={char="Galio", obj=""},
+   Monsoon={char="Janna", obj="ReapTheWhirlwind_green_cas"},
+   BulletTime={char="MissFortune", obj="missFortune_ult_cas"},
+   AbsoluteZero={char="Nunu", obj="AbsoluteZero2"},
+   Duress={char="Warwick", obj="InfiniteDuress_tar"},
+   -- Grasp={char="Malzahar", obj=""},
+   -- Drain={char="FiddleSticks", obj="drain.troy"},
+}
+
+function CheckDisrupt(spell)
+   for disrupt,_ in pairs(DISRUPTS) do
+      if Disrupt(disrupt, spell) then
+         return true
+      end
+   end
+   return false
 end
 
 function StartTickActions()
@@ -1590,6 +1600,10 @@ end
 needMove = false
 
 function EndTickActions()
+   if HotKey() then
+      UseItems()
+   end
+
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
          return true         
