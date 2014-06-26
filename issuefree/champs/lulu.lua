@@ -43,34 +43,12 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "whimsy") then return true end
-
-   if Disrupt("Grasp", "whimsy") then return true end
-
-   if Disrupt("AbsoluteZero", "whimsy") then return true end
-
-   if Disrupt("BulletTime", "whimsy") then return true end
-
-   if Disrupt("Duress", "whimsy") then return true end
-
-   if Disrupt("Idol", "whimsy") then return true end
-
-   if Disrupt("Monsoon", "whimsy") then return true end
-
-   if Disrupt("Meditate", "whimsy") then return true end
-
-   if Disrupt("Drain", "whimsy") then return true end
-
-   return false
-end
-
 function Run()
    if StartTickActions() then
       return true
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("whimsy") then
       return true
    end
 

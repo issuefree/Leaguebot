@@ -51,30 +51,6 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "stun") then return true end
-
-   if Disrupt("Grasp", "stun") then return true end
-
-   if Disrupt("AbsoluteZero", "stun") then return true end
-
-   if Disrupt("BulletTime", "stun") then return true end
-
-   if Disrupt("Duress", "stun") then return true end
-
-   if Disrupt("Idol", "stun") then return true end
-
-   if Disrupt("Monsoon", "stun") then return true end
-
-   if Disrupt("Meditate", "stun") then return true end
-
-   if Disrupt("Drain", "stun") then return true end
-
-   if Disrupt("HeartSeeker", "stun") then return true end
-
-   return false
-end
-
 function Run()
 	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selflevel-1)))*.05
 	
@@ -88,7 +64,7 @@ function Run()
       return true
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("stun") then
       return true
    end
 

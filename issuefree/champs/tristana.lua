@@ -58,29 +58,6 @@ spells["buster"] = {
    cost=100
 } 
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "buster") then return true end
-
-   if Disrupt("Grasp", "orb") then return true end
-
-   if Disrupt("AbsoluteZero", "buster") then return true end
-
-   if Disrupt("BulletTime", "buster") then return true end
-
-   if Disrupt("Duress", "buster") then return true end
-
-   if Disrupt("Idol", "buster") then return true end
-
-   if Disrupt("Monsoon", "buster") then return true end
-
-   if Disrupt("Meditate", "buster") then return true end
-
-   -- if Disrupt("Drain", "orb") then return true end
-
-   return false
-end
-
-
 local jumpPoint = nil
 local kbPoint = nil
 local kbType = nil
@@ -237,7 +214,7 @@ function Run()
       return true
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("buster") then
       return true
    end
 
@@ -306,14 +283,8 @@ function Action()
       end
    end
 
-
-   if CanUse("shot") then
-      local target = GetWeakestEnemy("shot")
-      if target then
-         Cast("shot", target)
-         PrintAction("Explosive Shot", target)
-         return true
-      end
+   if CastBest("shot") then
+      return true
    end
 
    if CanUse("rapid") then

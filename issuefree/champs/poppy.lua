@@ -47,28 +47,12 @@ spells["immunity"] = {
    color=blue
 }
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "charge") then return true end
-
-   if Disrupt("Grasp", "charge") then return true end
-
-   if Disrupt("AbsoluteZero", "charge") then return true end
-
-   if Disrupt("BulletTime", "charge") then return true end
-
-   if Disrupt("Duress", "charge") then return true end
-
-   if Disrupt("Idol", "charge") then return true end
-
-   if Disrupt("Monsoon", "charge") then return true end
-
-   if Disrupt("Drain", "charge") then return true end
-
-   return false
-end
-
 function Run()
    if StartTickActions() then
+      return true
+   end
+
+   if CheckDisrupt("charge") then
       return true
    end
 
@@ -96,10 +80,6 @@ function Run()
       if ModAAJungle("blow", P.blow) then
          return true
       end
-   end
-
-   if CheckDisrupt() then
-      return true
    end
 
    if HotKey() then

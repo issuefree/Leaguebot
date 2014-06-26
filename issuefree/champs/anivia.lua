@@ -51,30 +51,6 @@ spells["storm"] = {
    radius=400
 }
 
-function CheckDisrupt()
-   if not P.orb then
-      if Disrupt("DeathLotus", "orb") then return true end
-
-      if Disrupt("Grasp", "orb") then return true end
-
-      if Disrupt("AbsoluteZero", "orb") then return true end
-
-      if Disrupt("BulletTime", "orb") then return true end
-
-      if Disrupt("Duress", "orb") then return true end
-
-      if Disrupt("Idol", "orb") then return true end
-
-      if Disrupt("Monsoon", "orb") then return true end
-
-      if Disrupt("Meditate", "orb") then return true end
-
-      if Disrupt("Drain", "orb") then return true end
-   end
-
-   return false
-end
-
 function Run()
    for _,t in ipairs(GetWithBuff("freeze", ENEMIES)) do
       Circle(hero, nil, blue, 3)
@@ -84,6 +60,11 @@ function Run()
       return true
    end
 
+   if not P.orb then
+      if CheckDisrupt("orb") then
+         return true
+      end
+   end
 
    if P.orb then
       Circle(P.orb, spells["orb"].radius, blue)

@@ -56,30 +56,6 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "infuse") then return true end
-
-   if Disrupt("Grasp", "infuse") then return true end
-
-   if Disrupt("AbsoluteZero", "infuse") then return true end
-
-   if Disrupt("BulletTime", "infuse") then return true end
-
-   if Disrupt("Duress", "infuse") then return true end
-
-   if Disrupt("Idol", "infuse") then return true end
-
-   if Disrupt("Monsoon", "infuse") then return true end
-
-   if Disrupt("Meditate", "infuse") then return true end
-
-   if Disrupt("Drain", "infuse") then return true end
-
-   if Disrupt("HeartSeeker", "infuse") then return true end
-
-   return false
-end
-
 function Run()
 	spells["infuseMana"].cost = me.maxMana * .05
 
@@ -89,7 +65,7 @@ function Run()
 		
 	Wish()
 
-   if CheckDisrupt() then
+   if CheckDisrupt("infuse") then
       return true
    end
 

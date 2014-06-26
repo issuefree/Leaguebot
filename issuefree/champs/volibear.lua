@@ -57,10 +57,6 @@ spells["AA"].damOnTarget =
       return 0
    end
 
-function CheckDisrupt()
-   return false
-end
-
 function Run()
    local bonusHealth = me.maxHealth - 440*(me.selfLevel-1)*86
    spell["frenzy"].bonus = bonusHealth * .15
@@ -70,9 +66,6 @@ function Run()
    end
 
    -- auto stuff that always happen
-   if CheckDisrupt() then
-      return true
-   end
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then

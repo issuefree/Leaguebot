@@ -103,7 +103,9 @@ function Run()
       return true
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("wind") or
+      CheckDisrupt("fear") 
+   then
       return true
    end
 

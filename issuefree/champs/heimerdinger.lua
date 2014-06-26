@@ -53,28 +53,6 @@ spells["upgrade"] = {
   cost=100
 }
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "grenade") then return true end
-
-   if Disrupt("Grasp", "grenade") then return true end
-
-   if Disrupt("AbsoluteZero", "grenade") then return true end
-
-   if Disrupt("BulletTime", "grenade") then return true end
-
-   if Disrupt("Duress", "grenade") then return true end
-
-   if Disrupt("Idol", "grenade") then return true end
-
-   if Disrupt("Monsoon", "grenade") then return true end
-
-   if Disrupt("Meditate", "grenade") then return true end
-
-   if Disrupt("Drain", "grenade") then return true end
-
-   return false
-end
-
 function Run()
    local sentries = GetPersisted("sentry")
 
@@ -91,7 +69,7 @@ function Run()
       spells["grenade"].radius = spells["grenade"].radiusBase
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("grenade") then
       return true
    end
 

@@ -68,28 +68,6 @@ spells["rite"] = {
 spells["maxBolt"] = copy(spells["bolt"])
 spells["maxBolt"].range = spells["maxBolt"].maxRange
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "orb") then return true end
-
-   if Disrupt("Grasp", "orb") then return true end
-
-   if Disrupt("AbsoluteZero", "orb") then return true end
-
-   if Disrupt("BulletTime", "orb") then return true end
-
-   if Disrupt("Duress", "orb") then return true end
-
-   if Disrupt("Idol", "orb") then return true end
-
-   if Disrupt("Monsoon", "orb") then return true end
-
-   if Disrupt("Meditate", "orb") then return true end
-
-   if Disrupt("Drain", "orb") then return true end
-
-   return false
-end
-
 local chargeStartTime = 0
 
 local x,y = me.x, me.z
@@ -163,7 +141,7 @@ function Run()
    end
 
    -- auto stuff that always happen
-   if CheckDisrupt() then
+   if CheckDisrupt("orb") then
       return true
    end
 

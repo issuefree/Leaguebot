@@ -45,34 +45,13 @@ spells["monsoon"] = {
 
 AddToggle("shield", {on=true, key=112, label="Auto Shield", auxLabel="{0}", args={"eye"}})
 
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "galeShort") then return true end
-
-   if Disrupt("Grasp", "galeShort") then return true end
-
-   if Disrupt("AbsoluteZero", "galeShort") then return true end
-
-   if Disrupt("BulletTime", "galeShort") then return true end
-
-   if Disrupt("Duress", "galeShort") then return true end
-
-   if Disrupt("Idol", "galeShort") then return true end
-
-   if Disrupt("Monsoon", "galeShort") then return true end
-
-   if Disrupt("Meditate", "galeShort") then return true end
-
-   if Disrupt("Drain", "galeShort") then return true end
-
-   return false
-end
 
 function Run()
    if StartTickActions() then
       return true
    end
 
-   if CheckDisrupt() then
+   if CheckDisrupt("galeShort") then   	
       return true
    end
 

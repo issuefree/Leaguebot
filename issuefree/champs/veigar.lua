@@ -49,29 +49,6 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "strike"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
-function CheckDisrupt()
-   -- need to figure out how to place this exactly on the target
-   
-   -- if Disrupt("DeathLotus", "event") then return true end
-
-   -- if Disrupt("Grasp", "event") then return true end
-
-   -- if Disrupt("AbsoluteZero", "event") then return true end
-
-   -- if Disrupt("BulletTime", "event") then return true end
-
-   -- if Disrupt("Duress", "event") then return true end
-
-   -- if Disrupt("Idol", "event") then return true end
-
-   -- if Disrupt("Monsoon", "event") then return true end
-
-   -- if Disrupt("Meditate", "event") then return true end
-
-   -- if Disrupt("Drain", "event") then return true end
-
-   return false
-end
 
 function Run()
 
@@ -84,9 +61,10 @@ function Run()
       return true
    end
 
-   if CheckDisrupt() then
-      return true
-   end
+   -- this will need special work
+   -- if CheckDisrupt("event") then
+   --    return true
+   -- end
 
    -- looking for the stun obj and throwing darks at it
    if CastAtCC("dark") then

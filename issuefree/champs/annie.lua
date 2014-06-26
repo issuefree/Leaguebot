@@ -3,6 +3,9 @@ require "issuefree/modules"
 
 pp("\nTim's Annie")
 
+SetChampStyle("support")
+-- SetChampStyle("caster")
+
 spells["dis"] = {
    key="Q", 
    range=625, 
@@ -59,32 +62,6 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / 
 local tibbersHasTarget = false
 local tibbersRange = 300
 
-function CheckDisrupt()
-   if not P.stun then
-      return false
-   end
-
-   if Disrupt("DeathLotus", "dis") then return true end
-
-   if Disrupt("Grasp", "dis") then return true end
-
-   if Disrupt("AbsoluteZero", "dis") then return true end
-
-   if Disrupt("BulletTime", "dis") then return true end
-
-   if Disrupt("Duress", "dis") then return true end
-
-   if Disrupt("Idol", "dis") then return true end
-
-   if Disrupt("Monsoon", "dis") then return true end
-
-   if Disrupt("Meditate", "dis") then return true end
-
-   if Disrupt("Drain", "dis") then return true end
-
-   return false
-end
-
 function Run()
    if StartTickActions() then
       return true
@@ -93,9 +70,14 @@ function Run()
 
    autoTibbers()   
 
-   if CheckDisrupt() then
-      return true
+   if P.stun then
+      if CheckDisrupt("dis") or
+         CheckDisrupt("inc")
+      then
+         return true
+      end
    end
+
 
    if HotKey() and CanAct() then
       UseItems()
