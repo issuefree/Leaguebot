@@ -8,8 +8,6 @@ pp(" - clear w/overload/flux depending on mana")
 
 SetChampStyle("caster")
 
-local attackObject = "ManaLeach_mis"
-
 spells["overload"] = {
    key="Q", 
    range=625, 
@@ -86,8 +84,6 @@ function Run()
 end
 
 function Action()   
-   UseItems()
-
    if CanUse("prison") then
       local target = GetWeakestEnemy("prison", 0, 15)
       if target then
