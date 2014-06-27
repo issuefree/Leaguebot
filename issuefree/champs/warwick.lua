@@ -87,41 +87,29 @@ function Run()
          return
       end
    end
+
+   EndTickActions()
 end
 
 function Action()
-   UseItems()
-   
    if CanUse("howl") and GetWeakestEnemy("AA",100) then
       Cast("howl", me) -- non blocking
       PrintAction("Howl")
    end
 
-   if CanUse("strike") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("strike")
-      if target then
-         Cast("strike", target)
-         PrintAction("Strike", target)
-         return true
-      end
+   if CastBest("strike") then
+      return true
    end
 
-   -- local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   -- if AA(target) then
-   --    PrintAction("AA", target)
-   --    return true
-   -- end
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target, "strike") then
+      return true
+   end
 
    return false
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       -- hit the highest health minion
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
@@ -130,20 +118,6 @@ function FollowUp()
          return true
       end
    end
-
-   -- if IsOn("move") then
-   --    local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   --    if target then
-   --       if GetDistance(target) > spells["AA"].range then
-   --          MoveToTarget(target)
-   --          return false
-   --       end
-   --    else        
-   --       MoveToCursor() 
-   --       PrintAction("Move")
-   --       return false
-   --    end
-   -- end
 
    return false
 end
