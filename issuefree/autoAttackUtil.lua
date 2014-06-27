@@ -73,8 +73,8 @@ function initAAData()
                        aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"},
                        aaSpellName = {"attack"} },
 
-      Jinx         = { projSpeed = 2.4,
-                       aaParticles = {"Jinx_Q_Minigun_Mis", "Jinx_Q_Rocket_mis"},
+      Jinx         = { projSpeed = 2.4, windup=.28,
+                       aaParticles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"},
                        aaSpellName = {"attack"} },
 
       Karma        = { projSpeed = nil,
@@ -573,6 +573,11 @@ function onSpellAA(unit, spell)
    end
 
    if IAttack(unit, spell) then
+
+      -- if GetDistance(spell.target) > GetAARange()+10 then
+      --   pp("OORANGEAA")
+      --   pp(trunc(GetDistance(spell.target)).." > "..GetAARange())
+      -- end
 
       -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
       -- if I can't hit an enemy try to hit a minion I could kill instead
