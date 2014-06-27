@@ -44,7 +44,13 @@ spells["monsoon"] = {
 }
 
 AddToggle("shield", {on=true, key=112, label="Auto Shield", auxLabel="{0}", args={"eye"}})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
 
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
    if StartTickActions() then
@@ -56,18 +62,16 @@ function Run()
    end
 
 	if HotKey() then	
-		UseItems()
 		if Action() then
 			return true
 		end
 	end
+	EndTickActions()
 end 
 
 function Action()
-	if CanUse("zephyr") then
-		if CastBest("zephyr") then
-			return true
-		end
+	if CastBest("zephyr") then
+		return true
 	end
 
 	return false
