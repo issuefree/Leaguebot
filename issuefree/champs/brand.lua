@@ -3,7 +3,16 @@ require "issuefree/modules"
 
 pp("\nTim's Brand")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+SetChampStyle("caster")
+
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "pillar", "conflag"}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 -- check for blaze on targets
 -- combos with blaze
@@ -16,8 +25,9 @@ spells["sear"] = {
   base={80,120,160,200,240}, 
   ap=.65,
   delay=2,
-  speed=12,
-  width=80
+  speed=16,
+  width=80,
+  cost=50
 }
 spells["pillar"] = {
   key="W", 
@@ -25,10 +35,11 @@ spells["pillar"] = {
   color=yellow, 
   base={75,120,165,210,255}, 
   ap=.6,
-  delay=2+6,
+  delay=8.5,
   speed=0,
-  area=250,
-  noblock=true
+  radius=250,
+  noblock=true,
+  cost={70,75,80,85,90}
 }
 spells["conflag"] = {
   key="E", 
@@ -36,17 +47,8 @@ spells["conflag"] = {
   color=violet, 
   base={70,105,140,175,210}, 
   ap=.55,
-  delay=2,
-  area=300
-}
-spells["conflag"] = {
-  key="E", 
-  range=625, 
-  color=violet, 
-  base={70,105,140,175,210}, 
-  ap=.55,
-  delay=2+2,
-  area=200
+  radius=300,
+  cost={70,75,80,85,90}
 }
 spells["pyro"] = {
   key="R", 
@@ -54,10 +56,8 @@ spells["pyro"] = {
   color=red, 
   base={150,250,350}, 
   ap=.5,
-  delay=2,
-  speed=10
+  cost=100
 }
-
 
 function Run()
    if StartTickActions() then
@@ -68,18 +68,107 @@ function Run()
       return true
    end
 
+   if CastAtCC("sear") then
+      return true
+   end
 
-	if HotKey() then
-		UseItems()
-	end
+   -- high priority hotkey actions, e.g. killing enemies
+   if HotKey() and CanAct() then
+      if Action() then
+         return true
+      end
+   end
+
+   -- auto stuff that should happen if you didn't do something more important
+   if VeryAlone() and IsOn("lasthit") then
+      local killsNeeded = 4
+      if GetMPerc(me) > .75 then
+         killsNeeded = 2
+      elseif GetMPerc(me) > .5 then
+         killsNeeded = 3
+      end
+      if CanUse("conflag") then
+         local minions = GetInRange(me, "conflag", GetWithBuff("ablaze", MINIONS))
+         for _,minion in ipairs(minions) do
+            local kills = GetKills("conflag", GetInRange(minion, spells["conflag"].radius, MINIONS))
+            if #kills >= 2 then
+               Cast("conflag", minion)
+               PrintAction("Conflagration for AoE LH", #kills)
+               return true
+            end
+         end
+      end
+
+      if KillMinionsInArea("pillar", 2) then
+         return true
+      end
+
+      if CanUse("sear") then
+         local minions = SortByDistance(GetKills("sear", GetUnblocked(me, "sear", GetInRange(me, "sear", MINIONS))))
+         for _,minion in ipairs(minions) do
+            if not WillKill("AA", minion) then
+               CastFireahead("sear", minion)
+               PrintAction("Sear for LH")
+               return true
+            end
+         end
+      end
+
+      if KillMinion("sear") then
+         return true
+      end
+   end
+   
+   -- low priority hotkey actions, e.g. killing minions, moving
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   EndTickActions()
 end
 
-local function onObject(object)
+function Action()
+   -- TestSkillShot("sear")
+   -- TestSkillShot("pillar", "BrandPOF_tar.troy")
+
+   if CastBest("conflag") then
+      return true
+   end
+
+   local targets = SortByHealth(GetGoodFireaheads("sear", GetWithBuff("ablaze", GetInRange(me, "sear", ENEMIES))))
+   if #targets > 0 then
+      CastFireahead("sear", targets[1])
+      PrintAction("Sear ablaze", targets[1])
+      return true
+   end
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
+   return false
+end
+function FollowUp()
+   if IsOn("clear") and Alone() then
+      if HitMinion("AA", "strong") then
+         return true
+      end
+   end
+
+   return false
 end
 
-local function onSpell(object, spell)
+local function onCreate(object)
+   PersistOnTargets("ablaze", object, "BrandBlaze_hotfoot", ENEMIES, MINIONS)
 end
 
-AddOnCreate(onObject)
+local function onSpell(unit, spell)
+end
+
+AddOnCreate(onCreate)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
+
