@@ -29,8 +29,8 @@ function initAAData()
                        aaParticles = {"bowmaster", "Ashe_Base_BA_mis"},
                        aaSpellName = {"attack", "frostarrow"} },
 
-      Brand        = { projSpeed = 1.975,
-                       aaParticles = {"BrandBasicAttack_cas", "BrandBasicAttack_Frost_tar", "BrandBasicAttack_mis", "BrandBasicAttack_tar", "BrandCritAttack_mis", "BrandCritAttack_tar", "BrandCritAttack_tar"},
+      Brand        = { projSpeed = 1.975, windup = .37,
+                       aaParticles = {"BrandBasicAttack", "BrandCritAttack"},
                        aaSpellName = {"attack"} },
 
       Caitlyn      = { projSpeed = 2.5, speed=1,
