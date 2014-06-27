@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Jinx")
 
+SetChampStyle("marksman")
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -10,10 +12,14 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["switch"] = {
    key="Q",
-   launcherRange={75,100,125,150,175}
+   ad=.1,
+   radius=150,
+   baseRange=525,
+   range={75,100,125,150,175}
 } 
 spells["zap"] = {
    key="W", 
@@ -52,17 +58,31 @@ spells["rocket"] = {
 
 local minigun = true
 local launcherRange = 0
+local baseRange = 0
 
 function Run()
 
-   launcherRange = me.range + GetLVal(spells["switch"], "launcherRange")
-
-   if me.range == 525 then
+   if me.range <= 525 then
       minigun = true
       spells["AA"].ad = 1
    else
       minigun = false
       spells["AA"].ad = 1.1
+   end
+
+   if minigun then
+      launcherRange = GetAARange() + GetSpellRange("switch")
+      baseRange = GetAARange()
+   else
+      launcherRange = GetAARange()
+      baseRange = GetAARange() - GetSpellRange("switch")
+   end
+
+
+   if minigun then
+      PrintState(0, "Minigun "..GetAARange())
+   else
+      PrintState(0, "ROCKET "..GetAARange())
    end
 
    if StartTickActions() then
@@ -73,23 +93,39 @@ function Run()
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
-      UseItems()
 		if Action() then
 			return true
 		end
 	end
 
-   -- if VeryAlone() and minigun then
-   --    local minions = GetInRange(me, launcherRange+250, MINIONS)
-   --    for _,minion in ipairs(minions) do
-   --       local kills = GetKills("AA", GetInRange(minion, spells["switch"].launchRadius, MINIONS))
-   --       if #kills >= 2 then
-   --          Cast("switch", me)
-   --          PrintAction("Switch for AOE minions")
-   --          return true
-   --       end
-   --    end
-   -- end
+   if Alone() and CanUse("switch") then
+      if minigun then
+         if #GetKills("AA", GetInRange(me, "AA", MINIONS)) == 0 then
+            local minions = FilterList(GetInRange(me, launcherRange, MINIONS), function(m) return GetDistance(m) > GetAARange() end)
+            for _,minion in ipairs(minions) do
+               if WillKill("AA", "switch", minion) then
+                  Cast("switch", me)
+                  PrintAction("Rockets - long range LH")
+                  return true
+               end
+            end
+         end         
+
+         local minions = GetInRange(me, launcherRange+spells["switch"].radius, MINIONS)
+         for _,minion in ipairs(minions) do
+            local kills = GetKills("AA", GetInRange(minion, spells["switch"].radius, MINIONS))
+            if #kills >= 2 then
+               Cast("switch", me)
+               PrintAction("Rockets - AoE LH")
+               return true
+            end
+         end      
+      elseif not IsOn("clear") then
+         Cast("switch", me)
+         PrintAction("Switch back to minigun")
+         return true
+      end
+   end
 
 	-- auto stuff that should happen if you didn't do something more important
 
@@ -105,27 +141,44 @@ end
 
 function Action()
 
-   if CanUse("zap") then
+   if not GetWeakestEnemy("AA") then
       if SkillShot("zap") then
          return true
       end
    end
 
+   if CanUse("switch") then
+      local target
+      if minigun then
+         target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("switch"))
+      else
+         target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      end
+
+      if target and GetDistance(target) > baseRange+50 and minigun then
+         Cast("switch", me)
+         PrintAction("Rockets - long range AA")
+         return true
+      elseif target and #GetInRange(target, spells["switch"].radius, ENEMIES) >= 3 and minigun then
+         Cast("switch", me)
+         PrintAction("Rockets - AoE AA")
+         return true
+      elseif not minigun and target and GetDistance(target) < baseRange-50 ) then
+         Cast("switch", me)
+         PrintAction("Minigun - single target RoF")
+         return true
+      end
+   end
+
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
    return false
 end
-function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
 
+function FollowUp()
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
@@ -136,6 +189,7 @@ function FollowUp()
 end
 
 local function onObject(object)
+
 end
 
 local function onSpell(unit, spell)
