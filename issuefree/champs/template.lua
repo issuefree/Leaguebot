@@ -78,6 +78,10 @@ function Run()
       return true
    end
 
+   if CastAtCC("pillar") then
+      return true
+   end
+
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
 		if Action() then
@@ -109,23 +113,11 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
          return true
       end
    end
-
-   -- if IsOn("move") then
-   --    if MeleeMove() then
-   --       return true
-   --    end
-   -- end
 
    return false
 end
