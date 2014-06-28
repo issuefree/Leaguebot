@@ -197,6 +197,58 @@ function GetWidth(unit)
    return GetDistance(unit, minbb)
 end
 
+function GetUnblocked(source, thing, ...)
+   local spell = GetSpell(thing)
+   local minionWidth = 55
+   local targets = GetAllInRange(source, spell, concat(...))
+   SortByDistance(targets, source)
+   
+   local blocked = {}
+   
+   local width = spell.width or spell.radius
+   if not width then
+      pp("No width for:")
+      pp(spell)
+   end
+
+   for i,target in ipairs(targets) do
+      local d = GetDistance(source, target)
+      for m = i+1, #targets do
+         local a = AngleBetween(source, targets[m])
+         local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
+         if GetDistance(target, proj) < width+minionWidth then
+            table.insert(blocked, targets[m])
+         end
+      end
+   end
+
+
+   local unblocked = {}
+   for i,target in ipairs(targets) do
+      local mb = false
+      for m,bm in ipairs(blocked) do
+         if bm == target then          
+            mb = true
+            break
+         end
+      end
+      if not mb then
+         table.insert(unblocked, target)
+      end
+   end
+   return unblocked
+end
+
+function IsUnblocked(source, thing, target, ...)
+   local unblocked = GetUnblocked(source, thing, concat(...))
+   for _,t in ipairs(unblocked) do
+      if SameUnit(t, target) then
+         return true
+      end
+   end
+   return false
+end
+
 function FacingMe(target)
    local d1 = GetDistance(target)
    local p = Point(GetFireahead(target,3,0))
@@ -295,8 +347,14 @@ function GetAllInRange(target, thing, ...)
    return result
 end
 
-function SortByHealth(things)
-   table.sort(things, function(a,b) return a.health < b.health end)
+-- this isn't really telemetry but...
+function SortByHealth(things, thing)
+   local spell = GetSpell(thing)
+   if not spell then
+      table.sort(things, function(a,b) return a.health < b.health end)
+   else      
+      table.sort(things, function(a,b) return (a.health/GetSpellDamage(spell, a)) < (b.health/GetSpellDamage(spell, b)) end)
+   end
    return things
 end
 

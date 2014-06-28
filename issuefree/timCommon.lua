@@ -628,14 +628,14 @@ function KillMinion(thing, method, extraRange)
 
    local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
    if method == "weak" then
-      SortByHealth(minions)
+      SortByHealth(minions, spell)
    elseif method == "far" then
       SortByDistance(minions)
       minions = reverse(minions)
    elseif method == "near" then
       SortByDistance(minions)
    elseif method == "strong" then
-      SortByHealth(minions)
+      SortByHealth(minions, spell)
       minions = reverse(minions)
    end
 
@@ -681,14 +681,14 @@ function HitMinion(thing, method, extraRange)
 
    local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
    if method == "weak" then
-      SortByHealth(minions)
+      SortByHealth(minions, spell)
    elseif method == "far" then
       SortByDistance(minions)
       minions = reverse(minions)
    elseif method == "near" then
       SortByDistance(minions)
    elseif method == "strong" then
-      SortByHealth(minions)
+      SortByHealth(minions, spell)
       minions = reverse(minions)
    end
 
@@ -708,7 +708,7 @@ end
 
 function HitObjectives()
    local targets = GetAllInRange(me, "AA", CREEPS, TURRETS, INHIBS)
-   table.sort(targets,   function(a,b) return a.maxhealth > b.maxhealth end)
+   table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
       if AA(targets[1]) then
@@ -955,8 +955,8 @@ function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
    return false
 end
 
-function SkillShot(thing, purpose)
-   local target = GetSkillShot(thing, purpose)
+function SkillShot(thing, purpose, targets)
+   local target = GetSkillShot(thing, purpose, targets)
    if target then
       CastFireahead(thing, target)
       PrintAction(thing, target)
@@ -965,17 +965,14 @@ function SkillShot(thing, purpose)
    return false
 end
 
-function GetSkillShot(thing, purpose)
+function GetSkillShot(thing, purpose, targets)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return nil end
 
-   local targets = {}
-   if not spell.noblock then
-      local unblocked = GetUnblocked(me, spell, MINIONS, ENEMIES)
-      targets = FilterList(unblocked, function(item) return not IsMinion(item) end)      
-   else
+   if not targets then
       targets = ENEMIES
    end
+
    targets = GetGoodFireaheads(spell, targets)
 
    local target
@@ -991,58 +988,6 @@ end
 
 function GetOtherAllies()
    return FilterList(ALLIES, function(ally) return not IsMe(ally) end)
-end
-
-function GetUnblocked(source, thing, ...)
-   local spell = GetSpell(thing)
-   local minionWidth = 55
-   local targets = GetAllInRange(source, spell, concat(...))
-   SortByDistance(targets, source)
-   
-   local blocked = {}
-   
-   local width = spell.width or spell.radius
-   if not width then
-      pp("No width for:")
-      pp(spell)
-   end
-
-   for i,target in ipairs(targets) do
-      local d = GetDistance(source, target)
-      for m = i+1, #targets do
-         local a = AngleBetween(source, targets[m])
-         local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
-         if GetDistance(target, proj) < width+minionWidth then
-            table.insert(blocked, targets[m])
-         end
-      end
-   end
-
-
-   local unblocked = {}
-   for i,target in ipairs(targets) do
-      local mb = false
-      for m,bm in ipairs(blocked) do
-         if bm == target then          
-            mb = true
-            break
-         end
-      end
-      if not mb then
-         table.insert(unblocked, target)
-      end
-   end
-   return unblocked
-end
-
-function IsUnblocked(me, thing, target, ...)
-   local unblocked = GetUnblocked(me, thing, concat(...))
-   for _,t in ipairs(unblocked) do
-      if SameUnit(t, target) then
-         return true
-      end
-   end
-   return false
 end
 
 function HotKey()
@@ -1610,10 +1555,15 @@ function EndTickActions()
       end
    end
 
-   if HotKey() and IsOn("clear") then
+   if HotKey() and IsOn("clear") and Alone() then
       if HitObjectives() then
          return true
       end
+
+      if HitMinion("AA", "strong") then
+         return true
+      end
+
    end
 
    if IsOn("move") and CanMove() and needMove and CURSOR then
@@ -1666,42 +1616,9 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
    return false
 end
 
--- function ModAA(thing, target)
---    local dist = GetDistance(target)
---    local range = GetSpellRange("AA")
-   
---    local mod = false
-
---    if CanUse(thing) then
---       if ( dist <= range and
---            JustAttacked() ) or
---          ( dist > range and 
---            dist < range+100 )
---       then
---          Cast(thing, me)
---          ResetAttack()
---          AA(target)
---          mod = true
---          return target
---       end
---    end
-
---    if AA(target) then
---       if mod then
---          PrintAction("AA ("..thing..")", target)
---       else
---          PrintAction("AA", target)
---       end
---       return target
---    end
-
---    return false
--- end
-
-
 function ModAAFarm(thing, pObj)
    if CanUse(thing) and not pObj then
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
+      local minions = SortByHealth(GetInRange(me, "AA", MINIONS), thing)
       for i,minion in ipairs(minions) do
          if WillKill(thing, "AA", minion) and 
             not SameUnit(minion, WK_AA_TARGET) and
@@ -1718,7 +1635,7 @@ end
 
 function ModAAJungle(thing, pObj)
    if CanUse(thing) and not pObj then
-      local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
+      local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS), thing)
       local creep = creeps[#creeps]
       if creep and not WillKill("AA", creep) and JustAttacked() then
          Cast(thing, me)
@@ -1751,20 +1668,6 @@ end
 function GetMeleeTarget()
    return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25) or
           GetWeakEnemy("PHYS", GetSpellRange("AA")*1.75)
-end
-
-function RangedMove()
-   -- if CURSOR then
-   --    MoveToXYZ(Point(CURSOR):unpack())
-   --    return true
-   -- end
-      -- if #GetInRange(GetMousePos(), GetSpellRange("AA")-50, ENEMIES) == 0 or
-      --    #GetInRange(me, GetSpellRange("AA")-50, ENEMIES) == 0 
-      -- then
-      --    MoveToCursor()
-      --    return false   
-      -- end
-   return false
 end
 
 function DrawKnockback(object2, thing)
@@ -1939,18 +1842,41 @@ function CastAtCC(thing)
    if not CanUse(spell) then return end
 
    local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell)+50, ENEMIES)))
+   local stillMoving = false
+   if not target then
+      local targets = GetInRange(me, thing, ENEMIES)
+      for _,t in ipairs(targets) do
+         if t.movespeed < 250 then
+            target = t
+            stillMoving = true
+            break
+         end
+      end
+   end
    if target and IsInRange(target, spell) then
       if spell.noblock then
-         CastXYZ(spell, target)
+         if stillMoving then
+            CastFireahead(spell, target)
+         else
+            CastXYZ(spell, target)
+         end
       else
          if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
-            CastXYZ(spell, target)
+            if stillMoving then
+               CastFireahead(spell, target)
+            else
+               CastXYZ(spell, target)
+            end
          else
             return false
          end
       end
 
-      PrintAction(thing.." on immobile", target)
+      if stillMoving then
+         PrintAction(thing.." on very slow ("..trunc(target.movespeed)..")", target)
+      else
+         PrintAction(thing.." on immobile", target)
+      end
       return true
    end
    return false
