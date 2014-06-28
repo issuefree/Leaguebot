@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Corki")
 
+SetChampStyle("marksman")
+
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
