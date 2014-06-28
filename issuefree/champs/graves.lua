@@ -78,7 +78,7 @@ end
 
 function Action()
    -- TestSkillShot("shot")
-   TestSkillShot("smoke")
+   -- TestSkillShot("smoke")
 
    if SkillShot("shot") then
       return true
@@ -89,8 +89,7 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 

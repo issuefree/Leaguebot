@@ -190,12 +190,10 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if AA(target) then
-      PrintAction("AA", target)
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
       return true
    end
-
 
    return false
 end

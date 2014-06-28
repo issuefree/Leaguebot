@@ -119,8 +119,7 @@ function Action()
 
    -- amumu is melee but not really an aa champ. Don't bother forcing auto attack
    -- local target = GetMarkedTarget() or GetMeleeTarget()
-   -- if AA(target) then
-   --    PrintAction("AA", target)
+   -- if AutoAA(target) then
    --    return true
    -- end
 

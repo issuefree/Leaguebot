@@ -93,11 +93,8 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if target then
-      if AA(target) then
-         PrintAction("AA", target)
-         return true
-      end
+   if AutoAA(target) then
+      return true
    end
 
    return false

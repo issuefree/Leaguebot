@@ -89,10 +89,10 @@ function Action()
    	end
    end
 	
-	local target = GetWeakEnemy("MAGIC", spells["AA"].range)
-   if AA(target) then
-   	PrintAction("AA", target)
-   	return true
+   -- teemo really wants to aa people with low MR right?
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
    end
 
 	-- hit the highest health minion in range that isn't poisoned	

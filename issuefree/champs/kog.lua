@@ -183,9 +183,8 @@ function Action()
       end
    end
 
-   local target = GetWeakEnemy("PHYS", spells["AA"].range)
-   if AA(target) then
-      PrintAction("AA", target)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
       return true
    end
 

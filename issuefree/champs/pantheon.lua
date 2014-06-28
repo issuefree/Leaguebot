@@ -182,8 +182,7 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 

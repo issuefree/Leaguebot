@@ -231,8 +231,7 @@ function Action()
       end
 
       local target = GetMarkedTarget() or GetMeleeTarget()
-      if AA(target) then
-         PrintAction("AA", target)
+      if AutoAA(target) then
          return true
       end
    else      
@@ -252,6 +251,11 @@ function Action()
       then
          Cast("spider", me)
          PrintAction("Spider")
+         return true
+      end
+
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      if AutoAA(target) then
          return true
       end
 

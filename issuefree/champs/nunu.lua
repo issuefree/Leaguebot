@@ -73,6 +73,7 @@ function Run()
 		end
 	end
 
+	EndTickActions()
 end
 
 function Action()
@@ -107,12 +108,10 @@ function Action()
 		end
 	end
 
-	-- local target = GetWeakestEnemy("AA")
-	-- if target then
-	-- 	if AA(target) then
-	-- 		return true
-	-- 	end
-	-- end
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
+      return true
+   end
 
    return false
 end
