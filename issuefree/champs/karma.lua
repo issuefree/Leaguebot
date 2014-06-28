@@ -116,6 +116,7 @@ function Action()
             if GetSpellDamage("flame", target) < target.health and
                GetSpellDamage("flame", target) + GetSpellDamage("soulflare", target) > target.health then
                Cast("mantra", me)
+               UseItem("Deathfire Grasp", target)
                CastFireahead("flame", target)
                PrintAction("Soulflare for execute", target)
                return true
@@ -132,6 +133,7 @@ function Action()
          end
          if bestT then
             Cast("mantra", me)
+            UseItem("Deathfire Grasp", bestT)
             CastFireahead("flame", bestT)
             PrintAction("Soulflare for aoe", bestT)
             return true
@@ -145,6 +147,7 @@ function Action()
             PrintAction("Mantra for good flame")
          end
 
+         UseItem("Deathfire Grasp", target)
          CastFireahead("flame", target)
          PrintAction("Flame", target)
          return true

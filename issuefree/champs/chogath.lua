@@ -89,10 +89,6 @@ function Run()
 
 	end	
 
-	if CheckDisrupt() then
-		return true
-	end
-
    if CastAtCC("rupture") then
       return true
    end
@@ -153,6 +149,7 @@ function Action()
 	if CanUse("scream") then
 		local target = GetMarkedTarget() or GetWeakestEnemy("scream")
 		if target then
+			UseItem("Deathfire Grasp", target)
 			Cast("scream", target)
 			PrintAction("Scream", target)
 			return true

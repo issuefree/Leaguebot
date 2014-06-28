@@ -150,6 +150,7 @@ function Action()
          -- might update this to target feared guys first
          local target = GetMarkedTarget() or GetWeakestEnemy("drain", 0, 100)
          if target and Cast("drain", target) then
+            UseItem("Deathfire Grasp", target)
             PrintAction("Drain", target)
             return true
          end

@@ -1708,9 +1708,6 @@ function UseItem(itemName, target)
       itemName == "Bilgewater Cutlass" or
       itemName == "Hextech Gunblade" or
       itemName == "Blade of the Ruined King" or
-      itemName == "Deathfire Grasp" or
-      itemName == "Tiamat" or
-      itemName == "Ravenous Hydra" or
       itemName == "Youmuu's Ghostblade" or
       itemName == "Randuin's Omen"
    then
@@ -1722,6 +1719,14 @@ function UseItem(itemName, target)
       end
       if target then
          CastSpellTarget(slot, target)
+         PrintAction(itemName, target)
+         return true
+      end
+
+   elseif itemName == "Deathfire Grasp" then
+      if target and GetDistance(target) < GetSpellRange(itemName) then
+         CastSpellTarget(slot, target)
+         PrintAction(itemName, target)
          return true
       end
 
@@ -1740,7 +1745,7 @@ function UseItem(itemName, target)
       local target = SelectFromList(GetInRange(me, item, ENEMIES), function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
       if target then
          CastXYZ(slot, target)
-         PrintAction("Frost Queen's Claim", target)
+         PrintAction(itemName, target)
          return true
       end
 
@@ -1762,6 +1767,8 @@ function UseItem(itemName, target)
       end
       if target then
          CastSpellTarget(slot, target)
+         PrintAction(itemName, target)
+         return true
       end
 
    elseif itemName == "Guardian's Horn" then
@@ -1791,10 +1798,20 @@ function UseItem(itemName, target)
       end
 
    elseif itemName == "Muramana" then
-      if target then
-         CastSpellTarget(slot, target)
-         return true
+      if target == nil or target then
+         if not P.muramana then
+            CastSpellTarget(slot, me)
+            PrintAction("Muramana ON")
+            return true
+         end
+      else
+         if P.muramana then
+            CastSpellTarget(slot, me)
+            PrintAction("Muramana OFF")
+            return true
+         end
       end
+
 
    elseif itemName == "Mikael's Crucible" then
       -- It can heal or it can cleans

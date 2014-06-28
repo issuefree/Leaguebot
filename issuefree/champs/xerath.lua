@@ -145,7 +145,9 @@ function Run()
       return true
    end
 
-   if CastAtCC("eye") then
+   if CastAtCC("eye") or
+      CastAtCC("orb")
+   then
       return true
    end
 

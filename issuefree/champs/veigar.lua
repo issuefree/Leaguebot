@@ -141,6 +141,7 @@ function Action()
             end
          end
          if bestT and GetDistance(bestT) < spell.range then
+            UseItem("Deathfire Grasp", bestT)
             Cast("burst", bestT)
             PrintAction("Burst for damage", enemy)
             return true
@@ -149,12 +150,10 @@ function Action()
    end
 
    if CanUse("strike") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("strike")
-      if target then
-         Cast("strike", target)
-         PrintAction("Strike", target)
-         return true
-      end
+      UseItem("Deathfire Grasp", GetWeakestEnemy("strike"))
+   end
+   if CastBest("strike") then
+      return true
    end
 
    return false

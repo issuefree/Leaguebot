@@ -87,6 +87,7 @@ function Action()
       -- I want the nearmouse
       local target = GetWeakEnemy("MAGIC", spells["headbutt"].range, "NEARMOUSE")
       if target then
+         UseItem("Deathfire Grasp", target)
          Cast("headbutt", target)
          PrintAction("Headbutt", target)
          return true

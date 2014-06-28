@@ -128,12 +128,11 @@ function Action()
    end
 
    if CanUse("siphon") then
-      local target = GetWeakestEnemy("siphon")
-      if target then
-         Cast("siphon", target)
-         PrintAction("Siphon", target)
-         return true
-      end
+      UseItem("Deathfire Grasp", GetWeakestEnemy("siphon"))
+   end
+
+   if CastBest("siphon") then
+      return true
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")

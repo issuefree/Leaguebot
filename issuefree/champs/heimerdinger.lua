@@ -73,7 +73,9 @@ function Run()
       return true
    end
 
-   if CastAtCC("rockets") then
+   if CastAtCC("rockets") or
+      CastAtCC("grenade")
+   then
       return true
    end
 
@@ -126,6 +128,7 @@ function Action()
             if not P.upgrade then
                Cast("upgrade", me)
             end
+            UseItem("Deathfire Grasp", target)
             CastFireahead("rockets", target)
             PrintAction("Rockets (UPGRADE)", target)
             return true

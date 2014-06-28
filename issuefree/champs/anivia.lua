@@ -115,7 +115,7 @@ end
 function Action()
    if CanUse("spike") then
       local target = GetWeakestEnemy("spike")
-      if target and WillKill("spike", target) then
+      if target and WillKill("spike", target) then         
          Cast("spike", target)
          PrintAction("Spike for execute", target)
          return true
@@ -125,6 +125,7 @@ function Action()
       enemies = GetWithBuff("freeze", enemies)
       local target = GetWeakest("spike", enemies)
       if target then
+         UseItem("Deathfire Grasp", target)
          Cast("spike", target)
          PrintAction("Spike chilled", target)
          return true

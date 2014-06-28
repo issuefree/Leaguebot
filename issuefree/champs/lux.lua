@@ -101,6 +101,12 @@ function Run()
       return true
    end
 
+   if CastAtCC("singularity") or
+      CastAtCC("binding")
+   then
+      return true
+   end
+
    -- check for instakills with spark. Alert and kill if toggled.
    if CanUse("spark") then
       local spell = GetSpell("spark")
@@ -169,16 +175,6 @@ function Run()
 end
 
 function Action()
-   -- peel if necessary, else hit someone weak
-   if CanUse("binding") then
-      if SkillShot("binding", "peel") then
-         return true
-      end
-      if SkillShot("binding") then
-         return true
-      end
-   end
-
    -- try to deal some damage with singularity
    if CanUse("singularity") and not activeSingularity() then
       -- look for a big group or some kills.
@@ -198,6 +194,18 @@ function Action()
       end
    end
 
+   -- peel if necessary, else hit someone weak
+   if CanUse("binding") then
+      if SkillShot("binding", "peel") then
+         UseItem("Deathfire Grasp", GetWeakestEnemy("binding"))
+         return true
+      end
+      if SkillShot("binding") then
+         UseItem("Deathfire Grasp", GetWeakestEnemy("binding"))
+         return true
+      end
+   end
+
    -- try to hit a bunch of people with spark
    -- I'll want to give bonus points for flares
    if CanUse("spark") then
@@ -207,6 +215,7 @@ function Action()
          local center = GetCenter(hits)
          LineBetween(me, center, spells["spark"].width)
          if IsOn("spark") then
+            UseItem("Deathfire Grasp", GetWeakest("spark", hits))
             CastXYZ("spark", center)
             PrintAction("Spark for AoE")
             return true

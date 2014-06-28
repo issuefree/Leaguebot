@@ -135,7 +135,9 @@ function Run()
 end
 
 function Action()
-   if SkillShot("barrel") then
+   local target = SkillShot("barrel")
+   if target then
+      UseItem("Deathfire Grasp", target)
       return true
    end
 end

@@ -55,14 +55,10 @@ function Run()
       type = "PHYSICAL"
    end
 
-   if HotKey() then      
-      local spell = spells["reckoning"]
-      if CanUse(spell) then
-         local target = GetWeakEnemy("MAGIC", spell.range)
-         if target then
-            CastSpellTarget(spell.key, target)
-            return
-         end
+   if HotKey() then
+      if CastBest("reckoning") then
+         UseItem("Deathfire Grasp", GetWeakestEnemy("reckoning"))
+         return true
       end
 
       local spell = spells["fury"]

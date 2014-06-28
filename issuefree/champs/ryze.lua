@@ -50,12 +50,12 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
-   if not P.muramana then
-      UseItem("Muramana", me)
-   end
-
    if StartTickActions() then
       return true
+   end
+
+   if IsOn("tear") then
+      UseItem("Muramana")
    end
 
    if HotKey() then
@@ -83,7 +83,10 @@ function Run()
    EndTickActions()
 end
 
-function Action()   
+function Action()
+   if CanUse("prison") and CanUse("overload") and CanUse("flux") then
+      UseItem("Deathfire Grasp", GetWeakestEnemy("overload"))
+   end
    if CanUse("prison") then
       local target = GetWeakestEnemy("prison", 0, 15)
       if target then

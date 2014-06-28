@@ -74,8 +74,8 @@ function Run()
       return true
    end
 
-   if IsOn("tear") and not P.muramana then
-      UseItem("Muramana", me)
+   if IsOn("tear") then
+      UseItem("Muramana")
    end
 
    -- TODO something with ult

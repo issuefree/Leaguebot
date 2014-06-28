@@ -105,12 +105,10 @@ function Action()
    end
 
    if CanUse("bomb") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("bomb")
-      if target then
-         Cast("bomb", target)
-         PrintAction("Bomb", target)
-         return true
-      end
+      UseItem("Deathfire Grasp", GetWeakestEnemy("bomb"))
+   end
+   if CastBest("bomb") then
+      return true
    end
    return false
 end
