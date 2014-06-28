@@ -121,39 +121,32 @@ function Run()
 end
 
 function Action()
-   local strikeUp = false
-   local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and not isSpinning() and CanUse("strike") and not P.strike then
-      Cast("strike", me)
-      strikeUp = true
-      -- no return
+   if not CanUse("strike") and 
+      CanUse("judgement") and 
+      not isSpinning() and
+      not P.strike
+   then      
+      local target = GetWeakestEnemy("judgement", 100)
+      if target then
+         Cast("judgement", me)
+         PrintAction("Spin to win")
+         return true
+      end
    end
 
-   local target = GetWeakest("judgement", GetInRange(me, spells["judgement"].range, ENEMIES))
-   if target and not isSpinning() and CanUse("judgement") and not CanUse("strike") and not P.strike then
-      Cast("judgement", me)
-      PrintAction("Spin to win")
-      return true
-   end
+   local target = GetWeakestEnemy("judgement", 100, 250)
    if target and isSpinning() then
-      MoveToXYZ(target.x, target.y, target.z)
+      MoveToTarget(target)
       PrintAction("Spin to target", target)
       return true
    end
 
-
-   if AutoAA() then
-      return true
+   if not isSpinning() then
+      local target = GetMarkedTarget() or GetMeleeTarget()
+      if AutoAA(target, "strike") then
+         return true
+      end
    end
-
-   -- if AA(target) then
-   --    if strikeUp then
-   --       PrintAction("AA (strike)", target)
-   --    else
-   --       PrintAction("AA", target)
-   --    end
-   -- 	return true
-   -- end
 
    return false
 end
