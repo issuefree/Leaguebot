@@ -150,22 +150,12 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       -- check for a big clear from pp
       if IsOn("pp") then
          if HitMinionsInLine("pp", 4) then
             return true
          end
-      end
-
-      if HitMinion("AA", "strong") then
-         return true
       end
    end
 

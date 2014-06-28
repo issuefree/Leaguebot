@@ -117,14 +117,13 @@ function Run()
       end
 
       if CanUse("barrage") and VeryAlone() and missiles >= 4 then
-         for _,minion in ipairs(SortByHealth(GetUnblocked(me, "barrage", MINIONS))) do
-            if WillKill("barrage", minion) and
-               GetDistance(minion) > spells["AA"].range
-            then
-               CastXYZ("barrage", minion)
-               PrintAction("Barrage for lasthit")
-               return true
-            end
+         local minion = GetWeakest("barrage", GetUnblocked(me, "barrage", MINIONS))
+         if WillKill("barrage", minion) and
+            GetDistance(minion) > spells["AA"].range
+         then
+            CastXYZ("barrage", minion)
+            PrintAction("Barrage for lasthit")
+            return true
          end
       end
 
@@ -166,27 +165,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
-
    return false
 end
 

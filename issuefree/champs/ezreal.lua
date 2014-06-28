@@ -110,7 +110,7 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if CanUse("shot") then
-         for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS))) do
+         for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS), shot)) do
             if not SameUnit(minion, WK_AA_TARGET) then
                if WillKill("shot", minion) and 
                    ( JustAttacked() or
@@ -167,23 +167,7 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
+   return false
 end
 
 local function onObject(object)

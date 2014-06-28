@@ -93,18 +93,7 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
+   -- singed has a very different move pattern than other melees
    -- if IsOn("move") then
    --    if MeleeMove() then
    --       return true

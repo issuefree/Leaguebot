@@ -93,7 +93,7 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") and Alone() then
       if CanUse("surge") and GetMPerc(me) > .5 then
-         local minion = SortByHealth(GetInRange(me, "surge", MINIONS))[1]
+         local minion = GetWeakest("surge", GetInRange(me, "surge", MINIONS))
          if minion and
             WillKill("surge", minion)             
          then
@@ -201,21 +201,6 @@ function Action()
 end
 
 function FollowUp()   
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
-         return true
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true

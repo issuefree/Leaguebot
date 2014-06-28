@@ -95,12 +95,6 @@ function Action()
    	return true
    end
 
-	if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-	end 
-	
 	-- hit the highest health minion in range that isn't poisoned	
 	-- if there isn't one, hit the highest health minion
 	if IsOn("clear") and Alone() then
@@ -116,11 +110,7 @@ function Action()
 		end
 	end
 
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
+	return false
 end
 
 --BlindShot_tar.troy

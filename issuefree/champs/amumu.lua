@@ -113,14 +113,11 @@ function Action()
       end
    end
 
-   if CanUse("tantrum") then
-      if GetWeakestEnemy("tantrum") then
-         Cast("tantrum", me)
-         PrintAction("Tantrum")
-         return true
-      end
+   if CastBest("tantrum") then
+      return true
    end
 
+   -- amumu is melee but not really an aa champ. Don't bother forcing auto attack
    -- local target = GetMarkedTarget() or GetMeleeTarget()
    -- if AA(target) then
    --    PrintAction("AA", target)
@@ -131,25 +128,19 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       if CanUse("tantrum") and #GetInRange(me, "tantrum", MINIONS) >= 3 then
          Cast("tantrum", me)
          PrintAction("Tantrum for clear")
          return true
       end
+   end
 
-      if HitMinion("AA", "strong") then
+   if IsOn("move") then
+      if MeleeMove() then
          return true
       end
    end
-
-   -- amumu is melee but not really an aa champ. Don't bother forcing auto attack
 
    return false
 end

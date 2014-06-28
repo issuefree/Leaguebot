@@ -175,26 +175,13 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
    return false
 end
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true

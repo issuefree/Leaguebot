@@ -244,12 +244,6 @@ function Action()
 end   
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    return false
 end
 

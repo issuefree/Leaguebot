@@ -55,6 +55,8 @@ function Run()
          return true
       end
    end
+
+   EndTickActions()
 end
 
 function drawPoisons()
@@ -72,36 +74,7 @@ function drawPoisons()
 end
 
 function Action()
-
-
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = GetInRange(me, "AA", MINIONS)
-      SortByHealth(minions)
-      local minion = minions[#minions]
-      if minion and AA(minion) then
-         return
-      end
-   end
-
-   -- local target = GetWeakEnemy("PHYSICAL", spells["AA"].range)
-   -- if target then
-   --    if AA(target) then
-   --       return
-   --    end
-   -- end
-
-   -- if IsOn("move") then
-   --    if RangedMove() then
-   --       return true
-   --    end
-   -- end
+   return false
 end
 
 local function onObject(object)

@@ -128,8 +128,7 @@ end
 
 function FollowUp()
    if IsOn("clear") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "overload", MINIONS))
-      local minion = minions[#minions]
+      local minion = GetWeakest("overload", GetInRange(me, "overload", MINIONS))
 
       if ( CanChargeTear() and GetMPerc(me) > .5 ) or
          GetMPerc(me) > .75

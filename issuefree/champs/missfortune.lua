@@ -106,7 +106,7 @@ function Run()
 
    if IsOn("lasthit") and VeryAlone() then
       if CanUse("double") and GetMPerc() > .75 then
-         local minions = SortByHealth(GetInRange(me, "double", MINIONS))
+         local minions = SortByHealth(GetInRange(me, "double", MINIONS), "double")
          local lowMinions = GetKills("double", GetInRange(me, GetSpellRange("double")+spells["double"].radius, MINIONS))
          for _,t in ipairs(minions) do
             local bta = GetBestDouble(t, minions, lowMinions)
@@ -171,12 +171,6 @@ end
 function FollowUp()
    if IsOn("clear") and Alone() then
       if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
          return true
       end
    end

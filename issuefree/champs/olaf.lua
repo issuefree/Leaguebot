@@ -158,12 +158,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       if me.mana/me.maxMana > .75 then
          if HitMinionsInLine("axe", 3) then
@@ -189,16 +183,13 @@ function FollowUp()
          end
       end
 
-      if HitMinion("AA", "strong") then
-         return true
-      end
    end
 
-   -- if IsOn("move") then
-   --    if MeleeMove() then
-   --       return false
-   --    end
-   -- end
+   if IsOn("move") then
+      if MeleeMove() then
+         return false
+      end
+   end
    return false
 end
 

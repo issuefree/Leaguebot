@@ -79,7 +79,7 @@ function Tick()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("kb") and CanUse("condemn") then
-      local enemies = SortByHealth(GetInRange(me, "condemn", ENEMIES))
+      local enemies = SortByHealth(GetInRange(me, "condemn", ENEMIES), "condemn")
       for _,enemy in ipairs(enemies) do
          local kb = GetKnockback("condemn", me, enemy)
          if WillCollide(enemy, kb) then
@@ -92,7 +92,7 @@ function Tick()
 
       if CanUse("tumble") then
          for _,loc in ipairs(GetTumbleLocs()) do
-            enemies = SortByHealth(GetInRange(loc, "condemn", ENEMIES))
+            enemies = SortByHealth(GetInRange(loc, "condemn", ENEMIES), "condemn")
             for _,enemy in ipairs(enemies) do
                local kb = GetKnockback("condemn", loc, enemy)
                if WillCollide(enemy, kb) then
@@ -161,10 +161,8 @@ function Action()
       end
    end
 
--- ranged
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
 
@@ -172,18 +170,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    return false
 end
 

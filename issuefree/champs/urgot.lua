@@ -90,7 +90,7 @@ function Run()
 
    if IsOn("lasthit") and CanUse("hunter") and Alone() then
       if GetMPerc(me) > .33 or CanChargeTear() then
-         local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)))
+         local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)), "hunter")
          for _,minion in ipairs(minions) do
             if not SameUnit(minion, WK_AA_TARGET) then
                if WillKill("hunter", minion) and
@@ -189,24 +189,9 @@ function FollowUp()
                return true
             end
          end
-      end
-      
-      if HitMinion("AA", "strong") then
-         return true
-      end
+      end      
    end
 
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if RangedMove() then
-         return true
-      end
-   end
    return false
 end
 

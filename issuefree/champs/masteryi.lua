@@ -129,7 +129,7 @@ function Action()
 		end
 
 		-- look for an execute
-		local targets = SortByHealth(GetInRange(me, "alpha", MINIONS, ENEMIES))
+		local targets = SortByHealth(GetInRange(me, "alpha", MINIONS, ENEMIES), "alpha")
 		for _,target in ipairs(targets) do
 			if not UnderTower(target) then
 				for _,t in ipairs(getAlphaPath(target)) do
@@ -172,18 +172,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true

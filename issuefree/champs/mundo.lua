@@ -68,7 +68,7 @@ function Run()
 
    if IsOn("jungle") and CanUse("cleaver") and JustAttacked() then
       if GetHPerc(me) > .5 then
-         local creeps = SortByHealth(GetUnblocked(me, "cleaver", CREEPS))
+         local creeps = SortByHealth(GetUnblocked(me, "cleaver", CREEPS), "cleaver")
          if #creeps >= 1 then
             local target = creeps[#creeps]
             CastXYZ("cleaver", target)
@@ -143,21 +143,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
-         return true
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true

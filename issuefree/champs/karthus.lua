@@ -75,7 +75,7 @@ function Run()
          return true
       end
 
-      local nearMinions = SortByHealth(GetInRange(me, "lay", MINIONS))
+      local nearMinions = SortByHealth(GetInRange(me, "lay", MINIONS), "lay")
       for _,minion in ipairs(nearMinions) do
          if GetSpellDamage("lay", minion)*2 > minion.health then
             if #GetInRange(minion, spells["lay"].radius+5, nearMinions) == 1 then

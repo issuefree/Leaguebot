@@ -170,18 +170,12 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    -- clear with wind if there's 3 or more
    if IsOn("clear") and Alone() and
       me.mana/me.maxMana > .5 
    then
       if CanUse("wind") then
-         local minions = SortByHealth(GetInRange(me, "wind", MINIONS))
+         local minions = SortByHealth(GetInRange(me, "wind", MINIONS), "wind")
          if #minions > 2 then
             Cast("wind", minions[1])
             PrintAction("Dark wind clearing")

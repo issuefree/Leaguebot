@@ -136,7 +136,8 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   -- local target = GetMarkedTarget() or GetMeleeTarget()
    if CanUse("mace") and 
       target and 
       GetDistance(target) < spells["AA"].range+25 
@@ -145,20 +146,14 @@ function Action()
       PrintAction("Mace up")
    end
 
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
+
    return false
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if IsOn("clear") and Alone() then
       if CanUse("mace") then
          local target = SortByDistance(GetInRange(me, 200, MINIONS))[1]
@@ -172,18 +167,11 @@ function FollowUp()
    end
 
    if IsOn("move") then
-      local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*1.5)
-      if target then
-         if GetDistance(target) > spells["AA"].range then
-            MoveToTarget(target)
-            return false
-         end
-      else        
-         MoveToCursor() 
-         PrintAction("Move")
-         return false
+      if MeleeMove() then
+         return true
       end
    end
+
 
    return false
 end

@@ -91,7 +91,7 @@ function Run()
 	end
 	
 	if IsOn("lasthit") and Alone() then
-		if infuseMinion() then
+		if KillMinion("infuse") then
 			return true
 		end
 
@@ -109,8 +109,6 @@ function Run()
 end 
 
 function Action()
-	UseItems()
-
 	if CanUse("infuse") then
 		local target = GetMarkedTarget() or GetWeakestEnemy("infuse")
 		if target then
@@ -131,43 +129,16 @@ function Action()
 	return false		
 end
 
-function infuseMinion()
-	if not CanUse("infuse") then return false end
-
-	local dam = GetSpellDamage("infuse")
-
-	local minions = SortByHealth(GetInRange(me, "infuse", MINIONS))
-	for _,minion in ipairs(minions) do
-		if WillKill("infuse", minion) then
-			Cast("infuse", minion)
-			PrintAction("Infuse lasthit")
-			return true
-		end
-	end
-	return false
-end
-
 function FollowUp()
 	if IsOn("lasthit") and Alone() then
 		if CanUse("starfall") then
-			local dam = GetSpellDamage("starfall")
-			local minions = SortByHealth(GetInRange(me, "starfall", MINIONS))
-			local kills = 0
-			for _,minion in ipairs(minions) do
-				if CalculateDamage(minion, dam) > minion.health then
-					kills = kills + 1
-					if kills >= 2 then
-						Cast("starfall", me)
-						PrintAction("Starfall for lasthit")
-						return true
-					end
-				end
+			local kills = GetKills("starfall", GetInRange(me, "starfall", MINIONS))
+			if #kills >= 2 then
+				Cast("starfall", me)
+				PrintAction("Starfall for lasthit")
+				return true
 			end
 		end
-
-      if KillMinion("AA") then
-         return true
-      end
 	end
 
 	if IsOn("clear") and Alone() then
@@ -179,11 +150,6 @@ function FollowUp()
 			end
 		end
 
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      local minion = minions[#minions]
-      if minion and AA(minion) then
-         return true
-      end
    end
 
    return false

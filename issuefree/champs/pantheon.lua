@@ -120,7 +120,7 @@ function Run()
    if Alone() then
       -- auto stuff that should happen if you didn't do something more important
       if IsOn("lasthit") and CanUse("spear") and me.mana/me.maxMana > .75 then
-         local minions = SortByHealth(GetInRange(me, "spear", MINIONS))
+         local minions = SortByHealth(GetInRange(me, "spear", MINIONS), "spear")
          for _,minion in ipairs(minions) do
             if GetDistance(minion) > spells["AA"].range and
                WillKill("spear", minion)
@@ -191,21 +191,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
-         return true
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return false

@@ -81,7 +81,7 @@ function Run()
    if CanUse("bite") and Alone() then
 
       if IsOn("lasthit") then
-         local target = SortByHealth(GetInRange(me, "AA", MINIONS))[1]        
+         local target = GetWeakest("bite", GetInRange(me, "AA", MINIONS))
          if target and WillKill("bite", target) and CanAct() and JustAttacked() then
             Cast("bite", me)
             PrintAction("Bite lasthit")
@@ -91,7 +91,7 @@ function Run()
       end
 
       if IsOn("jungle") then
-         local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS))
+         local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS), "AA")
          local creep = creeps[#creeps]
          if creep and not WillKill("AA", creep) then
             if JustAttacked() then
@@ -136,26 +136,14 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
    if CanUse("bite") then
-      local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]
+      local target = GetWeakest("AA", GetInRange(me, GetSpellRange("AA"), MINIONS))
       if target and WillKill("bite", target) and
          ( JustAttacked() or not WillKill("AA", target) )
       then
          Cast("bite", me)
          PrintAction("Bite lasthit")
          AttackTarget(target)
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
          return true
       end
    end

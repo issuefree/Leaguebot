@@ -124,40 +124,13 @@ function Action()
 end
 
 function FollowUp()
-   if not isCougar then
-      if IsOn("lasthit") and Alone() then
-         if KillMinion("AA") then
+   if isCougar then
+      if IsOn("move") then
+         if MeleeMove() then
             return true
          end
-      end
-
-      if IsOn("clear") and Alone() then
-         -- hit the highest health minion
-         local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-         local minion = minions[#minions]
-         if minion and AA(minion) then
-            PrintAction("AA clear minions")
-            return true
-         end
-      end
-
-   -- ranged
-      -- if IsOn("move") then
-      --    MoveToCursor() 
-      --    return true
-      -- end
+      end      
    end
-
--- melee
-   -- if IsOn("move") then
-   --    if aaTarget then
-   --       MoveToTarget(aaTarget)
-   --       return true
-   --    else
-   --       MoveToCursor() 
-   --       return true
-   --    end
-   -- end
 
    return false
 end

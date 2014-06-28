@@ -178,12 +178,6 @@ function FollowUp()
          end
       end
 
-      if Alone() then
-         if KillMinion("AA") then
-            return true
-         end
-      end
-
    end
 
    if IsOn("clear") and Alone() then

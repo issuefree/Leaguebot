@@ -112,25 +112,12 @@ function Action()
 end
 
 function FollowUp()
-
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    return false
 end
 
 function checkCharge()
    if IsOn("kb") and CanUse("charge") then
-      local enemies = SortByHealth(GetInRange(me, "charge", ENEMIES))
+      local enemies = SortByHealth(GetInRange(me, "charge", ENEMIES), "charge")
       for _,enemy in ipairs(enemies) do
          local kb = GetKnockback("charge", me, enemy)
          if WillCollide(enemy, kb) then

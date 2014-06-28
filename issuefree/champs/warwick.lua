@@ -58,7 +58,7 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if CanUse("strike") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "strike", MINIONS))
+      local minions = SortByHealth(GetInRange(me, "strike", MINIONS), "strike")
       
       if #minions > 0 then
          if GetMPerc(me) > .75 then
@@ -110,15 +110,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("clear") and Alone() then
-      -- hit the highest health minion
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS))
-      if AA(minions[#minions]) then
-         PrintAction("AA clear minions")
-         return true
-      end
-   end
-
    return false
 end
 

@@ -87,12 +87,8 @@ end
 
 function FollowUp()
    if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-
       if CanUse("fist") then
-         local target = SortByHealth(GetInRange(me, GetSpellRange("AA"), MINIONS))[1]        
+         local target = GetWeakest("fist", GetInRange(me, GetSpellRange("AA"), MINIONS))
          if target and WillKill("fist", target) and
             ( JustAttacked() or not WillKill("AA", target) )
          then
@@ -103,12 +99,6 @@ function FollowUp()
          end
       end
 
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
    end
 
    if IsOn("move") then

@@ -162,6 +162,7 @@ function Action()
 end
 
 function FollowUp()
+   -- TODO DON'T USE THE AUTO LAST HITTER
    if IsOn("lasthit") and not CanUse("strike") and Alone() then
       if KillMinion("AA") then
          return true

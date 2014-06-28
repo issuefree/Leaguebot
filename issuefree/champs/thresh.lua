@@ -89,36 +89,14 @@ function Run()
 end
 
 function Action()
--- ranged
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AA(target) then
-      PrintAction("AA", target)
+   if AutoAA(target) then
       return true
    end
-
--- melee
-   -- local target = GetMarkedTarget() or GetMeleeTarget()
-   -- if AA(target) then
-   --    PrintAction("AA", target)
-   --    return true
-   -- end
-
 
    return false
 end
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    -- if IsOn("move") then
    --    if MeleeMove() then
    --       return true
