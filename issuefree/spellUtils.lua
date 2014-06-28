@@ -8,7 +8,7 @@ require "issuefree/walls"
 spells = {}
 
 function IsCooledDown(key)
-   return me["SpellTime"..key] >= .95
+   return me["SpellTime"..key] >= .85
 end
 
 function Cast(thing, target, force)
