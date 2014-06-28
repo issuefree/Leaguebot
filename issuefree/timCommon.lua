@@ -1539,16 +1539,16 @@ function StartTickActions()
       return true
    end
 
+   if HotKey() then
+      UseItems()
+   end
+
    return false
 end
 
 needMove = false
 
 function EndTickActions()
-   if HotKey() then
-      UseItems()
-   end
-
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
          return true         

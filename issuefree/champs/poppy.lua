@@ -64,7 +64,6 @@ function Run()
    end
 
    if HotKey() then
-      UseItems()
       if Action() then
          return true
       end
@@ -88,7 +87,7 @@ function Run()
       end
    end   
 
-   return false
+   EndTickActions()
 end
 
 function Action()

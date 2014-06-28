@@ -63,9 +63,8 @@ function Run()
    autocotg()
 
 	if HotKey() and CanAct() then
-      UseItems()
 		if Action() then
-			return
+			return true
 		end
 	end
 
@@ -83,6 +82,7 @@ function Run()
          return
       end
    end
+   EndTickActions()
 end
 function autocotg()
    -- SpellNameR changes name when cotg is up

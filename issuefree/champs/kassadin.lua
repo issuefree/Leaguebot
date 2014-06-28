@@ -120,6 +120,7 @@ function Run()
 			end
 		end
 	end
+	EndTickActions()
 end
 
 function onCreateOb(object)

@@ -65,7 +65,6 @@ function Run()
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
-      UseItems()
 		if Action() then
 			return true
 		end

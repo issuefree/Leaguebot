@@ -104,7 +104,6 @@ function Run()
    end
 
    if HotKey() and CanAct() then
-      UseItems()
       if Action() then
          return true
       end
@@ -139,6 +138,7 @@ function Run()
          return
       end
    end
+   EndTickActions()
 end
 
 function Action()

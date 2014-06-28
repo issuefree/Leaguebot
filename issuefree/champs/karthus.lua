@@ -61,7 +61,6 @@ function Run()
 
      
    if HotKey() or me.dead == 1 then
-      UseItems()
       if Action() then
          return true
       end
@@ -86,6 +85,7 @@ function Run()
          end
       end
    end
+   EndTickActions()
 end
 
 function Action()

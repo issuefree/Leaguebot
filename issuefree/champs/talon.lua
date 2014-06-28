@@ -37,8 +37,8 @@ function Run()
    end
 
    if HotKey() then
-      UseItems()
    end
+   EndTickActions()
 end
 
 local function onObject(object)

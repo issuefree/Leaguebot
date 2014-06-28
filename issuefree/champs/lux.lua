@@ -165,11 +165,10 @@ function Run()
          return true
       end
    end
+   EndTickActions()
 end
 
 function Action()
-   UseItems()
-
    -- peel if necessary, else hit someone weak
    if CanUse("binding") then
       if SkillShot("binding", "peel") then

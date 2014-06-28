@@ -50,11 +50,10 @@ function Run()
 	if HotKey() and CanAct() then
 		Action()
 	end
+	EndTickActions()
 end
     
 function Action()
-	UseItems()
-
 	if CanUse("blind") then
 		local spell = spells["blind"]
    	if EADC and GetDistance(EADC) < spell.range then

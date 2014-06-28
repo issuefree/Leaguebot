@@ -56,8 +56,6 @@ function Run()
    end
 
    if HotKey() then      
-      UseItems()
-
       local spell = spells["reckoning"]
       if CanUse(spell) then
          local target = GetWeakEnemy("MAGIC", spell.range)

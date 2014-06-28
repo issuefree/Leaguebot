@@ -69,8 +69,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-
    -- knockup anything in range
    if CanUse("pulverize") then
       local target = GetWeakestEnemy("pulverize")

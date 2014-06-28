@@ -60,7 +60,6 @@ function Run()
    end
 
    if HotKey() then
-      UseItems()
       if Action() then
          return true
       end
@@ -109,7 +108,6 @@ function Run()
    end
 
    if HotKey() and CanAct() then
-      UseItems()
       if FollowUp() then
          return true
       end

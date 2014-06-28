@@ -79,10 +79,10 @@ function Run()
 			return
 		end
 	end
+	EndTickActions()
 end 
 
 function Action()
-	UseItems()
 	return false
 end
 

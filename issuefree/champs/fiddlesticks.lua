@@ -127,8 +127,6 @@ function Run()
 end
 
 function Action()
-   UseItems()
-   
    --[[
    I want something like...
    Fear if I can. I want to target EADC and EAPC if they're in range otherwise whoever is weak

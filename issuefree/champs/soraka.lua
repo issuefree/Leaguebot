@@ -105,7 +105,7 @@ function Run()
          return true
       end
    end
-
+   EndTickActions()
 end 
 
 function Action()

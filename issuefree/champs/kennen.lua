@@ -44,7 +44,6 @@ function Run()
    end
 
 	if HotKey() then
-		UseItems()
 	end
 end
 
