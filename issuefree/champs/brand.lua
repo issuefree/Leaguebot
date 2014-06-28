@@ -5,12 +5,12 @@ pp("\nTim's Brand")
 
 SetChampStyle("caster")
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=112, label="- - -"})
+AddToggle("ult", {on=true, key=113, label="Auto Ult"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "pillar", "conflag"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2} / {3}", args={GetAADamage, "sear", "pillar", "conflag"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
@@ -53,6 +53,7 @@ spells["conflag"] = {
 spells["pyro"] = {
   key="R", 
   range=750, 
+  radius=400, -- probably much too large but I can test it down
   color=red, 
   base={150,250,350}, 
   ap=.5,
@@ -64,13 +65,12 @@ function Run()
       return true
    end
 
-   if CastAtCC("pillar") then
+   if CastAtCC("pillar") or 
+      CastAtCC("sear") 
+   then
       return true
    end
 
-   if CastAtCC("sear") then
-      return true
-   end
 
    -- high priority hotkey actions, e.g. killing enemies
    if HotKey() and CanAct() then
@@ -104,7 +104,7 @@ function Run()
       end
 
       if CanUse("sear") then
-         local minions = SortByDistance(GetKills("sear", GetUnblocked(me, "sear", GetInRange(me, "sear", MINIONS))))
+         local minions = SortByDistance(GetKills("sear", GetUnblocked(me, "sear", MINIONS)))
          for _,minion in ipairs(minions) do
             if not WillKill("AA", minion) then
                CastFireahead("sear", minion)
@@ -137,11 +137,38 @@ function Action()
       return true
    end
 
-   local targets = SortByHealth(GetGoodFireaheads("sear", GetWithBuff("ablaze", GetInRange(me, "sear", ENEMIES))))
-   if #targets > 0 then
-      CastFireahead("sear", targets[1])
-      PrintAction("Sear ablaze", targets[1])
+   -- sear burning enemies
+   if SkillShot("sear", nil, GetWithBuff("ablaze", ENEMIES)) then
       return true
+   end
+
+   if CanUse("pyro") then
+      for _,enemy in ipairs(SortByHealth(GetInRange(me, "pyro", ENEMIES)), "pyro") do
+         if WillKill("pyro", enemy) then
+            Cast("pyro", enemy)
+            PrintAction("Pyro for the kill")
+            return true
+         end
+
+
+         if GetSpellDamage("pyro", enemy)*2 > enemy.health then
+            local bounceTargets = #GetInRange(enemy, spells["pyro"].radius, ENEMIES, MINIONS)
+            if bounceTargets >= 2 and bounceTargets <= 3 then
+               Cast("pyro", enemy)
+               PrintAction("Pyro for the bounce kill")
+               return true
+            end
+         end
+
+         local bounceEnemies = #GetInRange(enemy, spells["pyro"].radius, ENEMIES)
+         local bounceMinions = #GetInRange(enemy, spells["pyro"].radius, MINIONS)
+         if bounceEnemies >= 2 and bounceMinions <= 1 then
+            Cast("pyro", enemy)
+            PrintAction("Pyro for AoE damage")
+            return true
+         end
+
+      end
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
