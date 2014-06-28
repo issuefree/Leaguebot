@@ -449,13 +449,17 @@ function GetFireaheads(thing, targets)
 end
 
 -- HACK CAST MOAR
-local simple = true
+local simple = false
 
 function IsGoodFireahead(thing, target)
    local spell = GetSpell(thing)
    if not ValidTarget(target) then return false end   
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
+
+   if not spell.noblock and not IsUnblocked(me, thing, target, MINIONS, ENEMIES) then
+ 		return false
+   end
 
    local point = GetSpellFireahead(spell, target)
    if spell.overShoot then
@@ -472,6 +476,10 @@ function IsGoodFireahead(thing, target)
 
    if simple then
       return true
+   end
+
+   if target.movespeed < 275 then
+   	return true
    end
 
    -- for collision skill shots dead on or dead away people are easy to hit
