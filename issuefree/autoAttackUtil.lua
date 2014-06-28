@@ -228,8 +228,8 @@ function initAAData()
       Elise        = { melee=true,
                        aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
-      Garen        = { melee=true,
-                       aaParticles = {"Garen_Base_AA"},
+      Garen        = { melee=true, windup = .33,
+                       aaParticles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        aaSpellName = {"attack"},
                        resetSpell = {"GarenQ"} },
 
@@ -279,7 +279,7 @@ function initAAData()
    if not aaData.aaParticles then
       aaData.aaParticles = {}
    end
-   -- aaData.aaParticles = {"globalhit_bloodslash"}
+   -- table.insert(aaData.aaParticles, "globalhit_bloodslash")
 
    if not aaData.aaSpellName then
      aaData.aaSpellName = {"attack"}
@@ -337,6 +337,7 @@ local lastWUDelta = getWindup()
 
 local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
 local aaObjects = {}
+local aaObjectTime = {}
 
 local testDurs = {}
 local testWUs = {}
@@ -403,22 +404,9 @@ function aaTick()
          PrintState(0, "         >")
       end
 
-      for i = 1, objManager:GetMaxObjects(), 1 do
-         local object = objManager:GetObject(i)
-         if object and object.x and object.charName and
-            GetDistance(object, me) < 100 
-         then
-            if not ListContains(object.charName, ignoredObjects) and
-               not ListContains(object.charName, aaObjects)
-            then
-               table.insert(aaObjects, object.charName)
-            end
-         end
-      end
-
       PrintState(10, "AA Objects")
       for i,ocn in ipairs(aaObjects) do
-         PrintState(10+i, ocn)
+         PrintState(10+i, ocn.." "..aaObjectTime[i])
       end
    end
 
@@ -500,10 +488,23 @@ function onObjAA(object)
          pp("AAP: "..trunc(delta).." "..object.charName)
 
          lastWUDelta = time() - lastAttack
-         trackWindup(lastWUDelta)
+         trackWindup(lastWUDelta)         
       end
 
       shotFired = true
+   end
+
+   if object and object.x and object.charName and
+      GetDistance(object, me) < 100 
+   then
+      if not ListContains(object.charName, ignoredObjects) and
+         not ListContains(object.charName, aaObjects)
+      then
+         if time() - lastAttack < .5 then
+            table.insert(aaObjects, object.charName)
+            table.insert(aaObjectTime, time() - lastAttack)
+         end
+      end
    end
 end
 
