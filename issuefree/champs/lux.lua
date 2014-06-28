@@ -225,7 +225,7 @@ function Action()
 
    -- try to hit the loweset health target with a flare on em
    if CanAttack() then
-      local targets = GetWeakest("flare", GetWithBuff("flare", GetInRange(me, "AA", ENEMIES))
+      local targets = GetWeakest("flare", GetWithBuff("flare", GetInRange(me, "AA", ENEMIES)))
       if target then
          AA(target)
          PrintAction("AA for flare", target)
