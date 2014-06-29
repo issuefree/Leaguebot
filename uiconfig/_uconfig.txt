@@ -1,0 +1,4 @@
+oy=100
+oxperma=10
+ox=400
+oyperma=400

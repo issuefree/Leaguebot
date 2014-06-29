@@ -1,4 +1,5 @@
-UTILS_VERSION = 217
+UTILS_VERSION = 220
+UTILS_ANTIIDLE = true
 
 --[[
     ====================================
@@ -133,6 +134,19 @@ UTILS_VERSION = 217
     2.1.7 - 6/14/2014 8:06 PM
           - Proxy AttackTarget and MoveToXYZ to emulate old throttling, optional final param uses real api when true
           - GetInventorySlot now supports trinket slot, slot 7
+
+    2.1.8 - 6/17/2014 1:00 PM
+          - TEAM_NONE, TEAM_NEUTRAL, TEAM_ALLY, GetJungleMinions, GetJungleMinion, minion management performance & validation, support for dominion minions
+
+    2.1.9 - 6/17/2014 3:20 PM
+          - revert some overzealous GetDistanceSqr validation
+	  
+    2.2.0 - 6/19/2014 2:37 PM 
+    	  - GetAllMinions, GetOtherMinions, minion management changes
+	  - IsMap, GetMapName, map constants
+	  - Built-in anti-idle, IsAfk
+	  - DelayAction	  
+
 
     ====================================
     |               API                |
@@ -384,6 +398,9 @@ if not jit then
     error(msg)
 end
 
+-- scoping
+local AntiIdle__OnTick, AntiIdle__OnWndMsg, AntiIdleAction
+
 --print=printtext -- new print is defined in script_loader
 KEY_DOWN = 256
 KEY_UP = 257
@@ -395,9 +412,10 @@ HookWnd()
 HookSpell()
 myHero = GetSelf()
 mousePos = {}
-TEAM_BLUE, TEAM_RED = 100, 200
+TEAM_NONE, TEAM_BLUE, TEAM_RED, TEAM_NEUTRAL = 0, 100, 200, 300
 if myHero ~= nil then
     TEAM_ENEMY = (myHero.team == TEAM_BLUE and TEAM_RED or TEAM_BLUE)
+    TEAM_ALLY = (myHero.team == TEAM_BLUE and TEAM_BLUE or TEAM_RED)
 end
 
 local libraryOnTick = {}
@@ -449,8 +467,27 @@ if myHero ~= nil then
     end
 end
 
+local delayedActions = {}
+function DelayAction__OnTick()
+    for t, funcs in pairs(delayedActions) do
+        if t <= os.clock() then
+            for _, f in ipairs(funcs) do f.func(unpack(f.args or {})) end
+            delayedActions[t] = nil
+        end
+    end
+end
+
+function DelayAction(func, delay, args) --delay in seconds
+    local t = os.clock() + (delay or 0)
+    if delayedActions[t] then table.insert(delayedActions[t], { func = func, args = args })
+    else delayedActions[t] = { { func = func, args = args } }
+    end
+end
+
 mousePos = {x=0,y=0,z=0}
 function Util__Callback()
+    DelayAction__OnTick()
+    AntiIdle__OnTick()
     --printtext('~')
     mousePos.x = GetCursorWorldX() -- faster
     mousePos.y = GetCursorWorldY()
@@ -462,7 +499,7 @@ function Util__Callback()
     HandleOnProcessSpell()
     HandleOnWndMsg()
     HandleOnCreateObj()
-    --FindDeletedObjects()           
+    --FindDeletedObjects()               
 end
 
 function Util__OnTick()
@@ -573,6 +610,7 @@ function HandleOnWndMsg()
     end
     SendMessagesToLibraries(messages)
     SendMessagesToFunction(messages, SC__OnWndMsg)
+    SendMessagesToFunction(messages, AntiIdle__OnWndMsg)
     for i,fn in ipairs(GetScriptFunctions('OnWndMsg')) do
         SendMessagesToFunction(messages, fn)
     end    
@@ -667,6 +705,37 @@ function CanCastSpell(spell)
     return (CanUseSpell(spell) == 1)
 end
 
+_MoveToXYZ = MoveToXYZ
+_AttackTarget = AttackTarget
+_utilsAttackMoveThrottle = 0.3
+_utilsLastAttack = 0
+
+function MoveToXYZ(x, y, z, immediate)
+    if immediate then
+        _MoveToXYZ(x, y, z)
+        AntiIdleAction()
+    else
+        if _utilsLastAttack + _utilsAttackMoveThrottle < os.clock() then
+            _MoveToXYZ(x, y, z)
+            --_utilsLastAttack = os.clock()
+            AntiIdleAction()
+        end
+    end
+end
+
+function AttackTarget(target, immediate)
+    if immediate then
+        _AttackTarget(target)
+        AntiIdleAction()
+    else
+        if _utilsLastAttack + _utilsAttackMoveThrottle < os.clock() then
+            _AttackTarget(target)    
+            _utilsLastAttack = os.clock()
+            AntiIdleAction()
+        end        
+    end
+end
+
 function MoveToMouse()
     MoveToXYZ(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
 end
@@ -676,7 +745,7 @@ function GetTickCount()
 end
 
 function PrintChat(text)
-    --Function to supress errors while porting
+    print(text)
 end
 
 function CastSummonerIgnite(target)
@@ -806,7 +875,7 @@ function ValidTarget(object, distance, enemyTeam)
         return (object ~= nil and object.visible == 1 and object.dead == 0 and object.invulnerable == 0)
     end
     local enemyTeam = (enemyTeam ~= false)
-    return object ~= nil and (object.team ~= myHero.team) == enemyTeam and object.visible == 1 and object.dead == 0 and (enemyTeam == false or object.invulnerable == 0) and (distance == nil or GetDistance(object) <= distance)
+    return object ~= nil and (object.team ~= myHero.team) == enemyTeam and object.visible == 1 and object.dead == 0 and (enemyTeam == false or object.invulnerable == 0) and (distance == nil or GetDistanceSqr(object) <= distance * distance)
 end
 
 function ValidTargetNear(object, distance, target)
@@ -815,6 +884,7 @@ end
 
 function GetDistanceSqr(p1, p2)
     p2 = p2 or myHero
+    if p1.x == nil or p2.x == nil then return 99993 end -- y and z are allowed to be nil
     return (p1.x - p2.x) ^ 2 + ((p1.z or p1.y) - (p2.z or p2.y)) ^ 2
 end
 
@@ -2073,30 +2143,98 @@ end
 
 --################## END MEC CLASS ##################--
 
+-- ########## map functions
+
+SUMMONERS_RIFT   = { 1, 2 }
+PROVING_GROUNDS  = 3
+TWISTED_TREELINE = { 4, 10 }
+CRYSTAL_SCAR     = 8
+HOWLING_ABYSS    = 12
+
+function IsMap	(map)
+
+    assert(map and (type(map) == "number" or type(map) == "table"), "IsMap(): map is invalid!")
+    if type(map) == "number" then
+        return GetMap() == map
+    else
+        for _, id in ipairs(map) do
+            if GetMap() == id then return true end
+        end
+    end
+
+end
+
+function GetMapName()
+
+    if IsMap(SUMMONERS_RIFT) then
+        return "Summoners Rift"
+    elseif IsMap(CRYSTAL_SCAR) then
+        return "Crystal Scar"
+    elseif IsMap(HOWLING_ABYSS) then
+        return "Howling Abyss"
+    elseif IsMap(TWISTED_TREELINE) then
+        return "Twisted Treeline"
+    elseif IsMap(PROVING_GROUNDS) then
+        return "Proving Grounds"
+    else
+        return "Unknown map"
+    end
+
+end
+
+-- ########## end map functions
+
 --################## START MINION MANAGER CLASS ##################--
+local allMinions = {}
 local allyMinions = {}
 local enemyMinions = {}
+local jungleMinions = {}
+local otherMinions = {}
 MINION_SORT_HEALTH_ASC = function(a, b) if a.health~=nil and b.health~=nil then return a.health < b.health else return false end end
 MINION_SORT_HEALTH_DEC = function(a, b) if a.health~=nil and b.health~=nil then return a.health > b.health else return false end end
 MINION_SORT_MAXHEALTH_ASC = function(a, b) return a.maxHealth < b.maxHealth end
 MINION_SORT_MAXHEALTH_DEC = function(a, b) return a.maxHealth > b.maxHealth end
 MINION_SORT_AD_ASC = function(a, b) return a.ad < b.ad end
 MINION_SORT_AD_DEC = function(a, b) return a.ad > b.ad end
-local _minionManager = {ally = "##", enemy = "##"}
+local allyColor, enemyColor -- legacy logic, actually helps with dominion, since health etc are neutral "minions"
 
 if myHero ~= nil then
-    _minionManager.ally = (myHero.team == TEAM_BLUE and "Blue" or "Red")
-    _minionManager.enemy = (myHero.team == TEAM_BLUE and "Red" or "Blue")
+    allyColor = (myHero.team == TEAM_BLUE and "Blue" or "Red")
+    enemyColor = (myHero.team == TEAM_BLUE and "Red" or "Blue")
 end
 
 function minionManager__OnCreateObj(object)
-    if object ~= nil then
-    local name = object.name
-        if name:sub(1, #_minionManager.ally) == _minionManager.ally then
-            table.insert(allyMinions, object)
-        elseif name:sub(1, #_minionManager.enemy) == _minionManager.enemy then
-            table.insert(enemyMinions, object)
-        end
+    if object and object.valid==1 and object.type == 12 then
+        DelayAction(function(object)
+            if object and object.valid==1 and object.type == 12 and object.name and object.dead==0 then
+                local name = object.name
+                table.insert(allMinions, object)
+                if name == '' or not string.match(name,'^[%w_.]*$') then
+                    print('[bad minion]') -- pass bad minions, i dont think this will happen anymore
+                else
+                    if object.team ~= TEAM_NONE then
+                        --print(object.team, object.valid, string.format('%q',object.name), object.dead, object.invulnerable, object.valid, object.attackspeed)
+                    end
+                    if object.team == TEAM_NEUTRAL then
+                        table.insert(jungleMinions, object)
+                    elseif object.team == TEAM_ENEMY then                
+                        if string.find(name, enemyColor) then
+                            table.insert(enemyMinions, object)
+                        else
+                            table.insert(otherMinions, object)
+                        end
+                    elseif object.team == TEAM_ALLY then
+                        if string.find(name, allyColor) then
+                            table.insert(allyMinions, object)
+                        else
+                            table.insert(otherMinions, object)
+                        end                    
+                    else
+                        table.insert(otherMinions, object)
+                    end
+                end
+            end
+        end, 0, { object })
     end
 end
 
@@ -2105,12 +2243,26 @@ for i = 1, objManager:GetMaxObjects() do
 end
 
 function minionManager__OnTick()
-    for i,object in pairs(allyMinions) do
+    for i,object in ipairs(allMinions) do
+        if object == nil or object.dead == 1 then table.remove(allMinions, i) end
+    end
+    for i,object in ipairs(allyMinions) do
         if object == nil or object.dead == 1 then table.remove(allyMinions, i) end
     end
-    for i,object in pairs(enemyMinions) do
+    for i,object in ipairs(enemyMinions) do
         if object == nil or object.dead == 1 then table.remove(enemyMinions, i) end
     end
+    for i,object in ipairs(jungleMinions) do
+        if object == nil or object.dead == 1 then table.remove(jungleMinions, i) end
+    end
+    for i,object in ipairs(otherMinions) do
+        if object == nil or object.dead == 1 then table.remove(otherMinions, i) end
+    end    
+end
+
+function GetAllMinions(sortMode)
+    table.sort(allMinions, sortMode)
+    return allMinions
 end
 
 function GetAllyMinions(sortMode)
@@ -2123,14 +2275,32 @@ function GetEnemyMinions(sortMode)
     return enemyMinions
 end
 
+function GetJungleMinions(sortMode)
+    table.sort(jungleMinions, sortMode)
+    return jungleMinions
+end
+
+function GetOtherMinions(sortMode)
+    table.sort(otherMinions, sortMode)
+    return otherMinions
+end
+
 function GetEnemyMinion(range, sort_order)
     table.sort(enemyMinions, sort_order)
-    for i = 1, #enemyMinions, 1 do
-        if GetDistance(enemyMinions[i]) <= range then
+    for i = 1, #enemyMinions, 1 do	
+        if ValidTarget(enemyMinions[i], range) then
             return enemyMinions[i]
         end
     end
-    return nil
+end
+
+function GetJungleMinion(range, sort_order)
+    table.sort(jungleMinions, sort_order)
+    for i = 1, #jungleMinions, 1 do
+        if ValidTarget(jungleMinions[i]) then
+            return jungleMinions[i]
+        end
+    end
 end
 
 function GetLowestHealthEnemyMinion(range)
@@ -2143,12 +2313,60 @@ end
 
 --################## END MINION MANAGER CLASS ##################--
 
+-- Anti-Idle --------------------------------------------------------
+
+_utilsAntiIdleTimeConstant = 60
+_utilsAntiIdleTime = 60
+_utilsLastAction = 0
+function AntiIdle__OnWndMsg(msg, key) -- local
+    if msg==WM_RBUTTONDOWN then
+        AntiIdleAction()
+    end
+end
+
+function AntiIdleAction() -- local
+    _utilsLastAction = os.clock()
+end
+
+local function AntiIdleRand()
+    local result = math.random(3)
+    if math.random(2) == 1 then
+        result = -result
+    end
+    return result
+end
+
+local function AntiIdleObfuscate()
+    _utilsAntiIdleTime = _utilsAntiIdleTimeConstant + math.random(-10,10)
+end
+
+function IsAfk()
+    return os.clock() - _utilsLastAction > _utilsAntiIdleTime
+end
+
+function AntiIdle__OnTick() -- local
+    if UTILS_ANTIIDLE then
+        if IsAfk() then                        
+            local rx,ry,rz = AntiIdleRand(), AntiIdleRand(), AntiIdleRand()
+            local x,y,z = myHero.x + rx, myHero.y + ry, myHero.z + rz
+            _MoveToXYZ(x,y,z)
+            print('[anti-idle]') -- ' @ ', os.clock(), ' moving from x =', myHero.x, ' to x = ', myHero.x+rx)
+            AntiIdleObfuscate()
+            AntiIdleAction()
+        end
+    end
+end
+
+AntiIdleObfuscate()
+
+-- End Anti-Idle ----------------------------------------------------
+
 SetTimerCallback("Util__Callback")    
 print('*** UTILS SetTimerCallback ***', GetScriptNumber())
 
 if SCRIPT_PATH == nil then SCRIPT_PATH = '' end
 
--- help in porting, also serves as the first lb lib directory, even if we want to use a different lib directory officially
+-- help in porting
 if package.path:find([[;.\Common\?]], 1, true) == nil then
     package.path = package.path..[[;.\Common\?]]
     package.path = package.path..[[;.\Common\?.lua]]
