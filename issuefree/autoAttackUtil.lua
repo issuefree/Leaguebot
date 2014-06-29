@@ -256,11 +256,17 @@ function initAAData()
                        resetSpell = {me.SpellNameQ} },
 
       Olaf         = { melee=true, windup=.33
-
+                       -- aaParticles = {},
+                       -- aaSpellName = {},
                       },
 
       Poppy        = { melee=true,
                        aaParticles = {"Poppy_DevastatingBlow"} },                       
+
+      Riven        = { melee=true, windup=.2,
+                       -- aaParticles = {},
+                       -- aaSpellName = {},
+                       resetSpell = {me.SpellNameQ} },
 
       Tryndamere   = { melee=true,
                        aaParticles = {"tryndamere_weapontrail"},
@@ -345,6 +351,10 @@ local testWUs = {}
 local estimatedDuration = aaData.duration
 local estimatedWU = aaData.windup
 
+function AfterAttack()
+   -- UnblockOrders()
+   -- StopMove()
+end
 
 function aaTick()
    -- we asked for an attack but it's been longer than the windup and we haven't gotten a shot so we must have clipped or something
@@ -359,6 +369,14 @@ function aaTick()
       end
 
       shotFired = true
+   end
+
+   if CanAttack() then
+      canSendAttacked = true
+   end
+   if JustAttacked() and canSendAttacked then
+      AfterAttack()
+      canSendAttacked = false
    end
 
    if ModuleConfig.aaDebug then
