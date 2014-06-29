@@ -116,6 +116,23 @@ function concat(...)
    return resTable
 end
 
+function removeItems(table1, items)
+   local resTable = {}
+   for _,t in ipairs(table1) do
+      local addItem = true
+      for _,item in ipairs(items) do
+         if t == item then
+            addItem = false
+            break
+         end
+      end
+      if addItem then
+         table.insert(resTable, t)
+      end
+   end
+   return resTable
+end
+
 function rpairs(t)
    return prev, t, table.getn(t)+1
 end
@@ -166,6 +183,14 @@ function copy(orig)
       copy = orig
    end
    return copy
+end
+
+function mult(list, sv)
+   local res = {}
+   for _,l in ipairs(list) do
+      table.insert(res, l*sv)
+   end
+   return res
 end
 
 OBJECT_CALLBACKS = {}
