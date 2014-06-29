@@ -754,7 +754,7 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
       end
 
 
-      local score = #hits
+      local score = #hits*hitScore
 
       if killScore ~= 0 then
          for _,hit in ipairs(hits) do
@@ -779,6 +779,8 @@ end
 
 function GetInLine(source, thing, target, targets)
    local spell = GetSpell(thing)
+   local width = spell.width or spell.radius
+
    SortByAngle(targets)
 
    local primary = Point(target)
@@ -790,7 +792,7 @@ function GetInLine(source, thing, target, targets)
       if s ~= primary then
          local sw = GetWidth(s)
          local ra = RelativeAngle(source, primary, s)
-         if GetOrthDist(primary, s) < spell.width + pw + sw and 
+         if GetOrthDist(primary, s) < width + pw + sw and 
             ra < math.pi/3 -- why?
          then
             table.insert(hits, s)
@@ -1092,10 +1094,6 @@ end
 function GetAADamage(target)   
    local damage = GetSpellDamage("AA")
    
-   if spells["AA"].damOnTarget and target then
-      damage = damage + spells["AA"].damOnTarget(target)
-   end
-
    -- items
    damage = damage + GetOnHitDamage(target, true)
 
@@ -1456,7 +1454,7 @@ function TimTick()
    TrackMyPosition()
 
    if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
-      CURSOR = P.cursorM
+      CURSOR = Point(P.cursorM)
       PData.cursorM.lastPos = Point(P.cursorM)
       -- if IsAttacking() and Alone() then
       --    ResetAttack()
@@ -1540,7 +1538,9 @@ function StartTickActions()
    end
 
    if HotKey() then
-      UseItems()
+      if UseItems() then
+         return true
+      end
    end
 
    return false
@@ -1738,6 +1738,7 @@ function UseItem(itemName, target)
       end
       if target and JustAttacked() then
          CastSpellTarget(slot, me)
+         PrintAction(itemName, nil, 1)
          return true
       end
 
