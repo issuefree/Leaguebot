@@ -151,9 +151,9 @@ function Run()
       return true
    end
 
-
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
+      KeyDown(SKeys.P)
 		if Action() then
 			return true
 		end
@@ -232,7 +232,7 @@ end
 function StartBolt()
    if IsLoLActive() and IsChatOpen() == 0 then
       if not qDown then
-         PrintAction("Q Down")
+         PrintAction("Q Up")
          send.key_up(SKeys.Q)
       end
       send.key_down(SKeys.Q)
@@ -242,7 +242,7 @@ end
 
 function ClearQ()
    if qDown then
-      PrintAction("Q UP")
+      PrintAction("Q Down")
       send.key_up(SKeys.Q)
       qDown = false
    end
