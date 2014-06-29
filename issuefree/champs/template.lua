@@ -69,7 +69,7 @@ spells["AA"].damOnTarget =
    end
 
 function Run()
-  if StartTickActions() then
+   if StartTickActions() then
       return true
    end
 
