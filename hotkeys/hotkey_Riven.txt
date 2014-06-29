@@ -1,1 +1,11 @@
-LALT LOADSCRIPT=issuefree/champs/template.lua
+LALT LOADSCRIPT=issuefree/champs/riven.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
