@@ -204,6 +204,10 @@ function GetLVal(spell, field)
       return spell[field]
    end
 
+   if type(spell[field]) == "function" then
+   	return spell[field]()
+   end
+
    if spell[field].isDamage then
       return spell[field]
    end
@@ -276,6 +280,10 @@ function GetSpellDamage(thing, target)
    end
    if spell.percMissingHealth and target then
       damage = damage + GetLVal(spell, "percMissingHealth")*(target.maxHealth - target.health)
+   end
+
+   if spell.damOnTarget and target then
+      damage = damage + spell.damOnTarget(target)
    end
 
    if P.muramana then
