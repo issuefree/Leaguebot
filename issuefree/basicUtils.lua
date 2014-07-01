@@ -331,7 +331,11 @@ function Damage:__add(d)
       elseif self.type == "T" or ( self.p == 0 and self.m == 0 and self.t ~= 0 ) then
          self.t = self.t + d
          return self
+      elseif self:toNum() == 0 then
+         return d
       else
+         pp(self)
+         pp(d)
          pp(debug.traceback())
          return self
       end
