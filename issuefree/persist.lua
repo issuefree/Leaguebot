@@ -102,13 +102,23 @@ ccNames = {
 
 
 -- find an object and persist it
-function Persist(name, object, charName)
+function Persist(name, object, charName, team)
+   if team and object.team ~= team then
+      return
+   end
    if object and (not charName or find(object.charName, charName)) then
       P[name] = object
       PData[name] = {}
       PData[name].cn = object.charName
       return true
    end
+end
+
+function PersistTemp(name, ttl)
+   P[name] = {charName=name, x=0, z=0}
+   PData[name] = {}
+   PData[name].cn = name
+   PData[name].timeout = time() + ttl
 end
 
 function enemyHasName(name)
@@ -237,7 +247,13 @@ function CleanPersistedObjects()
          PData[name] = nil
       end
    end
-   for name, obj in pairs(PData) do
+   for name, data in pairs(PData) do
+
+      if data.timeout and data.timeout < time() then
+         P[name] = nil
+         PData[name] = nil
+      end
+
       if not P[name] then
          PData[name] = nil
       end
@@ -440,6 +456,9 @@ function createForPersist(object)
    PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
 
    PersistBuff("muramana", object, "ItemMuramanaToggle")
+
+   PersistBuff("manaPotion", object, "GLOBAL_Item_Mana")
+   PersistBuff("healthPotion", object, "GLOBAL_Item_Health")
 
    if Persist("cursorA", object, "Cursor_MoveTo_Red") then
       PData.cursorA.lastPos = Point(P.cursorA)
