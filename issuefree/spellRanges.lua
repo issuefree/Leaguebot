@@ -11,18 +11,14 @@ function rangeTick()
 
    for name,info in pairs(spells) do
       if info.range and info.color and 
-         ( not info.key or ( #info.key == 1 and GetSpellLevel(info.key) > 0 ) ) 
+         ( not info.key or 
+           ( #info.key == 1 and GetSpellLevel(info.key) > 0 ) or
+           info.summoners )
       then
          local range = GetSpellRange(info)
          local time 
-         if info.key == "Q" then
-            time = me.SpellTimeQ - 2
-         elseif info.key == "W" then
-            time = me.SpellTimeW - 2
-         elseif info.key == "E" then
-            time = me.SpellTimeE - 2
-         elseif info.key == "R" then
-            time = me.SpellTimeR - 2
+         if info.key then
+            time = me["SpellTime"..info.key] - 2
          end
 
          if name == "AA" then
