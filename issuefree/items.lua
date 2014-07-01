@@ -55,3 +55,5 @@ ITEMS["Tear of the Goddess"] = {id=3070}
 ITEMS["Archangel's Staff"] = {id=3003}
 ITEMS["Manamune"] = {id=3004}
 ITEMS["Muramana"] = {id=3042}
+
+ITEMS["Crystaline Flask"] = {id=2041}
