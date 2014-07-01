@@ -38,14 +38,27 @@ then
    os.remove("lualog.txt")
 end
 
+healSpell = {range=700+GetWidth(me), color=green, summoners=true}
+
+if me.SpellNameD == "SummonerHeal" then
+   spells["summonerHeal"] = healSpell
+   spells["summonerHeal"].key = "D"
+elseif me.SpellNameF == "SummonerHeal" then
+   spells["summonerHeal"] = healSpell
+   spells["summonerHeal"].key = "F"
+end
+
 MASTERIES = {}
 BLOCK_FOR_AA = true
+CHAMP_STYLE = nil
 function SetChampStyle(style)
+   CHAMP_STYLE = style
    if style == "caster" then
       MASTERIES = {"havoc", "des", "executioner"}
       BLOCK_FOR_AA = false
    elseif style == "marksman" then
       MASTERIES = {"havoc", "executioner"}
+   elseif style == "bruiser" then
    end
 end
 
@@ -844,7 +857,7 @@ function KillMinionsInArea(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestArea(me, thing, 0, 1, MINIONS)
+   local hits, kills, score = GetBestArea(me, thing, .1, 1, MINIONS)
    if #kills >= killsNeeded then
       CastXYZ(thing, GetCenter(hits))
       PrintAction(thing.." for kills", #kills)
@@ -1006,6 +1019,7 @@ function UseAutoItems()
    UseItem("Seraph's Embrace")
    UseItem("Mikael's Crucible")
    UseItem("Locket of the Iron Solari")
+   UseItem("Crystaline Flask")
 end
 
 function GetNearestIndex(target, list)
@@ -1094,6 +1108,15 @@ end
 function GetAADamage(target)   
    local damage = GetSpellDamage("AA")
    
+   for name,spell in pairs(spells) do
+      if spell.modAA and P[spell.modAA] then
+         modSpell = copy(spell)
+         modSpell.modAA = nil
+         modSpell.offModAA = true
+         damage = damage + GetSpellDamage(modSpell)
+      end
+   end
+
    -- items
    damage = damage + GetOnHitDamage(target, true)
 
@@ -1157,6 +1180,39 @@ function GetMPerc(target)
    if not target then target = me end
    return target.mana/target.maxMana
 end
+
+function AutoPet(pet)
+   if pet then
+      -- find the closest target to pet
+      local target = SortByDistance(GetInRange(pet, 1000, ENEMIES))[1]
+      if target then
+         PetAttack(target)
+      end
+   end
+end
+local lastPetAttack = 0
+function PetAttack(target, key)
+   if not key then key = "R" end
+   if time() - lastPetAttack > 1.5 then
+      CastSpellTarget(key, target)
+      lastPetAttack = time()
+      PrintAction("Pet Attack", target)
+   end
+end
+function CheckPetTarget(pet, unit, spell, key)
+   if pet then
+      local petTarget = SortByDistance(GetInRange(pet, 1000, ENEMIES))[1]
+      if not petTarget then
+         if IsMe(unit) and
+            spell.target and
+            spell.target.team ~= me.team 
+         then
+            PetAttack(spell.target, key)
+         end
+      end
+   end
+end
+
 
 function GetWeakestEnemy(thing, extraRange, stretch)
    if not extraRange then
@@ -1283,21 +1339,6 @@ function PauseToggle(key, timeout)
          "pause"..key )
 end
 
-function CastBuff(spell)
-   if not P[spell] then
-      Cast(spell, me)
-      Persist(spell, me, me.charName)
-      DoIn( function()
-               if P[spell] and IsMe(P[spell]) then
-                  P[spell] = nil
-                  PrintAction("endbuffchannel")
-               end
-            end,
-            .5, "CastBuff"..spell
-         )
-   end
-end
-
 function checkDodge(shot)
    if shot.safePoint then
       if shot.block and not shot.range then
@@ -1321,10 +1362,10 @@ function processShot(shot)
    end
 
    if Engaged() and shot.safePoint then
-      PrintAction("Don't dodge because I'm engaged - "..shot.name, nil, 1)
+      PrintAction("Don't dodge - engaged - "..shot.name, nil, 1)
    end
    if IsChannelling() and shot.safePoint then
-      PrintAction("Don't dodge because I'm channelling - "..shot.name, nil, 1)
+      PrintAction("Don't dodge - channelling - "..shot.name, nil, 1)
    end
 
    if me.dead == 0 and
@@ -1476,8 +1517,6 @@ function TimTick()
       LineBetween(me, CURSOR)
    end
 
-   UseAutoItems()
-
    for spell, info in pairs(DISRUPTS) do
       if P[spell] then
          Circle(P[info.char], 100, green, 10)
@@ -1537,6 +1576,8 @@ function StartTickActions()
       return true
    end
 
+   UseAutoItems()
+
    if HotKey() then
       if UseItems() then
          return true
@@ -1592,7 +1633,7 @@ end
 function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
    if target and GetDistance(target) < GetAARange()+150 then
-      if thing and CanUse(thing) and 
+      if thing and CanUse(thing) and not P[thing] and
          ( JustAttacked() or GetDistance(target) > GetAARange() ) 
       then
          Cast(thing, me)
@@ -1616,11 +1657,11 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
    return false
 end
 
-function ModAAFarm(thing, pObj)
-   if CanUse(thing) and not pObj then
+function ModAAFarm(thing)
+   if CanUse(thing) and not P[thing] then
       local minions = SortByHealth(GetInRange(me, "AA", MINIONS), thing)
       for i,minion in ipairs(minions) do
-         if WillKill(thing, "AA", minion) and 
+         if WillKill(thing, minion) and 
             not SameUnit(minion, WK_AA_TARGET) and
             ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
          then
@@ -1633,8 +1674,8 @@ function ModAAFarm(thing, pObj)
    return false
 end
 
-function ModAAJungle(thing, pObj)
-   if CanUse(thing) and not pObj then
+function ModAAJungle(thing)
+   if CanUse(thing) and not P[thing] then
       local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS), thing)
       local creep = creeps[#creeps]
       if creep and not WillKill("AA", creep) and JustAttacked() then
@@ -1651,8 +1692,10 @@ function MeleeMove()
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
          if GetDistance(target) > spells["AA"].range+25 then
-            MoveToTarget(target)
-            return true
+            if Chasing(target) then
+               MoveToTarget(target)
+               return true
+            end
          end
       else        
          -- MoveToCursor() 
@@ -1696,6 +1739,7 @@ function UseItems(target)
    end
 end
 
+local flaskCharges = 3
 function UseItem(itemName, target)
    local item = ITEMS[itemName]
    local slot = GetInventorySlot(item.id)
@@ -1848,6 +1892,37 @@ function UseItem(itemName, target)
          end
       end
 
+   elseif itemName == "Crystaline Flask" then
+      if GetDistance(HOME) < 800 then
+         flaskCharges = 3
+      end
+      PrintState(0, flaskCharges)
+      if flaskCharges > 0 then
+         if GetHPerc(me) < .75 and not P.healthPotion then
+            CastSpellTarget(slot, me)
+            flaskCharges = flaskCharges - 1
+            PrintAction("Flask for health")
+            PersistTemp("healthPotion", 1)
+            return true
+         elseif GetMPerc(me) < .5 and not P.manaPotion then
+            CastSpellTarget(slot, me)
+            flaskCharges = flaskCharges - 1
+            PrintAction("Flask for mana")
+            PersistTemp("manaPotion", 1)
+            return true
+         elseif me.maxHealth - me.health > (120+30) and 
+                me.maxMana - me.mana < (60+30) and
+                not P.manaPotion and not P.healthPotion
+         then
+            CastSpellTarget(slot, me)
+            flaskCharges = flaskCharges - 1
+            PrintAction("Flask for regen")
+            PersistTemp("healthPotion", 1)
+            PersistTemp("manaPotion", 1)
+            return true
+         end
+      end
+      
    else
       -- CastSpellTarget(slot, me)
    end
