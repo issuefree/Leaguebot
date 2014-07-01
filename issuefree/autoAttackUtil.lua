@@ -7,8 +7,9 @@ local meleeRange = 100+15
 local ping = 50
 local latency = ping * 2 / 1000
 
-function GetAARange()
-  return me.range + meleeRange
+function GetAARange(target)
+   target = target or me
+   return target.range + meleeRange
 end
 
 function initAAData()
@@ -265,14 +266,24 @@ function initAAData()
 
       Riven        = { melee=true, windup=.2,
                        -- aaParticles = {},
-                       -- aaSpellName = {},
+                       aaSpellName = {"attack"},
+                       resetSpell = {me.SpellNameQ} },
+
+      Shyvana      = { melee=true,
+                       -- aaParticles = {},
+                       aaSpellName = {"attack"},
                        resetSpell = {me.SpellNameQ} },
 
       Tryndamere   = { melee=true,
                        aaParticles = {"tryndamere_weapontrail"},
                        aaSpellName = {"attack", "Bloodlust"} },
 
-      Warwick      = { melee=true }
+      Warwick      = { melee=true },
+
+      Yorick       = { melee=true, windup=.25,
+                       -- aaParticles = {},
+                       aaSpellName = {"attack"},
+                       resetSpell = {me.SpellNameQ} },
    }
 
    aaData = champData[me.name]
@@ -352,8 +363,10 @@ local estimatedDuration = aaData.duration
 local estimatedWU = aaData.windup
 
 function AfterAttack()
-   -- UnblockOrders()
-   -- StopMove()
+   if ModuleConfig.aaDebug then
+      UnblockOrders()
+      StopMove()
+   end
 end
 
 function aaTick()
