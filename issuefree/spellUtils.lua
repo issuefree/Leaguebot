@@ -63,6 +63,23 @@ function CastClick(thing, x,y,z)
    end
 end
 
+function CastBuff(spell, switch)
+   if CanUse(spell) then
+      if P[spell] and switch == false then
+         Cast(spell, me)
+         P[spell] = nil
+         PrintAction(spell.." OFF")
+         return
+      end
+      if not P[spell] and switch ~= false then
+         Cast(spell, me)
+         PersistTemp(spell, .5)
+         PrintAction(spell.." ON")
+         return
+      end
+   end
+end
+
 function CastFireahead(thing, target)
    if not target then return false end
 
@@ -243,7 +260,13 @@ function GetSpellDamage(thing, target)
       lvl = 1
    end
 
-   local damage = Damage(GetLVal(spell, "base"), spell.type or "M")
+   local damage = 0
+
+   if spell.modAA and P[spell.modAA] then -- if the mod is on then the damage should already be in the AA
+		return GetAADamage()
+   end
+
+   damage = damage + Damage(GetLVal(spell, "base"), spell.type or "M")
    if spell.ap then
       damage = damage + GetLVal(spell, "ap")*me.ap
    end
@@ -286,10 +309,25 @@ function GetSpellDamage(thing, target)
       damage = damage + spell.damOnTarget(target)
    end
 
+   -- this is technically not right. This should only count for SINGLE TARGETS
+   -- it would be good to fix but I don't think it will cause a problem as aoe
+   -- attacks don't generally rely on super accurate damage calculations as people who use
+   -- a lot of AoE don't get muramana ;)
    if P.muramana then
-      damage = damage + me.mana*.06
+      damage = damage + Damage(me.mana*.06, "P")
    end
 
+   -- damage for modAA shouldn't be used without combingin with AA damage.
+   -- add spellblade if it's not on to account for it's activation.
+   -- if it's on AA will account for it so don't add it.
+   if spell.modAA and not P[spell.modAA] then
+   	-- if the mod is off then add the aa damage here
+   	damage = damage + GetAADamage() + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
+   end
+
+   if spell.offModAA then
+   	damage = damage + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
+   end
 
    if type(damage) ~= "number" and damage.type ~= "H" then
       local mult = 1
@@ -318,10 +356,10 @@ function GetSpellDamage(thing, target)
       damage = CalculateDamage(target, damage)      
    end
 
+
    if type(damage) ~= "number" and damage.type == "H" then
       damage = damage:toNum()
    end
-
 
    return damage
 end
