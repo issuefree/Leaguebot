@@ -17,8 +17,7 @@ spells["blow"] = {
    max={75,150,225,300,375},
    percMaxHealth=.08,
    ap=.6, 
-   ad=1,
-   onHit=true,
+   modAA="blow", -- modAA calcs won't be quite right because I don't convert the AA damage to magic
    type="M",
    cost=55
 }
@@ -70,13 +69,13 @@ function Run()
    end
 
    if IsOn("lasthit") and GetMPerc(me) > .5 and Alone() then
-      if ModAAFarm("blow", P.blow) then
+      if ModAAFarm("blow") then
          return true
       end
    end      
 
    if IsOn("jungle") and GetMPerc(me) > .5 then
-      if ModAAJungle("blow", P.blow) then
+      if ModAAJungle("blow") then
          return true
       end
    end
@@ -104,9 +103,11 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if target and ModAA("blow", target) then
+   if target then
       UseItem("Deathfire Grasp", target)
-      return true
+      if AutoAA(target, "blow") then
+         return true
+      end
    end
 
    return false
