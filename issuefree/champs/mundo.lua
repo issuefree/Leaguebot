@@ -29,18 +29,6 @@ spells["masochism"] = {
    type="P"
 }
 
-function getMasochismDamage()
-   local spell = spells["masochism"]
-   local level = GetSpellLevel(spell.key) 
-   if level == 0 then
-      return 0
-   end
-   
-   local damage = spell.base[level]
-   damage = damage + spell.mhp[level]*((1-me.health/me.maxHealth)*100)
-   return damage
-end
-
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
@@ -59,7 +47,7 @@ function Run()
       return true
    end
 
-   if HotKey() then
+   if HotKey() and CanAct() then
       if Action() then
          return true
       end
@@ -84,27 +72,31 @@ function Run()
       end
    end
 
-   if IsOn("lasthit") and not P.burning and CanUse("agony") then
-      for _,minion in ipairs(GetInRange(me, "agony", MINIONS)) do
-         if WillKill("agony", minion) then
-            Cast("agony", me)
-            PrintAction("Cook the minions")
-            return true
-         end
-      end
-   end
+   if IsOn("lasthit") then
 
-   if IsOn("lasthit") and Alone() and CanUse("cleaver") then
-      for _,minion in ipairs(GetUnblocked(me, "cleaver", MINIONS)) do
-         if GetDistance(minion) > spells["agony"].range and 
-            WillKill("cleaver", minion)
-         then
-            LineBetween(me, minion, spells["cleaver"].width)
-            CastXYZ("cleaver", minion)
-            PrintAction("Butcher minion")
-            return true
+      if not P.burning and CanUse("agony") then
+         for _,minion in ipairs(GetInRange(me, "agony", MINIONS)) do
+            if WillKill("agony", minion) then
+               Cast("agony", me)
+               PrintAction("Cook the minions")
+               return true
+            end
          end
       end
+
+      if Alone() and CanUse("cleaver") then
+         for _,minion in ipairs(GetUnblocked(me, "cleaver", MINIONS)) do
+            if GetDistance(minion) > spells["agony"].range and 
+               WillKill("cleaver", minion)
+            then
+               LineBetween(me, minion, spells["cleaver"].width)
+               CastXYZ("cleaver", minion)
+               PrintAction("Butcher minion")
+               return true
+            end
+         end
+      end
+
    end
 
    if HotKey() and CanAct() then
