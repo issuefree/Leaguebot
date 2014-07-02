@@ -15,6 +15,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["orb"] = {
    key="Q", 
@@ -40,7 +41,13 @@ spells["spike"] = {
    range=650, 
    color=violet, 
    base={55,85,115,145,175}, 
-   ap=.5
+   ap=.5,
+   damOnTarget=function(target)
+                  if HasBuff("freeze", target) then
+                     return GetSpellDamage("spike")
+                  end
+                  return 0
+               end
 }
 spells["storm"] = {
    key="R", 
@@ -77,10 +84,6 @@ function Run()
       end
    end
 
-   if CheckDisrupt() then
-      return true
-   end
-
    if not P.orb then
       if CastAtCC("orb") then
          return true
@@ -114,16 +117,14 @@ end
 
 function Action()
    if CanUse("spike") then
-      local target = GetWeakestEnemy("spike")
-      if target and WillKill("spike", target) then         
+      local kills = GetKills("spike", ENEMIES)
+      if kills[1] then
          Cast("spike", target)
          PrintAction("Spike for execute", target)
          return true
       end
 
-      local enemies = GetInRange(me, "spike", ENEMIES)
-      enemies = GetWithBuff("freeze", enemies)
-      local target = GetWeakest("spike", enemies)
+      local target = GetWeakest("spike", GetWithBuff("freeze", GetInRange(me, "spike", ENEMIES))
       if target then
          UseItem("Deathfire Grasp", target)
          Cast("spike", target)
@@ -132,13 +133,8 @@ function Action()
       end
    end
 
-   if CanUse("orb") then
-      local target = GetWeakEnemy("MAGIC", spells['orb'].range)
-      if not P.orb and IsGoodFireahead("orb", target) then
-         CastFireahead("orb", target)
-         PrintAction("Orb", target)
-         return true
-      end
+   if SkillShot("orb") then
+      return true
    end
 
    if CanUse("storm") and not P.storm then
@@ -146,6 +142,7 @@ function Action()
       if #hits > 0 then
          CastXYZ("storm", GetCenter(hits))
          PrintAction("Storm", #hits)
+         return true
       end
    end
    return false
