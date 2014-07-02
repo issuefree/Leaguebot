@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Blitz")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("pull", {on=true, key=113, label="Pull"})
+AddToggle("", {on=true, key=112, label="- - -"})
+AddToggle("pull", {on=false, key=113, label="Pull"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "fist"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["grab"] = {
    key="Q", 
@@ -28,11 +29,10 @@ spells["drive"] = {
 }
 spells["fist"] = {
    key="E", 
-   range=GetSpellRange("AA"), 
    base=0,
-   ad=2,
-   onHit=true,
-   color=red, 
+   ad=1,
+   modAA="fist",
+   type="P",
    cost=25
 }
 spells["field"] = {
@@ -60,7 +60,7 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") and Alone() then
-      if ModAAFarm("fist", P.fist) then
+      if ModAAFarm("fist") then
          return true
       end
    end
@@ -77,6 +77,27 @@ end
 
 function Action()   
 
+   if IsOn("pull") and CanUse("pull") then
+
+      if IsGoodFireahead("pull", EADC) and         
+         GetDistance(EADC) > 350
+      then
+         CastFireahead("pull", EADC)
+         PrintAction("Pull ADC", EADC)
+         return true
+      end
+
+      if IsGoodFireahead("pull", EAPC) and         
+         GetDistance(EAPC) > 350
+      then
+         CastFireahead("pull", EAPC)
+         PrintAction("Pull APC", EAPC)
+         return true
+      end
+
+   end
+
+
    if AutoAA("fist") then
       return true
    end
@@ -85,21 +106,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("lasthit") and Alone() then
-      if CanUse("fist") then
-         local target = GetWeakest("fist", GetInRange(me, GetSpellRange("AA"), MINIONS))
-         if target and WillKill("fist", target) and
-            ( JustAttacked() or not WillKill("AA", target) )
-         then
-            Cast("fist", me)
-            PrintAction("fist lasthit")
-            AttackTarget(target)
-            return true
-         end
-      end
-
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true
