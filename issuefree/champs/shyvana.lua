@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Shyvana")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bite"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bite"] = {
    key="Q",
@@ -17,6 +18,8 @@ spells["bite"] = {
    ad=1,
    onhit=true,
    perc={.8,.85,.9,.95,1},
+   modAA="bite"
+   onHit=true,
    type="P"
 } 
 spells["burnout"] = {
@@ -50,8 +53,9 @@ spells["binding"] = {
 } 
 
 function Run()
-   for lvl,p in ipairs(spells["bite"].perc) do
-      spells["bite"].base[lvl] = (me.baseDamage+me.addDamage)*p
+   local biteLevel = GetSpellLevel(spells["bite"].key)
+   if biteLevel > 0 then
+      spells["bite"].base = (me.baseDamage+me.addDamage)*spells["bite"].perc
    end
 
    if StartTickActions() then
