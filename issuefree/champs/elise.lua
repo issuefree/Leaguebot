@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Elise")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("gank", {on=false, key=114, label="Gank"})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["toxin"] = {
    key="Q", 
