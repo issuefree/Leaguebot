@@ -3,7 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Graves")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["shot"] = {
    key="Q", 
@@ -58,6 +65,10 @@ spells["boomCone"] = {
 
 function Run()
    if StartTickActions() then
+      return true
+   end
+
+   if CastAtCC("shot") then
       return true
    end
 
