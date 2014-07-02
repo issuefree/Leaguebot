@@ -63,16 +63,12 @@ function Run()
 		end
 	end
 
-   if IsOn("tear") and CanUse("poison") then
-      if not P.poison and CanChargeTear() and GetMPerc(me) > .25 and Alone() then
+   if IsOn("tear") then
+      if CanChargeTear() and GetMPerc(me) > .25 and Alone() then
          CastBuff("poison")
-         PrintAction("Poison for tear")
-         return true
       end
-      if P.poison and not CanChargeTear() and VeryAlone() and #GetAllInRange(me, 500, CREEPS, MINIONS) == 0 then
-         Cast("poison", me)
-         PrintAction("Turn off poison")
-         return true
+      if not CanChargeTear() and VeryAlone() and #GetAllInRange(me, 500, CREEPS, MINIONS) == 0 then
+         Cast("poison", false)
       end
    end
 
