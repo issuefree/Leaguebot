@@ -6,7 +6,7 @@ pp(" - Auto shield CC")
 pp(" - Soil CC'd enemies")
 
 AddToggle("shield", {on=true, key=112, label="Auto Shield"})
-AddToggle("soil", {on=true, key=113, label="Auto Soil"})
+AddToggle("bind", {on=false, key=113, label="Auto Bind"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -32,6 +32,8 @@ spells["soil"] = {
    base={24,38,52,66,80}, 
    ap=.22,
    radius=275,
+   delay=2,
+   speed=0,
    cost={70,85,100,115,130},
    noblock=true
 }
@@ -58,7 +60,14 @@ function Run()
       return true
    end
 
-   if HotKey() and CanAct() then
+   local shackleKills = GetKills("shackles", ENEMIES)
+   if #shackleKills > 0 then
+      for _,kill in ipairs(shackleKills) do
+         LineBetween(me, kill)
+      end
+   end
+
+   if HotKey() then
       if Action() then
          return true
       end
@@ -68,7 +77,7 @@ function Run()
       return true
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if FollowUp() then
          return true
       end
@@ -78,14 +87,26 @@ function Run()
 end
 
 function Action()
-   if CanUse("bind") then
-      if SkillShot("binding", "peel") then
-         return true
+   if IsOn("bind") then
+      if CanUse("bind") then
+         if SkillShot("binding", "peel") then
+            return true
+         end
+         if SkillShot("binding") then
+            return true
+         end
       end
-      if SkillShot("binding") then
+   end
+
+   if CanUse("shackles") then      
+      local targets = GetInRange(me, "shackles", ENEMIES)
+      if #targets >= 3 then
+         Cast("shackles", me)
+         PrintAction("Shackles for AoE", #targets)
          return true
       end
    end
+
    return false
 end
 
