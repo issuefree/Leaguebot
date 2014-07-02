@@ -45,8 +45,9 @@ spells["slash"] = {
   base={30,55,80,105,130}, 
   ap=.3,
   ad=.6,
-  type="P"
-  -- cost={60,55,50,45,40}
+  type="P",
+  -- cost={60,55,50,45,40},
+  damOnTarget=function(target) return getDetonateDam(target) end
 }
 spells["dance"] = {
   key="R", 
@@ -56,11 +57,16 @@ spells["dance"] = {
   ap=.5
 }
 
+function getDetonateDam(target)
+   if HasBuff("mark", target) then
+      return GetSpellDamage("detonate")
+   end
+   return 0
+end
+
 spells["AA"].damOnTarget = 
    function(target)
-      if HasBuff("mark", target) then
-         return GetSpellDamage("detonate")
-      end
+      return getDetonateDam(target)
    end
 
 function Run()
@@ -81,32 +87,16 @@ function Run()
 	end
 
    if IsOn("lasthit") and Alone() and CanAct() then
-      if CanUse("mark") then
-         local targets = SortByDistance(GetKills("mark", GetInRange(me, "mark", MINIONS)))
-         local target = targets[#targets]
-         if target and GetDistance(target) > GetSpellRange("AA") then
-            Cast("mark", target)
-            PrintAction("Mark for lasthit")
-            return true
-         end
+      if KillMinion("mark", "far") then
+         return true
       end
 
       if CanUse("slash") then
-
-         local kills = 0
-         for _,minion in ipairs(GetInRange(me, "slash", MINIONS)) do
-            if WillKill("slash", minion) then
-               kills = kills + 1
-            elseif HasBuff("mark", minion) and 
-               GetSpellDamage("slash", minion) + GetSpellDamage("detonate", minion) > minion.health
-            then
-               kills = kills + 2
-            end
-            if kills >= 2 then
-               Cast("slash", me)
-               PrintAction("Slash for lasthit")
-               return true
-            end
+         local kills = GetKills("slash", MINIONS)
+         if kills >= 2 then
+            Cast("slash", me)
+            PrintAction("Slash for lasthit")
+            return true
          end
       end
 
