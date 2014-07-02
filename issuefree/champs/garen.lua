@@ -8,18 +8,20 @@ pp(" -   don't activate if I'm spinning")
 pp(" - If someone targets me and I'm < 75% activate courage")
 pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin")
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "strike"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["strike"] = {
    key="Q", 
    base={30,55,80,105,130}, 
-   ad=1.4,
+   ad=.4,
+   modAA="strike",
    type="P"
 }
 spells["courage"] = {
@@ -97,14 +99,14 @@ function Run()
 
    if IsOn("lasthit") then
       if Alone() then
-         if ModAAFarm("strike", P.strike) then
+         if ModAAFarm("strike") then
             return true
          end
       end
    end
 
    if IsOn("jungle") then
-      if ModAAJungle("strike", P.strike) then
+      if ModAAJungle("strike") then
          return true
       end
    end
@@ -205,7 +207,7 @@ function isSpinning()
 end
 
 local function onObject(object)
-   PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword", 150)
+   PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword", 200)
 end
 
 local function onSpell(unit, spell)
