@@ -275,18 +275,55 @@ function GetMyDirection()
    return AngleBetween(GetMyLastPosition(), me)
 end
 
+function Chasing(enemy)
+   -- if I was closer last tick than i was the tick before then I'm chasing
+   return GetDistance(myPos[1], enemy) < GetDistance(myPos[2], enemy)
+end
+
 function GetMousePos()
    return Point(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
 end
 
-function Engaged()
-   return GetWeakEnemy("MAGIC", 400 ) ~= nil
+function Skirmishing(target)
+   target = target or me
+   -- there are multiple enemies in AA range of multiple nearby allies
+   local nearAllies = GetInRange(target, 1000, ALLIES)
+   if #nearAllies < 2 then
+      return false
+   end
+   local skirmishingAllies = 0
+   for _,ally in ipairs(nearAllies) do
+      if #GetInRange(ally, GetAARange(ally), ENEMIES) >= 2 then
+         skirmishingAllies = skirmishingAllies + 1         
+      end
+   end
+
+   if skirmishingAllies >= 2 then
+      return true
+   end
+   return false
 end
-function Alone()
-   return GetWeakEnemy("MAGIC", 750+(me.selflevel*25)) == nil
+function Engaged(target)
+   target = target or me
+   local engageRange = math.max(target.range+50, 400)
+   return #GetInRange(target, engageRange, ENEMIES) > 0
 end
-function VeryAlone()
-   return GetWeakEnemy("MAGIC", (750+(me.selflevel*25))*1.5) == nil
+-- this is used for "Can I hit minions with stuff" as much as really being "alone"
+-- at low levels we want to last hit stuff over saving stuff for enemies
+function Alone(target)  
+   target = target or me
+
+   if target.selflevel <= 5 then
+      return not Engaged()
+   end
+
+   local aloneRange = 750+(target.selflevel*25)
+   return #GetInRange(target, aloneRange, ENEMIES) == 0
+end
+function VeryAlone(target)
+   target = target or me
+   local vAloneRange = (750+(me.selflevel*25))*1.5
+   return #GetInRange(target, vAloneRange, ENEMIES) == 0
 end
 
 function UnderTower(target)
