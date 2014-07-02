@@ -9,19 +9,21 @@ require "issuefree/modules"
 
 pp("\nTim's Leona")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "shield"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["shield"] = {
    key="Q", 
    base={40,70,100,130,160}, 
    ap=.3,
    type="M",
+   modAA="shield",
    cost={45,50,55,60,65}
 } 
 spells["eclipse"] = {
@@ -58,9 +60,6 @@ spells["flare"] = {
 
 
 function Run()
-   if P.shield then
-      PrintState(0, "shield")
-   end
    if StartTickActions() then
       return true
    end
@@ -82,7 +81,7 @@ function Run()
    if IsOn("lasthit") then
       if Alone() then
          if GetMPerc(me) > .5 then
-            if ModAAFarm("shield", P.shield) then
+            if ModAAFarm("shield") then
                return true
             end
          end
@@ -101,7 +100,8 @@ end
 
 function Action()
 
-   if AutoAA("shield") then
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target, "shield") then
       return true
    end
 
@@ -119,6 +119,7 @@ end
 
 local function onCreate(object)
    PersistBuff("shield", object, "Leona_ShieldOfDaybreak")
+
    if find(object.charName, "Leona_ZenithBlade_arrive") then
       if CanUse("eclipse") then
          Cast("eclipse", me)
