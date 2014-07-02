@@ -73,9 +73,9 @@ local function getBarrageRange()
    local spell = spells["barrage"]
    local lvl = GetSpellLevel(spell.key)
    if lvl > 0 then      
-      return spells["AA"].range+GetSpellRange("barrage")
+      return GetAARange()+GetSpellRange("barrage")
    end
-   return spells["AA"].range
+   return GetAARange()
 end
 
 local function updateSpells()
@@ -104,7 +104,10 @@ function Run()
       return true
    end
 
-   if CastAtCC("artillery") then
+   if CastAtCC("artillery") or
+      CastAtCC("ooze") or
+      CastAtCC("spittle")
+   then
       return true
    end
 
@@ -114,17 +117,19 @@ function Run()
 		end
 	end
 
-   if IsOn("lasthit") and VeryAlone() then
-      if me.mana/me.maxMana > .5 then         
-         if KillMinionsInLine("ooze", 3) then
-            return true
+   if IsOn("lasthit") then
+      if VeryAlone() then
+         if GetMPerc(me) > .33 then         
+            if KillMinionsInLine("ooze", 3) then
+               return true
+            end
          end
       end
-   end
-   if IsOn("lasthit") and Alone() then
-      if artilleryCount == 0 then
-         if KillMinionsInArea("artillery", 2) then
-            return true
+      if Alone() then
+         if artilleryCount == 0 then
+            if KillMinionsInArea("artillery", 2) then
+               return true
+            end
          end
       end
    end
@@ -145,13 +150,12 @@ function Action()
       return true
    end
 
-   if CanUse("ooze") and GetMPerc(me) > .5 then
-      local target = GetMarkedTarget() or GetWeakestEnemy("ooze")
-      if target then
-         if CastFireahead("ooze", target) then
-            PrintAction("Ooze", target)
-            return true
-         end
+   local target = GetSkillShot("ooze", ENEMIES) 
+   if target then
+      if GetMPerc(me) > .5 or GetDistance(target) < GetSpellRange("ooze")*.75 then
+         CastFireahead("ooze", target)
+         PrintAction("Ooze", target)         
+         return true
       end
    end
 
@@ -164,7 +168,7 @@ function Action()
    end
 
    if CanUse("artillery") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("artillery")
+      local target = SortByHealth(GetGoodFireaheads(targets, ...), "artillery")[1]
       local tManaP = (me.mana - GetSpellCost("artillery")) / me.maxMana
       if target and 
          ( GetDistance(target) > spells["AA"].range or
@@ -172,7 +176,7 @@ function Action()
       then
          if artilleryCount == 0 or 
             GetMPerc(me) > .5 or
-            GetSpellDamage("artillery", target) > target.health or
+            WillKill("artillery", target) or
             GetHPerc(target) < tManaP*2
          then
             if CastFireahead("artillery", target) then
