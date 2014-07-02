@@ -26,8 +26,9 @@ function initAAData()
                        aaParticles = {"annie_basicattack"},
                        aaSpellName = {"attack"} },
 
-      Ashe         = { projSpeed = 2.0, windup = .31,
-                       aaParticles = {"bowmaster", "Ashe_Base_BA_mis"},
+      Ashe         = { projSpeed = 2.0, windup = .25, -- can attack faster but seems to mess up move
+                       minMoveTime = .25, -- ashe can't get move commands too early for some reason
+                       aaParticles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
                        aaSpellName = {"attack", "frostarrow"} },
 
       Brand        = { projSpeed = 1.975, windup = .37,
@@ -363,6 +364,7 @@ local estimatedDuration = aaData.duration
 local estimatedWU = aaData.windup
 
 function AfterAttack()
+   -- needMove = true
    if ModuleConfig.aaDebug then
       UnblockOrders()
       StopMove()
@@ -475,7 +477,13 @@ end
 -- since "acting" is more important than attacking we can slow down our AA rate
 -- to act but not to move.
 function CanMove()
-   return CanAct()
+   if not aaData.minMoveTime then
+      return CanAct()
+   end
+   if time() - lastAttack > aaData.minMoveTime then
+      return CanAct()
+   end
+   return false
 end   
 
 function getNextAttackTime()
@@ -547,10 +555,12 @@ function IAttack(unit, spell)
    local spellName = aaData.aaSpellName
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
+         attackTarget = spell.target
          return true
       end
    else
       if find(spell.name, spellName) then                       
+         attackTarget = spell.target
          return true
       end
    end
