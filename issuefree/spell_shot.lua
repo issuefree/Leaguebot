@@ -257,7 +257,7 @@ local spells = {
 		{name="nautilusgrandline", cc=KNOCK},
 	},
 	Nidalee = {
-		{name="JavelinToss", key="Q", range=1500, radius=120, time=1.5, ss=true, block=true, perm=true, show=true, isline=true},
+		{name="JavelinToss", key="Q", range=1500, radius=40, time=1.5, ss=true, block=true, perm=true, show=true, isline=true},
 	},
 	Nocturne = {
 		{name="NocturneDuskbringer", range=1200, radius=150, time=1.5, ss=true, isline=true, physical=true},
@@ -398,7 +398,7 @@ local spells = {
 		{name="zedw2", range=550, radius=150, time=0.5, ss=true, isline=false, physical=true},
 	},
 	Ziggs = {
-		{name="ZiggsQ", range=1100, radius=160, time=1.5, ss=true, show=true, isline=true, point=true, block=true},
+		{name="ZiggsQ", range=1100, radius=150, time=1.5, ss=true, show=true, isline=true, point=true, block=true},
 		{name="ZiggsW", range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
 		{name="ZiggsE", range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
 		{name="ZiggsR", range=5300, radius=550, time=3, ss=true, isline=false},

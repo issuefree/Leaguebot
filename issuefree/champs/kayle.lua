@@ -23,6 +23,7 @@ spells["blessing"] = {
 spells["fury"] = {
   key="E", 
   range=525, 
+  ap=.2,
   color=red
 }
 spells["intervention"] = {

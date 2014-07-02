@@ -19,7 +19,7 @@ spells["jav"] = {
    base={50,75,100,125,150}, 
    ap=.4,
    cost={50,60,70,80,90},
-   width=30,
+   width=40,
    delay=1.5,
    speed=12.5
 }
@@ -28,7 +28,7 @@ spells["trap"] = {
    key="W", 
    range=900,
    base={20,40,60,80,100},
-   percHealth={.12,.14,.16,.18,.20},
+   percHealth={.10,.12,.14,.16,.18},
    percHealthAP=.0002,
    color=yellow,
    cost={40,45,50,55,60},
@@ -44,7 +44,7 @@ spells["heal"] = {
    base={45,85,125,165,205}, 
    ap=.5,
    type="H",
-   cost={60,80,100,120,140}
+   cost={60,75,90,105,120}
 }
 
 local isCougar = false
