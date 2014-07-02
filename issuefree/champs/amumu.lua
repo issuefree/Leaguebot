@@ -5,13 +5,14 @@ pp("\nTim's Amumu")
 pp(" - Despair and Tantrum in the jungle")
 pp(" - Despair and Tantrum enemies")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "tantrum"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bandage"] = {
   key="Q", 
@@ -55,9 +56,7 @@ function Run()
       if P.despair and 
          #GetAllInRange(me, GetSpellRange("despair")+50, MINIONS, ENEMIES, CREEPS) == 0 
       then
-         Cast("despair", me)         
-         PrintAction("Despair off")
-         StartChannel()
+         CastBuff("despair", false)
       end
    end
 
@@ -70,10 +69,7 @@ function Run()
    if IsOn("jungle") then
       if #GetAllInRange(me, "despair", BIGCREEPS, MAJORCREEPS) > 0  then
 
-         if not P.despair and CanUse("despair") then
-            CastBuff("despair")
-            PrintAction("Despair for jungle")
-         end
+         CastBuff("despair")
 
          if CanUse("tantrum") then
             Cast("tantrum", me)
@@ -105,11 +101,8 @@ end
 function Action()
    -- TestSkillShot("bandage")
    
-   if CanUse("despair") and not P.despair then
-      if GetWeakestEnemy("despair") then
-         CastBuff("despair")
-         PrintAction("Despair")
-      end
+   if GetWeakestEnemy("despair") then
+      CastBuff("despair")
    end
 
    if CastBest("tantrum") then
@@ -144,9 +137,7 @@ function FollowUp()
 end
 
 local function onObject(object)
-   if PersistBuff("despair", object, "Despair_buf", 150) then
-      pp("despair up")
-   end
+   PersistBuff("despair", object, "Despair_buf", 150)
 end
 
 local function onSpell(unit, spell)
