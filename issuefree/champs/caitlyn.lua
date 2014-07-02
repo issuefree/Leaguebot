@@ -33,6 +33,7 @@ spells["trap"] = {
    range=800, 
    base={80,130,180,230,280}, 
    ap=.6,
+   type="M",
    cost=50,
    delay=8-3, -- reduce delay for less leading
    speed=0,
@@ -41,7 +42,7 @@ spells["trap"] = {
 }
 spells["net"] = {
    key="E", 
-   range=800, 
+   range=950, 
    color=yellow, 
    base={80,130,180,230,280}, 
    ap=.8,
@@ -95,7 +96,9 @@ function Run()
       end
    end
 
-   if CastAtCC("trap") then
+   if CastAtCC("trap") or
+      CastAtCC("pp")
+   then
       return true
    end
 
