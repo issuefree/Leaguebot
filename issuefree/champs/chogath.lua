@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 print("\nTim's Cho'Gath")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("feast", {on=true, key=113, label="Feast"})
 AddToggle("jungle", {on=true, key=114, label="Jungle"})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "rupture"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 local function feastRange()
 	return GetWidth(me)+150
@@ -86,14 +87,13 @@ function Run()
 			PrintAction("Feast", target)
 			return true
 		end
-
 	end	
 
    if CastAtCC("rupture") then
       return true
    end
 
-	if HotKey() then
+	if HotKey() and CanAct() then
 		if Action() then
 			return true
 		end
@@ -122,13 +122,9 @@ function Run()
 
 	if IsOn("jungle") and Alone() then
 		if CanUse("feast") then
-			local creeps = MAJORCREEPS
-			
-			if me.range < MAX_FEAST_RANGE then
-				creeps = concat(creeps, BIGCREEPS)
-			end
 
-			for _,creep in ipairs(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)) do
+			local creeps = reverse(SortByHealth(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)))
+			for _,creep in ipairs() do
 				if WillKill("feastCreep", creep) then
 					Cast("feast", creep)
 					PrintAction("Feast", creep)
@@ -143,6 +139,8 @@ function Run()
          return true
       end
    end
+
+   EndTickActions()
 end
 
 function Action()
@@ -181,21 +179,29 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakEnemy("PHYS", spells["AA"].range*2)
-   if target and AA(target) then
-      PrintAction("AA", target)
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
       return true
    end
    return false
 end
 
 function FollowUp()
-   -- if IsOn("move") then
-   --    if MeleeMove() then
-   --       return false
-   --    end
-   -- end
+   if IsOn("move") then
+      if MeleeMove() then
+         return false
+      end
+   end
    return false
 end
+
+local function onCreate(object)
+end
+
+local function onSpell(unit, spell)
+end
+
+AddOnCreate(onCreate)
+AddOnSpell(onSpell)
 
 SetTimerCallback("Run")
