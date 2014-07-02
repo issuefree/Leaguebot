@@ -48,13 +48,6 @@ function Run()
       return true
    end
 
-   if CanUse("headbutt") then
-      local target = GetWeakestEnemy("headbutt")   
-      if target then
-         DrawKnockback(target, 650)
-      end
-   end
-
    if heal() then
       return true
    end
@@ -70,12 +63,8 @@ end
 
 function Action()
    -- knockup anything in range
-   if CanUse("pulverize") then
-      local target = GetWeakestEnemy("pulverize")
-      if target and Cast("pulverize", target) then
-         PrintAction("Pulverize", target)
-         return true
-      end
+   if CastBest("pulverize") then
+      return true
    end
    
    -- headbutt weakshit near mouse (pulverize will followup)
