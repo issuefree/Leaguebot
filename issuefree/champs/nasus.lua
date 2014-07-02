@@ -27,10 +27,9 @@ AddToggle("move", {on=true, key=118, label="Move"})
 spells["strike"] = {
    key="Q", 
    base={30,50,70,90,110}, 
-   ad=1,
    bonus=0,
-   onHit=true,
    type="P",
+   modAA="strike",
    cost=20
 }
 spells["wither"] = {
@@ -79,7 +78,7 @@ function Run()
    end   
    
 
-   if IsOn("lasthit") and not Engaged() then
+   if IsOn("lasthit") and Alone() then
       if CanUse("strike") then
          local targets = SortByDistance(GetAllInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
@@ -168,6 +167,8 @@ function FollowUp()
 end
 
 local function onObject(object)
+   Persist("strike", object, "Nasus_Base_Q_Buf")
+
    if find(object.charName, "DeathsCaress") then
       if GetDistance(object) < 300 then
          setStrikes(spells["strike"].bonus + 3)
