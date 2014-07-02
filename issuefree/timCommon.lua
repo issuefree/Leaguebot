@@ -707,9 +707,10 @@ function HitMinion(thing, method, extraRange)
 
    for _,minion in ipairs(minions) do
       if spell.name and spell.name == "attack" then
-         AA(minion)
-         PrintAction("AA "..method.." minion")
-         return true
+         if AA(minion) then
+            PrintAction("AA "..method.." minion")
+            return true
+         end
       else
          Cast(spell, minion)
          PrintAction(thing.." "..method.." minion")
@@ -1508,7 +1509,7 @@ function TimTick()
       -- end
    end
 
-   if GetDistance(me, CURSOR) < 100 then
+   if GetDistance(me, CURSOR) < 50 then
       ClearCursor()
    end
 
@@ -1607,7 +1608,7 @@ function EndTickActions()
 
    end
 
-   if IsOn("move") and CanMove() and needMove and CURSOR then
+   if IsOn("move") and CanMove() and needMove and CURSOR then      
       MoveToXYZ(Point(CURSOR):unpack())
       PrintAction("move")
       needMove = false
