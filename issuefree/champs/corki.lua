@@ -5,13 +5,14 @@ pp("\nTim's Corki")
 
 SetChampStyle("marksman")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("tear", {on=true, key=115, label="Tear"})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bomb"] = {
    key="Q", 
@@ -56,7 +57,7 @@ spells["barrage"] = {
    delay=.7,
    speed=20,
    width=80,
-   cost={30,35,40},
+   cost=20,
    missileTime={12,10,8},
    name="MissileBarrage"
 }
@@ -67,7 +68,7 @@ local mCount = 0
 local bigOne = false
 
 function Run()
-   spells["AA"].bonus = Damage(GetSpellDamage("AA")*.1, "T")
+   spells["AA"].bonus = Damage((me.baseDamage+me.addDamage)*.1, "T")
 
    local lvl = GetSpellLevel("R")
    if lvl > 0 then
