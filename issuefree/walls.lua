@@ -8,6 +8,16 @@ MAPNAME = nil
 SUMMONERSRIFT = "SummonersRift"
 HOWLINGABYSS = "HowlingAbyss"
 
+if GetMap() == 1 then
+   MAPNAME = SUMMONERSRIFT
+elseif GetMap() == 2 then
+   MAPNAME = CRYSTALSCAR
+elseif GetMap() == 3 then
+   MAPNAME = TWISTEDTREELINE
+elseif GetMap() == 6 then
+   MAPNAME = HOWLINGABYSS
+end
+
 local POINTS = {}
 
 
@@ -270,6 +280,10 @@ local function Tick()
       EDITMODE = false
    -- end
    if load then
+      if MAPNAME then
+         pp("Identified "..MAPNAME)
+      end
+
       if loadPoints() then
          load = false
       end
@@ -300,19 +314,6 @@ local function Tick()
 end
 
 local function onCreate(object)
-   if not MAPNAME then
-      if find(object.charName, "HQ_T1") then
-         if Point(object):near(Point(1880, -205, 1976)) then
-            MAPNAME = HOWLINGABYSS
-            pp("Identified "..MAPNAME)
-         end
-      elseif find(object.charName, "ShopMale") then
-         if Point(object):near(Point(-99,191,855)) then
-            MAPNAME = SUMMONERSRIFT
-            pp("Identified "..MAPNAME)
-         end
-      end
-   end
 end
 
 AddOnCreate(onCreate)
