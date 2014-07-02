@@ -10,18 +10,14 @@ pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
 pp(" - lasthit with empower")
 
--- SetChampStyle("bruiser")
-
-function getEmpowerDam()
-	return GetSpellDamage("empower") + Damage(me.baseDamage+me.addDamage, "P")
-end
+SetChampStyle("bruiser")
 
 AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"smite"}})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, getEmpowerDam}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 spells["leap"] = {
@@ -39,7 +35,7 @@ spells["empower"] = {
 	base={40,75,110,145,180}, 
 	ap=.6,
 	type="M",
-	onHit=true,
+	modAA="empower",
 	cost=30
 }
 spells["counter"] = {
@@ -66,22 +62,12 @@ function WillProcMight()
 end
 
 function Run()
-
 	if WillProcMight() then
-	end
-
-	local aaBonus = 0
-
-	if P.empower then
-		aaBonus = GetSpellDamage("empower")
-	end
-	if WillProcMight() then
-		aaBonus = aaBonus + GetSpellDamage("relentless")
+		spells["AA"].bonus = GetSpellDamage("relentless")
 		if CanAct() then
 			Circle(me, GetAARange()+3, yellow, 3)
 		end
 	end
-	spells["AA"].bonus = aaBonus
 
    if StartTickActions() then
       return true
@@ -112,7 +98,7 @@ function Run()
 					if WillKill("leap", minion) then
 						if GetDistance(minion) < GetAARange() and
 						   ( WillKill("AA", minion) or 
-						     ( CanUse("empower") and WillKill("empower", "AA", minion) ) )
+						     ( CanUse("empower") and WillKill("empower", minion) ) )
 						then
 						else
 							Cast("leap", minion)
@@ -125,7 +111,7 @@ function Run()
 		end
 
 		if Alone() then
-	      if ModAAFarm("empower", P.empower) then
+	      if ModAAFarm("empower") then
 	         return true
 	      end
 	   end
@@ -133,7 +119,7 @@ function Run()
 	end
 
 	if IsOn("jungle") then
-		if ModAAJungle("empower", P.empower) then
+		if ModAAJungle("empower") then
 			return true
 		end
 	end
@@ -232,7 +218,7 @@ local function onSpell(unit, spell)
 	   end
    end
 
-   if IAttack(unit, spell) then
+   if IAttack(unit, spell) and GetSpellLevel("R") > 0 then
    	ultCounter = ultCounter + 1
    	DoIn(
    		function() 
