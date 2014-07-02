@@ -3,13 +3,16 @@ require "issuefree/modules"
 
 pp("\nTim's Ashe")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+SetChampStyle("marksman")
+
+AddToggle("frost", {on=true, key=112, label="Auto frost"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["frost"] = {
    key="Q"
@@ -51,24 +54,25 @@ function Run()
       return true
    end
 
-   if GetMPerc(me) > .5 and CanChargeTear() or not Alone() then
-      if not P.frost then         
+   if IsOn("frost") then
+      if GetMPerc(me) > .5 and CanChargeTear() or not Alone() then
          CastBuff("frost")
-         -- PrintAction("Frost ON")
-      end
-   else      
-      if P.frost then
-         Cast("frost", me)
-         -- PrintAction("Frost OFF")
-         StartChannel()
+      else      
+         CastBuff("frost", false)
       end
    end
+
+   -- should write an auto hawkshot for people that run into brush
 
    if HotKey() and CanAct() then
       if Action() then
          return true
       end
    end   
+
+   if IsOn("lasthit") and CanUse("volley") and Alone() and GetMPerc(me) > .5 then
+      -- TODO write volley last hitter
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -82,13 +86,8 @@ end
 function Action()   
    -- TestSkillShot("arrow")
 
-   if CanUse("volley") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("volley")
-      if target then
-         Cast("volley", target)
-         PrintAction("Volley", target)
-         return true
-      end
+   if CastBest("volley") then
+      return true
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")

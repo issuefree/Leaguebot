@@ -293,7 +293,7 @@ function Skirmishing(target)
    end
    local skirmishingAllies = 0
    for _,ally in ipairs(nearAllies) do
-      if #GetInRange(ally, GetAARange(ally), ENEMIES) >= 2 then
+      if #GetInRange(ally, GetAARange(ally)+100, ENEMIES) >= 2 then
          skirmishingAllies = skirmishingAllies + 1         
       end
    end
