@@ -3,16 +3,15 @@ require "issuefree/modules"
 
 print("\nTim's Twisted Fate")
 
-local card = "Blue"
-local selecting = false
+local card = "blue"
 local gating = false
 
 function getCard()
    return card
 end
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("pick", {on=true, key=113, label="Auto Pick", auxLabel="{0}", args={getCard}})
+AddToggle("pick", {on=true, key=112, label="Auto Pick", auxLabel="{0}", args={getCard}})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -68,14 +67,31 @@ spells["stacked"] = {
 
 spells["card"] = nil
 
+function canPick()
+	return CanUse("pick") and not P.selecting and not P.card
+end
+
+function pick()
+	Cast("pick", me)
+	setSelecting()
+end
+
+function setSelecting()
+	if P.selecting then return end
+	PersistTemp("selecting", .5)
+end
+
 function Run()
-	if selecting then
-		PrintState(1, "SELECTING")
+	if P.selecting and not P.card and find(me.SpellNameW, card) then		
+		if IsOn("pick") then
+			CastSpellTarget("W", me, 0)
+			
+			P.selecting = nil
+			PersistTemp("card", .25)
+
+			PrintAction("Pick "..card)
+		end
 	end
-	
-	if P.card then
-		PrintState(1, P.card.charName)
-	end	
 
 	if not P.card then
       spells["card"] = nil
@@ -105,26 +121,30 @@ function Run()
       return true
    end
 
-	if HotKey() then
+	if HotKey() and CanAct() then
       if Action() then
       	return true
       end         
    end
 
-   if VeryAlone() and #GetInRange(me, "AA", MINIONS) >= 3 and CanUse("pick") and GetMPerc(me) < .9 then
-   	Cast("pick", me)
+   if canPick() and
+      not gating and
+   	VeryAlone() and
+   	#GetInRange(me, "AA", MINIONS) >= 3 and
+   	GetMPerc(me) < .9 
+   then
+   	pick()
    end
 
 	if IsOn("lasthit") and Alone() and not gating then
 
-		if not selecting and CanUse("pick") and not P.card then
+		if canPick() then
 			local minions = GetInRange(me, "AA", MINIONS)
 			for _,minion in ipairs(minions) do
             if minion.health < GetAADamage(minion)+GetSpellDamage(card, minion) and
             	not WillKill("AA", minion)
             then
-					Cast("pick", me)
-					selecting = true
+            	pick()
 					PrintAction("Pick for lasthit")
 					return true
             end
@@ -136,11 +156,11 @@ function Run()
 	EndTickActions()
 end
 
+selectStart = 0
 function Action()
-   if IsOn("pick") and CanUse("pick") and not selecting then
+   if IsOn("pick") and canPick() then
    	if GetWeakestEnemy("AA",100) then
-	      Cast("pick", me)
-	      selecting = true
+	      pick()
 	      PrintAction("Picking action card", card)
      	end
    end
@@ -157,24 +177,16 @@ function Action()
 end
 
 function onCreateObj(object)
+	PersistBuff("selecting", object, "TwistedFate_Base_W_")
+
 	if PersistBuff("card", object, "Card_", 200) then
-		selecting = false
+		P.selecting = nil
 		if find(object.charName, "gold") then
 			spells["card"] = spells["gold"]
 		elseif find(object.charName, "red") then
 			spells["card"] = spells["red"]
 		elseif find(object.charName, "blue") then
 			spells["card"] = spells["blue"]
-		end
-	end
-
-	if selecting and find(object.charName, "Card.troy") and GetDistance(object) < 200 then
-		if find(object.charName, card) then
-			if IsOn("pick") then
-				CastSpellTarget("W", me, 0)
-				selecting = false
-				PrintAction("Pick "..card)
-			end
 		end
 	end
 
@@ -185,25 +197,26 @@ function onSpell(unit, spell)
 --Destiny, gate
 	if IsMe(unit) then
 		
-
 		if find(spell.name, "cardlock") then
-			selecting = false
+			P.selecting = nil
 		end
 
 		if spell.name == "PickACard" then
-			selecting = true
+			setSelecting()			
 		end
 		
 		if spell.name == "Destiny" then
          card = "gold"         
          gating = true
-         if IsOn("pick") and CanUse("pick") then
-            Cast("pick", me)
+         if IsOn("pick") and canPick() then
+            pick()
          end
       end
+
 		if spell.name == "gate" then
          gating = false
       end
+      
 	end
 end
 
