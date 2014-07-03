@@ -470,7 +470,11 @@ function GetSpellFireahead(thing, target)
    if not tfas[spell.key] then
       pp(spell)
    end
-   local trackedPoints = tfas[spell.key][target.charName]
+   local trackedPoints
+   local tfask = tfas[spell.key]
+   if tfask then
+   	trackedPoints = tfas[spell.key][target.charName]
+   end
 
    if trackedPoints then   
       local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
@@ -512,6 +516,7 @@ function IsGoodFireahead(thing, target)
       point = OverShoot(me, point, spell.overShoot)
    end
 
+   -- TODO do something better!
    if IsSolid(point) then -- don't shoot into walls
       return false
    end
@@ -523,6 +528,11 @@ function IsGoodFireahead(thing, target)
    if simple then
       return true
    end
+
+   -- TODO I cast a lot of skillshots at people standing off for a teamfight.
+   -- they run toward us but turn back at spell range. I throw a spell at where they're going
+   -- even though I know they're not really charging 1v5.
+   -- I should handle that situation better.
 
    if target.movespeed < 275 then
    	return true
