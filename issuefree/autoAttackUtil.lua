@@ -13,7 +13,7 @@ function GetAARange(target)
 end
 
 function initAAData()
-   local champData = {  
+   local champData = { 
       Ahri         = { projSpeed = 1.6,
                        aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, 
                        aaSpellName = {"attack"} },
@@ -35,7 +35,8 @@ function initAAData()
                        aaParticles = {"BrandBasicAttack", "BrandCritAttack"},
                        aaSpellName = {"attack"} },
 
-      Caitlyn      = { projSpeed = 2.5, speed=1,
+      Caitlyn      = { projSpeed = 2.5, windup = .25,
+                       minMoveTime = .2,
                        aaParticles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
                        aaSpellName = {"attack", "CaitlynHeadshotMissile"} },
 
@@ -163,7 +164,8 @@ function initAAData()
                        aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"},
                        aaSpellName = {"attack"} },
 
-      Tristana     = { projSpeed = 2.25, windup = .22,
+      Tristana     = { projSpeed = 2.25, windup = .15,
+                       minMoveTime = .2,
                        aaParticles = {"TristannaBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
@@ -179,11 +181,11 @@ function initAAData()
                        aaParticles = {"UrgotBasicAttack_mis"},
                        aaSpellName = {"attack"} },
 
-      Vayne        = { projSpeed = 2.0, windup = .2666,
+      Vayne        = { projSpeed = 2.0, windup = .25,
                        aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" },
                        aaSpellName = {"attack"} },
 
-      Varus        = { projSpeed = 2.0, windup = .2666,
+      Varus        = { projSpeed = 2.0, windup = .25,
                        aaParticles = {"Varus_basicAttack_mis"},
                        aaSpellName = {"attack"} }, --varusemissiledummy?
 
@@ -215,94 +217,97 @@ function initAAData()
                        aaParticles = {"Zyra_basicAttack"},
                        aaSpellName = {"attack"} },
 
-      Akali        = { melee=true, windup = .2 },
+      Akali        = { windup = .2 },
 
-      Amumu        = { melee=true,
+      Amumu        = { 
                        aaParticles = {"SadMummyBasicAttack"} },
       
       Blitzcrank   = { melee=true },
 
-      Chogath      = { melee=true, windup = .2,
+      Chogath      = { windup = .33,
                      aaParticles = {"vorpal_spikes_mis"} },
 
-      DrMundo      = { melee=true, windup = .2 },
+      DrMundo      = { windup = .2 },
 
-      Elise        = { melee=true,
+      Elise        = { 
                        aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
-      Garen        = { melee=true, windup = .33,
+      Garen        = { windup = .33,
                        aaParticles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        aaSpellName = {"attack"},
                        resetSpell = {"GarenQ"} },
 
-      JarvanIV     = { melee=true,
+      JarvanIV     = { 
                        aaSpellName={"JarvanIVBasicAttack"} },
 
-      Jax          = { melee=true, windup=.35,
+      Jax          = { windup=.35,
                        aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        aaSpellName={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
                        resetSpell = {me.SpellNameW} },
 
-      LeeSin       = { melee=true,
+      LeeSin       = { 
                        aaSpellName={"attack"} },
 
-      Leona        = { melee=true,
+      Leona        = { 
                        aaParticles={"leona_basicattack_hit"},
                        aaSpellName={"attack"} },
 
-      MasterYi     = { melee=true,
+      MasterYi     = { 
                        aaParticles = {"Wuju_Trail"} },
 
-      Nasus        = { melee=true,
+      Nasus        = { 
                        aaParticles = {"nassus_siphonStrike_tar"},
                        resetSpell = {me.SpellNameQ} },
 
-      Olaf         = { melee=true, windup=.33
+      Olaf         = { windup=.33
                        -- aaParticles = {},
                        -- aaSpellName = {},
                       },
 
-      Poppy        = { melee=true,
+      Poppy        = { 
                        aaParticles = {"Poppy_DevastatingBlow"} },                       
 
-      Riven        = { melee=true, windup=.2,
+      Riven        = { windup=.2,
                        -- aaParticles = {},
                        aaSpellName = {"attack"},
                        resetSpell = {me.SpellNameQ} },
 
-      Shyvana      = { melee=true,
+      Shyvana      = { 
                        -- aaParticles = {},
                        aaSpellName = {"attack"},
                        resetSpell = {me.SpellNameQ} },
 
-      Tryndamere   = { melee=true,
+      Tryndamere   = { 
                        aaParticles = {"tryndamere_weapontrail"},
                        aaSpellName = {"attack", "Bloodlust"} },
 
-      Warwick      = { melee=true },
+      Warwick      = { },
 
-      Yorick       = { melee=true, windup=.25,
+      Yorick       = { windup=.25,
                        -- aaParticles = {},
                        aaSpellName = {"attack"},
                        resetSpell = {me.SpellNameQ} },
    }
 
-   aaData = champData[me.name]
-   if not aaData then
-      if GetAARange() == me.range + meleeRange then      
-         aaData = { melee=true }
-      end
+   aaData = champData[me.name] or {}
+
+   if GetAARange() == me.range + meleeRange then      
+      aaData.melee = true
    end   
 
    if not aaData.aaParticles then
       aaData.aaParticles = {}
    end
-   -- table.insert(aaData.aaParticles, "globalhit_bloodslash")
-
    if not aaData.aaSpellName then
      aaData.aaSpellName = {"attack"}
    end
-   table.insert(aaData.aaSpellName, "ItemTiamatCleave")
+   if not aaData.resetSpell then
+      aaData.resetSpell = {}
+   end
+
+   table.insert(aaData.resetSpell, "ItemTiamatCleave") -- TODO verify this spell name
+   -- TODO check if tiamat and hydra use the same spellname and reset name
+   -- TOOD check for other attack reset items
 
    if not aaData.windup then
       if aaData.melee then
@@ -311,6 +316,15 @@ function initAAData()
          aaData.windup = .33
       end
    end
+
+   if not aaData.minMoveTime then
+      if aaData.melee then
+         -- aaData.minMoveTime = .25 ???? TODO
+      else
+         aaData.minMoveTime = .2
+      end
+   end
+
    if not aaData.duration then
       aaData.duration = 1/me.baseattackspeed
    end
