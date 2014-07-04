@@ -1459,10 +1459,12 @@ function Unblock()
    send.block_input(false)
 end
 
+TICK_DELAY = .05
 -- Common stuff that should happen every time
 local tt = time()
 function TimTick()
    DrawText(trunc(1/(time()-tt),1),1800,60,0xFFCCEECC);
+   TICK_DELAY = time()-tt
    tt = time()
    if not LOADING then
       for i = 1, objManager:GetMaxNewObjects(), 1 do
