@@ -115,10 +115,16 @@ function Persist(name, object, charName, team)
 end
 
 function PersistTemp(name, ttl)
-   P[name] = {charName=name, x=0, z=0}
-   PData[name] = {}
-   PData[name].cn = name
-   PData[name].timeout = time() + ttl
+   if P[name] then
+      if PData[name].timout then
+         PData[name].timeout = time() + ttl
+      end
+   else
+      P[name] = {charName=name, x=0, z=0}
+      PData[name] = {}
+      PData[name].cn = name
+      PData[name].timeout = time() + ttl
+   end
 end
 
 function enemyHasName(name)
@@ -354,10 +360,12 @@ local function updateHeroes()
    EAPC = nil
    for i = 1, objManager:GetMaxHeroes(), 1 do
       local hero = objManager:GetHero(i)
-      if hero.team == me.team then
-         table.insert(ALLIES, hero)
-      else
-         table.insert(ENEMIES, hero)
+      if ValidTarget(hero) then
+         if hero.team == me.team then
+            table.insert(ALLIES, hero)
+         else
+            table.insert(ENEMIES, hero)
+         end
       end
    end   
    ADC = getADC(ALLIES)
@@ -466,6 +474,9 @@ function createForPersist(object)
    if Persist("cursorM", object, "Cursor_MoveTo.troy") then
       PData.cursorM.lastPos = Point(P.cursorM)
    end
+
+   -- TODO persist invuln from Kayle
+
 end
 
 function persistTick()
