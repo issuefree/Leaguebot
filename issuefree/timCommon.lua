@@ -289,6 +289,30 @@ function doCreateObj(object)
       end
    end
 
+   for _,name in ipairs(channeledSpells) do
+      if spells[name] and spells[name].channel then
+         if spells[name].object then
+            if spells[name].objectTimeout then
+               if object and 
+                  find(object.charName, spells[name].object) and
+                  GetDistance(object) < 200
+               then
+                  PersistTemp(name, spells[name].objectTimeout)
+                  PrintAction("found a channel temp object "..object.charName.." for "..name)
+               end
+            else               
+               if PersistBuff(name, object, spells[name].object, 200) then
+                  PrintAction("found a channel object "..object.charName.." for "..name)
+               end
+            end
+         else
+            if not spells[name].channelTime then
+               pp("cast a channeled spell "..name.." without a persisting object or channel time")
+            end
+         end
+      end
+   end
+
    for i, callback in ipairs(OBJECT_CALLBACKS) do
       callback(object)
    end
@@ -1303,36 +1327,33 @@ function DoIn(f, timeout, key)
    end
 end
 
-CHANNELBUFFER = false
-CHANNELLING = false
+function StartChannel(timeout, label)   
+   timeout = timeout or .5
+   label = label or "channel"
 
-
-function StartChannel(timeout, label)
-   if not timeout then timeout = .5 end
-   CHANNELBUFFER = true
-   if label then
-      pp("..."..label.." "..trunc(timeout))
-   -- else
-   --    pp("...channel "..timeout)
-   end
-   local start = time()
-   DoIn( function() 
-            CHANNELBUFFER = false 
-            if label then
-               pp("   "..label.."..."..trunc(time()-start))
-            -- else
-            --    pp("   channel..."..time()-start)
-            end            
-         end, 
-         timeout, "ChannelBuffer" )
+   AddChannelObject(label)
+   PersistTemp(label, timeout)   
 end
 
-function IsChannelling(object)
-   if not object then
-      return CHANNELBUFFER or CHANNELLING
-   else
-      return CHANNELBUFFER or object
+function IsChannelling(name)
+   if name then
+      if P[name] then
+         return name
+      end
+      return false
    end
+   for _,name in ipairs(channeledObjects) do
+      if P[name] then
+         return name
+      end
+   end
+   for _,name in ipairs(channeledSpells) do
+      if P[name] then
+         return name
+      end
+   end
+
+   return false
 end
 
 function PauseToggle(key, timeout)
@@ -1349,10 +1370,10 @@ function checkDodge(shot)
          pp(shot)
       end
       if not shot.block or ( shot.block and IsUnblocked(shot.target, shot, me, MINIONS, ENEMIES) ) then
-      -- if not IsChannelling() or (shot.cc and shot.cc >= 3) then
-         BlockingMove(shot.safePoint)
-         PrintAction("Dodge "..shot.name)
-      -- end
+         if not IsChannelling() or (shot.cc and shot.cc >= 3) then
+            BlockingMove(shot.safePoint)
+            PrintAction("Dodge "..shot.name)
+         end
       end
    end
 end
@@ -1397,17 +1418,19 @@ function OnProcessSpell(unit, spell)
       StartChannel(1)
    end
 
-   -- if CHAR_SPELLS[unit.name] then
-   --    if spell.name and IsHero(unit) and not CHAR_SPELLS[unit.name][spell.name] then
-   --       CHAR_SPELLS[unit.name][spell.name] = "new"
-   --       pp("Adding "..spell.name.." to "..unit.name) 
-   --       SaveConfig("charSpells/"..unit.name, CHAR_SPELLS[unit.name])
-   --    end
-   -- end
+   for _,name in ipairs(channeledSpells) do
+      if ICast(name, unit, spell) then
+         if spells[name].channelTime then
+            PrintAction("Cast "..name.." and started channel for "..spells[name].channelTime)
+            PersistTemp(name, spells[name].channelTime)
+         else
+            PrintAction("Cast "..name.." and started channel")
+            PersistTemp(name, 1)
+         end
+         break
+      end
+   end
 
-   -- for i, callback in ipairs(SPELL_CALLBACKS) do
-   --    callback(unit, spell)
-   -- end   
 end
 AddOnSpell(OnProcessSpell)
 
@@ -1497,12 +1520,13 @@ function TimTick()
 
    TrackMyPosition()
 
-   if P.cursorM then
+   if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
       CURSOR = Point(P.cursorM)
       PData.cursorM.lastPos = Point(P.cursorM)
-      -- if IsAttacking() and Alone() then
-      --    ResetAttack()
-      -- end
+      if IsAttacking() and Alone() then
+         pp("interrupt attack")
+         ResetAttack()
+      end
    elseif P.cursorA and GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
       CURSOR = nil --P.cursorA
       PData.cursorA.lastPos = Point(P.cursorA)
@@ -1569,14 +1593,32 @@ function CheckDisrupt(spell)
    return false
 end
 
+champInit = false
+wasChannelling = false
 function StartTickActions()
+   if not champInit then
+      for name, spell in pairs(spells) do
+         if spell.channel then
+            AddChannelSpell(name)
+         end
+      end
+
+      champInit = true
+   end
+
    if IsRecalling(me) or me.dead == 1 then
       PrintAction("Recalling or dead")
       return true
    end
 
    if IsChannelling() then
+      wasChannelling = true
       return true
+   end
+
+   if wasChannelling then
+      PrintAction("end channel")
+      wasChannelling = false
    end
 
    UseAutoItems()
@@ -1589,6 +1631,18 @@ function StartTickActions()
 
    return false
 end
+
+channeledSpells = {}
+channeledObjects = {}
+function AddChannelSpell(name)
+   table.insert(channeledSpells, name)
+end
+function AddChannelObject(name)
+   if not ListContains(name, channeledObjects) then
+      table.insert(channeledObjects, name)
+   end
+end
+
 
 needMove = false
 
