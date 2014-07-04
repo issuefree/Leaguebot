@@ -111,9 +111,10 @@ function Action()
 		end
 	end
 
-	if AutoAA() then
-		return true
-	end
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
+      return true
+   end
 
    return false
 end
