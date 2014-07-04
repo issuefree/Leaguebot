@@ -121,7 +121,7 @@ function CanUse(thing)
       if thing.id then -- item
          return IsCooledDown(GetInventorySlot(thing.id))
       elseif thing.key then -- spell
-         if me.mana >= GetSpellCost(thing) then             
+         if GetSpellLevel(thing.key) > 0 and  me.mana >= GetSpellCost(thing) then             
             return IsCooledDown(thing.key, thing.extraCooldown)
          else
             return false
