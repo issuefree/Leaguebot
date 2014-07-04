@@ -59,6 +59,8 @@ function SetChampStyle(style)
    elseif style == "marksman" then
       MASTERIES = {"havoc", "executioner"}
    elseif style == "bruiser" then
+   elseif style == "support" then
+      BLOCK_FOR_AA = false
    end
 end
 
@@ -1363,10 +1365,10 @@ function processShot(shot)
    end
 
    if Engaged() and shot.safePoint then
-      PrintAction("Don't dodge - engaged - "..shot.name, nil, 1)
+      PrintAction("Don't dodge - engaged -",shot.name, 1)
    end
    if IsChannelling() and shot.safePoint then
-      PrintAction("Don't dodge - channelling - "..shot.name, nil, 1)
+      PrintAction("Don't dodge - channelling -",shot.name, 1)
    end
 
    if me.dead == 0 and
@@ -1495,7 +1497,7 @@ function TimTick()
 
    TrackMyPosition()
 
-   if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
+   if P.cursorM then
       CURSOR = Point(P.cursorM)
       PData.cursorM.lastPos = Point(P.cursorM)
       -- if IsAttacking() and Alone() then
@@ -1641,12 +1643,14 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
          mod = " ("..thing..")"
       end
 
-      if AA(target) then
-         if GetAARange() < 300 then
-            ClearCursor()
+      if GetDistance(target) < GetAARange() or Chasing(target) then
+         if AA(target) then
+            if GetAARange() < 300 then
+               ClearCursor()
+            end
+            PrintAction("AA"..mod, target)
+            return true
          end
-         PrintAction("AA"..mod, target)
-         return true
       end
    else
       target = GetWeakestEnemy("AA")
@@ -1976,4 +1980,9 @@ function CastAtCC(thing)
    return false
 end
 
+function OnWndMsg(msg, key)
+
+end
+
+RegisterLibraryOnWndMsg(OnWndMsg)
 AddOnTick(TimTick)
