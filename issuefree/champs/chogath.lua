@@ -28,13 +28,16 @@ spells["rupture"] = {
 	speed=0,
 	radius=275,
 	cost=90,
-	noblock=true
+	noblock=true,
+	cost=90
 }
 spells["scream"] = {
 	key="W",
 	range=650,
 	color=violet,
-	base={75,125,175,225,275}
+	base={75,125,175,225,275},
+	cost={70,80,90,100,110},
+	cone=60
 }
 spells["vorpal"] = {
 	key="E",
