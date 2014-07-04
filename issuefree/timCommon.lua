@@ -631,7 +631,7 @@ end
 
 function MoveToTarget(t)
    if CanMove() then
-      local x,y,z = GetFireahead(t, 2, 0)
+      local x,y,z = GetFireahead(t, 5, 0)
       MoveToXYZ(x,y,z)
       CURSOR = Point(x,y,z)
       PrintAction("MTT", t)
@@ -1824,7 +1824,7 @@ function UseItem(itemName, target)
       end
       if target then
          CastSpellTarget(slot, target)
-         PrintAction(itemName, target)
+         PrintAction(itemName, target, 1)
          return true
       end
 
