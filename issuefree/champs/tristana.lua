@@ -63,16 +63,17 @@ local kbPoint = nil
 local kbType = nil
 
 function getKBPoint()
+
    kbType = nil
    local kbDist = GetLVal(spells["buster"], "knockback")
    local busterRange = GetSpellRange("buster")
    local jumpRange = GetSpellRange("jump")
 
-   if GetDistance(HOME) < (850 + kbDist + busterRange + jumpRange) then
-      PrintState(0, "HOME")      
-      kbType = "HOME"
-      return Point(HOME)
-   end
+   -- if GetDistance(HOME) < (850 + kbDist + busterRange + jumpRange) then
+   --    PrintState(0, "HOME")      
+   --    kbType = "HOME"
+   --    return Point(HOME)
+   -- end
 
    local point = SortByDistance(GetAllInRange(me, 750+kbDist+busterRange+jumpRange, MYTURRETS))[1]
    if point then 
@@ -81,22 +82,22 @@ function getKBPoint()
       return point 
    end
 
-   local otherAllies = GetOtherAllies()
-   for _,ally in ipairs(GetInRange(me, kbDist+busterRange, otherAllies)) do
-      local pick = SelectFromList(
-         ALLIES, 
-         function(a) 
-            return #GetInRange(a, 500, otherAllies)
-         end,
-         ally
-      )
-      local group = GetInRange(pick, 500, otherAllies)
-      if #group >= 2 or GetHPerc(pick) > .5 then
-         PrintState(0, "ALLIES")
-         kbType = "ALLIES"
-         return GetCenter(group)
-      end
-   end
+   -- local otherAllies = GetOtherAllies()
+   -- for _,ally in ipairs(GetInRange(me, kbDist+busterRange, otherAllies)) do
+   --    local pick = SelectFromList(
+   --       ALLIES, 
+   --       function(a) 
+   --          return #GetInRange(a, 500, otherAllies)
+   --       end,
+   --       ally
+   --    )
+   --    local group = GetInRange(pick, 500, otherAllies)
+   --    if #group >= 2 or GetHPerc(pick) > .5 then
+   --       PrintState(0, "ALLIES")
+   --       kbType = "ALLIES"
+   --       return GetCenter(group)
+   --    end
+   -- end
 
    -- for _,minion in ipairs(GetInRange(me, 1000, MYMINIONS)) do
    --    local pick = SelectFromList(
@@ -199,9 +200,7 @@ function getJumpPoint()
       return nil
    end
 
-   local numEnemies = #GetInRange(point, 650, ENEMIES)
-
-   if numEnemies > 2 then -- don't jump into groups
+   if #GetInRange(point, 1000, ENEMIES) > 2 then -- don't jump into groups
       return nil
    end
 
@@ -315,5 +314,6 @@ end
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
+
 SetTimerCallback("Run")
 
