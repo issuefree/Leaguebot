@@ -98,6 +98,10 @@ function Run()
             end
          end
       end
+
+      if KillMinionsInArea("fire", 2) then
+         return true
+      end
    end
    
 
