@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Zyra")
 
+SetChampStyle("caster")
+
 AddToggle("move", {on=true, key=112, label="Move"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -95,9 +97,11 @@ function Run()
       end
    end
 
-   if CanUse("bloom") then
+   if CanUse("bloom") or CanUse("roots") then
       CastAtCC("seed")
-      if CastAtCC("bloom") then
+      if CastAtCC("bloom") or
+         CastAtCC("roots")
+      then
          return true
       end
    end
