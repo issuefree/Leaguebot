@@ -2,6 +2,7 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 pp("\nTim's Xerath")
+pp(" - Xerath sucks")
 
 SetChampStyle("caster")
 
@@ -27,7 +28,8 @@ spells["bolt"] = {
    speed=0,
    width=50,
    noblock=true,
-   cost={80,90,100,110,120}
+   cost={80,90,100,110,120},
+   extraCooldown=.75
 } 
 spells["eye"] = {
    key="W",
@@ -92,10 +94,6 @@ function Run()
       spells["rite"].cost = spells["rite"].baseCost
    end
 
-   if not IsCooledDown("bolt") and IsChatOpen() == 0 and IsLoLActive() then
-      ClearQ()
-   end
-
    if StartTickActions() then
       return true
    end
@@ -103,7 +101,7 @@ function Run()
    if CanUse("rite") then
       local target = GetWeakestEnemy("rite")
       if target then
-         if GetSpellDamage("rite", target)*3 > target.health then
+         if GetSpellDamage("rite", target)*3 > target.health*1.1 then
             LineBetween(me, target, 10)
          end
       end
@@ -126,7 +124,7 @@ function Run()
          end
       end
 
-      if Alone() then
+      if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
          local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
          local hits,_,score = GetBestLine(me, "bolt", .1, 1, MINIONS)
          if score >= maxScore and score > 0 then
@@ -153,7 +151,7 @@ function Run()
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
-      KeyDown(SKeys.P)
+      StartBolt(1)      
 		if Action() then
 			return true
 		end
@@ -204,7 +202,8 @@ end
 
 function Action()
    if CanUse("bolt") and not P.charging then
-      local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, ValidTargets(ENEMIES))
+
+      local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, ENEMIES)
       if maxScore >= 1 then
          StartBolt()
          return true
@@ -220,45 +219,35 @@ end
 
 function FollowUp()
 
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    return false
 end
 
-function StartBolt()
+function StartBolt(timeout)
    if IsLoLActive() and IsChatOpen() == 0 then
-      if not qDown then
-         PrintAction("Q Up")
-         send.key_up(SKeys.Q)
-      end
-      send.key_down(SKeys.Q)
-      qDown = true
-   end
-end
+      if CanUse("bolt") and not P.charging then
+         pp(me.SpellTimeQ)
+         send.key_down(SKeys.Q)
+         PrintAction("Start Bolt")
+         PersistTemp("charging", .25)
 
-function ClearQ()
-   if qDown then
-      PrintAction("Q Down")
-      send.key_up(SKeys.Q)
-      qDown = false
+         if timeout then
+            DoIn(function() FinishBolt(mousePos) end, timeout)
+         end
+      end
    end
 end
 
 local sx, sy
 function FinishBolt(t)
-   if IsLoLActive() and IsChatOpen() == 0 then
-      -- CastClick("bolt", t)
+   pp(debug.traceback())
+   if IsLoLActive() and IsChatOpen() == 0 and P.charging then      
       if sx == nil then
          sx = GetCursorX()
          sy = GetCursorY()
       end
       ClickSpellXYZ("Q", t.x, t.y, t.z, 0)
-      send.key_press(SKeys.Q)
-      ClearQ()
+      PrintAction("Finish Bolt")
+      send.key_up(SKeys.Q)
       DoIn(
          function() 
             if sx then 
