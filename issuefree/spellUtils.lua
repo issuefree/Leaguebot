@@ -427,9 +427,7 @@ function GetKnockback(thing, source, target)
    return ProjectionA(target, angle, GetLVal(spell, "knockback"))
 end
 
--- local trackTicks = 10
-local trackFactor = 2.5 -- higher means track longer
-local tickTime = .05 -- roughly .05s between ticks
+local trackTime = .75
 tfas = {}
 function TrackSpellFireahead(thing, target)
    local spell = GetSpell(thing)   
@@ -445,22 +443,15 @@ function TrackSpellFireahead(thing, target)
    local p = Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target)
    p.y = 0
    table.insert(tfas[key][tcn], p)
-   local speed = spell.speed
-   if speed == 0 then
-      speed = 50
-   end
-   local delay = spell.delay
-   if not delay or delay == 0 then
-      delay = 2
-   end
-   local trackTicks = delay/speed*trackFactor/tickTime
+
+   local trackTicks = trackTime/TICK_DELAY
    if #tfas[key][tcn] > trackTicks then
       table.remove(tfas[key][tcn], 1)
    end
 end
 
 -- do fireahead calculations with a speedup to account for player direction changes
-SS_FUDGE = .75
+SS_FUDGE = 1.25
 
 function GetSpellFireahead(thing, target)
    local spell = GetSpell(thing)
@@ -468,22 +459,23 @@ function GetSpellFireahead(thing, target)
    -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
    --    pp("faking fireahead")
 
-   local fudge = SS_FUDGE
    if not tfas[spell.key] then
       pp(spell)
    end
-   local trackedPoints
-   local tfask = tfas[spell.key]
-   if tfask then
-   	trackedPoints = tfas[spell.key][target.charName]
+
+   local trackingFudge = 0
+   if tfas[spell.key] then   
+   	local trackedPoints = tfas[spell.key][target.charName]
+   	if trackedPoints and #trackedPoints > 1 then
+	      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
+	      local r = spell.width or spell.radius*2
+
+	      trackingFudge = 1 + (trackError/r * .25)
+	   end
    end
 
-   if trackedPoints then   
-      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
-      local r = spell.width or spell.radius
+   local fudge = math.max(SS_FUDGE, trackingFudge)
 
-      fudge = 1 + (SS_FUDGE * (trackError / r) / 2)
-   end
    return Point(GetFireahead(target, spell.delay/fudge, spell.speed*fudge))
    -- end
 
