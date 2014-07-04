@@ -7,8 +7,10 @@ require "issuefree/walls"
 -- common spell defs
 spells = {}
 
-function IsCooledDown(key)
-   return me["SpellTime"..key] >= .85
+function IsCooledDown(key, extraCooldown)
+	extraCooldown = extraCooldown or 0
+   return me["SpellTime"..key] >= .85 + extraCooldown
+   -- return me["SpellTime"..key] >= 1.75
 end
 
 function Cast(thing, target, force)
@@ -120,7 +122,7 @@ function CanUse(thing)
          return IsCooledDown(GetInventorySlot(thing.id))
       elseif thing.key then -- spell
          if me.mana >= GetSpellCost(thing) then             
-            return CanUse(thing.key)
+            return IsCooledDown(thing.key, thing.extraCooldown)
          else
             return false
          end
