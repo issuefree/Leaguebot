@@ -281,7 +281,7 @@ end
 
 function Chasing(enemy)
    -- if I was closer last tick than i was the tick before then I'm chasing
-   return GetDistance(myPos[1], enemy) < GetDistance(myPos[2], enemy)
+   return GetDistance(myPos[1], enemy) > GetDistance(myPos[2], enemy)
 end
 
 function GetMousePos()
