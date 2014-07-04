@@ -32,7 +32,9 @@ spells["alpha"] = {
 }
 spells["meditate"] = {
    key="W", 
-   cost=50
+   cost=50,
+   channel=true,
+   object="MasterYi_Base_W_Buf"
 }
 spells["wuju"] = {
    key="E",
@@ -66,12 +68,6 @@ function Run()
 
    if HasBuff("wuju", me) then
       spells["AA"].bonus = GetSpellDamage("wuju")
-   end
-
-
-   if IsChannelling(P.med) then
-      CHANNELLING = true
-      return true
    end
 
    if StartTickActions() then
@@ -204,7 +200,6 @@ end
 local function onObject(object)
 	PersistBuff("wuju", object, "MasterYi_Base_E_SuperChraged_buf")
 	PersistBuff("wujuBase", object, "MasterYi_Base_E_buff")
-	PersistBuff("med", object, "MasterYi_Base_W_Buf")
 end
 
 local function onSpell(unit, spell)

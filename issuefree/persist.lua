@@ -116,7 +116,7 @@ end
 
 function PersistTemp(name, ttl)
    if P[name] then
-      if PData[name].timout then
+      if PData[name].timeout then
          PData[name].timeout = time() + ttl
       end
    else

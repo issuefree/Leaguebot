@@ -24,7 +24,10 @@ spells["drain"] = {
    key="W", 
    range=575,
    color=green,
-   cost={80,90,100,110,120}
+   cost={80,90,100,110,120},   
+   channel=true,
+   name="DrainChannel",
+   object="Drain.troy"
 }
 spells["wind"] = {
    key="E", 
@@ -46,59 +49,7 @@ spells["crow"] = {
 -- beep for good crowstorm
 -- auto zhonias
 
-local drain = nil
-local drainCastTime = 0
-
-local function isDraining()
-   if P.drain then
-      CHANNELLING = true
-      return true
-   end
-   if time() - drainCastTime < 1 then
-      CHANNELLING = true
-      return true
-   end
-   CHANNELLING = false
-   return false
-end
-
-function CheckDisrupt()
-   if Disrupt("DeathLotus", "fear") then return true end
-   if Disrupt("DeathLotus", "wind") then return true end
-
-   if Disrupt("Grasp", "fear") then return true end
-   if Disrupt("Grasp", "wind") then return true end
-
-   if Disrupt("AbsoluteZero", "fear") then return true end
-   if Disrupt("AbsoluteZero", "wind") then return true end
-
-   if Disrupt("BulletTime", "fear") then return true end
-   if Disrupt("BulletTime", "wind") then return true end
-
-   if Disrupt("Duress", "fear") then return true end
-   if Disrupt("Duress", "wind") then return true end
-
-   if Disrupt("Idol", "fear") then return true end
-   if Disrupt("Idol", "wind") then return true end
-
-   if Disrupt("Monsoon", "fear") then return true end
-   if Disrupt("Monsoon", "wind") then return true end
-
-   if Disrupt("Meditate", "fear") then return true end
-   if Disrupt("Meditate", "wind") then return true end
-
-   if Disrupt("Drain", "fear") then return true end
-   if Disrupt("Drain", "wind") then return true end
-
-   return false
-end
-
 function Run()
-   if isDraining() then
-      PrintAction("Draining")
-      return true
-   end
-
    if StartTickActions() then
       return true
    end
@@ -149,7 +100,8 @@ function Action()
       if CanUse("drain") then
          -- might update this to target feared guys first
          local target = GetMarkedTarget() or GetWeakestEnemy("drain", 0, 100)
-         if target and Cast("drain", target) then
+         if target then
+            Cast("drain", target)
             UseItem("Deathfire Grasp", target)
             PrintAction("Drain", target)
             return true
@@ -187,15 +139,9 @@ function FollowUp()
 end
 
 local function onObject(object)
-  PersistBuff("drain", object, "Drain.troy")
 end
 
 local function onSpell(object, spell)
-   if object.charName == me.charName and
-      find(spell.name, "DrainChannel")
-   then
-      drainCastTime = time()
-   end
 end
 
 AddOnCreate(onObject)

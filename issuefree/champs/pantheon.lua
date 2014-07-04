@@ -9,13 +9,14 @@ pp(" - Strike if they're near")
 pp(" - Spear if they're running")
 pp(" - Spear to lasthit far minions if I have mana")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("dive", {on=false, key=113, label="Dive"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "spear"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["spear"] = {
   key="Q", 
@@ -42,7 +43,9 @@ spells["strike"] = {
   adBonus=1.8,
   cone=60,
   type="P",
-  cost={45,50,55,60,65}
+  cost={45,50,55,60,65},
+  channel=true,
+  object="Pantheon_Base_E_cas"
 }
 spells["skyfall"] = {
   key="R", 
@@ -51,51 +54,13 @@ spells["skyfall"] = {
   base={400,700,1000}, 
   ap=1,
   cost=125,
-  radius=1000
+  radius=1000,
+  channel=true,
+  channelTime=2
 }
-
-local strikeTime = 0
-local skyfallTime = 0
-
-local function isStriking()
-   if P.strike then
-      CHANNELLING = true
-      return true
-   end
-   if time() - strikeTime < 1 then
-      CHANNELLING = true
-      return true
-   end
-   CHANNELLING = false
-   return false
-end
-
-local function isSkyfall()
-   if P.skyfall then
-      CHANNELLING = true
-      return true
-   end
-   if time() - skyfallTime < 1 then
-      CHANNELLING = true
-      return true
-   end
-   CHANNELLING = false
-   return false
-end
-
 
 function Run()
    if StartTickActions() then
-      return true
-   end
-
-   if isStriking() then
-      PrintAction("Striking") 
-      return true
-   end
-
-   if isSkyfall() then
-      PrintAction("Skyfalling")  
       return true
    end
 
@@ -103,30 +68,33 @@ function Run()
       return true
    end
 
-   if HotKey() and CanAct() then
+   if HotKey() then
       if Action() then
          return true
       end
    end 
 
-   if VeryAlone() and IsOn("lasthit") then
-      if KillMinionsInCone("strike", 3) then
-         PrintAction("Strike for lasthits")
-         return true
-      end
-   end    
+   if IsOn("lasthit") then
 
-   if Alone() then
-      -- auto stuff that should happen if you didn't do something more important
-      if IsOn("lasthit") and CanUse("spear") and me.mana/me.maxMana > .75 then
-         local minions = SortByHealth(GetInRange(me, "spear", MINIONS), "spear")
-         for _,minion in ipairs(minions) do
-            if GetDistance(minion) > spells["AA"].range and
-               WillKill("spear", minion)
-            then
-               Cast("spear", minion)
-               PrintAction("Spear for lasthit")
-               return true
+      if VeryAlone() then
+         if KillMinionsInCone("strike", 3) then
+            PrintAction("Strike for lasthits")
+            return true
+         end
+      end    
+
+      if Alone() then
+         -- auto stuff that should happen if you didn't do something more important
+         if CanUse("spear") and GetMPerc(me) > .5 then
+            local minions = SortByHealth(GetInRange(me, "spear", MINIONS), "spear")
+            for _,minion in ipairs(minions) do
+               if GetDistance(minion) > spells["AA"].range and
+                  WillKill("spear", minion)
+               then
+                  Cast("spear", minion)
+                  PrintAction("Spear for lasthit")
+                  return true
+               end
             end
          end
       end
@@ -142,6 +110,7 @@ function Run()
 end
 
 function Action()
+   MoveToMouse()
    if CanUse("spear") then
       local target = GetMarkedTarget() or GetWeakestEnemy("spear")
       if target and FacingMe(target) then
@@ -200,21 +169,10 @@ function FollowUp()
 end
 
 local function onObject(object)
-   PersistBuff("strike", object, "pantheon_heartseeker_cas2", 150)
-   PersistBuff("skyfall", object, "pantheon_grandskyfall_cas", 150)
+   Persist("pbrc", object, "Pantheon_Base_R_cas")
 end
 
 local function onSpell(object, spell)
-   if object.charName == me.charName and
-      find(spell.name, "Heartseeker")
-   then
-      strikeTime = time()
-   end
-   if object.charName == me.charName and
-      find(spell.name, "GrandSkyfall")
-   then
-      skyfallTime = time()
-   end
 end
 
 AddOnCreate(onObject)

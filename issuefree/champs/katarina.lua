@@ -38,6 +38,9 @@ spells["lotus"] = {
    base={400,575,750},
    ap=2.5,
    adBonus=3.75,
+   channel=true,
+   object="katarina_deathLotus_mis.troy",
+   objectTimeout=.5,
    name="KatarinaR"
 }
 
@@ -95,18 +98,19 @@ function getComboDamage(target)
    return comboDam
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("steal",  {on=false, key=113, label="Secure Kills", auxLabel="{0}", args={fullCombo}})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"blades", "sinister"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 pp("Tim's Katarina")
 
 function Run()
-   if IsChannelling(P.lotus) then
+   if IsChannelling("lotus") then
 
       for _,enemy in ipairs(ENEMIES) do -- early abort for execute
          if GetDistance(enemy) > GetSpellRange("lotus") and 
@@ -125,7 +129,7 @@ function Run()
       end
 
    end
-   
+
    if StartTickActions() then
       return true
    end
@@ -269,7 +273,6 @@ function Farm()
    end
 
    if CanUse("blades") then
-   
       local nearTargets = GetInRange(me, 3000, MINIONS, ENEMIES)
       local initialTargets = SortByDistance(GetInRange(me, GetSpellRange("blades")+150, MINIONS, ENEMIES))
 
@@ -392,15 +395,10 @@ end
 
 function onObject(object)
    PersistOnTargets("dagger", object, "katarina_daggered", ENEMIES, MINIONS)
-   if PersistBuff("lotus", object, "katarina_deathLotus_mis.troy", 100) then
-      StartChannel(.25)
-   end
 end
 
 function onSpell(unit, spell)
-   if ICast("lotus", unit, spell) then
-      StartChannel(.25, "LOTUS")
-   end
+   -- this is here to make sure I let blades land before I consider my next move as it may change based on what gets hit.
    if ICast("blades", unit, spell) then
       StartChannel(.33, "blades")
    end

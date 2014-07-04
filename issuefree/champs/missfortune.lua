@@ -48,7 +48,9 @@ spells["bullet"] = {
    color=red, 
    base={400,600,1000}, 
    ap=1.6,
-   cost=100
+   cost=100,
+   channel=true,
+   object="MissFortune_Base_R_cas"
 }
 
 function GetBestDouble(target, targets, goodTargets)
@@ -89,14 +91,6 @@ function Run()
    if StartTickActions() then
       return true
    end
-
-   -- if IsChannelling(P.bulletTime) then
-   --    CHANNELLING = true
-   --    return true
-   -- end
-   -- if CHANNELLING then
-   -- end
-   -- CHANNELLING = false
 
    if HotKey() and CanAct() then
       if Action() then
@@ -179,13 +173,9 @@ function FollowUp()
 end
 
 local function onObject(object)
-   Persist("bulletTime", object, "missFortune_bulletTime")
 end
 
 local function onSpell(unit, spell)
-   if unit.charName == me.charName and find(spell.name, "MissFortuneBulletTime") then
-      StartChannel()
-   end
 end
 
 AddOnCreate(onObject)
