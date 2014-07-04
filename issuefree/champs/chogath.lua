@@ -124,7 +124,7 @@ function Run()
 		if CanUse("feast") then
 
 			local creeps = reverse(SortByHealth(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)))
-			for _,creep in ipairs() do
+			for _,creep in ipairs(creeps) do
 				if WillKill("feastCreep", creep) then
 					Cast("feast", creep)
 					PrintAction("Feast", creep)
