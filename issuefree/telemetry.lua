@@ -13,6 +13,10 @@ function Point:__init(a, b, c)
          self.y = a.y+1-1
       end
       self.z = a.z+1-1
+   elseif a and b and not c then
+      self.x = a+1-1
+      self.y = 0
+      self.z = b+1-1
    else
       self.x = a+1-1
       self.y = b+1-1
