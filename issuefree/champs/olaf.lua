@@ -6,7 +6,7 @@ pp(" - Swing for last hits")
 pp(" - Ham in jungle")
 pp(" - Axe peeps")
 
-AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
