@@ -31,7 +31,6 @@ ITEMS["Aegis of Legion"]      = {id=3105, range=1200, type="aura", color=green}
 ITEMS["Banner of Command"]    = {id=3060, range=1000, type="aura", color=yellow}
 ITEMS["Emblem of Valor"]      = {id=3097, range=1200, type="aura", color=green}
 ITEMS["Runic Bulwark"]        = {id=3107, range=1200, type="aura", color=green}
-ITEMS["Shard of True Ice"]    = {id=3092, range=1200, type="aura", color=blue}
 ITEMS["Zeke's Herald"]        = {id=3050, range=1200, type="aura", color=yellow}
 
 --Active cleanse
