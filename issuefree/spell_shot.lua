@@ -512,7 +512,11 @@ function ShotTarget(shot, target)
 			end
 			
 			-- is where I'll be in half a second clear?
-			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed/2)
+			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed)
+
+			if isSafe(safePoint, shot) then
+				pp("KEEP RUNNIN")
+			end
 
 			if not isSafe(safePoint, shot) then					
 				safePoint = Projection(impactPoint, target, shot.safeDist)
