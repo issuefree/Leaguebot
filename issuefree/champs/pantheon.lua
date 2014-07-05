@@ -110,7 +110,6 @@ function Run()
 end
 
 function Action()
-   MoveToMouse()
    if CanUse("spear") then
       local target = GetMarkedTarget() or GetWeakestEnemy("spear")
       if target and FacingMe(target) then
