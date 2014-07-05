@@ -69,7 +69,7 @@ spells["spider"] = {
 spells["AA"].damOnTarget = 
    function(target)
       if isSpider() then
-         return GetSpellDamage("spider", target)
+         return GetSpellDamage("spider")
       end
       return 0
    end
