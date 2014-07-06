@@ -8,6 +8,8 @@ pp(" - Spike chilled people")
 pp(" - Storm for aoe")
 pp(" - Storm for minion clear")
 
+SetChampStyle("caster")
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -96,6 +98,25 @@ function Run()
       end
    end      
 
+   if IsOn("lasthit") then
+      if CanUse("spike") and GetMPerc(me) > .5 then
+         if VeryAlone() then
+            if KillMinion("spike", "strong") then
+               return true
+            end
+         end
+      end
+
+      if P.orb and #GetInRange(me, "orb", ENEMIES) == 0 then
+         if #GetKills("orb", GetInRange(P.orb, spells["orb"].radius, MINIONS)) >= 2 then
+            Cast("orb", me, true)
+            PrintAction("Detonate orb for LH")
+            return true
+         end
+      end
+
+   end   
+
    if IsOn("clear") and CanUse("storm") and Alone() and not P.storm then
       local hits = GetBestArea(me, "storm", 1, 0, MINIONS)
       if (GetMPerc(me) > .33 and #hits >= 4) or
@@ -119,12 +140,12 @@ function Action()
    if CanUse("spike") then
       local kills = GetKills("spike", ENEMIES)
       if kills[1] then
-         Cast("spike", target)
-         PrintAction("Spike for execute", target)
+         Cast("spike", kills[1])
+         PrintAction("Spike for execute", kills[1])
          return true
       end
 
-      local target = GetWeakest("spike", GetWithBuff("freeze", GetInRange(me, "spike", ENEMIES))
+      local target = GetWeakest("spike", GetWithBuff("freeze", GetInRange(me, "spike", ENEMIES)))
       if target then
          UseItem("Deathfire Grasp", target)
          Cast("spike", target)
@@ -133,8 +154,10 @@ function Action()
       end
    end
 
-   if SkillShot("orb") then
-      return true
+   if not P.orb then
+      if SkillShot("orb") then
+         return true
+      end
    end
 
    if CanUse("storm") and not P.storm then
@@ -159,6 +182,9 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
+   if ICast("orb", unit, spell) then
+      PersistTemp("orb", .25)
+   end
 end
 
 AddOnCreate(onObject)
