@@ -91,11 +91,11 @@ function Run()
 	end
 	
 	if IsOn("lasthit") and Alone() then
-		if KillMinion("infuse") then
+		if KillMinion("infuse", nil, true) then
 			return true
 		end
 
-		if KillMinion("starfall") then
+		if KillMinion("starfall", nil, true) then
 			return true
 		end
 	end

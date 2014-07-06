@@ -68,7 +68,7 @@ function Run()
       if ( CanChargeTear() and GetMPerc(me) > .33 ) or
          GetMPerc(me) > .5
       then
-         if KillMinion("overload") then
+         if KillMinion("overload", nil, true) then
             return true
          end
       end

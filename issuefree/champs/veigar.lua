@@ -78,7 +78,7 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if KillMinion("strike") then
+      if KillMinion("strike", nil, true) then
          return true
       end
    end

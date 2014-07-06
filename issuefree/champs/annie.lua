@@ -126,13 +126,13 @@ function Run()
       end
 
       if VeryAlone() then
-         if KillMinion("dis") then
+         if KillMinion("dis", nil, true) then
             PauseToggle("lasthit", .5)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
-            if KillMinion("dis") then
+            if KillMinion("dis", nil, true) then
                PauseToggle("lasthit", .5)
                return true
             end

@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Irelia")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("ult", {on=true, key=113, label="Auto Ult"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "surge"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["surge"] = {
    key="Q", 
@@ -50,6 +51,12 @@ spells["blades"] = {
 }
 
 function Run()
+   if P.hiten then
+      spells["AA"].bonus = GetSpellDamage("hiten")
+   else
+      spells["AA"].bonus = 0
+   end
+
    if StartTickActions() then
       return true
    end
@@ -91,22 +98,13 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") and Alone() then
-      if CanUse("surge") and GetMPerc(me) > .5 then
-         local minion = GetWeakest("surge", GetInRange(me, "surge", MINIONS))
-         if minion and
-            WillKill("surge", minion)             
-         then
-            if GetMPerc(me) > .75 or
-               GetDistance(minion) > GetSpellRange("AA")+75 or
-               not CanAttack()
-            then
-               Cast("surge", minion)
-               PrintAction("Surge for lasthit")
-               StartChannel(.25)
-               return true
-            end
+      if GetMPerc(me) > .5 then
+         if KillMinion("surge") then
+            StartChannel(.25)
+            return true
          end
       end
+
    end
 
    if HotKey() and CanAct() then
@@ -181,7 +179,7 @@ function Action()
       local target = GetMarkedTarget()
       if target and GetDistance(target) > GetSpellRange("surge") then
          local minions = GetKills("surge", GetInRange(me, "surge", MINIONS))
-         local link = GetInRange(target, "surge", minions)[1]
+         local link = SortByDistance(GetInRange(target, "surge", minions), target)[1]
          if link then
             Cast("surge", link)
             PrintAction("Surge for link", target)
@@ -210,6 +208,7 @@ end
 
 local function onObject(object)
    PersistBuff("blades", object, "Irelia_ult_dagger_active")
+   PersistBuff("hiten", object, "irelia_hitenStlye_active_glow", 200)
 end
 
 local function onSpell(unit, spell)

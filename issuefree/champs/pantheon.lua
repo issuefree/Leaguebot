@@ -74,6 +74,7 @@ function Run()
       end
    end 
 
+   -- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
 
       if VeryAlone() then
@@ -84,17 +85,9 @@ function Run()
       end    
 
       if Alone() then
-         -- auto stuff that should happen if you didn't do something more important
-         if CanUse("spear") and GetMPerc(me) > .5 then
-            local minions = SortByHealth(GetInRange(me, "spear", MINIONS), "spear")
-            for _,minion in ipairs(minions) do
-               if GetDistance(minion) > spells["AA"].range and
-                  WillKill("spear", minion)
-               then
-                  Cast("spear", minion)
-                  PrintAction("Spear for lasthit")
-                  return true
-               end
+         if GetMPerc(me) > .5 then
+            if KillMinion("spear", "far") then
+               return true
             end
          end
       end

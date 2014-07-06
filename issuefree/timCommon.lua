@@ -710,8 +710,12 @@ function KillMinion(thing, method, force)
          break
       else
          if not SameUnit(minion, WK_AA_TARGET) then
+            rangeThresh = GetAARange()
+            if IsMelee(me) then
+               rangeThresh = GetAARange() + 50
+            end
             if JustAttacked() or
-               GetDistance(minion) > GetAARange()
+               GetDistance(minion) > rangeThresh
             then
                target = minion
                break
@@ -1648,7 +1652,7 @@ function StartTickActions()
    end
 
    if wasChannelling then
-      PrintAction("end channel")
+      -- PrintAction("end channel")
       wasChannelling = false
    end
 

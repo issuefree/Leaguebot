@@ -66,7 +66,7 @@ function Run()
 
 	if IsOn("lasthit") then
 		if me.maxHealth - me.health > GetSpellDamage("fed") then
-			if KillMinion("consume") then
+			if KillMinion("consume", nil, force) then
 				return true
 			end
 		end
