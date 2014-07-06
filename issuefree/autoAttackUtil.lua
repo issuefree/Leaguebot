@@ -1,333 +1,277 @@
 require "issuefree/basicUtils"
 require "issuefree/telemetry"
 
-local minAttackTime = .4
-local meleeRange = 100+15
-
 local ping = 50
 local latency = ping * 2 / 1000
 
+-- The most important thing is to register attack spells. Nothing works if the attack spell isn't
+-- picked up. 90% of the time the attack spell is just the default of "attack" something.
+-- There may be additional ones especially if the character has attack mod skills.
+
+-- The next most important thing on here is the windup time.
+-- This is measured by setting it very low (.1)
+-- turning on the debugger (which stops attack after the timeout)
+-- and swinging at something. If it stops the attack the windup is too low.
+-- Try several attacks. It should never cancel. 
+-- Round up a bit as losing .05s is nothing but clipping the attack is bad.
+
+-- The third thing is the min move time. If you send a move command too soon it doesn't work.
+-- It seems to be generally .2s min. Some characters need slightly more (Ashe).
+-- Get some move speed (like 1.5 total) and orbwalk. If it misses some move commands, up the minMoveTime.
+
+-- Particles used to be important but it is all timing based now. May as well throw them in...
+
+      -- Ashe         = { projSpeed = 2.0, windup = .25,
+      --                  minMoveTime = .25,
+      --                  particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
+      --                  attacks = {"attack", "frostarrow"} },
+
+local windup = .4  -- this is the slowest I've seen. Shouldn't ever clip with this but not the most responsive.
+local minMoveTime = .2  -- this seems to work for almost everyone.
+
 function GetAARange(target)
    target = target or me
-   return target.range + meleeRange
+   return target.range + GetWidth(me)
 end
 
 function initAAData()
    local champData = { 
       Ahri         = { projSpeed = 1.6,
-                       aaParticles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"}, 
-                       aaSpellName = {"attack"} },
+                       particles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"} },
 
-      Anivia       = { projSpeed = 1.05,
-                       aaParticles = {"cryo_BasicAttack"},
-                       aaSpellName = {"attack"} },
+      Anivia       = { projSpeed = 1.05, windup = .4,
+                       particles = {"cryoBasicAttack"} },
 
-      Annie        = { projSpeed = 1.0, windup = .33,
-                       aaParticles = {"annie_basicattack"},
-                       aaSpellName = {"attack"} },
+      Annie        = { projSpeed = 1.0, windup = .35,
+                       particles = {"annie_basicattack"} },
 
       Ashe         = { projSpeed = 2.0, windup = .25, -- can attack faster but seems to mess up move
                        minMoveTime = .25, -- ashe can't get move commands too early for some reason
-                       aaParticles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
-                       aaSpellName = {"attack", "frostarrow"} },
+                       particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
+                       attacks = {"attack", "frostarrow"} },
 
-      Brand        = { projSpeed = 1.975, windup = .37,
-                       aaParticles = {"BrandBasicAttack", "BrandCritAttack"},
-                       aaSpellName = {"attack"} },
+      Brand        = { projSpeed = 1.975, windup = .4,
+                       particles = {"BrandBasicAttack", "BrandCritAttack"} },
 
       Caitlyn      = { projSpeed = 2.5, windup = .25,
-                       minMoveTime = .2,
-                       aaParticles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
-                       aaSpellName = {"attack", "CaitlynHeadshotMissile"} },
+                       particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
+                       attacks = {"attack", "CaitlynHeadshotMissile"} },
 
       Cassiopeia   = { projSpeed = 1.22,
-                       aaParticles = {"CassBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"CassBasicAttack_mis"} },
 
-      Corki        = { projSpeed = 2.0,
-                       aaParticles = {"corki_basicAttack_mis", "Corki_crit_mis"},
-                       aaSpellName = {"attack"} },
+      Corki        = { projSpeed = 2.0, windup = .15,
+                       particles = {"corki_basicAttack_mis", "Corki_crit_mis"} },
 
       Draven       = { projSpeed = 1.4,
-                       aaParticles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"} },
 
-      Ezreal       = { projSpeed = 2.0, windup = .29,
-                       aaParticles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"},
-                       aaSpellName = {"attack"} },
+      Ezreal       = { projSpeed = 2.0, windup = .3,
+                       particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"} },
 
       FiddleSticks = { projSpeed = 1.75,
-                       aaParticles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
 
-      Graves       = { projSpeed = 3.0, windup=.23,
-                       aaParticles = {"Graves_BasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+      Graves       = { projSpeed = 3.0, windup = .25,
+                       particles = {"Graves_BasicAttack_mis"} },
 
       Heimerdinger = { projSpeed = 1.4,
-                       aaParticles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"} },
 
       Janna        = { projSpeed = 1.2,
-                       aaParticles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
 
       Jayce        = { projSpeed = 2.2,
-                       aaParticles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"},
-                       aaSpellName = {"attack"} },
+                       particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
-      Jinx         = { projSpeed = 2.4, windup=.28,
-                       aaParticles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"},
-                       aaSpellName = {"attack"} },
+      Jinx         = { projSpeed = 2.4, windup=.3,
+                       particles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"} },
 
       Karma        = { projSpeed = nil,
-                       aaParticles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
 
       Karthus      = { projSpeed = 1.25,
-                       aaParticles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"} },
 
       Kayle        = { projSpeed = 1.8,
-                       aaParticles = {"RighteousFury_nova"},
-                       aaSpellName = {"attack"} },
+                       particles = {"RighteousFury_nova"} },
 
       Kennen       = { projSpeed = 1.35,
-                       aaParticles = {"KennenBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"KennenBasicAttack_mis"} },
 
-      KogMaw       = { projSpeed = 1.8,
-                       aaParticles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"},
-                       aaSpellName = {"attack"} },
+      KogMaw       = { projSpeed = 1.8, windup = .2,
+                       particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"} },
 
       Leblanc      = { projSpeed = 1.7,
-                       aaParticles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"} },
 
       Lulu         = { projSpeed = 2.5,
-                       aaParticles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"} },
 
       Lux          = { projSpeed = 1.55,
-                       aaParticles = {"LuxBasicAttack"},
-                       aaSpellName = {"attack"} },
+                       particles = {"LuxBasicAttack"} },
 
       Malzahar     = { projSpeed = 1.5,
-                       aaParticles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"} },
 
-      MissFortune  = { projSpeed = 2.0, windup=.21,
-                       aaParticles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"},
-                       aaSpellName = {"attack"} },
+      MissFortune  = { projSpeed = 2.0, windup=.25,
+                       particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"} },
 
       Morgana      = { projSpeed = 1.6,
-                       aaParticles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"} },
 
       Nidalee      = { projSpeed = 1.7,
-                       aaParticles = {"nidalee_javelin_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"nidalee_javelin_mis"} },
 
       Orianna      = { projSpeed = 1.4,
-                       aaParticles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
-                       aaParticles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
       Ryze         = { projSpeed = 2.4,
-                       aaParticles = {"ManaLeach_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"ManaLeach_mis"} },
 
       Sivir        = { projSpeed = 1.4,
-                       aaParticles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
 
       Sona         = { projSpeed = 1.6,
-                       aaParticles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"} },
 
       Soraka       = { projSpeed = 1.0,
-                       aaParticles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"},
-                       aaSpellName = {"attack"} },
+                       particles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"} },
 
       Swain        = { projSpeed = 1.6,
-                       aaParticles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"} },
 
       Syndra       = { projSpeed = 1.2,
-                       aaParticles = {"Syndra_attack_hit", "Syndra_attack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
       Teemo        = { projSpeed = 1.3,
-                       aaParticles = {"TeemoBasicAttack_mis", "Toxicshot_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
 
       Tristana     = { projSpeed = 2.25, windup = .15,
-                       minMoveTime = .2,
-                       aaParticles = {"TristannaBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"TristannaBasicAttack_mis"} },
 
-      TwistedFate  = { projSpeed = 1.5, windup = .367,
-                       aaParticles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"},
-                       aaSpellName = {"attack"} },
+      TwistedFate  = { projSpeed = 1.5, windup = .4,
+                       particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
 
       Twitch       = { projSpeed = 2.5,
-                       aaParticles = {"twitch_basicAttack_mis",--[[ "twitch_punk_sprayandPray_tar", "twitch_sprayandPray_tar",]] "twitch_sprayandPray_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"twitch_basicAttack_mis", "twitch_sprayandPray_mis"} },
 
       Urgot        = { projSpeed = 1.3, windup = .2,
-                       aaParticles = {"UrgotBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"UrgotBasicAttack_mis"} },
 
       Vayne        = { projSpeed = 2.0, windup = .25,
-                       aaParticles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" },
-                       aaSpellName = {"attack"} },
+                       particles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" } },
 
       Varus        = { projSpeed = 2.0, windup = .25,
-                       aaParticles = {"Varus_basicAttack_mis"},
-                       aaSpellName = {"attack"} }, --varusemissiledummy?
+                       particles = {"Varus_basicAttack_mis"} },
 
       Veigar       = { projSpeed = 1.05,
-                       aaParticles = {"permission_basicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"permission_basicAttack_mis"} },
 
       Viktor       = { projSpeed = 2.25,
-                       aaParticles = {"ViktorBasicAttack"},
-                       aaSpellName = {"attack"} },
+                       particles = {"ViktorBasicAttack"} },
 
       Vladimir     = { projSpeed = 1.4,
-                       aaParticles = {"VladBasicAttack"},
-                       aaSpellName = {"attack"} },
+                       particles = {"VladBasicAttack"} },
 
-      Xerath       = { projSpeed = 1.2, windup = .33,
-                       aaParticles = {"XerathBasicAttack"},
-                       aaSpellName = {"Xerath_Base_BA_mis"} },
+      Xerath       = { projSpeed = 1.2, windup = .35,
+                       particles = {"XerathBasicAttack"},
+                       attacks = {"Xerath_Base_BA_mis"} },
 
       Ziggs        = { projSpeed = 1.5,
-                       aaParticles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
 
       Zilean       = { projSpeed = 1.25,
-                       aaParticles = {"ChronoBasicAttack_mis"},
-                       aaSpellName = {"attack"} },
+                       particles = {"ChronoBasicAttack_mis"} },
 
       Zyra         = { projSpeed = 1.7,
-                       aaParticles = {"Zyra_basicAttack"},
-                       aaSpellName = {"attack"} },
+                       particles = {"Zyra_basicAttack"} },
 
       Akali        = { windup = .2 },
 
       Amumu        = { 
-                       aaParticles = {"SadMummyBasicAttack"} },
+                       particles = {"SadMummyBasicAttack"} },
       
-      Blitzcrank   = { melee=true },
+      Blitzcrank   = {  },
 
-      Chogath      = { windup = .33,
-                     aaParticles = {"vorpal_spikes_mis"} },
+      Chogath      = { windup = .35,
+                     particles = {"vorpal_spikes_mis"} },
 
       DrMundo      = { windup = .2 },
 
       Elise        = { 
-                       aaParticles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
+                       particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
-      Garen        = { windup = .33,
-                       aaParticles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
-                       aaSpellName = {"attack"},
-                       resetSpell = {"GarenQ"} },
+      Garen        = { windup = .35,
+                       particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
+                       resets = {"GarenQ"} },
 
       JarvanIV     = { 
-                       aaSpellName={"JarvanIVBasicAttack"} },
+                       attacks={"JarvanIVBasicAttack"} },
 
       Jax          = { windup=.35,
-                       aaParticles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
-                       aaSpellName={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
-                       resetSpell = {me.SpellNameW} },
+                       particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
+                       attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
+                       resets = {me.SpellNameW} },
 
-      LeeSin       = { 
-                       aaSpellName={"attack"} },
+      LeeSin       = {  },
 
       Leona        = { 
-                       aaParticles={"leona_basicattack_hit"},
-                       aaSpellName={"attack"} },
+                       particles={"leona_basicattack_hit"} },
 
       MasterYi     = { 
-                       aaParticles = {"Wuju_Trail"} },
+                       particles = {"Wuju_Trail"} },
 
       Nasus        = { 
-                       aaParticles = {"nassus_siphonStrike_tar"},
-                       resetSpell = {me.SpellNameQ} },
+                       particles = {"nassus_siphonStrike_tar"},
+                       resets = {me.SpellNameQ} },
 
-      Olaf         = { windup=.33
-                       -- aaParticles = {},
-                       -- aaSpellName = {},
+      Olaf         = { windup=.35
                       },
 
       Poppy        = { 
-                       aaParticles = {"Poppy_DevastatingBlow"} },                       
+                       particles = {"Poppy_DevastatingBlow"} },                       
 
       Riven        = { windup=.2,
-                       -- aaParticles = {},
-                       aaSpellName = {"attack"},
-                       resetSpell = {me.SpellNameQ} },
+                       resets = {me.SpellNameQ} },
 
       Shyvana      = { 
-                       -- aaParticles = {},
-                       aaSpellName = {"attack"},
-                       resetSpell = {me.SpellNameQ} },
+                       resets = {me.SpellNameQ} },
 
       Tryndamere   = { 
-                       aaParticles = {"tryndamere_weapontrail"},
-                       aaSpellName = {"attack", "Bloodlust"} },
+                       particles = {"tryndamere_weapontrail"},
+                       attacks = {"attack", "Bloodlust"} },
 
-      Warwick      = { },
+      Warwick      = { windup=.35 },
 
       Yorick       = { windup=.25,
-                       -- aaParticles = {},
-                       aaSpellName = {"attack"},
-                       resetSpell = {me.SpellNameQ} },
+                       resets = {me.SpellNameQ} },
    }
 
    aaData = champData[me.name] or {}
 
-   if GetAARange() == me.range + meleeRange then      
+   if GetAARange() < 350 then
       aaData.melee = true
    end   
 
-   if not aaData.aaParticles then
-      aaData.aaParticles = {}
-   end
-   if not aaData.aaSpellName then
-     aaData.aaSpellName = {"attack"}
-   end
-   if not aaData.resetSpell then
-      aaData.resetSpell = {}
-   end
+   aaData.windup = aaData.windup or windup
+   aaData.minMoveTime = aaData.minMoveTime or minMoveTime
 
-   table.insert(aaData.resetSpell, "ItemTiamatCleave") -- TODO verify this spell name
+   aaData.particles = aaData.particles or {}
+   aaData.attacks = aaData.attacks or {"attack"}
+   aaData.resets = aaData.resets or {}
+
+   table.insert(aaData.resets, "ItemTiamatCleave") -- TODO verify this spell name
    -- TODO check if tiamat and hydra use the same spellname and reset name
    -- TOOD check for other attack reset items
-
-   if not aaData.windup then
-      if aaData.melee then
-         aaData.windup = .25
-      else
-         aaData.windup = .33
-      end
-   end
-
-   if not aaData.minMoveTime then
-      if aaData.melee then
-         -- aaData.minMoveTime = .25 ???? TODO
-      else
-         aaData.minMoveTime = .2
-      end
-   end
 
    if not aaData.duration then
       aaData.duration = 1/me.baseattackspeed
    end
+
 end
 
 function getAttackSpeed()
@@ -388,15 +332,6 @@ end
 function aaTick()
    -- we asked for an attack but it's been longer than the windup and we haven't gotten a shot so we must have clipped or something
    if not shotFired and time() - lastAttack > getWindup() then
-      -- I'm not sure if I need this
-      -- if not aaData.melee then -- ranged folks start their cast from out of range so this prevents weirdness
-      --    lastAttack = time()
-      -- end 
-
-      if ModuleConfig.aaDebug then
-         pp("< -- Potential clip -- >")
-      end
-
       shotFired = true
    end
 
@@ -533,7 +468,7 @@ function setAttackState(state)
 end
 
 function onObjAA(object)
-   if ListContains(object.charName, aaData.aaParticles) 
+   if ListContains(object.charName, aaData.particles) 
       and GetDistance(object) < GetWidth(me)+250
    then
       if ModuleConfig.aaDebug then
@@ -566,7 +501,7 @@ function IAttack(unit, spell)
       return false
    end
 
-   local spellName = aaData.aaSpellName
+   local spellName = aaData.attacks
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
          attackTarget = spell.target
@@ -604,7 +539,7 @@ end
 
 
 function isResetSpell(spell)
-   local spellName = aaData.resetSpell
+   local spellName = aaData.resets
    if not spellName then return false end
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
@@ -629,7 +564,6 @@ function onSpellAA(unit, spell)
    end
 
    if IAttack(unit, spell) then
-
       -- if GetDistance(spell.target) > GetAARange()+10 then
       --   pp("OORANGEAA")
       --   pp(trunc(GetDistance(spell.target)).." > "..GetAARange())
