@@ -137,14 +137,15 @@ function Action()
       
    local target = GetMarkedTarget() or GetMeleeTarget()
    if target then
-      if CanUse("strikes") then
-         Cast("strikes", me)
-         PrintAction("Strikes up")
-      end
-
       if CanUse("swing") then
          Cast("swing", target)
          PrintAction("Swing", target)
+         return true
+      end
+
+      if CanUse("strikes") then
+         Cast("strikes", me)
+         PrintAction("Strikes up")
          return true
       end
 
