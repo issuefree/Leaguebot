@@ -34,6 +34,7 @@ end
 
 function Circle(target, radius, color, thickness)
 	if not target then return end
+	if target.x == 0 then return end
 	if not thickness then thickness = 1 end
 	if not color then color = yellow end
 	if not radius then radius = GetWidth(target) end
