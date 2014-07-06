@@ -3,8 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Annie")
 
-SetChampStyle("support")
--- SetChampStyle("caster")
+-- SetChampStyle("support")
+SetChampStyle("caster")
 
 spells["dis"] = {
    key="Q", 
@@ -77,6 +77,9 @@ function Run()
       end
    end
 
+   if CastAtCC("inc") then
+      return true
+   end
 
    if HotKey() and CanAct() then
       if Action() then
