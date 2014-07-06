@@ -35,6 +35,12 @@ spells["wind"] = {
    color=red, 
    base={65,85,105,125,145},
    ap=.45,
+   damOnTarget=function(target)
+                  if IsMinion(target) then
+                     return GetSpellDamage("wind")*.5
+                  end
+                  return 0
+               end
    cost={50,70,90,110,130}
 }
 spells["crow"] = {
@@ -67,6 +73,13 @@ function Run()
 	end
 
 	-- always stuff here
+   if IsOn("lasthit") then
+      if Alone() then
+         if CanUse("wind") then
+            -- TODO lasthit for farming. hard algorithm
+         end
+      end
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
