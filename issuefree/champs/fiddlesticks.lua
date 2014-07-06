@@ -40,7 +40,7 @@ spells["wind"] = {
                      return GetSpellDamage("wind")*.5
                   end
                   return 0
-               end
+               end,
    cost={50,70,90,110,130}
 }
 spells["crow"] = {
@@ -154,7 +154,7 @@ end
 local function onObject(object)
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
