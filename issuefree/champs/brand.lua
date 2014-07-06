@@ -103,20 +103,12 @@ function Run()
          return true
       end
 
-      if CanUse("sear") then
-         local minions = SortByDistance(GetKills("sear", GetUnblocked(me, "sear", MINIONS)))
-         for _,minion in ipairs(minions) do
-            if not WillKill("AA", minion) then
-               CastFireahead("sear", minion)
-               PrintAction("Sear for LH")
-               return true
-            end
+      if GetMPerc(me) > .5 then
+         if KillMinion("sear") then
+            return true
          end
       end
 
-      if KillMinion("sear") then
-         return true
-      end
    end
    
    -- low priority hotkey actions, e.g. killing minions, moving
