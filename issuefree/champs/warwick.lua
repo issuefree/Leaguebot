@@ -7,17 +7,15 @@ pp(" - Strike enemies")
 pp(" - AA enemies")
 
 local thirstDam = {3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10,11,12,13,14,15,16}
-local function updateThirstDamage()
-   spells["AA"].bonus = thirstDam[me.selflevel]
-end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["strike"] = {
    key="Q", 
@@ -44,7 +42,7 @@ Q minions if I have lots of mana or am low on health.
 ]]
 
 function Run()
-   updateThirstDamage()
+   spells["AA"].bonus = thirstDam[me.selflevel]
 
    if StartTickActions() then
       return true
@@ -102,7 +100,7 @@ function Action()
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AutoAA(target, "strike") then
+   if AutoAA(target) then
       return true
    end
 
