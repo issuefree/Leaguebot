@@ -34,6 +34,10 @@ function GetAARange(target)
    return target.range + GetWidth(me)
 end
 
+function IsMelee(target)
+   return GetAARange(target) < 350
+end
+
 function initAAData()
    local champData = { 
       Ahri         = { projSpeed = 1.6,
@@ -209,6 +213,8 @@ function initAAData()
                        particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        resets = {"GarenQ"} },
 
+      Irelia       = { windup = .3 },
+
       JarvanIV     = { 
                        attacks={"JarvanIVBasicAttack"} },
 
@@ -253,7 +259,7 @@ function initAAData()
 
    aaData = champData[me.name] or {}
 
-   if GetAARange() < 350 then
+   if IsMelee(me) then
       aaData.melee = true
    end   
 
