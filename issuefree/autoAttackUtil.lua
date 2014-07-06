@@ -73,7 +73,7 @@ function initAAData()
       Ezreal       = { projSpeed = 2.0, windup = .3,
                        particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"} },
 
-      FiddleSticks = { projSpeed = 1.75,
+      FiddleSticks = { projSpeed = 1.75, windup = .30,
                        particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
 
       Graves       = { projSpeed = 3.0, windup = .25,
@@ -133,7 +133,7 @@ function initAAData()
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Ryze         = { projSpeed = 2.4,
+      Ryze         = { projSpeed = 2.4, windup = .25,
                        particles = {"ManaLeach_mis"} },
 
       Sivir        = { projSpeed = 1.4,
@@ -607,7 +607,7 @@ function onSpellAA(unit, spell)
          trackAADuration()         
       end
 
-      if BLOCK_FOR_AA then
+      if BLOCK_FOR_AA and Alone() then
          BlockOrders()
       end
 
