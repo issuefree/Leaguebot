@@ -634,7 +634,7 @@ function MoveToTarget(t)
       local x,y,z = GetFireahead(t, 5, 0)
       MoveToXYZ(x,y,z)
       CURSOR = Point(x,y,z)
-      PrintAction("MTT", t)
+      PrintAction("MTT", t, 1)
    end
 end
 
@@ -658,14 +658,25 @@ end
 
 
 -- weak, far, near, strong
-function KillMinion(thing, method, extraRange)
+-- if force is false, try to play nice with auto attacking lasthits
+-- if force is true, kill it now.
+function KillMinion(thing, method, force)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return end
+   
+   if spell.name and spell.name == "attack" then
+      force = true
+   end
 
-   if not extraRange then extraRange = 0 end
-   if not method then method = "weak" end
+   method = method or "weak"
 
-   local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
+   local minions 
+   if IsBlockedSkillShot(thing) then
+      minions = GetKills(thing, GetIntersection(MINIONS, GetUnblocked(me, thing, MINIONS, ENEMIES, PETS)))
+   else
+      minions = GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS))
+   end   
+
    if method == "weak" then
       SortByHealth(minions, spell)
    elseif method == "far" then
@@ -678,20 +689,34 @@ function KillMinion(thing, method, extraRange)
       minions = reverse(minions)
    end
 
-   local target = nil
 
-   -- first pass to prioritize big minions
+   local targets = {}
+
+   -- first pass to prioritize big minions (yeah I'll get dup minions but who cares)
    for _,minion in ipairs(minions) do
-      if IsBigMinion(minion) and WillKill(thing, minion) then
-         target = minion
-         break
+      if IsBigMinion(minion) then
+         table.insert(targets, minion)
       end
    end
 
    for _,minion in ipairs(minions) do
-      if WillKill(thing, minion) then
+      table.insert(targets, minion)
+   end
+
+   local target = nil
+   for _,minion in ipairs(targets) do
+      if force then
          target = minion
          break
+      else
+         if not SameUnit(minion, WK_AA_TARGET) then
+            if JustAttacked() or
+               GetDistance(minion) > GetAARange()
+            then
+               target = minion
+               break
+            end
+         end
       end
    end
 
@@ -701,7 +726,11 @@ function KillMinion(thing, method, extraRange)
          PrintAction("AA "..method.." minion")
          return true
       else
-         Cast(spell, target)
+         if IsBlockedSkillShot(thing) then
+            CastFireahead(thing, target)
+         else
+            Cast(spell, target)
+         end
          PrintAction(thing.." "..method.." minion")
          return true
       end
@@ -1525,7 +1554,7 @@ function TimTick()
    if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
       CURSOR = Point(P.cursorM)
       PData.cursorM.lastPos = Point(P.cursorM)
-      if IsAttacking() and Alone() then
+      if IsAttacking() and VeryAlone() then
          pp("interrupt attack")
          ResetAttack()
       end

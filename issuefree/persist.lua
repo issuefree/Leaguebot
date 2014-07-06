@@ -22,6 +22,9 @@ WARDS = {}
 
 ALLIES = {}
 ENEMIES = {}
+
+PETS = {}  -- heimer turrets, yorrick ghouls etc. Nothing exists in here yet
+MYPETS = {}
 -- simple attempt to grab high priority targets
 ADC = nil
 APC = nil

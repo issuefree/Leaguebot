@@ -108,19 +108,8 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if CanUse("shot") then
-         for _,minion in ipairs(SortByHealth(GetUnblocked(me, "shot", MINIONS), shot)) do
-            if not SameUnit(minion, WK_AA_TARGET) then
-               if WillKill("shot", minion) and 
-                   ( JustAttacked() or
-                     GetDistance(minion) > GetAARange() )
-               then
-                  CastXYZ("shot", minion)
-                  PrintAction("Shot for lasthit")
-                  return true
-               end
-            end
-         end
+      if KillMinion("shot") then
+         return true
       end
    end
 

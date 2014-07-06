@@ -89,18 +89,8 @@ function Run()
 
    if IsOn("lasthit") and CanUse("hunter") and Alone() then
       if GetMPerc(me) > .33 or CanChargeTear() then
-         local minions = SortByHealth(GetUnblocked(me, "hunter", GetInRange(me, "hunter", MINIONS)), "hunter")
-         for _,minion in ipairs(minions) do
-            if not SameUnit(minion, WK_AA_TARGET) then
-               if WillKill("hunter", minion) and
-                   ( JustAttacked() or
-                     GetDistance(minion) > GetAARange() )
-               then
-                  CastXYZ("hunter", minion)
-                  PrintAction("Hunter for lasthit")
-                  return true
-               end
-            end
+         if KillMinion("hunter") then
+            return true
          end
       end
    end

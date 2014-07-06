@@ -105,8 +105,8 @@ function Run()
    end
 
    if CastAtCC("artillery") or
-      CastAtCC("ooze") or
-      CastAtCC("spittle")
+      CastAtCC("spittle") or
+      CastAtCC("ooze")
    then
       return true
    end
@@ -125,13 +125,22 @@ function Run()
             end
          end
       end
+
       if Alone() then
          if artilleryCount == 0 then
             if KillMinionsInArea("artillery", 2) then
                return true
             end
          end
+
+         if GetMPerc(me) > .5 then
+            if KillMinion("spittle") then
+               return true
+            end
+         end
       end
+
+
    end
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
@@ -168,7 +177,7 @@ function Action()
    end
 
    if CanUse("artillery") then
-      local target = SortByHealth(GetGoodFireaheads(targets, ...), "artillery")[1]
+      local target = SortByHealth(GetGoodFireaheads(targets, ENEMIES), "artillery")[1]
       local tManaP = (me.mana - GetSpellCost("artillery")) / me.maxMana
       if target and 
          ( GetDistance(target) > spells["AA"].range or

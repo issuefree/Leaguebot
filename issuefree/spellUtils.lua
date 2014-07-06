@@ -462,10 +462,6 @@ function GetSpellFireahead(thing, target)
    -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
    --    pp("faking fireahead")
 
-   if not tfas[spell.key] then
-      pp(spell)
-   end
-
    local trackingFudge = 0
    if tfas[spell.key] then   
    	local trackedPoints = tfas[spell.key][target.charName]
@@ -580,3 +576,23 @@ function ICast(thing, unit, spell)
    end
 end
 
+function IsSkillShot(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return spell.speed and spell.delay 
+end
+
+function IsLinearSkillShot(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return spell.delay and spell.speed and spell.speed > 0
+end
+
+function IsBlockedSkillShot(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return IsLinearSkillShot(thing) and not spell.noblock
+end
