@@ -297,7 +297,11 @@ function GetSpellDamage(thing, target)
       damage = damage + GetLVal(spell, "bonus")
    end
    if spell.percMaxHealth and target then
-      damage = damage + GetLVal(spell, "percMaxHealth")*target.maxHealth
+      local percMaxHealth = GetLVal(spell, "percMaxHealth")
+      if spell.percMaxHealthAP then
+         percMaxHealth = percMaxHealth + GetLVal(spell, "percMaxHealthAP")*me.ap
+      end
+      damage = damage + percMaxHealth*target.maxHealth
    end
    if spell.percHealth and target then
       local percHealth = GetLVal(spell, "percHealth")
@@ -334,7 +338,7 @@ function GetSpellDamage(thing, target)
    	damage = damage + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
    end
 
-   if type(damage) ~= "number" and damage.type ~= "H" then
+   if type(damage) ~= "number" and damage.type ~= "H" and target then
       local mult = 1
       if HasMastery("havoc") then
          mult = mult + .03
@@ -595,4 +599,16 @@ function IsBlockedSkillShot(thing)
 	if not spell then return false end
 
 	return IsLinearSkillShot(thing) and not spell.noblock
+end
+
+function DrawSpellCone(thing)
+	local spell = GetSpell(thing)
+
+	local a = AngleBetween(me, mousePos)
+   local a1 = a - DegsToRads(spell.cone)/2
+   local a2 = a + DegsToRads(spell.cone)/2
+   local p1 = ProjectionA(me, a1, GetSpellRange(thing))
+   local p2 = ProjectionA(me, a2, GetSpellRange(thing))
+   LineBetween(me, p1)
+   LineBetween(me, p2)
 end
