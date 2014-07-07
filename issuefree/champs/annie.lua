@@ -21,7 +21,7 @@ spells["inc"] = {
    base={70,115,160,205,250},
    cost={70,80,90,100,110}, 
    ap=.85, 
-   cone=45,
+   cone=50,  -- checked through DrawSpellCone aagainst the reticule
    delay=2,
    speed=0,
    noblock=true
@@ -109,20 +109,20 @@ function Run()
       if VeryAlone() then
          if KillMinionsInCone("inc", 2) then
             PrintAction("Incinerate 2")
-            PauseToggle("lasthit", .5)
+            PauseToggle("lasthit", .75)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
-            if KillMinionsInCone(spells["inc"], 2) then
+            if KillMinionsInCone("inc", 2) then
                PrintAction("Incinerate 2")
-               PauseToggle("lasthit", .5)
+               PauseToggle("lasthit", .75)
                return true
             end
          else
             if KillMinionsInCone(spells["inc"], 3) then
                PrintAction("Incinerate 3")
-               PauseToggle("lasthit", .5)
+               PauseToggle("lasthit", .75)
                return true
             end
          end
@@ -130,13 +130,13 @@ function Run()
 
       if VeryAlone() then
          if KillMinion("dis", nil, true) then
-            PauseToggle("lasthit", .5)
+            PauseToggle("lasthit", .75)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinion("dis", nil, true) then
-               PauseToggle("lasthit", .5)
+               PauseToggle("lasthit", .75)
                return true
             end
          end    
