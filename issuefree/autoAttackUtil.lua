@@ -223,6 +223,9 @@ function initAAData()
                        attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
                        resets = {me.SpellNameW} },
 
+      Kassadin     = { windup=.2,
+                       resets = {me.SpellNameW} },
+
       LeeSin       = {  },
 
       Leona        = { 
@@ -230,6 +233,9 @@ function initAAData()
 
       MasterYi     = { 
                        particles = {"Wuju_Trail"} },
+
+      Mordekaiser  = { windup = .3,
+                       resets = {me.SpellNameQ}},
 
       Nasus        = { 
                        particles = {"nassus_siphonStrike_tar"},
@@ -407,6 +413,9 @@ end
 function ResetAttack()
    needMove = false
    lastAttack = time() - getAADuration()
+   if ModuleConfig.aaDebug then
+      pp("RESET")
+   end
 end
 
 function CanAttack()
