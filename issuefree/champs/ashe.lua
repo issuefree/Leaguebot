@@ -26,8 +26,9 @@ spells["volley"] = {
    ad=1,
    delay=2.5,
    speed=20,
-   cone=57.5,
-   cost=60
+   cone=50, -- wiki says 57.5 but through DrawSpellCone aagainst the reticule it's 50
+   cost=60,
+   width=25
 }
 
 spells["hawkshot"] = {
@@ -62,7 +63,7 @@ function Run()
       end
    end
 
-   -- should write an auto hawkshot for people that run into brush
+   -- TODO should write an auto hawkshot for people that run into brush
 
    if HotKey() and CanAct() then
       if Action() then
@@ -70,8 +71,10 @@ function Run()
       end
    end   
 
-   if IsOn("lasthit") and CanUse("volley") and Alone() and GetMPerc(me) > .5 then
-      -- TODO write volley last hitter
+   if IsOn("lasthit") and Alone() and GetMPerc(me) > .5 then
+      if KillMinionsInCone("volley", 2) then
+         return true
+      end
    end
 
    if HotKey() and CanAct() then
