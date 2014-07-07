@@ -70,12 +70,16 @@ function AngleBetween(object1, object2)
       pp(debug.traceback())
    end 
    local a = object2.x - object1.x
-   local b = object2.z - object1.z  
+   local b = object2.z - object1.z
    
    local angle = math.atan(a/b)
    
-   if b < 0 then
-      angle = angle+math.pi
+   if a > 0 and b < 0 then  -- q2
+      angle = angle + (math.pi)
+   elseif a < 0 and b < 0 then -- p3
+      angle = angle + math.pi
+   elseif a < 0 and b > 0 then -- q4
+      angle = angle + 2*math.pi
    end
    return angle
 end
@@ -130,6 +134,16 @@ function RelativeAngle(center, o1, o2)
    return ra
 end
 
+function RelativeAngleRight(center, o1, o2)
+   local a1 = AngleBetween(center, o1)
+   local a2 = AngleBetween(center, o2)
+   local ra = a2-a1
+
+   if ra < 0 then
+      ra = 2*math.pi + ra
+   end
+   return ra
+end
 --returns the orthoganal component of the distance between two objects
 function GetOrthDist(t1, t2)
    local angleT = AngleBetween(t1, t2) - AngleBetween(me, t1)
@@ -162,6 +176,10 @@ function RadsToDegs(rads)
    return rads*180/math.pi
 end
 
+function DegsToRads(degs)
+   return degs/360*math.pi*2
+end
+
 --[[
 Returns the x,y,z of the center of the targes
 --]]
@@ -181,6 +199,29 @@ function GetCenter(targets)
    z = z / #targets
    
    return Point(x,y,z)
+end
+
+-- Gives the angular center of a set of targets from the perspective of source
+function GetAngularCenter(targets, source)
+   source = source or me
+   if not targets then return nil end
+   if #targets == 1 then return Point(targets[1]) end
+
+   local l,r
+   local maxAngle
+
+   for _,t1 in ipairs(targets) do
+      for _,t2 in ipairs(targets) do
+         local ra = RelativeAngle(source, t1, t2)
+         if not maxAngle or ra > maxAngle then
+            l = t1
+            r = t2
+            maxAngle = ra
+         end
+      end
+   end   
+
+   return GetCenter({l, r})
 end
 
 function GetOffset(p1, p2)
@@ -213,6 +254,7 @@ function GetUnblocked(source, thing, ...)
    if not width then
       pp("No width for:")
       pp(spell)
+      pp(debug.traceback())
    end
 
    for i,target in ipairs(targets) do
@@ -410,8 +452,9 @@ function SortByDistance(things, target)
    return things
 end
 
-function SortByAngle(things)
-   table.sort(things, function(a,b) return AngleBetween(me, a) < AngleBetween(me, b) end)
+function SortByAngle(things, target)
+   target = target or me
+   table.sort(things, function(a,b) return AngleBetween(target, a) < AngleBetween(target, b) end)
    return things
 end
 
