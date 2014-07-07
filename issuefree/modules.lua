@@ -30,7 +30,7 @@ require "issuefree/objectFind"
 ModuleConfig:addParam("debug", "Debug Objects", SCRIPT_PARAM_ONOFF, false)
 ModuleConfig:permaShow("debug")
 
--- require "testTargets"
+-- require "issuefree/testTargets"
 -- ModuleConfig:addParam("testtargets", "Test Targets", SCRIPT_PARAM_ONOFF, false)
 -- ModuleConfig:permaShow("testtargets")
 
