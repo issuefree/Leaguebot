@@ -43,6 +43,7 @@ end
 function RandomSpread(number, range)
 	if not offsets then
 		offsets = {}
+		math.randomseed(time())
 		for i=1,number do
 			local a = math.random() * 2*math.pi
 			local d = math.random(range)
