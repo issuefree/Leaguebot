@@ -20,7 +20,7 @@ spells["shot"] = {
    adBonus=.8,
    delay=2.4,
    speed=20,
-   cone=30,
+   cone=30, -- checked through DrawSpellCone aagainst the reticule
    noblock=true,
    cost={60,70,80,90,100}
 }
@@ -76,7 +76,17 @@ function Run()
       if Action() then
          return true
       end
-   end   
+   end
+
+   if IsOn("lasthit") and Alone() and GetMPerc(me) > .5 then
+      if KillMinionsInCone("shot", 2) then
+         return true
+      end
+
+      if KillMinionsInArea("smoke", 3) then
+         return true
+      end
+   end
 
    if HotKey() and CanAct() then
       if FollowUp() then
