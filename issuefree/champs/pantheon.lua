@@ -19,44 +19,45 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["spear"] = {
-  key="Q", 
-  range=600, 
-  color=violet, 
-  base={65,105,145,185,225}, 
-  adBonus=1.4,
-  type="P",
-  cost=45
+   key="Q", 
+   range=600, 
+   color=violet, 
+   base={65,105,145,185,225}, 
+   adBonus=1.4,
+   type="P",
+   cost=45
 }
 spells["aegis"] = {
-  key="W", 
-  range=600, 
-  color=yellow, 
-  base={50,75,100,125,150}, 
-  ap=1,
-  cost=55
+   key="W", 
+   range=600, 
+   color=yellow, 
+   base={50,75,100,125,150}, 
+   ap=1,
+   cost=55
 }
 spells["strike"] = {
-  key="E", 
-  range=600, 
-  color=red, 
-  base={39,69,99,129,159}, 
-  adBonus=1.8,
-  cone=60,
-  type="P",
-  cost={45,50,55,60,65},
-  channel=true,
-  object="Pantheon_Base_E_cas"
+   key="E", 
+   range=600, 
+   color=red, 
+   base={40,70,100,130,160}, 
+   adBonus=1.8,
+   cone=70, -- checked through DrawSpellCone aagainst the reticule
+   type="P",
+   cost={45,50,55,60,65},
+   channel=true,
+   noblock=true,
+   object="Pantheon_Base_E_cas"
 }
 spells["skyfall"] = {
-  key="R", 
-  range=5500, 
-  color=red, 
-  base={400,700,1000}, 
-  ap=1,
-  cost=125,
-  radius=1000,
-  channel=true,
-  channelTime=2
+   key="R", 
+   range=5500, 
+   color=red, 
+   base={400,700,1000}, 
+   ap=1,
+   cost=125,
+   radius=1000,
+   channel=true,
+   channelTime=2
 }
 
 function Run()
