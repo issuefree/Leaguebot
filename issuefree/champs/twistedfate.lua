@@ -103,11 +103,6 @@ function Run()
    	card = "gold"
    end
 
-   local dam = GetSpellDamage("card")
-   if dam ~= 0 then
-   	dam = dam:toNum()
-   end
-
    spells["AA"].bonus = GetSpellDamage("card")
    if P.stacked then 
    	spells["AA"].bonus = spells["AA"].bonus + GetSpellDamage("stacked")
@@ -150,6 +145,8 @@ function Run()
             end
          end
 		end
+
+		-- TODO last hitter with wild (three line bestinline)
 
 	end
 
