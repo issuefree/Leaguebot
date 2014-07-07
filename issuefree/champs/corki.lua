@@ -41,10 +41,15 @@ spells["valk"] = {
 }
 spells["gun"] = {
    key="E", 
-   range=600, 
+
    color=red, 
+   range=600, 
+   cone=55,  -- checked through DrawSpellCone aagainst the reticule
+   noblock=true,
+   
    base={20,32,44,56,68}, 
    bonusAd=.4,
+
    cost=50
 }
 spells["barrage"] = {
