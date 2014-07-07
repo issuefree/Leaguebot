@@ -104,7 +104,7 @@ local spells = {
 		{name="EliseHumanE", range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true, block=true},
 	},
 	Ezreal = {
-		{name="EzrealMysticShotMissile", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
+		{name="EzrealMysticShot", key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
 		{name="EzrealEssenceFluxMissile", range=900, radius=100, time=1, ss=true, isline=true},
 		{name="EzrealTrueshotBarrage", range=50000, radius=150, time=4, ss=true, show=true, isline=true, dodgeByObject=true},
 	},
@@ -511,11 +511,12 @@ function ShotTarget(shot, target)
 				impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
 			end
 			
-			-- is where I'll be in half a second clear?
-			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed)
-
+			-- is where I'll be clear?
+			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed*.75)
 			if isSafe(safePoint, shot) then
-				pp("KEEP RUNNIN")
+				if isSafe(CURSOR, shot) then
+					safePoint = Point(CURSOR)
+				end
 			end
 
 			if not isSafe(safePoint, shot) then					
