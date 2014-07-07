@@ -8,20 +8,24 @@ require "issuefree/modules"
 
 pp("\nTim's Morde")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "mace", "siphon"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 
 spells["mace"] = {
    key="Q", 
+   color=red,
+   range=GetAARange(),
    base={80,110,140,170,200}, 
    ap=.4,
    adBonus=1,
    type="M",
+   onHit=true,
    radius=600
 }
 spells["shield"] = {
@@ -35,22 +39,23 @@ spells["shield"] = {
 }
 spells["siphon"] = {
    key="E", 
-   range=650, 
    color=violet, 
+   range=650, 
+   cone=50,  -- checked through DrawSpellCone aagainst the reticule
    base={70,115,160,205,250}, 
    ap=.6,
    type="M",
    delay=2,
    speed=0,
    noblock=true,
-   cone=30
 }
 spells["grave"] = {
    key="R", 
    range=850, 
    color=red, 
    base={0,0,0}, 
-   healthPerc={.24,.29,.34},
+   percMaxHealth={.24,.29,.34},
+   percMaxHealthAP=.0004,
    type="M",
    cost=0
 }
@@ -69,12 +74,35 @@ function Run()
 	end
 
    if IsOn("lasthit") and Alone() then
+
       if CanUse("siphon") then
-         if KillMinionsInCone("siphon", 2, 0, false) then
+         if KillMinionsInCone("siphon", 2) then
             PrintAction("Siphon minions")
             return true
          end
       end
+
+      if P.mace then
+         local kills = SortByDistance(GetKills("mace", GetInRange(me, "mace", MINIONS)))
+         if kills[1] then
+            if AA(kills[1]) then
+               PrintAction("Clobber minion")
+               return true
+            end
+         end
+      end
+
+      if CanUse("mace") and not P.mace then
+         local kills = SortByDistance(GetKills("mace", GetInRange(me, "mace", MINIONS)))
+         if kills[1] then
+            Cast("mace", me)
+            AttackTarget(kills[1])
+            PrintAction("Mace on for LH")
+            return true
+         end
+      end
+
+
    end
 
    if HotKey() and CanAct() then
@@ -87,12 +115,9 @@ end
 
 function Action()
    if CanUse("grave") and not P.cotg then      
-      local target = GetMarkedTarget() or GetWeakEnemy("MAGIC", spells["grave"].range)
+      local target = GetMarkedTarget() or GetWeakestEnemy("grave")
       if target then
-         local spell = spells["grave"]
-         local perc = spell.healthPerc[GetSpellLevel(spell.key)]+(me.ap*.0004)
-         local dam = Damage(target.maxHealth*perc, "M")
-         if CalculateDamage(target, dam) > target.health*.75 then
+         if GetSpellDamage("grave", target) > target.health then
             Cast("grave", target)
             PrintAction("Grave", target)
             return true
@@ -116,18 +141,20 @@ function Action()
       return true
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   -- local target = GetMarkedTarget() or GetMeleeTarget()
-   if CanUse("mace") and 
-      target and 
-      GetDistance(target) < spells["AA"].range+25 
-   then
-      Cast("mace", me)
-      PrintAction("Mace up")
-   end
+   if CanUse("mace") then
+      -- local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      local target = GetMarkedTarget() or GetMeleeTarget()
+      if target and 
+         not P.mace and
+         GetDistance(target) < spells["AA"].range+25 
+      then
+         Cast("mace", me)
+         PrintAction("Mace up", nil, 1)
+      end
 
-   if AutoAA(target) then
-      return true
+      if AutoAA(target) then
+         return true
+      end
    end
 
    return false
@@ -135,7 +162,7 @@ end
 
 function FollowUp()
    if IsOn("clear") and Alone() then
-      if CanUse("mace") then
+      if CanUse("mace") and not P.mace then
          local target = SortByDistance(GetInRange(me, 200, MINIONS))[1]
          if #GetInRange(target, spells["mace"].radius, MINIONS) > 2 then
             Cast("mace", me)
@@ -146,9 +173,11 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
+   if CanUse("mace") then
+      if IsOn("move") then
+         if MeleeMove() then
+            return true
+         end
       end
    end
 
@@ -157,7 +186,11 @@ function FollowUp()
 end
 
 local function onObject(object)
-   Persist("cotg", object, "mordekaiser_cotg_ring", me.team)
+   if Persist("cotg", object, "mordekaiser_cotg_ring") then
+      pp("GOT PET!")
+   end
+
+   PersistBuff("mace", object, "mordakaiser_maceOfSpades_activate")
 end
 
 local function onSpell(object, spell)
