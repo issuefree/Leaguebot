@@ -36,6 +36,8 @@ spells["empower"] = {
 	ap=.6,
 	type="M",
 	modAA="empower",
+	object="armsmaster_empower",
+	range=GetAARange,
 	cost=30
 }
 spells["counter"] = {
@@ -195,7 +197,6 @@ end
 
 local function onObject(object)
 	PersistBuff("counter", object, "jaxdodger")
-	PersistBuff("empower", object, "armsmaster_empower", 150)
 
    if find(object.charName, "RelentlessAssault") and GetDistance(object) < 250 then
    	ultCounter = 0

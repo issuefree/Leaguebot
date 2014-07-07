@@ -22,6 +22,8 @@ spells["strike"] = {
    base={30,55,80,105,130}, 
    ad=.4,
    modAA="strike",
+   object="Garen_Base_Q_Cas_Sword",
+   range=GetAARange,   
    type="P"
 }
 spells["courage"] = {
@@ -207,7 +209,6 @@ function isSpinning()
 end
 
 local function onObject(object)
-   PersistBuff("strike", object, "Garen_Base_Q_Cas_Sword", 200)
 end
 
 local function onSpell(unit, spell)

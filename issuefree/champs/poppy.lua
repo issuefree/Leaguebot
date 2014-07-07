@@ -18,6 +18,8 @@ spells["blow"] = {
    percMaxHealth=.08,
    ap=.6, 
    modAA="blow", -- modAA calcs won't be quite right because I don't convert the AA damage to magic
+   object="Poppy_DevastatingBlow",
+   range=GetAARange,
    type="M",
    cost=55
 }
@@ -131,7 +133,6 @@ function checkCharge()
 end
 
 local function onObject(object)
-   PersistBuff("blow", object, "Poppy_DevastatingBlow", 150)
 end
 
 local function onSpell(object, spell)

@@ -18,7 +18,9 @@ spells["bite"] = {
    ad=1,
    onhit=true,
    perc={.8,.85,.9,.95,1},
-   modAA="bite"
+   modAA="bite",
+   object="findbiteobject",
+   range=GetAARange,
    onHit=true,
    type="P"
 } 

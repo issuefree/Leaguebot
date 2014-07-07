@@ -183,7 +183,7 @@ end
 -- find an object only near me and persist it
 function PersistBuff(name, object, charName, dist)
    if not dist then
-      dist = 100
+      dist = 150
    end
    if object and find(object.charName, charName) then
       if GetDistance(object) < dist then
@@ -478,8 +478,14 @@ function createForPersist(object)
       PData.cursorM.lastPos = Point(P.cursorM)
    end
 
-   -- TODO persist invuln from Kayle
+   for _,spell in pairs(spells) do
+      if spell.modAA and spell.object then
+         PersistBuff(spell.modAA, object, spell.object, 200)
+      end
+   end
 
+
+   -- TODO persist invuln from Kayle
 end
 
 function persistTick()

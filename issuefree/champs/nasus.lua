@@ -30,6 +30,8 @@ spells["strike"] = {
    bonus=0,
    type="P",
    modAA="strike",
+   object="Nasus_Base_Q_Buf",
+   range=GetAARange,
    cost=20
 }
 spells["wither"] = {
@@ -171,8 +173,6 @@ function FollowUp()
 end
 
 local function onObject(object)
-   Persist("strike", object, "Nasus_Base_Q_Buf")
-
    if find(object.charName, "DeathsCaress") then
       if GetDistance(object) < 300 then
          setStrikes(spells["strike"].bonus + 3)

@@ -32,6 +32,8 @@ spells["fist"] = {
    base=0,
    ad=1,
    modAA="fist",
+   object="Powerfist_buf",
+   range=GetAARange,
    type="P",
    cost=25
 }
@@ -116,7 +118,6 @@ function FollowUp()
 end
 
 local function onObject(object)
-   PersistBuff("fist", object, "Powerfist_buf", 150)
 end
 
 local function onSpell(unit, spell)

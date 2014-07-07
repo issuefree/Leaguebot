@@ -26,6 +26,8 @@ spells["war"] = {
    ad=.2,
    type="P",
    modAA="war",
+   object="yorick_spectralGhoul_attack_buf_self",
+   range=GetAARange,
    cost=40   
 }
 spells["pestilence"] = {
@@ -246,7 +248,6 @@ function FollowUp()
 end
 
 local function onCreate(object)
-   PersistBuff("war", object, "yorick_spectralGhoul_attack_buf_self", 150)
    Persist("warSpectre", object, "yorick_spectralGhoul_idle_spirit_birth", me.team)
    Persist("pestilence", object, "yorick_necroGhoul_idle", me.team)
    Persist("famine", object, "yorick_ravenousGhoul_idle", me.team)

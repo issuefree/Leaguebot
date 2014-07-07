@@ -24,6 +24,8 @@ spells["shield"] = {
    ap=.3,
    type="M",
    modAA="shield",
+   object="Leona_ShieldOfDaybreak",
+   range=GetAARange,
    cost={45,50,55,60,65}
 } 
 spells["eclipse"] = {
@@ -118,8 +120,6 @@ function FollowUp()
 end
 
 local function onCreate(object)
-   PersistBuff("shield", object, "Leona_ShieldOfDaybreak")
-
    if find(object.charName, "Leona_ZenithBlade_arrive") then
       if CanUse("eclipse") then
          Cast("eclipse", me)
