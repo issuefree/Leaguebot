@@ -40,6 +40,11 @@ function debugTick()
    end
    Circle(GetMousePos(), range, blue) 
 
+   PrintState(-5, me.SpellNameQ)
+   PrintState(-4, me.SpellNameW)
+   PrintState(-3, me.SpellNameE)
+   PrintState(-2, me.SpellNameR)
+
    objects = {}
    for i = 1, objManager:GetMaxObjects(), 1 do
       local object = objManager:GetObject(i)
