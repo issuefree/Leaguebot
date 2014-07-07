@@ -282,12 +282,12 @@ function doCreateObj(object)
       persistForDisrupt(info.char, info.obj, spell, object)
    end
 
-   if IsHero(object) and not CHAR_SPELLS[object.name] then
-      CHAR_SPELLS[object.name] = LoadConfig("charSpells/"..object.name)
-      if not CHAR_SPELLS[object.name] then
-         CHAR_SPELLS[object.name] = {}
-      end
-   end
+   -- if IsHero(object) and not CHAR_SPELLS[object.name] then
+   --    CHAR_SPELLS[object.name] = LoadConfig("charSpells/"..object.name)
+   --    if not CHAR_SPELLS[object.name] then
+   --       CHAR_SPELLS[object.name] = {}
+   --    end
+   -- end
 
    for _,name in ipairs(channeledSpells) do
       if spells[name] and spells[name].channel then
@@ -938,96 +938,73 @@ function HitMinionsInArea(thing, hitsNeeded)
    return false
 end
 
-function KillMinionsInCone(thing, minKills, extraRange, drawOnly)
+function KillMinionsInCone(thing, killsNeeded)
    local spell = GetSpell(thing)
-   if not spell then return false end
-   if not CanUse(spell) then return false end
+   if not spell or not CanUse(spell) then return false end
 
-   if not extraRange then extraRange = 0 end
-
-   -- cache damage calculation      
-   local wDam = GetSpellDamage(spell)
-   -- convert from degrees   
-   local spellAngle = spell.cone/360*math.pi*2
-
-   local minionAngles = {}
-
-   -- clean out the ones I can't kill and get the angles   
-   for i,minion in ipairs(GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)) do
-      if CalculateDamage(minion, wDam) > minion.health then
-         table.insert(minionAngles, {AngleBetween(minion, me), minion})
-      end
-   end
-
-
-   -- results variables
-   local bestAngleI
-   local bestAngleJ
-   local maxDist
-   local bestAngleK = 1
-
-   -- are there enough possible targets to bother?
-   if #minionAngles >= minKills then
-   
-      -- sort by angle and make a sweep from left to right
-      -- start with the first target and expand the cone until you run out of targets or the next target is out of the cone
-      -- do this for each target in order keeping track of the best start and end index 
-      
-      table.sort(minionAngles, function(a,b) return a[1] < b[1] end)
-
-      for i=1, #minionAngles-1 do
-         local angleK = 1
-         local j = i
-         for li=i, #minionAngles-1 do
-            local angleli = minionAngles[li][1]
-            while j+1 < #minionAngles+1 and minionAngles[j+1] and 
-                  minionAngles[j+1][1] - angleli < spellAngle and minionAngles[j+1][1] - angleli > 0
-            do
-               angleK = angleK + 1
-               j = j + 1
-            end
-         end
-         if angleK > bestAngleK then
-            bestAngleI = i
-            bestAngleJ = j
-            bestAngleK = angleK
-         end
-      end 
-
-      -- are there enough actual kills to bother?
-      if bestAngleK >= minKills then
-      
-         -- find the furthest target minion so we can move toward it if it's out of range.
-         local farMinion
-         local farMinionD
-         for i = bestAngleI, bestAngleJ do
-            local dist = GetDistance(minionAngles[i][2])
-            if not farMinion or dist > farMinionD then
-               farMinion = minionAngles[i][2]
-               farMinionD = dist
-            end
-         end
-
-         -- find the target point that puts our targets in the cone
-         local x = (minionAngles[bestAngleI][2].x + minionAngles[bestAngleJ][2].x)/2  
-         local y = (minionAngles[bestAngleI][2].y + minionAngles[bestAngleJ][2].y)/2  
-         local z = (minionAngles[bestAngleI][2].z + minionAngles[bestAngleJ][2].z)/2
-         
-         -- draw the target cone and the target spot  
-         Circle(Point(x,y,z), 25, yellow)
-         LineBetween(me, minionAngles[bestAngleI][2])
-         LineBetween(me, minionAngles[bestAngleJ][2])
-         
-         -- execute
-         if not drawOnly then
-            if farMinionD < GetSpellRange(spell) then                        
-               CastSpellXYZ(spell.key, x,y,z)
-               return true
-            end
-         end
-      end
+   local hits, kills, score = GetBestCone(me, thing, .1, 1, MINIONS)
+   if #kills >= killsNeeded then
+      CastXYZ(thing, GetAngularCenter(hits))
+      PrintAction(thing.." for kills", #kills)
+      return true
    end
    return false
+end
+
+function HitMinionsInCone(thing, hitsNeeded)
+   local spell = GetSpell(thing)
+   if not spell or not CanUse(spell) then return false end
+
+   local hits, kills, score = GetBestCone(me, thing, 1, 1, MINIONS)
+   if #hits >= hitsNeeded then
+      CastXYZ(thing, GetAngularCenter(hits))
+      PrintAction(thing.." for hits", #hits)
+      return true
+   end
+   return false
+end
+
+function GetBestCone(source, thing, hitScore, killScore, ...)
+   local spell = GetSpell(thing)
+   if not spell.cone then
+      pp("No cone set for.. "..thing)
+      return {}
+   end
+
+   local targets = GetInRange(source, thing, concat(...))
+   if not spell.noblock then
+      targets = GetIntersection(targets, GetUnblocked(source, thing, MINIONS, ENEMIES, PETS))
+   end
+
+   -- results variables
+   local bestS = 0
+   local bestT = {}
+   local bestK = {}
+
+   for _,target in ipairs(targets) do
+      local hits = FilterList(targets, function(item) return RadsToDegs(RelativeAngleRight(me, target, item)) < spell.cone end)
+      local kills = {}
+      local score = #hits*hitScore
+      if killScore ~= 0 then
+         for _,hit in ipairs(hits) do
+            if WillKill(thing, hit) then
+               if IsBigMinion(hit) then
+                  score = score + (killScore / 2)
+               end
+               score = score + killScore
+               table.insert(kills, hit)
+            end
+         end
+      end
+
+      if score > bestS then
+         bestS = score
+         bestT = hits
+         bestK = kills
+      end
+   end
+         
+   return bestT, bestK, bestS
 end
 
 function SkillShot(thing, purpose, targets)
@@ -1418,23 +1395,24 @@ function processShot(shot)
       addSkillShot(shot)
    end
 
-   if Engaged() and shot.safePoint then
-      PrintAction("Don't dodge - engaged -",shot.name, 1)
-   end
-   if IsChannelling() and shot.safePoint then
-      PrintAction("Don't dodge - channelling -",shot.name, 1)
-   end
 
-   if me.dead == 0 and
-      not Engaged() and
-      not IsChannelling()
-   then
+   if me.dead == 0 then
       shot = ShotTarget(shot, me)
       if shot then
-         checkDodge(shot)
          if not shot.show then
             addSkillShot(shot)
          end
+
+         if Engaged() and shot.safePoint then
+            PrintAction("Don't dodge - engaged -",shot.name, 1)
+            return false
+         end
+         if IsChannelling() and shot.safePoint then
+            PrintAction("Don't dodge - channelling -",shot.name, 1)
+            return false
+         end
+
+         checkDodge(shot)
       end
    end
 end
@@ -1467,29 +1445,21 @@ function OnProcessSpell(unit, spell)
 end
 AddOnSpell(OnProcessSpell)
 
-local blockAndMove = nil
 local blockTimeout = .25
-local blockStart = 0
 local lastMove = 0 
 function BlockingMove(move_dest)
+   pp("block and mov4e")
    if time() - lastMove > 1 then
-      blockStart = time()
+      
       MoveToXYZ(move_dest.x, 0, move_dest.z)
+      BlockOrders()
+      DoIn( function()
+               UnblockOrders()
+            end,
+            blockTimeout )  
       lastMove = time()
    end
 
-   -- blockAndMove = function()
-   --    Circle(move_dest, 75, green)
-   --    if time() - blockStart > blockTimeout or 
-   --       GetDistance(move_dest)<75 
-   --    then
-   --       blockAndMove = nil
-   --       send.block_input(false)
-   --    end
-   -- end
-end
-function Unblock()
-   send.block_input(false)
 end
 
 TICK_DELAY = .05
@@ -1558,10 +1528,10 @@ function TimTick()
    if P.cursorM and GetDistance(P.cursorM, PData.cursorM.lastPos) > 0 then
       CURSOR = Point(P.cursorM)
       PData.cursorM.lastPos = Point(P.cursorM)
-      if IsAttacking() and VeryAlone() then
-         pp("interrupt attack")
-         ResetAttack()
-      end
+      -- if IsAttacking() and VeryAlone() then
+      --    pp("interrupt attack")
+      --    ResetAttack()
+      -- end
    elseif P.cursorA and GetDistance(P.cursorA, PData.cursorA.lastPos) > 0 then
       CURSOR = nil --P.cursorA
       PData.cursorA.lastPos = Point(P.cursorA)
@@ -1642,6 +1612,7 @@ function StartTickActions()
    end
 
    if IsRecalling(me) or me.dead == 1 then
+      CURSOR = nil
       PrintAction("Recalling or dead")
       return true
    end
