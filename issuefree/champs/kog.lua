@@ -168,7 +168,7 @@ function Action()
       end
    end
 
-   if CanUse("barrage") then
+   if CanUse("barrage") and not P.barrage then
       local target = GetWeakEnemy("PHYS", getBarrageRange())
       if target then
          Cast("barrage", me)
@@ -177,7 +177,7 @@ function Action()
    end
 
    if CanUse("artillery") then
-      local target = SortByHealth(GetGoodFireaheads(targets, ENEMIES), "artillery")[1]
+      local target = SortByHealth(GetGoodFireaheads("artillery", ENEMIES), "artillery")[1]
       local tManaP = (me.mana - GetSpellCost("artillery")) / me.maxMana
       if target and 
          ( GetDistance(target) > spells["AA"].range or
