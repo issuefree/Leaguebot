@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Gragas")
 
+SetChampStyle("caster")
+
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -79,7 +81,7 @@ function Run()
       local spell = GetSpell("barrel")
       local enemies = GetInRange(P.barrel, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
-         if GetSpellDamage("barrel", enemy) > enemy.health then
+         if WillKill("barrel", enemy) then
             Cast(spell, me, true)
             PrintAction("Pop to kill", enemy)
             break
@@ -149,7 +151,7 @@ local function onObject(object)
    if Persist("barrel", object, "Gragas_Base_Q_Ally") then
       barrelTime = time()
    end
-   Persist("rage", object, "Gragas_Base_W_Buf_Hands")
+   PersistBuff("rage", object, "Gragas_Base_W_Buf_Hands")
 end
 
 local function onSpell(unit, spell)
