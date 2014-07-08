@@ -43,7 +43,24 @@ function initAAData()
       Ahri         = { projSpeed = 1.6,
                        particles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"} },
 
-      Anivia       = { projSpeed = 1.05, windup = .4,
+      Akali        = { windup = .2 },
+
+      Amumu        = { 
+                       particles = {"SadMummyBasicAttack"} },
+
+      Chogath      = { windup = .35,
+                     particles = {"vorpal_spikes_mis"} },
+
+      DrMundo      = { windup = .2 },
+
+      Elise        = { 
+                       particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
+
+      Garen        = { windup = .35,
+                       particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
+                       resets = {"GarenQ"} },
+
+      Anivia       = { projSpeed = 1.05, windup = .4, -- !
                        particles = {"cryoBasicAttack"} },
 
       Annie        = { projSpeed = 1.0, windup = .35,
@@ -53,18 +70,20 @@ function initAAData()
                        minMoveTime = .25, -- ashe can't get move commands too early for some reason
                        particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
                        attacks = {"attack", "frostarrow"} },
+      
+      Blitzcrank   = {  },
 
       Brand        = { projSpeed = 1.975, windup = .4,
                        particles = {"BrandBasicAttack", "BrandCritAttack"} },
 
-      Caitlyn      = { projSpeed = 2.5, windup = .25,
+      Caitlyn      = { projSpeed = 2.5, windup = .2, -- !
                        particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
                        attacks = {"attack", "CaitlynHeadshotMissile"} },
 
       Cassiopeia   = { projSpeed = 1.22,
                        particles = {"CassBasicAttack_mis"} },
 
-      Corki        = { projSpeed = 2.0, windup = .15,
+      Corki        = { projSpeed = 2.0, windup = .1, -- !
                        particles = {"corki_basicAttack_mis", "Corki_crit_mis"} },
 
       Draven       = { projSpeed = 1.4,
@@ -82,11 +101,21 @@ function initAAData()
       Heimerdinger = { projSpeed = 1.4,
                        particles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"} },
 
+      Irelia       = { windup = .3 },
+
       Janna        = { projSpeed = 1.2,
                        particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
 
+      JarvanIV     = { 
+                       attacks={"JarvanIVBasicAttack"} },
+
       Jayce        = { projSpeed = 2.2,
                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
+
+      Jax          = { windup=.4,
+                       particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
+                       attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
+                       resets = {me.SpellNameW} },
 
       Jinx         = { projSpeed = 2.4, windup=.3,
                        particles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"} },
@@ -97,6 +126,9 @@ function initAAData()
       Karthus      = { projSpeed = 1.25,
                        particles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"} },
 
+      Kassadin     = { windup=.2,
+                       resets = {me.SpellNameW} },
+
       Kayle        = { projSpeed = 1.8,
                        particles = {"RighteousFury_nova"} },
 
@@ -104,10 +136,15 @@ function initAAData()
                        particles = {"KennenBasicAttack_mis"} },
 
       KogMaw       = { projSpeed = 1.8, windup = .2,
-                       particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage"} },
+                       particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"} },
 
       Leblanc      = { projSpeed = 1.7,
                        particles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"} },
+
+      LeeSin       = {  },
+
+      Leona        = { 
+                       particles={"leona_basicattack_hit"} },
 
       Lulu         = { projSpeed = 2.5,
                        particles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"} },
@@ -118,23 +155,45 @@ function initAAData()
       Malzahar     = { projSpeed = 1.5,
                        particles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"} },
 
+      MasterYi     = { 
+                       particles = {"Wuju_Trail"} },
+
       MissFortune  = { projSpeed = 2.0, windup=.25,
                        particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"} },
+
+      Mordekaiser  = { windup = .3,
+                       resets = {me.SpellNameQ}},
 
       Morgana      = { projSpeed = 1.6,
                        particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"} },
 
+      Nasus        = { 
+                       particles = {"nassus_siphonStrike_tar"},
+                       resets = {me.SpellNameQ} },
+
       Nidalee      = { projSpeed = 1.7,
                        particles = {"nidalee_javelin_mis"} },
+
+      Olaf         = { windup=.35
+                      },
 
       Orianna      = { projSpeed = 1.4,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
+      Poppy        = { 
+                       particles = {"Poppy_DevastatingBlow"} },                       
+
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
+      Riven        = { windup=.2,
+                       resets = {me.SpellNameQ} },
+
       Ryze         = { projSpeed = 2.4, windup = .25,
                        particles = {"ManaLeach_mis"} },
+
+      Shyvana      = { 
+                       resets = {me.SpellNameQ} },
 
       Sivir        = { projSpeed = 1.4,
                        particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
@@ -157,16 +216,20 @@ function initAAData()
       Tristana     = { projSpeed = 2.25, windup = .15,
                        particles = {"TristannaBasicAttack_mis"} },
 
+      Tryndamere   = { 
+                       particles = {"tryndamere_weapontrail"},
+                       attacks = {"attack", "Bloodlust"} },
+
       TwistedFate  = { projSpeed = 1.5, windup = .4,
                        particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
 
-      Twitch       = { projSpeed = 2.5,
+      Twitch       = { projSpeed = 2.5, windup = .25,
                        particles = {"twitch_basicAttack_mis", "twitch_sprayandPray_mis"} },
 
       Urgot        = { projSpeed = 1.3, windup = .2,
                        particles = {"UrgotBasicAttack_mis"} },
 
-      Vayne        = { projSpeed = 2.0, windup = .25,
+      Vayne        = { projSpeed = 2.0, windup = .2, -- !
                        particles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" } },
 
       Varus        = { projSpeed = 2.0, windup = .25,
@@ -181,9 +244,14 @@ function initAAData()
       Vladimir     = { projSpeed = 1.4,
                        particles = {"VladBasicAttack"} },
 
+      Warwick      = { windup=.35 },
+
       Xerath       = { projSpeed = 1.2, windup = .35,
                        particles = {"XerathBasicAttack"},
                        attacks = {"Xerath_Base_BA_mis"} },
+
+      Yorick       = { windup=.25,
+                       resets = {me.SpellNameQ} },
 
       Ziggs        = { projSpeed = 1.5,
                        particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
@@ -194,73 +262,6 @@ function initAAData()
       Zyra         = { projSpeed = 1.7,
                        particles = {"Zyra_basicAttack"} },
 
-      Akali        = { windup = .2 },
-
-      Amumu        = { 
-                       particles = {"SadMummyBasicAttack"} },
-      
-      Blitzcrank   = {  },
-
-      Chogath      = { windup = .35,
-                     particles = {"vorpal_spikes_mis"} },
-
-      DrMundo      = { windup = .2 },
-
-      Elise        = { 
-                       particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
-
-      Garen        = { windup = .35,
-                       particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
-                       resets = {"GarenQ"} },
-
-      Irelia       = { windup = .3 },
-
-      JarvanIV     = { 
-                       attacks={"JarvanIVBasicAttack"} },
-
-      Jax          = { windup=.35,
-                       particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
-                       attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
-                       resets = {me.SpellNameW} },
-
-      Kassadin     = { windup=.2,
-                       resets = {me.SpellNameW} },
-
-      LeeSin       = {  },
-
-      Leona        = { 
-                       particles={"leona_basicattack_hit"} },
-
-      MasterYi     = { 
-                       particles = {"Wuju_Trail"} },
-
-      Mordekaiser  = { windup = .3,
-                       resets = {me.SpellNameQ}},
-
-      Nasus        = { 
-                       particles = {"nassus_siphonStrike_tar"},
-                       resets = {me.SpellNameQ} },
-
-      Olaf         = { windup=.35
-                      },
-
-      Poppy        = { 
-                       particles = {"Poppy_DevastatingBlow"} },                       
-
-      Riven        = { windup=.2,
-                       resets = {me.SpellNameQ} },
-
-      Shyvana      = { 
-                       resets = {me.SpellNameQ} },
-
-      Tryndamere   = { 
-                       particles = {"tryndamere_weapontrail"},
-                       attacks = {"attack", "Bloodlust"} },
-
-      Warwick      = { windup=.35 },
-
-      Yorick       = { windup=.25,
-                       resets = {me.SpellNameQ} },
    }
 
    aaData = champData[me.name] or {}
@@ -312,7 +313,7 @@ end
 
 initAAData()
 local lastAttack = 0 -- last time I cast an attack
-local shotFired = true -- have I seen the projectile or waited long enough that it should show
+shotFired = true -- have I seen the projectile or waited long enough that it should show
 
 -- debug stuff
 local attackState = 0
@@ -335,6 +336,8 @@ local estimatedWU = aaData.windup
 
 function AfterAttack()
    -- needMove = true
+   -- pp("UNBLOCK")
+   UnblockOrders()
    if ModuleConfig.aaDebug then
       UnblockOrders()
       StopMove()
@@ -362,7 +365,7 @@ function aaTick()
       -- Windup is how long between I cast the attack and the actual attack.
       --  This MUST be greater than the actual windup (don't clip attacks)
       --  but close to it (don't wait too long to do other things)
-
+      
       local aarstr = "AARate "..trunc(getAADuration()).." ("..trunc(lastAADelta)..") - "..trunc(estimatedDuration, 3)
       if getAADuration() > lastAADelta then
          aarstr = aarstr.."!!!"
@@ -404,10 +407,6 @@ function aaTick()
       end
    end
 
-   if CanAct() then
-      -- pp("UNBLOCK")
-      UnblockOrders()
-   end
 end
 
 function ResetAttack()
@@ -419,12 +418,12 @@ function ResetAttack()
 end
 
 function CanAttack()
-   return time() + latency > getNextAttackTime()
+   return time() > getNextAttackTime() - latency
 end
 
 function IsAttacking()
    return not shotFired or
-          time() + latency < lastAttack + getWindup()
+          time() < lastAttack + getWindup()
 end
 
 function JustAttacked()
@@ -486,29 +485,35 @@ function onObjAA(object)
    if ListContains(object.charName, aaData.particles) 
       and GetDistance(object) < GetWidth(me)+250
    then
+      shotFired = true
+
+      if time() - lastAttack > 2 then
+         pp("Got a wierd object "..object.charName)
+      end
+
       if ModuleConfig.aaDebug then
-         local delta = time() - lastAAState
+         local delta = time() - lastAAState         
          pp("AAP: "..trunc(delta).." "..object.charName)
 
          lastWUDelta = time() - lastAttack
          trackWindup(lastWUDelta)         
-      end
 
-      shotFired = true
-   end
-
-   if object and object.x and object.charName and
-      GetDistance(object, me) < 100 
-   then
-      if not ListContains(object.charName, ignoredObjects) and
-         not ListContains(object.charName, aaObjects)
-      then
-         if time() - lastAttack < .5 then
-            table.insert(aaObjects, object.charName)
-            table.insert(aaObjectTime, time() - lastAttack)
+         if object and object.x and object.charName and
+            GetDistance(object, me) < 100 
+         then
+            if not ListContains(object.charName, ignoredObjects) and
+               not ListContains(object.charName, aaObjects)
+            then
+               if time() - lastAttack < .5 then
+                  table.insert(aaObjects, object.charName)
+                  table.insert(aaObjectTime, time() - lastAttack)
+               end
+            end
          end
       end
+
    end
+
 end
 
 function IAttack(unit, spell)
@@ -533,6 +538,9 @@ function IAttack(unit, spell)
 end
 
 function trackAADuration()
+
+   pp("APS: "..trunc(1/lastAADelta,2))
+
    local testDur = lastAADelta*getAttackSpeed()
 
    if testDur < 2.25 then
@@ -617,7 +625,8 @@ function onSpellAA(unit, spell)
       end
 
       if BLOCK_FOR_AA and Alone() then
-         BlockOrders()
+         -- pp("BLOCK")
+         -- BlockOrders()
       end
 
       lastAttack = time()
