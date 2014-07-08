@@ -5,39 +5,47 @@ pp("\nTim's Miss Fortune")
 
 SetChampStyle("marksman")
 
-function doubleUpDam()
-   return GetSpellDamage("double")*1.2
-end
-
-AddToggle("move", {on=true, key=112, label="Move"})
--- AddToggle("double", {on=false, key=113, label="DoubleUp Enemies", auxLabel="{0}", args={doubleUpDam}})
+AddToggle("double", {on=true, key=112, label="DoubleUp Enemies", auxLabel="{0}", args={"doubleBounce"}})
+AddToggle("", {on=true, key=113, label="- - -"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}-{2}", args={GetAADamage, "double", "doubleBounce"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["double"] = {
    key="Q", 
-   range=spells["AA"].range, 
+   range=GetAARange, 
    color=violet, 
-   base={40,70,100,130,160},
-   ad=1,
+   base={20,35,50,65,80},
+   ad=.85,
+   ap=.35,
    type="P",
    cost={43,46,49,52,55},
    radius=500,
    onhit=true -- not sheen so watch for that
 }
+spells["doubleBounce"] = {
+   key="Q",
+   range=function() return GetAARange() + spells["double"].radius end,
+   color=spells["double"].color,
+   base={40,70,100,130,160},
+   ad=1,
+   ap=.5,
+   onhit=true
+}
 spells["impure"] = {
    key="W",
    ad=.06,
+   type="M",
    cost={30,35,40,45,50}
 }
 spells["rain"] = {
    key="E", 
    range=800, 
    color=yellow, 
-   base={90,145,195,255,310}, 
+   base={90,145,200,255,310}, 
    ap=.8,
    radius=200,
    cost=80
@@ -53,63 +61,239 @@ spells["bullet"] = {
    object="MissFortune_Base_R_cas"
 }
 
-function GetBestDouble(target, targets, goodTargets)
-   if not goodTargets then
-      goodTargets = targets
-   end
-   local ta = AngleBetween(me, target)
-   local bdt
-   local bdta = 1000
-   for _,dt in ipairs(targets) do
-      if target ~= dt then
-         local dta = math.abs(ta - AngleBetween(target, dt))
-         if dta > 3*math.pi/2 then
-            dta = dta - math.pi
-         end
-         if dta < math.pi/2 or dta > 3*math.pi/2 then
-            if dta < bdta then
-               bdt = dt
-               bdta = dta
-            end
-         end
-      end
-   end
-   if bdt then
-      for _,gt in ipairs(goodTargets) do
-         if bdt == gt then
-            return bdt, bdta
-         end
-      end
+-- TODO rewrite this
+function getDoubleHits(target, debug)
+   --[[
+   1. Enemy champions in a 40° cone with at least one stack of Impure Shots.
+   2. Minions and neutral monsters within a 20° cone.
+   3. Enemy champions within a 20° cone.
+   4. Minions and neutral monsters within a 40° cone.
+   5. Enemy champions within a 40° cone.
+   6. Enemy or neutral units within a 110° cone.
+   7. Enemy or neutral units within a 150-range 160° cone.
+   ]]--
+
+   if debug then
+      Circle(target, nil, red, 4)
+      DrawCone(target, AngleBetween(me, target), DegsToRads(20), spells["double"].radius)
+      DrawCone(target, AngleBetween(me, target), DegsToRads(40), spells["double"].radius)
    end
 
+   local angle = AngleBetween(me, target)
+
+   local targets = GetInCone(target, angle, DegsToRads(40), GetInRange(target, spells["double"].radius, impureEnemies))
+   if #targets > 0 then
+      pp("here")
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(20+5), GetInRange(target, spells["double"].radius, MINIONS, CREEPS, PETS))
+   if #targets > 0 then      
+      if debug then
+         pp(#targets.." in 20")
+      end
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(20), GetInRange(target, spells["double"].radius, ENEMIES))
+   if #targets > 0 then
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(40+5), GetInRange(target, spells["double"].radius, MINIONS, CREEPS, PETS))
+   if #targets > 0 then
+      if debug then
+         pp(#targets.." in 40")
+      end
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(40), GetInRange(target, spells["double"].radius, ENEMIES))
+   if #targets > 0 then
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(110), GetInRange(target, spells["double"].radius, MINIONS, CREEPS, PETS, ENEMIES))
+   if #targets > 0 then
+      if debug then
+         pp(#targets.." in 110")
+      end
+      return targets
+   end
+
+   local targets = GetInCone(target, angle, DegsToRads(160), GetInRange(me, 150, MINIONS, CREEPS, PETS, ENEMIES))
+   if #targets > 0 then
+      if debug then
+         pp(#targets.." in 160")
+      end
+      return targets
+   end
+
+   return {}
 end
    
+function scoreDouble(target, debug)
+   local score = 0
+   local hits = {}
+   local kills = {}
+   if WillKill("double", target) then
+      local ihs = .5
+      if JustAttacked() then
+         ihs = ihs + .25
+      end
+      if IsBigMinion(target) then
+         ihs = ihs * 1.5
+      end
+      score = score + ihs
+      if debug then
+         pp(score.." from initial hit")
+      end
+   end
+   hits = getDoubleHits(target)
+   if #hits > 0 then
+      kills = GetKills("doubleBounce", hits)
+      if #kills > 0 then
+         local tks = 0
+         for _,kill in ipairs(kills) do
+            local ks = .75
+            if JustAttacked() then
+               ks = ks + .1
+            end
+            if GetDistance(kill) > GetAARange() then
+               ks = ks + .5
+            end
+            if IsBigMinion(kill) then
+               ks = ks * 1.5
+            end                     
+            tks = tks + ks
+         end
+         if debug then
+            pp(#kills.. "kills")
+            pp(tks.." total kill score")
+            pp(#hits.." total bounce hits")
+         end
+         score = score + tks/#hits
+      end
+   end
+   if debug then
+      if score > 0 then
+         pp(score.." total score")
+         pp("-------------------------")
+      end
+   end
+   return hits, kills, score
+end
+
+impureEnemies = {}
+hasImpurity = {}
+
+function doubleUpEnemy()
+   if not CanUse("double") then return false end
+
+   local initialTargets = GetInRange(me, "double", MINIONS, ENEMIES, PETS)
+   initialTargets = reverse(SortByDistance(initialTargets))
+
+   for _,target in ipairs(initialTargets) do
+      local hits = getDoubleHits(target)      
+      local enemyHits = FilterList(hits, IsEnemy)
+      if #enemyHits > 0 and #hits == #enemyHits then
+         Cast("double", target)
+         PrintAction("Double for long range hit")
+         return true
+      end
+   end
+end
 
 function Run()
+   -- local tests = TestTargets()
+   -- local angle = DegsToRads(0)
+   -- local arc = DegsToRads(45)
+   -- local range = 750
+   -- local targets = GetInCone(me, angle, arc, GetAllInRange(me, range, tests))
+   -- for _,t in ipairs(targets) do
+   --    Circle(t, 25, blue, 3)
+   -- end
+   -- LineBetween(me, ProjectionA(me, angle+(arc/2), range))
+   -- LineBetween(me, ProjectionA(me, angle-(arc/2), range))
+
    spells["AA"].bonus = GetSpellDamage("impure")
+
+   impureEnemies = {}
+   for _,enemy in ipairs(ENEMIES) do
+      if hasImpurity[enemy.name] then
+         table.insert(impureEnemies, enemy)
+      end
+   end
 
    if StartTickActions() then
       return true
    end
 
+   if IsOn("double") then
+      if doubleUpEnemy() then
+         return true
+      end
+   end
+ 
    if HotKey() and CanAct() then
       if Action() then
          return true
       end
    end   
 
-   if IsOn("lasthit") and VeryAlone() then
-      if CanUse("double") and GetMPerc() > .75 then
-         local minions = SortByHealth(GetInRange(me, "double", MINIONS), "double")
-         local lowMinions = GetKills("double", GetInRange(me, GetSpellRange("double")+spells["double"].radius, MINIONS))
-         for _,t in ipairs(minions) do
-            local bta = GetBestDouble(t, minions, lowMinions)
-            if bta then
-               Cast("double", t)
-               PrintAction("Double for lasthit")
-               return true
+
+   -- initial kills aren't worth as much because I could just auto attack them.
+   -- this should go up a bit if I just attacked.
+   -- high chance kills out of aa range is good
+   -- gauranteed double kills are good
+
+   -- I want to go for gauranteed double kills
+   -- I want to go for gauranteed out of range kills
+
+   -- thresh of > 1
+
+   -- initial target base = .5
+   -- initial target after attack = .75
+   -- in range kill on bounce = .75
+   -- irkob after attack = 1
+   -- orkob = 1.5
+   -- orkob ja = 1.75
+
+   -- will kill big minions after attack on first hit (ok)
+   -- will go for any initial kill after attack with a bit of a chance of a second kill (ok)
+
+   if IsOn("lasthit") and Alone() then
+      if CanUse("double") then
+         local bestS = 1.1
+         local bestT = nil
+
+         if GetMPerc(me) > .9 then
+            bestS = 1.1
+         elseif GetMPerc(me) > .75 then
+            bestS = 1.2
+         elseif GetMPerc(me) > .5 then
+            bestS = 1.5
+         else
+            bestS = 1.75
+         end
+
+         local minions = GetInRange(me, "double", MINIONS)
+         for _,target in ipairs(minions) do
+            local hits, kills, score = scoreDouble(target)
+            if score > bestS then
+               bestS = score
+               bestT = target
             end
          end
+
+         if bestT and bestS > 1 then
+            -- getDoubleHits(bestT, true)
+            -- scoreDouble(bestT, true)
+            Cast("double", bestT)
+            PrintAction("double for LH", bestS)
+            return true
+         end
+            
       end
    end
 
@@ -123,25 +307,14 @@ function Run()
 end
 
 function Action()
-   if CanUse("double") then 
-      local bestDT
-      local bestDTA
-      for _,t in ipairs(GetInRange(me, GetSpellRange("double")+250, MINIONS, ENEMIES)) do
-         local doubleTargets = GetInRange(t, spells["double"].radius, MINIONS, ENEMIES) 
-         local bt, bta = GetBestDouble(t, doubleTargets, ENEMIES)
-         if bt then
-            Circle(t, 60, blue)
-            LineBetween(t, bt)
-            Circle(bt, 45, yellow)
-            if not bestDT or bta < bestDTA then
-               bestDT = t
-               bestDTA = bta
-            end
-         end
+   if not IsOn("double") then
+      if doubleUpEnemy() then
+         return true
       end
-      if bestDT and GetDistance(bestDT) < GetSpellRange("double") then
-         Cast("double", bestDT)
-         PrintAction("Double", bestDT)
+   end
+
+   if JustAttacked() then
+      if CastBest("double") then
          return true
       end
    end
@@ -163,19 +336,20 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    return false
 end
 
 local function onObject(object)
+   -- there's no object for impurity stacks.
 end
 
 local function onSpell(unit, spell)
+   if IAttack(unit, spell) then
+      if IsEnemy(spell.target) then
+         hasImpurity[spell.target.name] = true
+         DoIn(function() hasImpurity[spell.target.name] = false end, 5, "impurity"..spell.target.name)
+      end
+   end
 end
 
 AddOnCreate(onObject)
