@@ -12,13 +12,14 @@ pp(" - lasthit with empower")
 
 SetChampStyle("bruiser")
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
 AddToggle("jungle", {on=true, key=114, label="Jungle", auxLabel="{0}", args={"smite"}})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "empower"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["leap"] = {
 	key="Q", 
@@ -86,7 +87,7 @@ function Run()
 		PrintAction("Stun")
 	end
 
-	if HotKey() then
+	if HotKey() and CanAct() then
 		if Action() then
          return true
       end
@@ -198,7 +199,7 @@ end
 local function onObject(object)
 	PersistBuff("counter", object, "jaxdodger")
 
-   if find(object.charName, "RelentlessAssault") and GetDistance(object) < 250 then
+   if find(object.charName, "RelentlessAssault") and GetDistance(object) < 350 then
    	ultCounter = 0
    	pp("reset ultCounter on activate")
    end
