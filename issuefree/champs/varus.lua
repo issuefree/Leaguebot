@@ -18,28 +18,28 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
---spells["binding"] = {
---    key="Q", 
---    range=1175, 
---    color=violet, 
---    base={60,110,160,210,260}, 
---    ap=.7,
---    delay=2,
---    speed=12,
---    width=80,
---    cost={10,20,30,40,50}
---} 
---spells["binding"] = {
---    key="W", 
---    range=1175, 
---    color=violet, 
---    base={60,110,160,210,260}, 
---    ap=.7,
---    delay=2,
---    speed=12,
---    width=80,
---    cost={10,20,30,40,50}
---} 
+spells["arrow"] = {
+   key="Q", 
+   range=925,
+   maxRange=1400,
+   color=violet, 
+   base={10,47,83,120,157}, 
+   ad=1,
+   delay=2,  -- needs testing
+   speed=19,
+   width=80,
+   noblock=true,
+   cost={70,75,80,85,90}
+} 
+spells["quiver"] = {
+   base={10,14,18,22,26}, 
+   ap=.25
+} 
+spells["quiverStack"] = {
+   base=0,
+   percMaxHealth={.02,.0275,.035,.0425,.05},
+   percMaxHealthAP={.0002}
+} 
 --spells["binding"] = {
 --    key="E", 
 --    range=1175, 
@@ -62,13 +62,18 @@ AddToggle("move", {on=true, key=118, label="Move"})
 --    width=80,
 --    cost={10,20,30,40,50}
 --} 
+spells["maxArrow"] = copy(spells["arrow"])
+spells["maxArrow"].range = spells["maxArrow"].maxRange
 
 spells["AA"].damOnTarget = 
    function(target)
       return 0
    end
 
+
 function Run()
+   spells["AA"].bonus = GetSpellDamage("quiver")
+
    if StartTickActions() then
       return true
    end
