@@ -36,6 +36,7 @@ if me.SpellLevelQ == 0 and
    me.SpellLevelE == 0
 then
    os.remove("lualog.txt")
+   MoveToXYZ(me.x, me.y, me.z)
 end
 
 healSpell = {range=700+GetWidth(me), color=green, summoners=true}
@@ -298,11 +299,11 @@ function doCreateObj(object)
                   GetDistance(object) < 200
                then
                   PersistTemp(name, spells[name].objectTimeout)
-                  PrintAction("found a channel temp object "..object.charName.." for "..name)
+                  -- PrintAction("found a channel temp object "..object.charName.." for "..name)
                end
             else               
                if PersistBuff(name, object, spells[name].object, 200) then
-                  PrintAction("found a channel object "..object.charName.." for "..name)
+                  -- PrintAction("found a channel object "..object.charName.." for "..name)
                end
             end
          else
@@ -660,7 +661,7 @@ end
 -- weak, far, near, strong
 -- if force is false, try to play nice with auto attacking lasthits
 -- if force is true, kill it now.
-function KillMinion(thing, method, force)
+function KillMinion(thing, method, force, targetOnly)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return end
    
@@ -724,11 +725,15 @@ function KillMinion(thing, method, force)
       end
    end
 
+   if targetOnly then
+      return target
+   end
+
    if ValidTarget(target) then
       if spell.name and spell.name == "attack" then
          AA(target)
          PrintAction("AA "..method.." minion")
-         return true
+         return target
       else
          if IsBlockedSkillShot(thing) then
             CastFireahead(thing, target)
@@ -736,7 +741,7 @@ function KillMinion(thing, method, force)
             Cast(spell, target)
          end
          PrintAction(thing.." "..method.." minion")
-         return true
+         return target
       end
    end
 
@@ -1670,10 +1675,19 @@ function EndTickActions()
 
    end
 
-   if IsOn("move") and CanMove() and needMove and CURSOR then      
-      MoveToXYZ(Point(CURSOR):unpack())
-      PrintAction("move")
-      needMove = false
+   if IsOn("move") and CanMove() then
+      if HotKey() then
+         MoveToMouse()
+         CURSOR = Point(mousePos)
+         if GetDistance(mousePos) < 50 then
+            StopMove()
+         end
+      end
+      if needMove and CURSOR then      
+         MoveToXYZ(Point(CURSOR):unpack())
+         PrintAction("move")
+         needMove = false
+      end
    end
 
    PrintAction()
@@ -1703,7 +1717,7 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
          mod = " ("..thing..")"
       end
 
-      if GetDistance(target) < GetAARange() or Chasing(target) then
+      if GetDistance(target) < GetAARange() then
          if AA(target) then
             if GetAARange() < 300 then
                ClearCursor()
@@ -1757,7 +1771,7 @@ function MeleeMove()
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
          if GetDistance(target) > spells["AA"].range+25 then
-            if Chasing(target) then
+            if not RetreatingFrom(target) then
                MoveToTarget(target)
                return true
             end
@@ -1855,7 +1869,7 @@ function UseItem(itemName, target)
       local target = SelectFromList(GetInRange(me, item, ENEMIES), function(enemy) return #GetInRange(enemy, item.radius, ENEMIES) end)
       if target then
          CastXYZ(slot, target)
-         PrintAction(itemName, target)
+         PrintAction(itemName, target, 1)
          return true
       end
 
@@ -2004,7 +2018,7 @@ function CastAtCC(thing)
    if not target then
       local targets = GetInRange(me, thing, ENEMIES)
       for _,t in ipairs(targets) do
-         if t.movespeed < 250 then
+         if t.movespeed < 200 then
             target = t
             stillMoving = true
             break
