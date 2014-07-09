@@ -7,6 +7,12 @@ pp(" - Knock shit up, do the Ali dance.")
 
 AddToggle("heal", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"roar"}})
 AddToggle("combo", {on=true, key=113, label="Combo"})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["pulverize"] = {
    key="Q", 
@@ -82,6 +88,12 @@ function Action()
          return true
       end
    end
+
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
+      return true
+   end
+   return false
 end
 
 function heal()
