@@ -117,6 +117,11 @@ function Action()
       end
    end
 
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
    return false   
 end
 
