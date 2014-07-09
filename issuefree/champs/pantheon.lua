@@ -9,8 +9,8 @@ pp(" - Strike if they're near")
 pp(" - Spear if they're running")
 pp(" - Spear to lasthit far minions if I have mana")
 
-AddToggle("", {on=true, key=112, label="- - -"})
-AddToggle("dive", {on=false, key=113, label="Dive"})
+AddToggle("dive", {on=false, key=112, label="Dive"})
+AddToggle("", {on=true, key=113, label="- - -"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
