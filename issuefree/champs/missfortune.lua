@@ -181,7 +181,7 @@ function scoreDouble(target, debug)
          pp("-------------------------")
       end
    end
-   return hits, kills, score
+   return score, hits, kills
 end
 
 impureEnemies = {}
@@ -265,7 +265,7 @@ function Run()
    if IsOn("lasthit") and Alone() then
       if CanUse("double") then
          local bestS = 1.1
-         local bestT = nil
+         -- local bestT = nil
 
          if GetMPerc(me) > .9 then
             bestS = 1.1
@@ -277,20 +277,13 @@ function Run()
             bestS = 1.75
          end
 
-         local minions = GetInRange(me, "double", MINIONS)
-         for _,target in ipairs(minions) do
-            local hits, kills, score = scoreDouble(target)
-            if score > bestS then
-               bestS = score
-               bestT = target
-            end
-         end
+         local target, score = SelectFromList(GetInRange(me, "double", MINIONS), scoreDouble)
 
-         if bestT and bestS > 1 then
+         if target and score > bestS then
             -- getDoubleHits(bestT, true)
             -- scoreDouble(bestT, true)
-            Cast("double", bestT)
-            PrintAction("double for LH", bestS)
+            Cast("double", target)
+            PrintAction("double for LH", score)
             return true
          end
             
