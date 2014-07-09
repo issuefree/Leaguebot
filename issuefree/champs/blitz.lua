@@ -100,7 +100,8 @@ function Action()
    end
 
 
-   if AutoAA("fist") then
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target, "fist") then
       return true
    end
 
