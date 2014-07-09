@@ -321,10 +321,16 @@ function GetMyDirection()
    return AngleBetween(GetMyLastPosition(), me)
 end
 
-function Chasing(enemy)
-   -- if I was closer last tick than i was the tick before then I'm chasing
-   return GetDistance(myPos[1], enemy) > GetDistance(myPos[2], enemy)
+function RetreatingFrom(target)
+   return GetDistance(CURSOR) > 750 and GetDistance(CURSOR) < GetDistance(CURSOR, target)
 end
+
+-- function Chasing(enemy)
+--    return true
+--    -- if I was closer last tick than i was the tick before then I'm chasing
+--    -- return GetDistance(myPos[1], enemy) > GetDistance(myPos[2], enemy)
+--    -- return GetDistance(CURSOR) > GetDistance(CURSOR, enemy)
+-- end
 
 function GetMousePos()
    return Point(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
@@ -468,4 +474,13 @@ function GetCircleLocs(center, dist)
       table.insert(locs, loc)
    end
    return locs
+end
+
+function GetInCone(source, angle, arc, ...)
+   local proj = ProjectionA(source, angle, 100)
+   return FilterList(concat(...), 
+      function(item)
+         return RelativeAngle(source, proj, item) < arc/2
+      end
+   )
 end
