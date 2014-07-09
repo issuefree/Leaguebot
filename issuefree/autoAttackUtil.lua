@@ -95,6 +95,8 @@ function initAAData()
       FiddleSticks = { projSpeed = 1.75, windup = .30,
                        particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
 
+      Gragas       = { windup=.35 },
+
       Graves       = { projSpeed = 3.0, windup = .25,
                        particles = {"Graves_BasicAttack_mis"} },
 

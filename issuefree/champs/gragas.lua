@@ -149,7 +149,7 @@ end
 
 local function onObject(object)
    if Persist("barrel", object, "Gragas_Base_Q_Ally") then
-      barrelTime = time()
+      barrelTime = time()+.5
    end
    PersistBuff("rage", object, "Gragas_Base_W_Buf_Hands")
 end
