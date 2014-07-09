@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("Tim's Soraka")
 
+SetChampStyle("support")
+
 spells["starfall"] = {
 	key="Q", 
 	range=650,  
@@ -55,6 +57,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("", {on=true, key=118, label="Move"})
 
 function Run()
 	spells["infuseMana"].cost = me.maxMana * .05
@@ -74,8 +77,6 @@ function Run()
 		return
 	end
    
-   -- lots of actions aren't calling CanAct() because I want to interrupt AA
-
    if healTeam("heal") then
    	return true
    end
@@ -130,17 +131,6 @@ function Action()
 end
 
 function FollowUp()
-	if IsOn("lasthit") and Alone() then
-		if CanUse("starfall") then
-			local kills = GetKills("starfall", GetInRange(me, "starfall", MINIONS))
-			if #kills >= 2 then
-				Cast("starfall", me)
-				PrintAction("Starfall for lasthit")
-				return true
-			end
-		end
-	end
-
 	if IsOn("clear") and Alone() then
 		if CanUse("starfall") then
 			if #GetInRange(me, "starfall", MINIONS) > 2 then
