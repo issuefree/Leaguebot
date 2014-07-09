@@ -303,15 +303,15 @@ function GetSpellDamage(thing, target)
       end
       damage = damage + percMaxHealth*target.maxHealth
    end
-   if spell.percHealth and target then
-      local percHealth = GetLVal(spell, "percHealth")
-      if spell.percHealthAP then
-         percHealth = percHealth + GetLVal(spell, "percHealthAP")*me.ap
+   if spell.targetHealth and target then
+      local targetHealth = GetLVal(spell, "percHealth")
+      if spell.targetHealthAP then
+         targetHealth = targetHealth + GetLVal(spell, "targetHealthAP")*me.ap
       end
       damage = damage + percHealth*target.health
    end
-   if spell.percMissingHealth and target then
-      damage = damage + GetLVal(spell, "percMissingHealth")*(target.maxHealth - target.health)
+   if spell.targetMissingHealth and target then
+      damage = damage + GetLVal(spell, "targetMissingHealth")*(target.maxHealth - target.health)
    end
 
    if spell.damOnTarget and target then
@@ -599,6 +599,15 @@ function IsBlockedSkillShot(thing)
 	if not spell then return false end
 
 	return IsLinearSkillShot(thing) and not spell.noblock
+end
+
+function DrawCone(source, angle, arc, dist)
+   local a1 = angle - arc/2
+   local a2 = angle + arc/2
+   local p1 = ProjectionA(source, a1, dist)
+   local p2 = ProjectionA(source, a2, dist)
+   LineBetween(source, p1)
+   LineBetween(source, p2)
 end
 
 function DrawSpellCone(thing)

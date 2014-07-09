@@ -17,7 +17,7 @@ spells["toxin"] = {
    range=625, 
    color=green,
    base={40,75,110,145,180}, 
-   percHealth=.08,
+   targetHealth=.08,
    maxOnMobs={50,75,100,125,150},
    cost={80,85,90,95,100}
 } 
@@ -26,7 +26,7 @@ spells["bite"] = {
    range=475, 
    color=violet,
    base={60,100,140,180,220}, 
-   percMissingHealth=.08,
+   targetMissingHealth=.08,
    maxOnMobs={50,75,100,125,150}
 } 
 
@@ -82,8 +82,8 @@ function isSpider()
 end
 
 function Run()
-   spells["toxin"].percHealth = .08 + me.ap/100*.03
-   spells["bite"].percMissingHealth = .08 + me.ap/100*.03
+   spells["toxin"].targetHealth = .08 + me.ap/100*.03
+   spells["bite"].targetMissingHealth = .08 + me.ap/100*.03
 
    if isSpider() then
       spells["toxin"].key = "--"

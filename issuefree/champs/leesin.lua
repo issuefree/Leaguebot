@@ -28,7 +28,7 @@ altSpells["blindmonkqtwo"] = {
    color=violet, 
    base={50,80,110,140,170}, 
    adBonus=.9,
-   percMissingHealth=.08,
+   targetMissingHealth=.08,
    type="P",
    cost=30
 }
