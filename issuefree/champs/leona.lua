@@ -102,7 +102,13 @@ end
 
 function Action()
 
-   local target = GetMarkedTarget() or GetMeleeTarget()
+   if CanUse("eclipse") and GetWeakestEnemy("AA") then
+      Cast("eclipse", me)
+      PrintAction("Eclipse in melee")
+      return true
+   end
+
+   local target = GetMarkedTarget() or GetMeleeTarget()   
    if AutoAA(target, "shield") then
       return true
    end
