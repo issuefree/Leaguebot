@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Twitch")
 
+SetChampStyle("marksman")
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -73,6 +75,10 @@ function drawPoisons()
 end
 
 function Action()
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
    return false
 end
 
@@ -80,6 +86,8 @@ local function onObject(object)
    if find(object.charName, "twitch_poison_counter_0") then
       table.insert(poisons, object)
    end 
+
+   -- TODO detect stealth and don't break for last hits.
 end
 
 local function onSpell(object, spell)
