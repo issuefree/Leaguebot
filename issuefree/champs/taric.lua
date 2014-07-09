@@ -50,6 +50,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
 	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selflevel-1)))*.05
@@ -83,7 +84,11 @@ function Run()
 end 
 
 function Action()
-	return false
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
+      return true
+   end
+   return false
 end
 
 function healScore(hero, maxHeal)
@@ -114,7 +119,7 @@ function doHeal()
 	then
 		Circle(bestFar, 100, yellow)
 		LineBetween(me, bestFar)
-		PrintAction("Far heal needed", bestFar)
+		PrintAction("Far heal needed", bestFar, 1)
 		return false
 	end
 		
