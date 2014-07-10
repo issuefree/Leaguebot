@@ -249,7 +249,7 @@ function GetLVal(spell, field)
    return val
 end
 
-function GetSpellDamage(thing, target)
+function GetSpellDamage(thing, target, ignoreResists)
    local spell = GetSpell(thing)
    if not spell or not spell.base then
       return 0
@@ -296,12 +296,12 @@ function GetSpellDamage(thing, target)
    if spell.bonus then
       damage = damage + GetLVal(spell, "bonus")
    end
-   if spell.percMaxHealth and target then
-      local percMaxHealth = GetLVal(spell, "percMaxHealth")
-      if spell.percMaxHealthAP then
-         percMaxHealth = percMaxHealth + GetLVal(spell, "percMaxHealthAP")*me.ap
+   if spell.targetMaxHealth and target then
+      local targetMaxHealth = GetLVal(spell, "targetMaxHealth")
+      if spell.targetMaxHealthAP then
+         targetMaxHealth = targetMaxHealth + GetLVal(spell, "targetMaxHealthAP")*me.ap
       end
-      damage = damage + percMaxHealth*target.maxHealth
+      damage = damage + targetMaxHealth*target.maxHealth
    end
    if spell.targetHealth and target then
       local targetHealth = GetLVal(spell, "percHealth")
@@ -362,7 +362,9 @@ function GetSpellDamage(thing, target)
       if HasBuff("dfg", target) then
          damage.m = damage.m*1.2
       end
-      damage = CalculateDamage(target, damage)      
+      if not ignoreResists then
+      	damage = CalculateDamage(target, damage)
+      end
    end
 
 
