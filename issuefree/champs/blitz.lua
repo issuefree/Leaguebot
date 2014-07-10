@@ -3,8 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Blitz")
 
-AddToggle("", {on=true, key=112, label="- - -"})
-AddToggle("pull", {on=false, key=113, label="Pull"})
+AddToggle("pull", {on=false, key=112, label="Pull"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
