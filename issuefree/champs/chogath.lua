@@ -171,7 +171,7 @@ function Action()
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "rupture", 1, 3, ENEMIES)
       if score >= 3 then
-         CastXYZ("rupture", GetCenter(hits))
+         CastXYZ("rupture", GetAngularCenter(hits))
          PrintAction("Rupture for AoE")
          return true
       end

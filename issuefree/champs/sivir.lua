@@ -50,7 +50,7 @@ function Run()
    -- for _,t in ipairs(hits) do
    --    DrawBB(t, red)      
    -- end
-   -- local c = GetCenter(hits)
+   -- local c = GetAngularCenter(hits)
    -- DrawLineObject(me, spell.range, blue, AngleBetween(me, c), spell.width)
 
    if CastAtCC("boomerang") then

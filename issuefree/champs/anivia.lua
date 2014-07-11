@@ -122,7 +122,7 @@ function Run()
       if (GetMPerc(me) > .33 and #hits >= 4) or
          (GetMPerc(me) > .66 and #hits >= 3)
       then
-         CastXYZ("storm", GetCenter(hits))
+         CastXYZ("storm", GetAngularCenter(hits))
          PrintAction("Storm for clear "..#hits)
       end
    end
@@ -163,7 +163,7 @@ function Action()
    if CanUse("storm") and not P.storm then
       local hits = GetBestArea(me, "storm", 1, 0, ENEMIES)
       if #hits > 0 then
-         CastXYZ("storm", GetCenter(hits))
+         CastXYZ("storm", GetAngularCenter(hits))
          PrintAction("Storm", #hits)
          return true
       end

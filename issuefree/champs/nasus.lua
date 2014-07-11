@@ -122,7 +122,7 @@ function Action()
    if CanUse("fire") then
       local hits = GetBestArea(me, "fire", 1, 0, ENEMIES)
       if #hits >= 2 then
-         CastXYZ("fire", GetCenter(hits))
+         CastXYZ("fire", GetAngularCenter(hits))
          PrintAction("Fire on area", #hits)
          return true
       end

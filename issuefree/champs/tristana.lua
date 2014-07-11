@@ -146,7 +146,7 @@ function getJumpPoint()
    local point = Projection(kbPoint, predTarget, GetDistance(kbPoint, predTarget)+GetSpellRange("buster"))
    if GetDistance(point) > GetSpellRange("jump") then
       local jd = GetSpellRange("jump")-5
-      local od = GetOrthDist3(kbPoint, predTarget, me)
+      local od = GetOrthDist(predTarget, me, kbPoint)
       local dx = math.sqrt(jd^2 - od^2) + math.sqrt(GetDistance(kbPoint)^2 - od^2)
 
       point = Projection(kbPoint, predTarget, dx)

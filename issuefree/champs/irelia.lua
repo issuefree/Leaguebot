@@ -83,7 +83,7 @@ function Run()
 
          local hits = GetBestLine(me, "blades", 1, 5, ENEMIES)
          if #hits > 0 then
-            CastXYZ("blades", GetCenter(hits))
+            CastXYZ("blades", GetAngularCenter(hits))
             PrintAction("Blade spam", #hits)
             return true
          end
@@ -139,7 +139,7 @@ function Action()
          end
          local hits = GetBestLine(me, "blades", 1, 5, ENEMIES)
          if #hits >= 3 then
-            CastXYZ("blades", GetCenter(hits))
+            CastXYZ("blades", GetAngularCenter(hits))
             PrintAction("Blades for AOE", #hits)
             return true
          end

@@ -74,10 +74,10 @@ function Run()
       local bestMinions = GetBestArea(me, {range=1000, radius=330}, 1, 0, MINIONS)
 
       if isSpinning() and #bestMinions >= 1 then
-         spinT = GetCenter(bestMinions)
+         spinT = GetAngularCenter(bestMinions)
          Circle(spinT, 50, yellow, 6)
       elseif #bestMinions >= 3 then 
-         spinT = GetCenter(bestMinions)
+         spinT = GetAngularCenter(bestMinions)
          Circle(spinT, 50, yellow, 6)
       end
    end

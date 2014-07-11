@@ -180,7 +180,7 @@ function Action()
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
-         CastXYZ("singularity", GetCenter(hits))
+         CastXYZ("singularity", GetAngularCenter(hits))
          PrintAction("Singularity for AoE")
          return true
       end
@@ -212,7 +212,7 @@ function Action()
       -- don't care about kills because I already killed them if I could
       local hits = GetBestLine(me, "spark", 1, 0, ENEMIES)
       if #hits > 2 then
-         local center = GetCenter(hits)
+         local center = GetAngularCenter(hits)
          LineBetween(me, center, spells["spark"].width)
          if IsOn("spark") then
             UseItem("Deathfire Grasp", GetWeakest("spark", hits))
@@ -260,7 +260,7 @@ function FollowUp()
       if CanUse("singularity") then
          local hits, kills, score = GetBestArea(me, "singularity", 1, 1, MINIONS)
          if score >= 7 then
-            CastXYZ("singularity", GetCenter(hits))
+            CastXYZ("singularity", GetAngularCenter(hits))
             PrintAction("Singularity for clear")
             return true
          end
