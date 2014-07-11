@@ -128,7 +128,7 @@ function onCreate(object)
 			camp.object = object
 		end
 		for _,creepName in ipairs(camp.creepNames) do
-			if find(object.charName, creepName) and GetDistance(camp.object, object) < 1000 then
+			if find(object.charName, creepName) and camp.object and GetDistance(camp.object, object) < 1000 then
 				-- pp("Adding "..object.charName.." to "..campName)
 				table.insert(camp.creeps, object)
 				camp.nextSpawn = nil
