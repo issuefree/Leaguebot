@@ -98,20 +98,6 @@ function Run()
       return true
    end
 
-   if CanUse("rite") then
-      local target = GetWeakestEnemy("rite")
-      if target then
-         if GetSpellDamage("rite", target)*3 > target.health*1.1 then
-            LineBetween(me, target, 10)
-         end
-      end
-   end
-
-   if P.rite then
-      SkillShot("rite")
-      return true
-   end
-
    if P.charging then
       local _,_,maxScore = GetBestLine(me, "maxBolt", 0, 10, ENEMIES)
       local hits,_,score = GetBestLine(me, "bolt", .1, 10, ENEMIES)
@@ -128,15 +114,34 @@ function Run()
          local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
          local hits,_,score = GetBestLine(me, "bolt", .1, 1, MINIONS)
          if score >= maxScore and score > 0 then
-            FinishBolt(GetCenter(hits))
+            FinishBolt(GetAngularCenter(hits))
             PrintAction("bolt lh", score)
             PauseToggle("lasthit", .5)
             return true
          end
       end
 
+      if IsOn("move") and HotKey() then
+         MoveToMouse()
+      end
+
       return true
    end
+
+   if CanUse("rite") then
+      local target = GetWeakestEnemy("rite")
+      if target then
+         if GetSpellDamage("rite", target)*3 > target.health*1.1 then
+            LineBetween(me, target, 10)
+         end
+      end
+   end
+
+   if P.rite then
+      SkillShot("rite")
+      return true
+   end
+
 
    -- auto stuff that always happen
    if CheckDisrupt("orb") then
@@ -151,7 +156,6 @@ function Run()
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
-      StartBolt(1)      
 		if Action() then
 			return true
 		end
@@ -176,14 +180,12 @@ function Run()
          end
       end
 
-      if Alone() and CanUse("bolt") then
-         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
+      if Alone() and CanUse("bolt") and not P.charging then
+         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS, ENEMIES)
 
-         if not P.charging then
-            if maxScore >= killsNeeded then
-               StartBolt()
-               return true
-            end
+         if maxScore >= killsNeeded then
+            StartBolt()
+            return true
          end
       end
 
