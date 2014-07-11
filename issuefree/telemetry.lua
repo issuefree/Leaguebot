@@ -45,8 +45,13 @@ end
 function GetDistance(p1, p2)
     p2 = p2 or myHero
     if not p1 or not p1.x then
-      pp("Incomplete object")
-      pp(p1)
+      if not p1 then
+         pp("null p1")
+      end
+      if not p1.x then
+         pp("Incomplete object")
+         pp(p1)
+      end
       print(debug.traceback())      
       return 99999 
     end
@@ -144,15 +149,22 @@ function RelativeAngleRight(center, o1, o2)
    end
    return ra
 end
---returns the orthoganal component of the distance between two objects
-function GetOrthDist(t1, t2)
-   local angleT = AngleBetween(t1, t2) - AngleBetween(me, t1)
-   if math.min(10, angleT) == 10 then
-      return 0
-   end   
-   local h = GetDistance(t1, t2)
+
+-- return how far t is from the line between p1 and p2
+function GetOrthDist(p1, t, p2)
+   p2 = p2 or me
+   local angleT = AngleBetween(p1, t) - AngleBetween(p2, p1)
+   local h = GetDistance(p1, t)
    local d = h*math.sin(angleT)
    return math.abs(d)   
+end
+
+function GetOrthDistRight(p1, t, p2)
+   p2 = p2 or me
+   local angleT = AngleBetween(p1, t) - AngleBetween(p2, p1)
+   local h = GetDistance(p1, t)
+   local d = h*math.sin(angleT)
+   return d
 end
 
 local function areaOfTriangleFromSides(a,b,c)
@@ -162,14 +174,6 @@ end
 
 local function heightOfTriangleFromAreaAndBase(area, base)
    return 2*area/base
-end
-
-function GetOrthDist3(lp1, lp2, pOff)
-   local base = GetDistance(lp1, lp2)
-   local l1 = GetDistance(pOff, lp1)
-   local l2 = GetDistance(pOff, lp2)
-   local area = areaOfTriangleFromSides(base, l1, l2)
-   return heightOfTriangleFromAreaAndBase(area, base)
 end
 
 function RadsToDegs(rads)
@@ -184,6 +188,10 @@ end
 Returns the x,y,z of the center of the targes
 --]]
 function GetCenter(targets)
+   if not targets or #targets == 0 then
+      return nil
+   end
+
    local x = 0
    local y = 0
    local z = 0
@@ -204,7 +212,7 @@ end
 -- Gives the angular center of a set of targets from the perspective of source
 function GetAngularCenter(targets, source)
    source = source or me
-   if not targets then return nil end
+   if not targets or #targets == 0 then return nil end
    if #targets == 1 then return Point(targets[1]) end
 
    local l,r
