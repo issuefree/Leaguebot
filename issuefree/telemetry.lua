@@ -6,6 +6,9 @@ function Point:__init(a, b, c)
       return nil
    end
    if not b and not c then
+      if not a.x then
+         return nil
+      end
       self.x = a.x+1-1
       if not a.y then
          self.y = 0
@@ -330,6 +333,7 @@ function GetMyDirection()
 end
 
 function RetreatingFrom(target)
+   if not CURSOR then return false end
    return GetDistance(CURSOR) > 750 and GetDistance(CURSOR) < GetDistance(CURSOR, target)
 end
 
