@@ -130,6 +130,13 @@ function PersistTemp(name, ttl)
    end
 end
 
+function IsTemp(name)
+   if PData[name] and PData[name].timeout then
+      return true
+   end
+   return false
+end
+
 function enemyHasName(name)
    for _,enemy in ipairs(ENEMIES) do
       if enemy.name == name then
@@ -200,7 +207,7 @@ end
 
 function PersistOnTargets(name, object, charName, ...)
    if object and find(object.charName, charName) then
-      local target = SortByDistance(GetInRange(object, 100, concat(...)), object)[1]
+      local target = SortByDistance(GetInRange(object, 125, concat(...)), object)[1]
       if target then
          if not pOn[name] then
             pOn[name] = {}
