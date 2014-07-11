@@ -86,9 +86,12 @@ function Run()
       local targets = SortByDistance(GetInRange(me, spells["justice"].range*2, ENEMIES))
       for i,target in ipairs(targets) do
          if target.health < getJusticeDam(target) then
-            Cast("justice", target)
-            PrintAction("Justice", target)
-            return true            
+            Circle(target, nil, violet, 5)
+            if GetDistance(target) < GetSpellRange("justice") then
+               Cast("justice", target)
+               PrintAction("Justice", target)
+               return true            
+            end
          end
       end
    end
