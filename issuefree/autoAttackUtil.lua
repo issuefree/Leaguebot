@@ -151,7 +151,7 @@ function initAAData()
       Lulu         = { projSpeed = 2.5,
                        particles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"} },
 
-      Lux          = { projSpeed = 1.55,
+      Lux          = { projSpeed = 1.55, windup=.15,
                        particles = {"LuxBasicAttack"} },
 
       Malzahar     = { projSpeed = 1.5,
