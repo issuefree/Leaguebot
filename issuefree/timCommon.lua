@@ -551,7 +551,7 @@ function KillMinionsInLine(thing, killsNeeded)
 
    local hits, kills, score = GetBestLine(me, thing, .1, 1, MINIONS)
    if #kills >= killsNeeded then
-      local point = GetCenter(hits)
+      local point = GetAngularCenter(hits)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
@@ -569,7 +569,7 @@ function HitMinionsInLine(thing, hitsNeeded)
    
    local hits, kills, score = GetBestLine(me, thing, 1, 1, MINIONS)
    if #hits >= hitsNeeded then
-      local point = GetCenter(hits)
+      local point = GetAngularCenter(hits)
       if spell.overShoot then
          point = OverShoot(me, point, spell.overShoot)         
       end
@@ -813,11 +813,10 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
    for _,target in ipairs(targets) do
       -- get everything that could be hit and still hit the target (a double blast radius)
       local hits = GetInRange(target, spell.radius*2, targets)
-      local kills = {}
       local center
       -- trim outliers until everyone fits
       while true do
-         center = GetCenter(hits)
+         center = GetAngularCenter(hits, source)
          SortByDistance(hits, center)         
          if GetDistance(center, hits[#hits]) > spell.radius then
             table.remove(hits, #hits)
@@ -826,25 +825,12 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
          end
       end
 
-      center = GetCenter(hits)
+      center = GetAngularCenter(hits, source)
       if GetDistance(source, center) > GetSpellRange(spell) then
          hits = {}
       end
 
-
-      local score = #hits*hitScore
-
-      if killScore ~= 0 then
-         for _,hit in ipairs(hits) do
-            if WillKill(thing, hit) then
-               if IsBigMinion(hit) then
-                  score = score + (killScore / 2)
-               end
-               score = score + killScore
-               table.insert(kills, hit)
-            end
-         end
-      end
+      local score, kills = scoreHits(spell, hits, hitScore, killScore)
       if not bestT or score > bestS then
          bestS = score
          bestT = hits
@@ -859,25 +845,10 @@ function GetInLine(source, thing, target, targets)
    local spell = GetSpell(thing)
    local width = spell.width or spell.radius
 
-   SortByAngle(targets)
-
-   local primary = Point(target)
-   primary.y = me.y   
-
-   local hits = {target}
-   local pw = GetWidth(target)
-   for _,s in ipairs(targets) do
-      if s ~= primary then
-         local sw = GetWidth(s)
-         local ra = RelativeAngle(source, primary, s)
-         if GetOrthDist(primary, s) < width + pw + sw and 
-            ra < math.pi/3 -- why?
-         then
-            table.insert(hits, s)
-         end
-      end
-   end
-   return hits
+   return FilterList( targets, function(item)
+                                  local odr = GetOrthDistRight(target, item)
+                                  return odr >= 0 and odr < width + GetWidth(target)/2 + GetWidth(item)/2
+                               end )
 end
 
 function GetBestLine(source, thing, hitScore, killScore, ...)
@@ -895,20 +866,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    local bestK = {}
    for _,target in ipairs(targets) do
       local hits = GetInLine(source, spell, target, targets)
-      local score = #hits*hitScore
-      local kills = {}
-
-      if killScore ~= 0 then     
-         for _,hit in ipairs(hits) do
-            if WillKill(spell, hit) then
-               if IsBigMinion(hit) then
-                  score = score + (killScore / 2)
-               end
-               score = score + killScore
-               table.insert(kills, hit)
-            end
-         end
-      end
+      local score, kills = scoreHits(spell, hits, hitScore, killScore)
       if not bestT or score > bestS then
          bestS = score
          bestT = hits
@@ -918,13 +876,31 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    return bestT, bestK, bestS
 end
 
+function scoreHits(spell, hits, hitScore, killScore)
+   local score = #hits*hitScore
+   local kills = {}
+
+   if killScore ~= 0 then     
+      for _,hit in ipairs(hits) do
+         if WillKill(spell, hit) then
+            if IsBigMinion(hit) then
+               score = score + (killScore / 2)
+            end
+            score = score + killScore
+            table.insert(kills, hit)
+         end
+      end
+   end
+   return score, kills
+end
+
 function KillMinionsInArea(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
    local hits, kills, score = GetBestArea(me, thing, .1, 1, MINIONS)
    if #kills >= killsNeeded then
-      CastXYZ(thing, GetCenter(hits))
+      CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for kills", #kills)
       return true
    end
@@ -936,7 +912,7 @@ function HitMinionsInArea(thing, hitsNeeded)
 
    local hits, kills, score = GetBestArea(me, thing, 1, 1, MINIONS)
    if #hits >= hitsNeeded then
-      CastXYZ(thing, GetCenter(hits))
+      CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for hits", #hits)
       return true
    end
@@ -988,19 +964,7 @@ function GetBestCone(source, thing, hitScore, killScore, ...)
 
    for _,target in ipairs(targets) do
       local hits = FilterList(targets, function(item) return RadsToDegs(RelativeAngleRight(me, target, item)) < spell.cone end)
-      local kills = {}
-      local score = #hits*hitScore
-      if killScore ~= 0 then
-         for _,hit in ipairs(hits) do
-            if WillKill(thing, hit) then
-               if IsBigMinion(hit) then
-                  score = score + (killScore / 2)
-               end
-               score = score + killScore
-               table.insert(kills, hit)
-            end
-         end
-      end
+      local score, kills = scoreHits(spell, hits, hitScore, killScore)
 
       if score > bestS then
          bestS = score
@@ -1386,8 +1350,8 @@ function checkDodge(shot)
       end
       if not shot.block or ( shot.block and IsUnblocked(shot.target, shot, me, MINIONS, ENEMIES) ) then
          if not IsChannelling() or (shot.cc and shot.cc >= 3) then
-            BlockingMove(shot.safePoint)
             PrintAction("Dodge "..shot.name)
+            BlockingMove(shot.safePoint)
          end
       end
    end
@@ -1453,7 +1417,7 @@ AddOnSpell(OnProcessSpell)
 local blockTimeout = .25
 local lastMove = 0 
 function BlockingMove(move_dest)
-   pp("block and mov4e")
+   pp("block and move")
    if time() - lastMove > 1 then
       
       MoveToXYZ(move_dest.x, 0, move_dest.z)
@@ -1729,7 +1693,7 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
    else
       target = GetWeakestEnemy("AA")
       if target and AA(target) then
-         PrintAction("AA driveby..mod", target)
+         PrintAction("AA driveby "..mod, target)
          return true
       end
    end
