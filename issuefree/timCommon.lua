@@ -766,6 +766,9 @@ function KillMinion(thing, method, force, targetOnly)
    end
 
    if ValidTarget(target) then
+
+      AddWillKill(target)
+
       if spell.name and spell.name == "attack" then
          AA(target)
          PrintAction("AA "..method.." minion")
@@ -777,7 +780,6 @@ function KillMinion(thing, method, force, targetOnly)
             Cast(spell, target)
          end
          PrintAction(thing.." "..method.." minion")
-         AddWillKill(target)
          return target
       end
    end
@@ -1273,8 +1275,8 @@ function GetWeakestEnemy(thing, extraRange, stretch)
       type = "MAGIC"
    end
 
-   return GetWeakEnemy(type, GetSpellRange(spell)+extraRange) or
-          GetWeakEnemy(type, GetSpellRange(spell)+extraRange+stretch)
+   return GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange, ENEMIES)) or
+          GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange+stretch, ENEMIES))
 end
 
 
@@ -1297,17 +1299,32 @@ function GetWeakest(thing, list)
    local weakest
    local wScore
    
-   for _,target in ipairs(list) do
+
+   for _,target in ipairs(list) do      
       if target then
-         local tScore = target.health / CalculateDamage(target, Damage(100, type))
-         if weakest == nil or tScore < wScore then
-            weakest = target
-            wScore = tScore
+         if IsImmune(target, thing) then
+            -- pp("Don't cast "..thing.." on "..target.name.." due to invuln")
+         else
+            local tScore = target.health / CalculateDamage(target, Damage(100, type))
+            if weakest == nil or tScore < wScore then
+               weakest = target
+               wScore = tScore
+            end
          end
       end
    end
    
    return weakest
+end
+
+function IsImmune(target, thing)
+   local spell = GetSpell(thing)
+   if spell and spell.name == "AA" then
+      return HasBuff("invulnerable", target)
+   else
+      return HasBuff("invulnerable", target) or HasBuff("spellImmune", target)
+   end
+   return false
 end
 
 function SelectFromList(list, scoreFunction, args)

@@ -492,7 +492,21 @@ function createForPersist(object)
    end
 
 
-   -- TODO persist invuln from Kayle
+   -- CREDIT TO LUA for inspiration in his IsInvulnerable script.
+   PersistOnTargets("invulnerable", object, "eyeforaneye", ENEMIES) -- kayle intervention
+   PersistOnTargets("invulnerable", object, "nickoftime", ENEMIES) -- zilean chronoshift
+   PersistOnTargets("invulnerable", object, "UndyingRage_buf", ENEMIES) -- trynd ult
+   PersistOnTargets("invulnerable", object, "VladSanguinePool_buf", ENEMIES) -- vlad sanguine pool   
+   -- if I am the target of diplomatic immunity don't bother recording diplomatic immunity
+   PersistBuff("diplomaticImmunityTarget", object, "DiplomaticImmunity_tar")
+   if not P.diplomaticImmunityTarget then
+      PersistOnTargets("invulnerable", object, "DiplomaticImmunity_buf", ENEMIES) -- poppy diplomatic immunity
+   end
+
+   PersistOnTargets("bansheesVeil", object, "bansheesveil_buf", ENEMIES) -- vlad sanguine pool
+
+   PersistOnTargets("spellImmune", object, "Sivir_Base_E_shield", ENEMIES)
+   PersistOnTargets("spellImmune", object, "nocturne_shroudofDarkness_shield", ENEMIES)
 end
 
 function persistTick()
