@@ -161,32 +161,11 @@ end
 
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
-   if spell.cost then
-      if type(spell.cost) == "table" then
-         return spell.cost[GetSpellLevel(spell.key)] or 0
-      elseif type(spell.cost) == "number" then
-         return spell.cost or 0
-      else
-         return spell.cost() or 0
-      end
-   end
-   return 0
+   return GetLVal(spell, "cost")
 end
 
 function GetSpellRange(thing)
-   local spell = GetSpell(thing)
-   if type(spell.range) == "table" then
-      local lvl = GetSpellLevel(spell.key)
-      if lvl == 0 then
-         return 0
-      end
-      return spell.range[GetSpellLevel(spell.key)]
-   elseif type(spell.range) == "number" then
-      return spell.range
-   else
-      return spell.range()
-   end
-   return 0
+   return GetLVal(GetSpell(thing), "range")
 end
 
 function GetSpell(thing)
@@ -222,6 +201,8 @@ function GetSpell(thing)
 end
 
 function GetLVal(spell, field)
+	if not spell[field] then return 0 end
+
    if type(spell[field]) == "number" then
       return spell[field]
    end
@@ -272,45 +253,25 @@ function GetSpellDamage(thing, target, ignoreResists)
    end
 
    damage = damage + Damage(GetLVal(spell, "base"), spell.type or "M")
-   if spell.ap then
-      damage = damage + GetLVal(spell, "ap")*me.ap
-   end
-   if spell.ad then
-      damage = damage + GetLVal(spell, "ad")*(me.baseDamage+me.addDamage)
-   end
-   if spell.adBonus then
-      damage = damage + GetLVal(spell, "adBonus")*me.addDamage
-   end
-   if spell.adBase then
-      damage = damage + GetLVal(spell, "adBase")*me.baseDamage
-   end
-   if spell.mana then
-      damage = damage + GetLVal(spell, "mana")*me.maxMana
-   end
-   if spell.armor then
-      damage = damage + GetLVal(spell, "armor")*me.armor
-   end
-   if spell.lvl then
-      damage = damage + GetLVal(spell, "lvl")*me.selflevel
-   end
-   if spell.bonus then
-      damage = damage + GetLVal(spell, "bonus")
-   end
-   if spell.targetMaxHealth and target then
+   damage = damage + GetLVal(spell, "ap")*me.ap
+   damage = damage + GetLVal(spell, "ad")*(me.baseDamage+me.addDamage)
+   damage = damage + GetLVal(spell, "adBonus")*me.addDamage
+   damage = damage + GetLVal(spell, "adBase")*me.baseDamage
+   damage = damage + GetLVal(spell, "mana")*me.maxMana
+   damage = damage + GetLVal(spell, "armor")*me.armor
+   damage = damage + GetLVal(spell, "lvl")*me.selflevel
+   damage = damage + GetLVal(spell, "bonus")
+   if target then
       local targetMaxHealth = GetLVal(spell, "targetMaxHealth")
-      if spell.targetMaxHealthAP then
-         targetMaxHealth = targetMaxHealth + GetLVal(spell, "targetMaxHealthAP")*me.ap
-      end
+      targetMaxHealth = targetMaxHealth + GetLVal(spell, "targetMaxHealthAP")*me.ap
       damage = damage + targetMaxHealth*target.maxHealth
    end
-   if spell.targetHealth and target then
+   if target then
       local targetHealth = GetLVal(spell, "percHealth")
-      if spell.targetHealthAP then
-         targetHealth = targetHealth + GetLVal(spell, "targetHealthAP")*me.ap
-      end
-      damage = damage + percHealth*target.health
+      targetHealth = targetHealth + GetLVal(spell, "targetHealthAP")*me.ap
+      damage = damage + targetHealth*target.health
    end
-   if spell.targetMissingHealth and target then
+   if target then
       damage = damage + GetLVal(spell, "targetMissingHealth")*(target.maxHealth - target.health)
    end
 

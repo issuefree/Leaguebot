@@ -448,6 +448,17 @@ function GetAllInRange(target, thing, ...)
    return result
 end
 
+function GetInLine(source, thing, target, targets)
+   local spell = GetSpell(thing)
+   local width = spell.width or spell.radius
+
+   return FilterList( targets, function(item)
+                                  local odr = GetOrthDistRight(target, item)
+                                  return odr >= 0 and odr < width + GetWidth(target)/2 + GetWidth(item)/2
+                               end )
+end
+
+
 -- this isn't really telemetry but...
 function SortByHealth(things, thing)
    local spell = GetSpell(thing)
