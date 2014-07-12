@@ -31,7 +31,7 @@ local minMoveTime = .2  -- this seems to work for almost everyone.
 
 function GetAARange(target)
    target = target or me
-   return target.range + GetWidth(me)
+   return target.range + 115 --GetWidth(me)
 end
 
 function IsMelee(target)
@@ -589,10 +589,9 @@ function onSpellAA(unit, spell)
    end
 
    if IAttack(unit, spell) then
-      -- if GetDistance(spell.target) > GetAARange()+10 then
-      --   pp("OORANGEAA")
-      --   pp(trunc(GetDistance(spell.target)).." > "..GetAARange())
-      -- end
+      if ModuleConfig.aaDebug then
+         pp("AA at distance "..trunc(GetDistance(spell.target)))
+      end
 
       -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
       -- if I can't hit an enemy try to hit a minion I could kill instead
