@@ -3,7 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Karthus")
 
-AddToggle("farm", {on=true, key=112, label="Waste Minions", auxLabel="{0}", args={"lay"}})
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=112, label="Waste Minions", auxLabel="{0}", args={"lay"}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["lay"] = {
    key="Q", 
@@ -28,13 +35,18 @@ spells["defile"] = {
    range=550, 
    color=yellow, 
    base={30,50,70,90,110}, 
-   ap=.2
+   ap=.2,
+   extraCooldown=.75
 }
 spells["ult"] = {
    key="R", 
    base={250,400,550}, 
    ap=.6,
-   cost={150,175,200}
+   cost={150,175,200},
+   channel=true,
+   name="KarthusFallenOne",
+   object="Karthus_Base_R_Cas_Hand_Glow"
+
 }
 
 function Run()
@@ -52,10 +64,9 @@ function Run()
       return true
    end   
 
-   if CanUse("defile") and P.defiling then
+   if CanUse("defile") and P.defile then
       if #GetAllInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
-         Cast("defile", me)
-         PrintAction("Defile off")
+         CastBuff("defile", false)
       end
    end
 
@@ -85,23 +96,20 @@ function Run()
          end
       end
    end
+
    EndTickActions()
 end
 
 function Action()
    if CanUse("defile") then
       local target = GetWeakEnemy("MAGIC", spells["defile"].range-50)      
-      if target and not P.defiling and CanUse("defile") then
-         Cast("defile", me)
-         PrintAction("Defile ON")
+      if target and not P.defile then
+         CastBuff("defile")
       end
    end
 
    if CanUse("lay") then
-      local target = SkillShot("lay")
-      if target then
-         CastFireahead("lay", target)
-         PrintAction("Lay", target)
+      if SkillShot("lay") then
          return true
       end
    end
@@ -110,7 +118,9 @@ end
 
 
 local function onObject(object)
-   PersistBuff("defiling", object, "Defile_glow", 100)
+   if PersistBuff("defile", object, "Karthus_Base_E_Defile.troy", 100) then
+      pp("defiling")
+   end
 end
 
 local function onSpell(object, spell)
