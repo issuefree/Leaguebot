@@ -12,7 +12,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "barrel"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
-AddToggle("move", {on=true, key=118, label="Move to Mouse"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["barrel"] = {
   key="Q", 
