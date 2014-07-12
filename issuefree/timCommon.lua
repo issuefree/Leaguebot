@@ -553,6 +553,9 @@ function cleanWillKills()
    end
 end
 
+function GetNearestCreep()
+   return SortByDistance(CREEPS)[1]
+end
 function GetGolem()
    for _,creep in ipairs(SortByDistance(CREEPS)) do
       if find(creep.name, "AncientGolem") then
