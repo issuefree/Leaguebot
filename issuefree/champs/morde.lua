@@ -114,19 +114,38 @@ function Run()
 end
 
 function Action()
-   if CanUse("grave") and not P.cotg then      
+   if CanUse("grave") and not P.cotg then
+      -- if I'm low and engaged I want it for the lifesteal.
+      -- if they don't have backup then the graveling won't do much so don't waste it
+      -- if I don't have backup then be more conservative about casting it
+
+      if GetHPerc(me) < .33 and Engaged() then
+         local target = SortByMaxHealth(GetInRange(me, "grave", ENEMIES), me, true)[1]
+         if target then
+            Cast("grave", target)
+            PrintAction("Grave to try to survive", target)
+            return true
+         end
+      end
+
       local target = GetMarkedTarget() or GetWeakestEnemy("grave")
       if target then
-         if GetSpellDamage("grave", target) > target.health*.75 then
-            Cast("grave", target)
-            PrintAction("Grave", target)
-            return true
+         if #GetAllInRange(target, 750, ENEMIES) >= 2 then
+            local hpThresh = 1
+            if GetAllInRange(target, 1000, ALLIES) >= 2 then
+               hpThresh = .75
+            end
+            if GetSpellDamage("grave", target) > target.health*hpThresh then
+               Cast("grave", target)
+               PrintAction("Grave for kill", target)
+               return true
+            end
          end
       end
    end
 
    if CanUse("shield") then
-      if #GetInRange(me, spells["shield"].radius+GetWidth(me), ENEMIES) > 0 then
+      if #GetAllInRange(me, spells["shield"].radius+GetWidth(me), ENEMIES) > 0 then
          Cast("shield", me)
          PrintAction("Shield me")
          return true
