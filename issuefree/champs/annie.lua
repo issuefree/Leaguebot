@@ -52,9 +52,9 @@ function stunOn()
    end
 end
 
-AddToggle("", {on=true, key=112, label="- - -"})
 -- build up and hold on to stun
-AddToggle("stoke", {on=true, key=113, label="Stoke", auxLabel="{0}", args={stunOn}})
+AddToggle("stoke", {on=true, key=112, label="Stoke", auxLabel="{0}", args={stunOn}})
+AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -108,21 +108,15 @@ function Run()
 
       if VeryAlone() then
          if KillMinionsInCone("inc", 2) then
-            PrintAction("Incinerate 2")
-            PauseToggle("lasthit", .75)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinionsInCone("inc", 2) then
-               PrintAction("Incinerate 2")
-               PauseToggle("lasthit", .75)
                return true
             end
          else
             if KillMinionsInCone(spells["inc"], 3) then
-               PrintAction("Incinerate 3")
-               PauseToggle("lasthit", .75)
                return true
             end
          end
@@ -130,13 +124,11 @@ function Run()
 
       if VeryAlone() then
          if KillMinion("dis", nil, true) then
-            PauseToggle("lasthit", .75)
             return true
          end
       elseif Alone() then
          if IsOn("stoke") and not P.stun then
             if KillMinion("dis", nil, true) then
-               PauseToggle("lasthit", .75)
                return true
             end
          end    
