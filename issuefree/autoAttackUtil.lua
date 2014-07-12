@@ -56,6 +56,9 @@ function initAAData()
       Elise        = { 
                        particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
+      Evelynn      = { windup=.3,
+                       particles = {"EvelynnBasicAttack_tar"} },
+
       Garen        = { windup = .35,
                        particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        resets = {"GarenQ"} },
