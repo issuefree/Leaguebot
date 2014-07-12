@@ -520,6 +520,37 @@ local function updateObjects()
          P.markedTarget = nil
       end
    end
+
+   cleanWillKills()
+end
+
+WILL_KILLS = {}
+WILL_KILLS_TIMEOUTS = {}
+
+function AddWillKill(items)
+   if type(items) ~= "table"  then
+      AddWillKill({items})
+      return
+   end
+
+   local timeout = time()+.75
+   for _,item in ipairs(items) do
+      table.insert(WILL_KILLS, item)
+      table.insert(WILL_KILLS_TIMEOUTS, timeout)
+   end
+end
+
+function RemoveWillKills(list)
+   return FilterList(list, function(item) return not ListContains(item, WILL_KILLS) end)
+end
+
+function cleanWillKills()
+   for i,_ in rpairs(WILL_KILLS_TIMEOUTS) do
+      if time() > WILL_KILLS_TIMEOUTS[i] then
+         table.remove(WILL_KILLS_TIMEOUTS, i)
+         table.remove(WILL_KILLS, i)
+      end
+   end
 end
 
 function GetGolem()
@@ -549,8 +580,9 @@ function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestLine(me, thing, .1, 1, MINIONS)
+   local hits, kills, score = GetBestLine(me, thing, .1, 1, RemoveWillKills(MINIONS))
    if #kills >= killsNeeded then
+      AddWillKill(kills)
       local point = GetAngularCenter(hits)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
@@ -676,7 +708,7 @@ function KillMinion(thing, method, force, targetOnly)
       minions = GetKills(thing, GetIntersection(MINIONS, GetUnblocked(me, thing, MINIONS, ENEMIES, PETS)))
    else
       minions = GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS))
-   end   
+   end      
 
    if method == "weak" then
       SortByHealth(minions, spell)
@@ -695,13 +727,17 @@ function KillMinion(thing, method, force, targetOnly)
 
    -- first pass to prioritize big minions (yeah I'll get dup minions but who cares)
    for _,minion in ipairs(minions) do
-      if IsBigMinion(minion) then
-         table.insert(targets, minion)
+      if not ListContains(minion, WILL_KILLS) then
+         if IsBigMinion(minion) then
+            table.insert(targets, minion)
+         end
       end
    end
 
    for _,minion in ipairs(minions) do
-      table.insert(targets, minion)
+      if not ListContains(minion, WILL_KILLS) then
+         table.insert(targets, minion)
+      end
    end
 
    local target = nil
@@ -710,17 +746,15 @@ function KillMinion(thing, method, force, targetOnly)
          target = minion
          break
       else
-         if not SameUnit(minion, WK_AA_TARGET) then
-            rangeThresh = GetAARange()
-            if IsMelee(me) then
-               rangeThresh = GetAARange() + 50
-            end
-            if JustAttacked() or
-               GetDistance(minion) > rangeThresh
-            then
-               target = minion
-               break
-            end
+         rangeThresh = GetAARange()
+         if IsMelee(me) then
+            rangeThresh = GetAARange() + 50
+         end
+         if JustAttacked() or
+            GetDistance(minion) > rangeThresh
+         then
+            target = minion
+            break
          end
       end
    end
@@ -741,6 +775,7 @@ function KillMinion(thing, method, force, targetOnly)
             Cast(spell, target)
          end
          PrintAction(thing.." "..method.." minion")
+         AddWillKill(target)
          return target
       end
    end
@@ -840,17 +875,6 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
    return bestT, bestK, bestS
 end
 
-
-function GetInLine(source, thing, target, targets)
-   local spell = GetSpell(thing)
-   local width = spell.width or spell.radius
-
-   return FilterList( targets, function(item)
-                                  local odr = GetOrthDistRight(target, item)
-                                  return odr >= 0 and odr < width + GetWidth(target)/2 + GetWidth(item)/2
-                               end )
-end
-
 function GetBestLine(source, thing, hitScore, killScore, ...)
    local spell = GetSpell(thing)
    local width = spell.width or spell.radius
@@ -873,6 +897,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
          bestK = kills
       end
    end
+
    return bestT, bestK, bestS
 end
 
@@ -898,8 +923,9 @@ function KillMinionsInArea(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestArea(me, thing, .1, 1, MINIONS)
+   local hits, kills, score = GetBestArea(me, thing, .1, 1, RemoveWillKills(MINIONS))
    if #kills >= killsNeeded then
+      AddWillKill(kills)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for kills", #kills)
       return true
@@ -923,8 +949,9 @@ function KillMinionsInCone(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestCone(me, thing, .1, 1, MINIONS)
+   local hits, kills, score = GetBestCone(me, thing, .1, 1, RemoveWillKills(MINIONS))
    if #kills >= killsNeeded then
+      AddWillKill(kills)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for kills", #kills)
       return true
@@ -1641,15 +1668,17 @@ function EndTickActions()
 
    if IsOn("move") and CanMove() then
       if HotKey() then
-         MoveToMouse()
-         CURSOR = Point(mousePos)
-         if GetDistance(mousePos) < 50 then
-            StopMove()
+         if GetDistance(mousePos) < 3000 then
+            MoveToMouse()
+            CURSOR = Point(mousePos)
+            if GetDistance(mousePos) < 50 then
+               StopMove()
+            end
          end
       end
       if needMove and CURSOR then      
          MoveToXYZ(Point(CURSOR):unpack())
-         PrintAction("move")
+         -- PrintAction("move")
          needMove = false
       end
    end
