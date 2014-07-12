@@ -3,7 +3,7 @@ require "issuefree/modules"
 
 pp("\nTim's Kayle")
 
-AddToggle("", {on=true, key=112, label=""})
+AddToggle("ult", {on=true, key=112, label="Auto Ult"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -58,6 +58,27 @@ function Run()
 
    if StartTickActions() then
       return true
+   end
+
+
+   if IsOn("ult") and CanUse("intervention") then
+      local targets = GetInRange(me, "intervention", ALLIES)
+      local bestT
+      local bestP
+      for _,target in ipairs(targets) do
+         local tp = GetHPerc(target)
+         if tp < .2 and #GetInRange(target, 500, ENEMIES) > 0 then
+            if not bestT or tp < bestP then
+               bestT = target
+               bestP = tp
+            end
+         end
+      end
+      if bestT then
+         Cast("intervention", bestT)
+         PrintAction("Save", bestT)
+         return true
+      end
    end
 
    -- high priority hotkey actions, e.g. killing enemies
