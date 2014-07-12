@@ -151,7 +151,7 @@ function initAAData()
       Leona        = { 
                        particles={"leona_basicattack_hit"} },
 
-      Lulu         = { projSpeed = 2.5,
+      Lulu         = { projSpeed = 2.5, windup=.2,
                        particles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"} },
 
       Lux          = { projSpeed = 1.55, windup=.15,
