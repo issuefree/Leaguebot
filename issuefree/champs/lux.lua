@@ -19,9 +19,16 @@ AddToggle("barrier", {on=true, key=113, label="Barrier Team"})
 AddToggle("spark", {on=false, key=114, label="Auto Spark Barrage"}) --, auxLabel="{0}", args={numHits}})
 AddToggle("", {on=false, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}  ({1})", args={GetAADamage, function() return GetAADamage() + GetSpellDamage("flare") end}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions", auxLabel="{0}", args={"singularity"}})
 AddToggle("move", {on=true, key=118, label="Move"})
+
+function getFlareDamage(target)
+   if HasBuff("flare", target) then
+      return GetSpellDamage("flare")
+   end
+   return 0
+end
 
 spells["binding"] = {
    key="Q", 
@@ -29,10 +36,11 @@ spells["binding"] = {
    color=violet, 
    base={60,110,160,210,260}, 
    ap=.7,
-   delay=2.65,
+   delay=2.2,  -- testskillshot
    speed=12,
    width=80,
-   cost={50,60,70,80,90}
+   cost={50,60,70,80,90},
+   noblock=true  -- I don't really want to write a UnblockedBy2OrMoreEnemies...
 }
 spells["barrier"] = {
    key="W", 
@@ -40,8 +48,8 @@ spells["barrier"] = {
    color=green, 
    base={80,105,130,155,180}, 
    ap=.35,
-   delay=2,
-   speed=14,
+   delay=2,  -- testskillshot
+   speed=15,
    width=80,
    cost=60
 }
@@ -51,8 +59,8 @@ spells["singularity"] = {
    color=yellow, 
    base={60,105,150,195,240}, 
    ap=.6,
-   delay=2.65,
-   speed=13,
+   delay=2, -- testskillshot
+   speed=12,
    noblock=true,
    radius=350,
    cost={70,85,100,115,130}
@@ -65,8 +73,10 @@ spells["spark"] = {
    ap=.75,
    delay=6,
    speed=0,
-   width=75,
-   cost=100
+   width=150,  -- checked against reticule
+   cost=100,
+   damOnTarget=getFlareDamage,
+   noblock=true
 }
 spells["flare"] = {
    base={10},
@@ -74,12 +84,7 @@ spells["flare"] = {
    type="M"
 }
 
-spells["AA"].damOnTarget = 
-   function(target)
-      if HasBuff("flare", target) then
-         return GetSpellDamage("flare")
-      end
-   end
+spells["AA"].damOnTarget = getFlareDamage
 
 function numHits()
    return #GetBestLine(me, "spark", 0, 1, ENEMIES)
@@ -131,13 +136,13 @@ function Run()
       for _,enemy in ipairs(enemies) do
          if GetSpellDamage("singularity", enemy) > enemy.health then
             Cast(spell, me, true)
-            PrintAction("Pop to kill", enemy)
+            PrintAction("Pop to kill", enemy, .5)
             break
          end
          local nextPos = Point(GetFireahead(enemy, 4, 0))
          if GetDistance(P.singularity, nextPos) > spell.radius then
             Cast(spell, me, true)
-            PrintAction("Pop escapees")
+            PrintAction("Pop escapees", nil, .5)
             break
          end
       end
@@ -148,7 +153,7 @@ function Run()
          #kills >= 3
       then
          Cast(spell, me, true)
-         PrintAction("Pop to kill "..#kills.." minions")
+         PrintAction("Pop to kill "..#kills.." minions", nil, .5)
       end
    end
 
@@ -171,10 +176,21 @@ function Run()
          return true
       end
    end
+
+   local minions = GetWithBuff("flare", MINIONS)
+   for _,m in ipairs(minions) do
+      DrawTextObject("                   "..GetAADamage(m), m, blueT)
+      -- DrawTextObject("                   "..GetSpellDamage("AA", m), m, blueT)
+   end
+
    EndTickActions()
 end
 
 function Action()
+   -- TestSkillShot("binding")
+   -- TestSkillShot("barrier")
+   TestSkillShot("singularity")
+
    -- try to deal some damage with singularity
    if CanUse("singularity") and not activeSingularity() then
       -- look for a big group or some kills.
@@ -225,11 +241,12 @@ function Action()
 
    -- try to hit the loweset health target with a flare on em
    if CanAttack() then
-      local targets = GetWeakest("flare", GetWithBuff("flare", GetInRange(me, "AA", ENEMIES)))
+      local target = GetWeakest("flare", GetWithBuff("flare", GetInRange(me, "AA", ENEMIES)))
       if target then
-         AA(target)
-         PrintAction("AA for flare", target)
-         return true
+         if AA(target) then
+            PrintAction("AA for flare", target)
+            return true
+         end
       end
    end
 
@@ -239,22 +256,6 @@ end
 function FollowUp()
    local aaMinions = SortByHealth(GetInRange(me, "AA", MINIONS))
    local flaredMinions = GetWithBuff("flare", aaMinions)
-
-   if IsOn("lasthit") and Alone() then
-      for _,target in ipairs(flaredMinions) do
-         local aaDam = GetAADamage(target)
-         local flareDam = GetSpellDamage("flare", target)
-         if aaDam + flareDam > target.health then
-            AA(target)
-            PrintAction("AA flared for lasthit")
-            return true
-         end
-      end
-
-      if KillMinion("AA") then
-         return true
-      end
-   end
 
    if IsOn("clear") and Alone() then
       if CanUse("singularity") then
@@ -267,9 +268,10 @@ function FollowUp()
       end
 
       for _,target in rpairs(flaredMinions) do
-         AA(target)
-         PrintAction("AA flared minion for clear")
-         return true
+         if AA(target)
+            PrintAction("AA flared minion for clear")
+            return true
+         end
       end
 
    end
@@ -334,7 +336,7 @@ end
 
 local function onObject(object)
    Persist("singularity", object, "LuxLightstrike_mis")
-   PersistOnTargets("flare", object, "LuxDebuff", MINIONS, ENEMIES)   
+   PersistOnTargets("flare", object, "LuxDebuff", MINIONS, ENEMIES)
 end
 
 local function onSpell(object, spell)
