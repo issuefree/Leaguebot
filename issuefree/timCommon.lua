@@ -1112,7 +1112,7 @@ function WardJump(thing, pos)
 end
 
 function GetAADamage(target)   
-   local damage = GetSpellDamage("AA")
+   local damage = GetSpellDamage("AA", target, true)
    
    for name,spell in pairs(spells) do
       if spell.modAA and P[spell.modAA] then
