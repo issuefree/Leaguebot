@@ -134,7 +134,7 @@ function initAAData()
       Kassadin     = { windup=.2,
                        resets = {me.SpellNameW} },
 
-      Kayle        = { projSpeed = 1.8,
+      Kayle        = { projSpeed = 1.8, windup=.3,
                        particles = {"RighteousFury_nova"} },
 
       Kennen       = { projSpeed = 1.35,

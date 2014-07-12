@@ -3,7 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Kayle")
 
---AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("", {on=true, key=112, label=""})
+AddToggle("", {on=true, key=113, label=""})
+AddToggle("", {on=true, key=114, label=""})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["reckoning"] = {
   key="Q", 
@@ -11,20 +18,24 @@ spells["reckoning"] = {
   color=violet, 
   base={60,110,160,210,260}, 
   ap=.6,
-  bonusAd=1
+  bonusAd=1,
+  cost={70,75,80,85,90}
 }
 spells["blessing"] = {
   key="W", 
   range=900, 
   color=green, 
   base={60,105,150,195,240}, 
-  ap=.45
+  ap=.45,
+  cost={60,70,80,90,100}
 }
 spells["fury"] = {
   key="E", 
-  range=525, 
+  range=525+110, 
+  color=red,
+  base={20,30,40,50,60},
   ap=.2,
-  color=red
+  cost=45
 }
 spells["intervention"] = {
   key="R", 
@@ -39,16 +50,37 @@ spells["intervention"] = {
 
 function Run()
 
+   if P.fury then
+      spells["AA"].bonus = GetSpellDamage("fury")
+   else
+      spells["AA"].bonus = 0
+   end
+
    if StartTickActions() then
       return true
    end
 
-   -- if P.fury then
-   --    PrintState(0, "FURY")
-   -- else
-   --    PrintState(0, "no")
-   -- end
+   -- high priority hotkey actions, e.g. killing enemies
+   if HotKey() and CanAct() then
+      if Action() then
+         return true
+      end
+   end
 
+   -- auto stuff that should happen if you didn't do something more important
+
+   
+   -- low priority hotkey actions, e.g. killing minions, moving
+   if HotKey() and CanAct() then
+      if FollowUp() then
+         return true
+      end
+   end
+
+   EndTickActions()
+end
+
+function Action()
    -- determine who I should attack
    if me.ap > me.addDamage then
       type = "MAGIC"
@@ -56,30 +88,46 @@ function Run()
       type = "PHYSICAL"
    end
 
-   if HotKey() then
-      if CastBest("reckoning") then
-         UseItem("Deathfire Grasp", GetWeakestEnemy("reckoning"))
+   if CastBest("reckoning") then
+      UseItem("Deathfire Grasp", GetWeakestEnemy("reckoning"))
+      return true
+   end
+
+   if CanUse("fury") then
+      if GetWeakestEnemy("fury") then
+         Cast("fury", me)
+         PrintAction("Fury!")
          return true
       end
-
-      local spell = spells["fury"]
-      local target = GetWeakEnemy(type, spell.range)
-      if target then
-         if P.fury then
-            --AttackTarget(target)
-         elseif CanUse(spell) then
-            CastSpellTarget(spell.key, me)
-         end
-      end
-
    end
+   
+   local target
+   if IsMelee() then
+      target = GetMarkedTarget() or GetMeleeTarget()
+   else
+      target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   end
+   if AutoAA(target) then
+      return true
+   end
+
+   return false
 end
+function FollowUp()
+   -- if IsOn("move") then
+   --    if MeleeMove() then
+   --       return true
+   --    end
+   -- end
+   return false
+end
+
 
 local function onObject(object)
    PersistBuff("fury", object, "RighteousFuryHalo")
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
