@@ -325,7 +325,7 @@ function KillSteal(target)
    if #GetInRange(target, 1000, ENEMIES) < 2 then
       return false
    end
-   if ValidTarget(target) and target.health < GetSpellDamage("spark", target) then
+   if WillKill("spark", target) then
       CastXYZ("spark", target)
       PrintAction("KS", target)
       return true
