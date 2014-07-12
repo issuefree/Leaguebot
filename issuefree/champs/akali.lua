@@ -10,24 +10,24 @@ pp(" - Slash for last hit >= 2")
 
 SetChampStyle("caster")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("ultSpam", {on=true, key=112, label="Ult Spam"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "mark", "slash"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=112, label="Move"})
 
 spells["mark"] = {
   key="Q",
   range=600,
   color=violet,
   base={35,55,75,95,115},
-  ap=.4
-  -- cost=60
+  ap=.4,
+  cost=60
 }
 spells["detonate"] = {
-   key="Q",
    base={45,70,95,120,145},
    ap=.5
 }
@@ -35,8 +35,8 @@ spells["shroud"] = {
   key="W", 
   range=700, 
   color=blue, 
-  radius=600
-  -- cost={80,75,70,65,60}
+  radius=425, -- check
+  cost={80,75,70,65,60}
 }
 spells["slash"] = {
   key="E", 
@@ -46,8 +46,8 @@ spells["slash"] = {
   ap=.3,
   ad=.6,
   type="P",
-  -- cost={60,55,50,45,40},
-  damOnTarget=function(target) return getDetonateDam(target) end
+  cost={60,55,50,45,40},
+  damOnTarget=getDetonateDam
 }
 spells["dance"] = {
   key="R", 
@@ -64,16 +64,9 @@ function getDetonateDam(target)
    return 0
 end
 
-spells["AA"].damOnTarget = 
-   function(target)
-      return getDetonateDam(target)
-   end
+spells["AA"].damOnTarget = getDetonateDam
 
 function Run()
-   for _,t in ipairs(GetWithBuff("mark", MINIONS)) do
-      Circle(t)
-   end
-
    spells["AA"].bonus = GetSpellDamage("AA")*(.06+(me.ap/6/100))
 
    if StartTickActions() then
@@ -86,19 +79,20 @@ function Run()
 		end
 	end
 
-   if IsOn("lasthit") and Alone() and CanAct() then
-      if KillMinion("mark", "far") then
-         return true
-      end
-
+   if IsOn("lasthit") and Alone() then
       if CanUse("slash") then
-         local kills = GetKills("slash", MINIONS)
-         if kills >= 2 then
+         local kills = GetKills("slash", GetInRange(me, "slash", MINIONS))
+         if #kills >= 2 then
             Cast("slash", me)
             PrintAction("Slash for lasthit")
             return true
          end
       end
+
+      if KillMinion("mark", "far") then
+         return true
+      end
+
 
    end
 
@@ -122,18 +116,22 @@ function Action()
       end
    end
 
+   if CastBest("slash") then
+      return true
+   end
+
+   -- TODO dance linking for execute
+
    if CanUse("dance") then
       local target = GetMarkedTarget() or GetWeakestEnemy("dance")
-      if target and GetDistance(target) > GetSpellRange("AA") then
+      if target and 
+         ( not IsInRange(target, "AA") or ( IsOn("ultSpam") and JustAttacked() ) )
+      then
          UseItem("Deathfire Grasp", target)
          Cast("dance", target)
          PrintAction("Dance", target)
          return true
       end
-   end
-
-   if CastBest("slash") then
-      return true
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
@@ -161,6 +159,8 @@ local function onObject(object)
       Persist("markedTarget", target)
    end
    PersistOnTargets("mark", object, "akali_markOftheAssasin_marker", MINIONS)
+
+   Persist("shroud", object, "akali_smoke_bomb_tar_team_green")
 end
 
 local function onSpell(object, spell)
