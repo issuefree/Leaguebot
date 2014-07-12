@@ -44,7 +44,7 @@ spells["arrow"] = {
    range=925,
    baseRange=925,
    maxRange=1525,
-   overShoot=75,
+   overShoot=50,
    chargeTime=1.25,  -- time to max charge
    color=violet, 
    base    ={10,47, 83,120,157},
@@ -56,10 +56,19 @@ spells["arrow"] = {
    type="P",
    delay=.8,  -- tested
    speed=19, -- tested matches wiki
-   width=85,
+   width=75,
    noblock=true,
    cost={70,75,80,85,90},
-   damOnTarget=getBlightDamage,
+   damOnTarget=function(target)      
+      local dam
+      if IsMinion(target) then
+         dam = GetSpellDamage("arrow")*(-2/3) + getBlightDamage(target)
+      else
+         dam = getBlightDamage(target)
+      end
+      return dam
+   end,
+
    chargeTimeout=4
 } 
 spells["quiver"] = {
@@ -111,7 +120,8 @@ spells["AA"].damOnTarget =
 local chargeStartTime = 0
 
 function Run()
-   if P.charging then
+
+   if P.charging then      
       local chargeDuration = math.min(time() - chargeStartTime, spells["arrow"].chargeTime)
 
       local chargeRatio = chargeDuration/spells["arrow"].chargeTime
@@ -150,7 +160,7 @@ function Run()
 
       local kills = GetKills("maxArrow", ENEMIES)
       for _,kill in ipairs(kills) do
-         if GetDistance(kill) < GetSpellRange("arrow") -75 and
+         if GetDistance(kill) < GetSpellRange("arrow") - spells["arrow"].overShoot and
             IsGoodFireahead("arrow", kill) 
          then
             FinishArrow(GetSpellFireahead("arrow", kill))
@@ -187,7 +197,6 @@ function Run()
          GetDistance(target) < GetSpellRange("arrow") - 75 and 
          chargingTime > spells["arrow"].chargeTime 
       then
-         pp(chargingTime)
          FinishArrow(GetSpellFireahead("arrow", target))
          PrintAction("Arrow for damage", target)
          return true
@@ -196,14 +205,13 @@ function Run()
       if #GetInRange(me, GetSpellRange("maxArrow")*1.1, ENEMIES) == 0 
          or chargeTimeLeft < .5
       then
-         pp(#GetInRange(me, GetSpellRange("maxArrow")*1.1, ENEMIES))
-         pp(chargeTimeLeft)
          local _,_,maxScore = GetBestLine(me, "maxArrow", .1, 1, MINIONS)
-         local hits,_,score = GetBestLine(me, "arrow", .1, 1, MINIONS)
+         local hits,kills,score = GetBestLine(me, "arrow", .1, 1, MINIONS)
          if score >= maxScore and score > 1 then
+            AddWillKill(kills)
             FinishArrow(GetAngularCenter(hits))
             PrintAction("arrow lh", score)
-            PauseToggle("lasthit", .5)
+            -- PauseToggle("lasthit", .5)
             return true
          end
       end
@@ -259,19 +267,19 @@ function Run()
       end
 
       if Alone() then
-         if KillMinionsInArea("hail", killThreshold) then
-            PauseToggle("lasthit", .75)
-            return true
-         end
+         -- if KillMinionsInArea("hail", killThreshold) then
+         --    -- PauseToggle("lasthit", .75)
+         --    return true
+         -- end
       end
 
       if VeryAlone() then
          if CanUse("arrow") and not P.charging then
-            local hits, kills, score = GetBestLine(me, "arrow", .1, 1, MINIONS, ENEMIES)
+            local hits, kills, score = GetBestLine(me, "maxArrow", .1, 1, MINIONS, ENEMIES)
             if score > killThreshold then
                StartArrow()
-               PrintAction("Starting arrow for LH", score)
-               PauseToggle("lasthit", .75)
+               PrintAction("Starting arrow for LH", #kills)
+               --PauseToggle("lasthit", .75)
                return true
             end
          end
