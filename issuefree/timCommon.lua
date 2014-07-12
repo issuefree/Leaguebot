@@ -1174,14 +1174,16 @@ function WillKill(...)
    for i=1,#arg-1,1 do      
       local thing = arg[i]
       local spell = GetSpell(thing)
-      if spell.name and spell.name == "attack" then
-         damage = damage + GetAADamage(target)
-      else         
-         if CanUse(thing) and usedMana + GetSpellCost(thing) <= me.mana then
-            damage = damage + GetSpellDamage(thing, target)
-            usedMana = usedMana + GetSpellCost(thing)
+      if not IsImmune(target, thing) then
+         if spell.name and spell.name == "attack" then
+            damage = damage + GetAADamage(target)
+         else         
+            if CanUse(thing) and usedMana + GetSpellCost(thing) <= me.mana then
+               damage = damage + GetSpellDamage(thing, target)
+               usedMana = usedMana + GetSpellCost(thing)
+            end
          end
-      end      
+      end
       if damage > target.health then
          return true
       end
