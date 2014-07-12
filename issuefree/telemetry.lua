@@ -460,7 +460,7 @@ end
 
 
 -- this isn't really telemetry but...
-function SortByHealth(things, thing)
+function SortByHealth(things, thing, switch)
    local spell = GetSpell(thing)
    if not spell then
       table.sort(things, function(a,b) return a.health < b.health end)
@@ -470,7 +470,22 @@ function SortByHealth(things, thing)
    return things
 end
 
-function SortByDistance(things, target)
+-- this isn't really telemetry but...
+function SortByMaxHealth(things, thing, switch)
+   local spell = GetSpell(thing)
+   if not spell then
+      table.sort(things, function(a,b) return a.maxHealth < b.maxHealth end)
+   else      
+      table.sort(things, function(a,b) return (a.maxHealth/GetSpellDamage(spell, a)) < (b.maxHealth/GetSpellDamage(spell, b)) end)
+   end
+   if switch then
+      return reverse(things)
+   else
+      return things
+   end
+end
+
+function SortByDistance(things, target, switch)
    table.sort(things, 
       function(a,b)
          if not b or not b.x then return false end
@@ -478,13 +493,21 @@ function SortByDistance(things, target)
          return GetDistance(a, target) < GetDistance(b, target) 
       end
    )
-   return things
+   if switch then
+      return reverse(things)
+   else
+      return things
+   end
 end
 
-function SortByAngle(things, target)
+function SortByAngle(things, target, switch)
    target = target or me
    table.sort(things, function(a,b) return AngleBetween(target, a) < AngleBetween(target, b) end)
-   return things
+   if switch then
+      return reverse(things)
+   else
+      return things
+   end
 end
 
 function GetCircleLocs(center, dist)
