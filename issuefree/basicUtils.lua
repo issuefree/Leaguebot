@@ -246,6 +246,11 @@ function GetIntersection(list1, list2)
    return intersection
 end
 
+-- remove the items from list2 from list1
+function RemoveFromList(list1, list2)
+   return FilterList(list1, function(item) return not ListContains(item, list2) end)
+end
+
 function SameUnit(o1, o2)
    if not o1 or not o2 then return false end
    return o1.name == o2.name and
