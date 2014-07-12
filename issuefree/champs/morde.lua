@@ -54,8 +54,8 @@ spells["grave"] = {
    range=850, 
    color=red, 
    base={0,0,0}, 
-   percMaxHealth={.24,.29,.34},
-   percMaxHealthAP=.0004,
+   targetMaxHealth={.24,.29,.34},
+   targetMaxHealthAP=.0004,
    type="M",
    cost=0
 }
@@ -117,7 +117,7 @@ function Action()
    if CanUse("grave") and not P.cotg then      
       local target = GetMarkedTarget() or GetWeakestEnemy("grave")
       if target then
-         if GetSpellDamage("grave", target) > target.health then
+         if GetSpellDamage("grave", target) > target.health*.75 then
             Cast("grave", target)
             PrintAction("Grave", target)
             return true

@@ -267,7 +267,7 @@ function GetSpellDamage(thing, target, ignoreResists)
       damage = damage + targetMaxHealth*target.maxHealth
    end
    if target then
-      local targetHealth = GetLVal(spell, "percHealth")
+      local targetHealth = GetLVal(spell, "targetHealth")
       targetHealth = targetHealth + GetLVal(spell, "targetHealthAP")*me.ap
       damage = damage + targetHealth*target.health
    end
