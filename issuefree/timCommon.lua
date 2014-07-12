@@ -668,7 +668,9 @@ function MoveToTarget(t)
       MoveToXYZ(x,y,z)
       CURSOR = Point(x,y,z)
       PrintAction("MTT", t, 1)
+      return true
    end
+   return false
 end
 
 function MoveToCursor()
@@ -1765,8 +1767,9 @@ function MeleeMove()
       if target then
          if GetDistance(target) > spells["AA"].range+25 then
             if not RetreatingFrom(target) then
-               MoveToTarget(target)
-               return true
+               if MoveToTarget(target) then
+                  return true
+               end
             end
          end
       else        
