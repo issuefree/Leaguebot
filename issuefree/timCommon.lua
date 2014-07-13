@@ -792,8 +792,9 @@ end
 
 -- weak, far, near, strong
 function HitMinion(thing, method, extraRange)
+   if not CanUse(thing) then return false end
+
    local spell = GetSpell(thing)
-   if not CanUse(spell) then return end
 
    if not extraRange then extraRange = 0 end
    if not method then method = "weak" end
@@ -1943,7 +1944,7 @@ function UseItem(itemName, target)
       if target == nil or target then
          if not P.muramana then
             CastSpellTarget(slot, me)
-            PrintAction("Muramana ON")
+            PrintAction("Muramana ON", nil, 1)
             return true
          end
       else
