@@ -1244,7 +1244,7 @@ function PetAttack(target, key)
 end
 function CheckPetTarget(pet, unit, spell, key)
    if pet then
-      local petTarget = SortByDistance(GetInRange(pet, 1000, ENEMIES))[1]
+      local petTarget = SortByDistance(GetInRange(pet, 1000, ENEMIES), pet)[1]
       if not petTarget then
          if IsMe(unit) and
             spell.target and
@@ -1974,7 +1974,7 @@ function UseItem(itemName, target)
          HasBuff("cc", target)
       then 
          CastSpellTarget(slot, target)
-         pp("uncc adc "..target.name) 
+         pp("uncc adc,", target, 1) 
       else
          target = APC
          if target and target.name ~= me.name and 
@@ -1982,14 +1982,14 @@ function UseItem(itemName, target)
             HasBuff("cc", target)
          then 
             CastSpellTarget(slot, target)
-            pp("uncc apc "..target.name)
+            pp("uncc apc,", target, 1)
          end
       end
 
       for _,hero in ipairs(GetInRange(me, crucibleRange, ALLIES)) do
          if GetHPerc(hero) < .25 then
             CastSpellTarget(slot, hero)
-             pp("heal "..hero.name.." "..hero.health/hero.maxHealth)            
+            pp("heal "..hero.name.." "..hero.health/hero.maxHealth, nil, 1)
          end
       end
 
@@ -2030,7 +2030,7 @@ function UseItem(itemName, target)
 
 end
 
-function CastAtCC(thing)
+function CastAtCC(thing, hardCCOnly, targetOnly)
    local spell = GetSpell(thing)
 
    if not CanUse(spell) then return end
@@ -2038,6 +2038,11 @@ function CastAtCC(thing)
    local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell)+50, ENEMIES)))
    local stillMoving = false
    if not target then
+
+      if hardCCOnly then
+         return nil
+      end
+      
       local targets = GetInRange(me, thing, ENEMIES)
       for _,t in ipairs(targets) do
          if t.movespeed < 200 then
@@ -2048,32 +2053,34 @@ function CastAtCC(thing)
       end
    end
    if target and IsInRange(target, spell) then
-      if spell.noblock then
-         if stillMoving then
-            CastFireahead(spell, target)
-         else
-            CastXYZ(spell, target)
-         end
-      else
-         if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+      if not targetOnly then
+         if spell.noblock then
             if stillMoving then
                CastFireahead(spell, target)
             else
                CastXYZ(spell, target)
             end
          else
-            return false
+            if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+               if stillMoving then
+                  CastFireahead(spell, target)
+               else
+                  CastXYZ(spell, target)
+               end
+            else
+               return false
+            end
+         end
+
+         if stillMoving then
+            PrintAction(thing.." on very slow ("..trunc(target.movespeed)..")", target)
+         else
+            PrintAction(thing.." on immobile", target)
          end
       end
-
-      if stillMoving then
-         PrintAction(thing.." on very slow ("..trunc(target.movespeed)..")", target)
-      else
-         PrintAction(thing.." on immobile", target)
-      end
-      return true
+      return target, not stilMoving
    end
-   return false
+   return nil
 end
 
 function OnWndMsg(msg, key)
