@@ -5,13 +5,14 @@ pp("\nTim's Zyra")
 
 SetChampStyle("caster")
 
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("seed", {on=true, key=112, label="Auto seed", auxLabel="{0}", args={function() return seedCharges end}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bloom"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bloom"] = {
    key="Q", 
@@ -28,7 +29,7 @@ spells["bloom"] = {
 }
 spells["seed"] = {
    key="W", 
-   range=825, 
+   range=850, 
    color=green,
    recharge={17,16,15,14,13},
    width=150,
@@ -36,7 +37,7 @@ spells["seed"] = {
 }
 spells["roots"] = {
    key="E", 
-   range=1100, 
+   range=1100-25, 
    color=yellow, 
    base={60,95,130,165,200}, 
    ap=.5,
@@ -61,10 +62,10 @@ spells["strangle"] = {
    cost={100,120,140}
 }
 
-local castSeedAt = time()
-local seedDelay = .75
-local seedCharges = 2
-local st = time()
+castSeedAt = time()
+seedDelay = .75
+seedCharges = 2
+st = time()
 
 function Run()
    local lvl = GetSpellLevel("W")
@@ -98,10 +99,10 @@ function Run()
    end
 
    if CanUse("bloom") or CanUse("roots") then
-      CastAtCC("seed")
       if CastAtCC("bloom") or
          CastAtCC("roots")
       then
+         StartChannel(.5)
          return true
       end
    end
@@ -133,15 +134,16 @@ function Action()
    if CanUse("roots") then
       local target = GetSkillShot("roots")
       if target then
-         if canSeed() then
-            local point = GetSpellFireahead("roots", target)
-            if GetDistance(point) > GetSpellRange("seed") then
-               point = Projection(me, point, GetSpellRange("seed"))
-            end            
-            CastXYZ("seed", point)
-         end
+         -- if canSeed() then
+         --    local point = GetSpellFireahead("roots", target)
+         --    if GetDistance(point) > GetSpellRange("seed") then
+         --       point = Projection(me, point, GetSpellRange("seed"))
+         --    end            
+         --    CastXYZ("seed", point)
+         -- end
          CastFireahead("roots", target)
          PrintAction("Roots", target)
+         StartChannel(.5)
          return true
       end
    end
@@ -149,11 +151,12 @@ function Action()
    if CanUse("bloom") then
       local target = GetSkillShot("bloom")
       if target then
-         if canSeed() then
-            CastXYZ("seed", GetSpellFireahead("bloom", target))
-         end
+         -- if canSeed() then
+         --    CastXYZ("seed", GetSpellFireahead("bloom", target))
+         -- end
          CastFireahead("bloom", target)
          PrintAction("Bloom", target)
+         StartChannel(.5)
          return true
       end
    end
@@ -197,10 +200,10 @@ local function onSpell(unit, spell)
 
    if ICast("bloom", unit, spell) then
       if canSeed() then
-         if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
+         -- if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
             CastXYZ("seed", spell.endPos)
             PrintAction("Seed on bloom")
-         end
+         -- end
       end
    end
 

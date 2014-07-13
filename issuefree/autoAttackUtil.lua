@@ -264,7 +264,7 @@ function initAAData()
       Zilean       = { projSpeed = 1.25,
                        particles = {"ChronoBasicAttack_mis"} },
 
-      Zyra         = { projSpeed = 1.7,
+      Zyra         = { projSpeed = 1.7, windup=.25,
                        particles = {"Zyra_basicAttack"} },
 
    }
