@@ -15,7 +15,7 @@ end
 
 function Cast(thing, target, force)
    local spell = GetSpell(thing)
-   if not spell then spell = thing end
+   spell = spell or thing
 
    if not force and not CanUse(spell) then
       pp("can't use "..spell.key)
@@ -434,7 +434,7 @@ function GetSpellFireahead(thing, target)
    	local trackedPoints = tfas[spell.key][target.charName]
    	if trackedPoints and #trackedPoints > 1 then
 	      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
-	      local r = spell.width or spell.radius*2
+	      local r = spell.width or spell.radius*2 or spell.cone
 
 	      trackingFudge = 1 + (trackError/r * .25)
 	   end
@@ -463,7 +463,7 @@ local simple = false
 
 function IsGoodFireahead(thing, target)
    local spell = GetSpell(thing)
-   if not ValidTarget(target) then return false end   
+   if not ValidTarget(target) and not IsImmune(thing, target) then return false end   
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
 
