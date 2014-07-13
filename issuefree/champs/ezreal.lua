@@ -133,9 +133,9 @@ function Action()
    -- TestSkillShot("flux")
    -- TestSkillShot("barrage", "Trueshot")
 
-   local minFluxLevel = 0
+   local minFluxLevel = 1
    -- flux enemy if flux is over level 1 (waste of mana at low levels)
-   if GetSpellLevel("W") > minFluxLevel then
+   if GetSpellLevel("W") >= minFluxLevel then
       if SkillShot("flux") then
          return true
       end
