@@ -73,7 +73,7 @@ function Run()
       end
    end
 
-   if CastAtCC("soil") then
+   if CastAtCC("soil", true) then
       return true
    end
 
