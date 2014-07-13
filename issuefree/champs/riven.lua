@@ -99,6 +99,7 @@ function cloneMinion(minion)
    m.y = minion.y
    m.z = minion.z
    m.health = minion.health
+   m.maxHealth = minion.maxHealth
    m.armor = minion.armor
    return m
 end
