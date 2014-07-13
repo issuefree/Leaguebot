@@ -10,6 +10,8 @@ pp(" - artillery people based on mana/their health")
 pp(" - lasthit ooze >= 3 if mana > .5 and very alone")
 pp(" - lasthit artillery >= 2 if no stacks and alone")
 
+SetChampStyle("marksman")
+
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -32,7 +34,9 @@ spells["spittle"] = {
 spells["barrage"] = {
    key="W", 
    range={130,150,170,190,210},
-   healthPerc=0
+   base=0,
+   targetMaxHealth={.02,.03,.04,.05,.06},
+   targetMaxHealthAP=.0001
 }
 spells["ooze"] = {
    key="E", 
@@ -62,7 +66,10 @@ spells["artillery"] = {
 
 spells["AA"].damOnTarget = 
    function(target)
-      return Damage(spells["barrage"].healthPerc*target.maxHealth, "M")
+      if P.barrage and target then
+         return GetSpellDamage("barrage", target, true)
+      end
+      return 0
    end
 
 local barrage = nil
@@ -70,25 +77,10 @@ local lastArtillery = 0
 local artilleryCount = 0
 
 local function getBarrageRange()
-   local spell = spells["barrage"]
-   local lvl = GetSpellLevel(spell.key)
-   if lvl > 0 then      
-      return GetAARange()+GetSpellRange("barrage")
-   end
-   return GetAARange()
+   return GetAARange()+GetSpellRange("barrage")
 end
 
 local function updateSpells()
-   local spell = spells["barrage"]
-   local lvl = GetSpellLevel(spell.key)
-   if lvl > 0 then      
-      if P.barrage then
-         spells["barrage"].healthPerc = (lvl+1+(me.ap*.01))/100
-         
-         spells["AA"].range = getBarrageRange()
-      end
-   end
-
    if time() - lastArtillery > 6.25 then
       artilleryCount = 0
    end
@@ -96,9 +88,9 @@ local function updateSpells()
 end
 
 function Run()
-   updateSpells()
+   PrintState(0, GetAADamage(GetNearestCreep()))
 
-   Circle(P.artillery, spells["artillery"].radius, green, 4)
+   updateSpells()
 
    if StartTickActions() then
       return true
@@ -169,7 +161,7 @@ function Action()
    end
 
    if CanUse("barrage") and not P.barrage then
-      local target = GetWeakEnemy("PHYS", getBarrageRange())
+      local target = GetWeakestEnemy("AA", getBarrageRange())
       if target then
          Cast("barrage", me)
          PrintAction("Barrage")
