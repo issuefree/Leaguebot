@@ -147,6 +147,7 @@ function TestSkillShot(thing, charName)
       testShot.spell = spell
       testShot.charName = charName
       testShot.castTime = time()
+      StartChannel(1)
    end
 end
 
