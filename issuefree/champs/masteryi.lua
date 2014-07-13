@@ -11,13 +11,14 @@ function getADam()
    end
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("- - -", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, getADam}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["alpha"] = {
    key="Q", 
@@ -115,12 +116,10 @@ function Action()
 		-- Execute direct target with alpha
 		local target = GetWeakestEnemy("alpha")	
 		if target and WillKill("alpha", target) then
-			if not UnderTower(target) then
-				Cast("alpha", target)
-				PrintAction("Alpha (primary)", target)
-				AttackTarget(target) -- just in case
-				return true
-			end
+			Cast("alpha", target)
+			PrintAction("Alpha (primary)", target)
+			AttackTarget(target) -- just in case
+			return true
 		end
 
 		-- look for an execute
@@ -139,7 +138,6 @@ function Action()
 
 		local target = GetMarkedTarget() or GetWeakestEnemy("alpha")
 		if target and 
-			GetDistance(target) < GetSpellRange("alpha") and
 			GetDistance(target) > GetSpellRange("AA") and
 			not UnderTower(target) 
 		then
@@ -150,7 +148,7 @@ function Action()
 
 	end
 
-   if not P.wuju and CanUse("wuju") and GetWeakestEnemy("AA",100) then
+   if not P.wuju and CanUse("wuju") and GetWeakestEnemy("AA", 50) then
       Cast("wuju", me)
       PrintAction("Wuju")
       return true
