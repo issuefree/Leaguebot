@@ -53,7 +53,7 @@ function initAAData()
 
       DrMundo      = { windup = .2 },
 
-      Elise        = { 
+      Elise        = { windup=.25,
                        particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
       Evelynn      = { windup=.3,
@@ -74,39 +74,39 @@ function initAAData()
                        particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
                        attacks = {"attack", "frostarrow"} },
       
-      Blitzcrank   = {  },
+      Blitzcrank   = { windup=.3, },
 
-      Brand        = { projSpeed = 1.975, windup = .4,
+      Brand        = { projSpeed = 1.975, windup=.4,
                        particles = {"BrandBasicAttack", "BrandCritAttack"} },
 
-      Caitlyn      = { projSpeed = 2.5, windup = .2, -- !
+      Caitlyn      = { projSpeed = 2.5, windup=.2, -- !
                        particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
                        attacks = {"attack", "CaitlynHeadshotMissile"} },
 
       Cassiopeia   = { projSpeed = 1.22,
                        particles = {"CassBasicAttack_mis"} },
 
-      Corki        = { projSpeed = 2.0, windup = .1, -- !
+      Corki        = { projSpeed = 2.0, windup=.1, -- !
                        particles = {"corki_basicAttack_mis", "Corki_crit_mis"} },
 
       Draven       = { projSpeed = 1.4,
                        particles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"} },
 
-      Ezreal       = { projSpeed = 2.0, windup = .3,
+      Ezreal       = { projSpeed = 2.0, windup=.3,
                        particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"} },
 
-      FiddleSticks = { projSpeed = 1.75, windup = .30,
+      FiddleSticks = { projSpeed = 1.75, windup=.30,
                        particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
 
       Gragas       = { windup=.35 },
 
-      Graves       = { projSpeed = 3.0, windup = .25,
+      Graves       = { projSpeed = 3.0, windup=.25,
                        particles = {"Graves_BasicAttack_mis"} },
 
       Heimerdinger = { projSpeed = 1.4,
                        particles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"} },
 
-      Irelia       = { windup = .3 },
+      Irelia       = { windup=.3 },
 
       Janna        = { projSpeed = 1.2,
                        particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
@@ -140,15 +140,15 @@ function initAAData()
       Kennen       = { projSpeed = 1.35,
                        particles = {"KennenBasicAttack_mis"} },
 
-      KogMaw       = { projSpeed = 1.8, windup = .2,
+      KogMaw       = { projSpeed = 1.8, windup=.2,
                        particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"} },
 
       Leblanc      = { projSpeed = 1.7,
                        particles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"} },
 
-      LeeSin       = {  },
+      LeeSin       = { windup=.2, },
 
-      Leona        = { 
+      Leona        = { windup=.3,
                        particles={"leona_basicattack_hit"} },
 
       Lulu         = { projSpeed = 2.5, windup=.2,
@@ -160,47 +160,47 @@ function initAAData()
       Malzahar     = { projSpeed = 1.5,
                        particles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"} },
 
-      MasterYi     = { 
+      MasterYi     = { windup=.25,
                        particles = {"Wuju_Trail"} },
 
       MissFortune  = { projSpeed = 2.0, windup=.25,
                        particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"} },
 
-      Mordekaiser  = { windup = .3,
+      Mordekaiser  = { windup=.3,
                        resets = {me.SpellNameQ}},
 
       Morgana      = { projSpeed = 1.6,
                        particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"} },
 
-      Nasus        = { 
+      Nasus        = { windup=.25,
                        particles = {"nassus_siphonStrike_tar"},
                        resets = {me.SpellNameQ} },
 
       Nidalee      = { projSpeed = 1.7,
                        particles = {"nidalee_javelin_mis"} },
 
-      Olaf         = { windup=.35
-                      },
+      Olaf         = { windup=.35 },
 
       Orianna      = { projSpeed = 1.4,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
-      Poppy        = { 
+      Poppy        = { windup=.3,
                        particles = {"Poppy_DevastatingBlow"} },                       
 
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Riven        = { windup=.2,
+      Riven        = { windup=.25,
                        resets = {me.SpellNameQ} },
 
-      Ryze         = { projSpeed = 2.4, windup = .25,
+      Ryze         = { projSpeed = 2.4, windup=.25,
                        particles = {"ManaLeach_mis"} },
 
       Shyvana      = { 
                        resets = {me.SpellNameQ} },
 
-      Sivir        = { projSpeed = 1.4,
+      Sivir        = { projSpeed = 1.4, windup=.15,
+                       resets = {me.SpellNameW},
                        particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
 
       Sona         = { projSpeed = 1.6,
@@ -215,29 +215,29 @@ function initAAData()
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
-      Teemo        = { projSpeed = 1.3,
+      Teemo        = { projSpeed = 1.3, windup=.25,
                        particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
 
-      Tristana     = { projSpeed = 2.25, windup = .15,
+      Tristana     = { projSpeed = 2.25, windup=.15,
                        particles = {"TristannaBasicAttack_mis"} },
 
       Tryndamere   = { 
                        particles = {"tryndamere_weapontrail"},
                        attacks = {"attack", "Bloodlust"} },
 
-      TwistedFate  = { projSpeed = 1.5, windup = .4,
+      TwistedFate  = { projSpeed = 1.5, windup=.4,
                        particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
 
       Twitch       = { projSpeed = 2.5, windup = .25,
                        particles = {"twitch_basicAttack_mis", "twitch_sprayandPray_mis"} },
 
-      Urgot        = { projSpeed = 1.3, windup = .2,
+      Urgot        = { projSpeed = 1.3, windup=.2,
                        particles = {"UrgotBasicAttack_mis"} },
 
-      Vayne        = { projSpeed = 2.0, windup = .2, -- !
+      Vayne        = { projSpeed = 2.0, windup=.2, -- !
                        particles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" } },
 
-      Varus        = { projSpeed = 2.0, windup = .25,
+      Varus        = { projSpeed = 2.0, windup=.25,
                        particles = {"Varus_basicAttack_mis"} },
 
       Veigar       = { projSpeed = 1.05,
@@ -251,7 +251,7 @@ function initAAData()
 
       Warwick      = { windup=.35 },
 
-      Xerath       = { projSpeed = 1.2, windup = .35,
+      Xerath       = { projSpeed = 1.2, windup=.35,
                        particles = {"XerathBasicAttack"},
                        attacks = {"Xerath_Base_BA_mis"} },
 
@@ -570,7 +570,7 @@ function isResetSpell(spell)
    local spellName = aaData.resets
    if not spellName then return false end
    if type(spellName) == "table" then
-      if ListContains(spell.name, spellName) then
+      if ListContains(spell.name, spellName, true) then
          return true
       end
    else
