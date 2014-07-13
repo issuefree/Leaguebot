@@ -1178,7 +1178,7 @@ function WillKill(...)
    for i=1,#arg-1,1 do      
       local thing = arg[i]
       local spell = GetSpell(thing)
-      if not IsImmune(target, thing) then
+      if not IsImmune(thing, target) then
          if spell.name and spell.name == "attack" then
             damage = damage + GetAADamage(target)
          else         
@@ -1308,7 +1308,7 @@ function GetWeakest(thing, list)
 
    for _,target in ipairs(list) do      
       if target then
-         if IsImmune(target, thing) then
+         if IsImmune(thing, target) then
             -- pp("Don't cast "..thing.." on "..target.name.." due to invuln")
          else
             local tScore = target.health / CalculateDamage(target, Damage(100, type))
@@ -1323,8 +1323,11 @@ function GetWeakest(thing, list)
    return weakest
 end
 
-function IsImmune(target, thing)
+function IsImmune(thing, target)
    local spell = GetSpell(thing)
+   if target.team == me.team then
+      return false
+   end
    if spell and spell.name == "AA" then
       return HasBuff("invulnerable", target)
    else
