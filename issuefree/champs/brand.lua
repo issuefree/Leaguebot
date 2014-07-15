@@ -5,8 +5,8 @@ pp("\nTim's Brand")
 
 SetChampStyle("caster")
 
-AddToggle("", {on=true, key=112, label="- - -"})
-AddToggle("ult", {on=true, key=113, label="Auto Ult"})
+AddToggle("ult", {on=true, key=112, label="Auto Ult"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 

@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 pp("\nTim's Zilean")
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("autoChrono", {on=true, key=113, label="Auto Chrono Shift"})
+AddToggle("autoChrono", {on=true, key=112, label="Auto Chrono Shift"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bomb"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bomb"] = {
   key="Q", 
@@ -101,6 +102,7 @@ function Action()
       if GetCD("bomb") > 4 and CanUse("rewind") then
          Cast("rewind", me)
          PrintAction("Rewind")
+         return true
       end
    end
 
