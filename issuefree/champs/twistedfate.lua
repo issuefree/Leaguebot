@@ -37,21 +37,21 @@ spells["pick"] = {
 }
 spells["blue"] = {
 	key="W", 
-	range=spells["AA"].range, 
+	range=GetAARange, 
 	base={40,60,80,100,120}, 
 	ap=.5,
 	type="M"
 }
 spells["red"] = {
 	key="W", 
-	range=spells["AA"].range, 
+	range=GetAARange, 
 	base={30,45,60,75,90}, 
 	ap=.5, 
 	type="M"
 }
 spells["gold"] = {
 	key="W", 
-	range=spells["AA"].range, 
+	range=GetAARange, 
 	base={15,22.5,30,37.5,45}, 
 	ap=.5, 
 	type="M"
