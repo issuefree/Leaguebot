@@ -9,8 +9,7 @@ spells = {}
 
 function IsCooledDown(key, extraCooldown)
 	extraCooldown = extraCooldown or 0
-   return me["SpellTime"..key] >= .85 + extraCooldown
-   -- return me["SpellTime"..key] >= 1.75
+   return me["SpellTime"..key] >= .9 + extraCooldown
 end
 
 function Cast(thing, target, force)
