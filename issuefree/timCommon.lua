@@ -340,7 +340,7 @@ function Disrupt(targetSpell, thing)
    end
    if P[targetSpell] then
       local target = P[DISRUPTS[targetSpell].char]
-      if IsInRange(target, spell) then
+      if IsInRange(spell, target) then
          if spell.delay then
             if spell.noblock then
                CastXYZ(spell, target)
@@ -700,7 +700,7 @@ end
 -- if force is true, kill it now.
 function KillMinion(thing, method, force, targetOnly)
    local spell = GetSpell(thing)
-   if not CanUse(spell) then return end
+   if not CanUse(spell) then return false end
    
    if spell.name and spell.name == "attack" then
       force = true
@@ -1759,10 +1759,9 @@ end
 
 function ModAAFarm(thing)
    if CanUse(thing) and not P[thing] then
-      local minions = SortByHealth(GetInRange(me, "AA", MINIONS), thing)
+      local minions = SortByHealth(RemoveWillKills(GetInRange(me, "AA", MINIONS)), thing)
       for i,minion in ipairs(minions) do
          if WillKill(thing, minion) and 
-            not SameUnit(minion, WK_AA_TARGET) and
             ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
          then
             Cast(thing, me)
@@ -2042,7 +2041,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
       if hardCCOnly then
          return nil
       end
-      
+
       local targets = GetInRange(me, thing, ENEMIES)
       for _,t in ipairs(targets) do
          if t.movespeed < 200 then
@@ -2052,7 +2051,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
          end
       end
    end
-   if target and IsInRange(target, spell) then
+   if target and IsInRange(spell, target) then
       if not targetOnly then
          if spell.noblock then
             if stillMoving then

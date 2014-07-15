@@ -92,7 +92,7 @@ function Run()
                local minions = GetInRange(me, "spike", MINIONS)
                local lt = SortByHealth(GetWithBuff("attack", minions))[1]
                if lt and WillKill("spike", lt) and
-                  ( JustAttacked() or not IsInRange(lt, "AA") )
+                  ( JustAttacked() or not IsInRange("AA", lt) )
                then
                   Cast("spike", me)
                   AddWillKill(lt)

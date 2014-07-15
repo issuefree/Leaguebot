@@ -400,7 +400,7 @@ function UnderMyTower(target)
    return #GetAllInRange(target, 950, MYTURRETS) > 0
 end
 
-function IsInRange(target, thing, source)
+function IsInRange(thing, target, source)
    local range
    if type(thing) ~= "number" then
       range = GetSpellRange(thing)

@@ -185,7 +185,7 @@ function Action()
    end
 
    if CanUse("lotus") then      
-      if GetMarkedTarget() and IsInRange(GetMarkedTarget(), GetSpellRange("lotus")*.5) then
+      if GetMarkedTarget() and IsInRange(GetSpellRange("lotus")*.5, GetMarkedTarget()) then
          Cast("lotus", me)
          PrintAction("Lotus marked", GetMarkedTarget())
          return true
@@ -229,7 +229,7 @@ function Action()
       end
 
       local target = GetMarkedTarget()
-      if target and IsInRange(target, "shunpo") and ( CanUse("sinister") or HasBuff("daggered", target) ) then
+      if target and IsInRange("shunpo", target) and ( CanUse("sinister") or HasBuff("daggered", target) ) then
          Cast("shunpo", target)
          PrintAction("Shunpo (harrass)", target)
          return true

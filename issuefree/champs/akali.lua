@@ -125,7 +125,7 @@ function Action()
    if CanUse("dance") then
       local target = GetMarkedTarget() or GetWeakestEnemy("dance")
       if target and 
-         ( not IsInRange(target, "AA") or ( IsOn("ultSpam") and JustAttacked() ) )
+         ( not IsInRange("AA", target) or ( IsOn("ultSpam") and JustAttacked() ) )
       then
          UseItem("Deathfire Grasp", target)
          Cast("dance", target)
