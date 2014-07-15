@@ -61,7 +61,6 @@ spells["bullet"] = {
    object="MissFortune_Base_R_cas"
 }
 
--- TODO rewrite this
 function getDoubleHits(target, debug)
    --[[
    1. Enemy champions in a 40° cone with at least one stack of Impure Shots.
