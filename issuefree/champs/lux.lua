@@ -164,7 +164,7 @@ function Run()
       end
    end
    
-   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() then
+   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() and not P.singularity then
       -- lasthit with singularity if it kills 3 minions or more
       if KillMinionsInArea("singularity", 3) then
          return true
@@ -177,22 +177,16 @@ function Run()
       end
    end
 
-   local minions = GetWithBuff("flare", MINIONS)
-   for _,m in ipairs(minions) do
-      DrawTextObject("                   "..GetAADamage(m), m, blueT)
-      -- DrawTextObject("                   "..GetSpellDamage("AA", m), m, blueT)
-   end
-
    EndTickActions()
 end
 
 function Action()
    -- TestSkillShot("binding")
    -- TestSkillShot("barrier")
-   TestSkillShot("singularity")
+   -- TestSkillShot("singularity")
 
    -- try to deal some damage with singularity
-   if CanUse("singularity") and not activeSingularity() then
+   if CanUse("singularity") and not activeSingularity() and not P.singularity then
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
@@ -268,7 +262,7 @@ function FollowUp()
       end
 
       for _,target in rpairs(flaredMinions) do
-         if AA(target)
+         if AA(target) then
             PrintAction("AA flared minion for clear")
             return true
          end
