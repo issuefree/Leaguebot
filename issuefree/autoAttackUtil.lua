@@ -355,6 +355,12 @@ function aaTick()
       shotFired = true
    end
 
+   if not ValidTarget(lastAATarget) and IsAttacking() then
+      PrintAction("RESET kia")
+      lastAATarget = nil
+      ResetAttack()
+   end
+
    if CanAttack() then
       canSendAttacked = true
    end
@@ -581,6 +587,8 @@ function isResetSpell(spell)
    return false
 end
 
+lastAATarget = nil
+
 function onSpellAA(unit, spell)
 
    if not unit or not IsMe(unit) then
@@ -592,6 +600,9 @@ function onSpellAA(unit, spell)
    end
 
    if IAttack(unit, spell) then
+      if ValidTarget(spell.target) then
+         lastAATarget = spell.target
+      end
       if ModuleConfig.aaDebug then
          pp("AA at distance "..trunc(GetDistance(spell.target)))
       end
@@ -609,8 +620,7 @@ function onSpellAA(unit, spell)
                KillMinion("AA")
             end
          else
-            WK_AA_TARGET = spell.target
-            DoIn(function() WK_AA_TARGET = nil end, .75)
+            AddWillKill(minion)
          end
       end
 
