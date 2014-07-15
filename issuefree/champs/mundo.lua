@@ -117,12 +117,12 @@ function Action()
    if target then
       if CanUse("masochism") then
          Cast("masochism", me)
-         PrintAction("I hurt me to hurt them", nil, 1)
+         PrintAction("Rawr", nil, 1)
       end
       
       if not P.burning and CanUse("agony") then
          Cast("agony", me)
-         PrintAction("Burn in my agony", nil, 1)
+         PrintAction("Burn", nil, 1)
       end
 
       if AutoAA(target) then
