@@ -45,7 +45,9 @@ function initAAData()
 
       Akali        = { windup = .2 },
 
-      Amumu        = { 
+      Alistar      = { windup=.25 },
+
+      Amumu        = { windup=.30,
                        particles = {"SadMummyBasicAttack"} },
 
       Chogath      = { windup = .35,
@@ -254,6 +256,10 @@ function initAAData()
       Xerath       = { projSpeed = 1.2, windup=.35,
                        particles = {"XerathBasicAttack"},
                        attacks = {"Xerath_Base_BA_mis"} },
+
+      XinZhao      = { windup=.2,
+                       particles={"xen_ziou_intimidate"},
+                       resets={me.SpellNameQ}, },
 
       Yorick       = { windup=.25,
                        resets = {me.SpellNameQ} },
