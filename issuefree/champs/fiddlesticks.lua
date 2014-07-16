@@ -5,6 +5,8 @@ pp("\nTim's Fiddlesticks")
 pp(" - dark wind on weakest")
 pp(" - pause while draining")
 
+SetChampStyle("caster")
+
 AddToggle("offense", {on=true, key=112, label="Offensive stance"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
