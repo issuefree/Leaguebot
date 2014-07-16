@@ -257,7 +257,7 @@ function initAAData()
                        particles = {"XerathBasicAttack"},
                        attacks = {"Xerath_Base_BA_mis"} },
 
-      XinZhao      = { windup=.2,
+      XinZhao      = { windup=.35,
                        particles={"xen_ziou_intimidate"},
                        resets={me.SpellNameQ}, },
 
