@@ -20,7 +20,7 @@ spells["pulverize"] = {
    color=red,    
    base={60,105,150,195,240}, 
    ap=.5, 
-   cost={70,80,90,100,110}
+   cost={65,70,75,80,85}
 }
 spells["headbutt"] = {
    key="W", 
@@ -28,7 +28,7 @@ spells["headbutt"] = {
    color=violet, 
    base={55,110,165,220,275}, 
    ap=.7, 
-   cost={70,80,90,100,110}
+   cost={65,70,75,80,85}
 } 
 spells["roar"] = {
    key="E", 
