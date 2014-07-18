@@ -1,3 +1,5 @@
+-- Credit to Huntera's richer for inspiration
+
 itemPrices = {
    [2048] = {name="Ichor of Illumination", price=500},
    [2049] = {name="Sightstone", price=800},
