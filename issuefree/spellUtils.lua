@@ -160,7 +160,11 @@ end
 
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
-   return GetLVal(spell, "cost")
+   if spell.key then
+   	return me["SpellMana"..spell.key]
+   else
+   	return GetLVal(spell, "cost")
+   end
 end
 
 function GetSpellRange(thing)
