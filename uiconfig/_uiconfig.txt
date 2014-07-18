@@ -1,4 +1,0 @@
-oy=100
-oxperma=11
-ox=400
-oyperma=400
