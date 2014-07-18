@@ -1,4 +1,0 @@
-permashow_toggle=false
-permashow_width=180
-uiconfig_key___Keymapper=16
-uiconfig_key=false
