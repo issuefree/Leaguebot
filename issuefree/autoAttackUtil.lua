@@ -50,6 +50,8 @@ function initAAData()
       Amumu        = { windup=.30,
                        particles = {"SadMummyBasicAttack"} },
 
+      Annie        = { windup=.30 }, -- untested
+
       Chogath      = { windup = .35,
                      particles = {"vorpal_spikes_mis"} },
 
@@ -65,7 +67,7 @@ function initAAData()
                        particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        resets = {"GarenQ"} },
 
-      Anivia       = { projSpeed = 1.05, windup = .4, -- !
+      Anivia       = { projSpeed = 1.05, windup = .4,
                        particles = {"cryoBasicAttack"} },
 
       Annie        = { projSpeed = 1.0, windup = .35,
@@ -261,7 +263,7 @@ function initAAData()
                        particles={"xen_ziou_intimidate"},
                        resets={me.SpellNameQ}, },
 
-      Yorick       = { windup=.25,
+      Yorick       = { windup=.30,
                        resets = {me.SpellNameQ} },
 
       Ziggs        = { projSpeed = 1.5,
