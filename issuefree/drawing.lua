@@ -35,16 +35,22 @@ end
 function Circle(target, radius, color, thickness)
 	if not target then return end
 	if target.x == 0 then return end
-	if not thickness then thickness = 1 end
-	if not color then color = yellow end
-	if not radius then radius = GetWidth(target) end
+
+	thickness = thickness or 1
+	color = color or yellow
+	radius = radius or GetWidth(target)
+
 	if type(target) == "userdata" then
 		for i = 1, thickness, 1 do
 			DrawCircleObject(target, radius+i-1, color)
 		end		
 	else
+		local p = Point(target)
+		if not p.x or not p.y or not p.z then
+			return 
+		end
 		for i = 1, thickness, 1 do
-			DrawCircle(target.x, target.y, target.z, radius+i-1, color)
+			DrawCircle(p.x, p.y, p.z, radius+i-1, color)
 		end
 	end
 end

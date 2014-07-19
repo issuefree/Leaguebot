@@ -437,7 +437,7 @@ function GetSpellFireahead(thing, target)
    	local trackedPoints = tfas[spell.key][target.charName]
    	if trackedPoints and #trackedPoints > 1 then
 	      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
-	      local r = spell.width or spell.radius*2 or spell.cone
+	      local r = spell.width or spell.cone or spell.radius*2 
 
 	      trackingFudge = 1 + (trackError/r * .25)
 	   end

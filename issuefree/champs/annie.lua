@@ -116,7 +116,7 @@ function Run()
                return true
             end
          else
-            if KillMinionsInCone(spells["inc"], 3) then
+            if KillMinionsInCone("inc", 3) then
                return true
             end
          end

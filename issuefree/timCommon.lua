@@ -1243,7 +1243,7 @@ function PetAttack(target, key)
    end
 end
 function CheckPetTarget(pet, unit, spell, key)
-   if pet then
+   if pet and not pet.timeout then
       local petTarget = SortByDistance(GetInRange(pet, 1000, ENEMIES), pet)[1]
       if not petTarget then
          if IsMe(unit) and
