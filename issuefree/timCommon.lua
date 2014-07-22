@@ -476,6 +476,7 @@ function DumpSpells(unit, spell)
 end
 
 function IsMinion(unit)
+   if not ValidTarget(unit) then return false end
    return find(unit.name, "Minion")
 end
 
@@ -1564,8 +1565,9 @@ function TimTick()
       -- end
    end
 
-   if GetDistance(me, CURSOR) < 50 then
+   if GetDistance(me, CURSOR) < 50 and CURSOR then
       ClearCursor()
+      -- StopMove()
    end
 
    if CURSOR then
@@ -1699,9 +1701,6 @@ function EndTickActions()
          if GetDistance(mousePos) < 3000 then
             MoveToMouse()
             CURSOR = Point(mousePos)
-            if GetDistance(mousePos) < 50 then
-               StopMove()
-            end
          end
       end
       if needMove and CURSOR then      
