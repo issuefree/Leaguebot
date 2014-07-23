@@ -46,6 +46,8 @@ spells["field"] = {
    cost=100
 }
 
+--TODO cast fist if grab lands so it's ready to go
+
 function Run()
    if StartTickActions() then
       return true
