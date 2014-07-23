@@ -31,7 +31,14 @@ local minMoveTime = .2  -- this seems to work for almost everyone.
 
 function GetAARange(target)
    target = target or me
-   return target.range + 115 --GetWidth(me)
+   local range = target.range + 100
+   if aaData and aaData.extraRange then
+      range = range + aaData.extraRange
+   end
+   -- if range < 300 then 
+   --    range = range + 15
+   -- end
+   return range
 end
 
 function IsMelee(target)
@@ -83,7 +90,10 @@ function initAAData()
       Brand        = { projSpeed = 1.975, windup=.4,
                        particles = {"BrandBasicAttack", "BrandCritAttack"} },
 
-      Caitlyn      = { projSpeed = 2.5, windup=.2, -- !
+
+
+      Caitlyn      = { projSpeed = 2.5, windup=.2,
+                       minMoveTime=0,
                        particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
                        attacks = {"attack", "CaitlynHeadshotMissile"} },
 
@@ -183,7 +193,9 @@ function initAAData()
       Nidalee      = { projSpeed = 1.7,
                        particles = {"nidalee_javelin_mis"} },
 
-      Olaf         = { windup=.35 },
+      Olaf         = { windup=.3,
+                       minMoveTime=0,
+                     },
 
       Orianna      = { projSpeed = 1.4,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
@@ -220,6 +232,8 @@ function initAAData()
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
       Teemo        = { projSpeed = 1.3, windup=.25,
+                       minMoveTime = 0,
+                       extraRange=-35,
                        particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
 
       Tristana     = { projSpeed = 2.25, windup=.15,
@@ -256,8 +270,8 @@ function initAAData()
       Warwick      = { windup=.35 },
 
       Xerath       = { projSpeed = 1.2, windup=.35,
-                       particles = {"XerathBasicAttack"},
-                       attacks = {"Xerath_Base_BA_mis"} },
+                       attacks = {"XerathBasicAttack"},
+                       particles = {"Xerath_Base_BA_mis"} },
 
       XinZhao      = { windup=.35,
                        particles={"xen_ziou_intimidate"},
@@ -309,7 +323,7 @@ function getAADuration()
 end
 
 function getWindup()
-   return aaData.windup / getAttackSpeed()
+   return aaData.windup / math.max(1, getAttackSpeed()*.9)^2 -- err a bit on the side of don't clip
 end
 
 function OrbWalk()
@@ -358,12 +372,18 @@ function AfterAttack()
 end
 
 function aaTick()
+   -- PrintState(20, me.attackspeed)
+   -- PrintState(21, me.baseattackspeed)
+   -- PrintState(22, getAttackSpeed())   
+   -- PrintState(23, aaData.windup)
+   -- PrintState(24, getWindup())
+
    -- we asked for an attack but it's been longer than the windup and we haven't gotten a shot so we must have clipped or something
    if not shotFired and time() - lastAttack > getWindup() then
       shotFired = true
    end
 
-   if not ValidTarget(lastAATarget) and IsAttacking() then
+   if IsMinion(lastAATarget) and not ValidTarget(lastAATarget) and IsAttacking() then
       PrintAction("RESET kia")
       lastAATarget = nil
       ResetAttack()
@@ -396,6 +416,7 @@ function aaTick()
          wustr = wustr.."!!!"
       end
 
+      PrintState(-1, GetAARange())
       PrintState(1, aarstr) 
       PrintState(2, wustr)
 
@@ -474,6 +495,7 @@ end
 
 function setAttackState(state)
    if attackState == 0 and state == 0 then
+      -- pp(debug.traceback())
       lastAAState = time()
       return
    end
@@ -507,7 +529,7 @@ function onObjAA(object)
       shotFired = true
 
       if time() - lastAttack > 2 then
-         pp("Got a wierd object "..object.charName)
+         pp("Got a weird object "..object.charName)
       end
 
       if ModuleConfig.aaDebug then
@@ -610,9 +632,11 @@ function onSpellAA(unit, spell)
    if IAttack(unit, spell) then
       if ValidTarget(spell.target) then
          lastAATarget = spell.target
-      end
-      if ModuleConfig.aaDebug then
-         pp("AA at distance "..trunc(GetDistance(spell.target)))
+
+         if ModuleConfig.aaDebug then
+            pp("AA at distance "..trunc(GetDistance(spell.target)))
+         end
+
       end
 
       -- if I attack a minion and I won't kill it try to find an enemy to hit instead.
