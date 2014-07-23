@@ -1,6 +1,10 @@
 require "issuefree/basicUtils"
 
 Point = class()
+function Point:__type()
+    return "Point"
+end
+
 function Point:__init(a, b, c)
    if not a then
       return nil
@@ -42,6 +46,14 @@ end
 
 function Point:unpack()
    return self.x, self.y, self.z
+end
+
+function Point:__tostring()
+   return "("..trunc(self.x,0)..","..trunc(self.y,0)..","..trunc(self.z,0)..")"
+end
+
+function Point:__concat(a)
+    return tostring(self) .. tostring(a) 
 end
 
 
