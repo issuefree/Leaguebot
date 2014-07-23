@@ -179,12 +179,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("clear") and Alone() then
-      if HitMinion("AA", "strong") then
-         return true
-      end
-   end
-
    return false
 end
 
