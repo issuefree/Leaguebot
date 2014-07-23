@@ -3,13 +3,14 @@ require "issuefree/modules"
 
 print("\nTim's Teemo")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("shroom", {on=true, key=113, label="Auto Shroom"})
+AddToggle("shroom", {on=true, key=112, label="Auto Shroom"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["blind"] = {
 	key="Q", 
@@ -48,12 +49,14 @@ function Run()
    end
 	
 	if HotKey() and CanAct() then
-		Action()
+		if Action() then
+			return true
+		end
 	end
 	EndTickActions()
 end
     
-function Action()
+function Action()	
 	if CanUse("blind") then
 		local spell = spells["blind"]
    	if EADC and GetDistance(EADC) < spell.range then
@@ -97,12 +100,19 @@ function Action()
 	-- hit the highest health minion in range that isn't poisoned	
 	-- if there isn't one, hit the highest health minion
 	if IsOn("clear") and Alone() then
+
+		-- dup of endtickactions but I have special clear instructions and I want to lasthit
+	   if IsOn("lasthit") and Alone() then
+	      if KillMinion("AA") then
+	         return true         
+	      end
+	   end
+
 		local nearMinions = SortByHealth(GetInRange(me, "AA", MINIONS))
 
 		for _,minion in rpairs(nearMinions) do
 			if not (#GetInRange(minion, 50, poisons) > 0) then
-				if AA(minion) then
-					PrintAction("AA for clear")
+				if HitMinion("AA", "strong") then
 					return true
 				end
 			end
@@ -129,7 +139,7 @@ local function onObject(object)
 	end
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
 end
 
 AddOnCreate(onObject)
