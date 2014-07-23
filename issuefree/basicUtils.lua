@@ -63,7 +63,6 @@ function trunc(num, places)
    return math.floor(num*factor)/factor
 end
 
-
 function merge(table1, table2)
    local resTable = {}
    for k,v in pairs(table1) do
@@ -393,3 +392,6 @@ function Damage:toNum()
    return math.floor(self.p+self.m+self.t)
 end
 
+function Damage:__concat(a)
+    return tostring(self) .. tostring(a) 
+end
