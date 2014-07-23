@@ -71,6 +71,7 @@ function initAAData()
                        particles = {"EvelynnBasicAttack_tar"} },
 
       Garen        = { windup = .35,
+                       extraRange=15,
                        particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
                        resets = {"GarenQ"} },
 
@@ -452,9 +453,6 @@ end
 function ResetAttack()
    needMove = false
    lastAttack = time() - getAADuration()
-   if ModuleConfig.aaDebug then
-      pp("RESET")
-   end
 end
 
 function CanAttack()
@@ -607,10 +605,16 @@ function isResetSpell(spell)
    if not spellName then return false end
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName, true) then
+         if ModuleConfig.aaDebug then
+            pp("Reset "..spell.name)
+         end
          return true
       end
    else
       if find(spell.name, spellName) then                       
+         if ModuleConfig.aaDebug then
+            pp("Reset "..spell.name)
+         end
          return true
       end
    end
