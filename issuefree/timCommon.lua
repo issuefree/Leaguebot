@@ -775,7 +775,7 @@ function KillMinion(thing, method, force, targetOnly)
 
       if spell.name and spell.name == "attack" then
          AA(target)
-         PrintAction("AA "..method.." minion")
+         PrintAction("Kill "..method.." minion")
          return target
       else
          if IsBlockedSkillShot(thing) then
