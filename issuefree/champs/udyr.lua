@@ -9,13 +9,14 @@ require "issuefree/modules"
 
 pp("\nTim's Udyr")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("- - -", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["tiger"] = {
    key="Q",   
@@ -40,14 +41,17 @@ spells["phoenix"] = {
 
 spells["AA"].damOnTarget = 
    function(target)
-      if P.tiger then
-         return (me.baseDamage+me.addDamage)*.15
-      end
       return 0
    end
 
 function Run()
    if P.tiger then
+      spells["AA"].bonus = (me.baseDamage+me.addDamage)*.15
+   else
+      spells["AA"].bonus = 0
+   end
+
+   if P.tiger then      
       PrintState(0,"TIGER")
    elseif P.turtle then
       PrintState(0,"TURTLE")
