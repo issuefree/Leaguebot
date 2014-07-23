@@ -179,14 +179,6 @@ function FollowUp()
 
    end
 
-   if IsOn("clear") and Alone() then
-      if not spinT or (not isSpinning() and not CanUse("judgement")) then
-         if HitMinion("AA", "strong") then
-            return true
-         end
-      end
-   end
-
    if IsOn("move") then
       if MeleeMove() then
          return true
