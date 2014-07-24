@@ -1,5 +1,21 @@
 require "issuefree/timCommon"
 
+-- jungle safe points (can hit camp and they can't hit back)
+-- coordinates = {
+--    Point(8883, 0, 1921),
+--    Point(7444.8, 0, 2980.2),
+--    Point(6859.1,0,11497.2),
+--    Point(7232.5,0,4671.7),
+--    Point(7010.9,0,10021.6),
+--    Point(4142.5,0,5695.9),
+--    Point(9850.3,0,8781.2),
+--    Point(3402.3,0,8429.1),
+--    Point(11128.2,0,6225.5),
+--    Point(7213.7,0,2103.2),  
+--    Point(6905.4,0,12402.2),
+--    Point(10270.6,0,4974.5)
+-- }
+
 local camps = {
 	bWolf = {id=2, timeout=50, num=3},
 	rWolf = {id=8, timeout=50, num=3},
@@ -93,7 +109,7 @@ function JungleTimer()
 					color = 0xFF33CC33
 				end
 				local label = tts%60
-				if tts > 60 then
+				if tts > 59 then
 					if tts%60 < 10 then
 						label = "0"..label
 					end
