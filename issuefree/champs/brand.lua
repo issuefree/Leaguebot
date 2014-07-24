@@ -160,8 +160,12 @@ function Action()
          end
 
          local bounceEnemies = #GetInRange(enemy, spells["pyro"].radius, ENEMIES)
+         local blazedEnemies = #GetWithBuff("ablaze", GetInRange(enemy, spells["pyro"].radius, ENEMIES))
          local bounceMinions = #GetInRange(enemy, spells["pyro"].radius, MINIONS)
-         if bounceEnemies >= 2 and bounceMinions <= 1 then
+         if blazedEnemies >= 1 and 
+            bounceEnemies >= 2 and 
+            bounceMinions <= 1 
+         then
             Cast("pyro", enemy)
             PrintAction("Pyro for AoE damage")
             return true
