@@ -17,8 +17,8 @@ function Cast(thing, target, force)
    spell = spell or thing
 
    if not force and not CanUse(spell) then
-      pp("can't use "..spell.key)
-      pp(debug.traceback())
+      -- pp("can't use "..spell.key)
+      -- pp(debug.traceback())
       return false
    end
 
@@ -27,7 +27,11 @@ function Cast(thing, target, force)
       return false
    end
 
-   CastSpellTarget(spell.key, target, 0)
+   if IsSkillShot(spell) then
+   	CastFireahead(spell, target)
+   else
+   	CastSpellTarget(spell.key, target, 0)
+   end
    return true
 end
 
@@ -169,6 +173,10 @@ end
 
 function GetSpellRange(thing)
    return GetLVal(GetSpell(thing), "range")
+end
+
+function GetSpellName(thing)
+	return GetSpell(thing).name
 end
 
 function GetSpell(thing)
