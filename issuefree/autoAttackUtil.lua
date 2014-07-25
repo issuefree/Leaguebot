@@ -31,13 +31,13 @@ local minMoveTime = .2  -- this seems to work for almost everyone.
 
 function GetAARange(target)
    target = target or me
-   local range = target.range + 100
+   local range = target.range + 85
    if aaData and aaData.extraRange then
       range = range + aaData.extraRange
    end
-   -- if range < 300 then 
-   --    range = range + 15
-   -- end
+   if range < 300 then 
+      range = range + 15
+   end
    return range
 end
 
@@ -95,6 +95,7 @@ function initAAData()
 
       Caitlyn      = { projSpeed = 2.5, windup=.2,
                        minMoveTime=0,
+                       extraRange=40,
                        particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
                        attacks = {"attack", "CaitlynHeadshotMissile"} },
 
@@ -107,7 +108,9 @@ function initAAData()
       Draven       = { projSpeed = 1.4,
                        particles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"} },
 
-      Ezreal       = { projSpeed = 2.0, windup=.3,
+      Ezreal       = { projSpeed = 2.0, windup=.2,
+                       minMoveTime=0,
+                       extraRange=-25,
                        particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"} },
 
       FiddleSticks = { projSpeed = 1.75, windup=.30,
@@ -234,7 +237,7 @@ function initAAData()
 
       Teemo        = { projSpeed = 1.3, windup=.25,
                        minMoveTime = 0,
-                       extraRange=-35,
+                       extraRange=-20,
                        particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
 
       Tristana     = { projSpeed = 2.25, windup=.15,
@@ -349,7 +352,6 @@ local attackStates = {"canAttack", "isAttacking", "justAttacked", "canAct", "can
 local lastAAState = 0
 
 local lastAADelta = getAADuration()
-local lastWUDelta = getWindup()
 
 
 local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
@@ -371,6 +373,9 @@ function AfterAttack()
       StopMove()
    end
 end
+
+local gotObj = true
+local windups = {}
 
 function aaTick()
    -- PrintState(20, me.attackspeed)
@@ -399,6 +404,19 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
+      if not gotObj and time() - lastAttack > 1 then
+         pp("No object. Windup "..aaData.windup.." too short. Incrementing")
+         if windups[aaData.windup] then
+            windups[aaData.windup] = windups[aaData.windup] - 2
+            if windups[aaData.windup] < 1 then
+               windups[aaData.windup] = nil
+            end
+         end
+
+         aaData.windup = aaData.windup + .01
+         gotObj = true
+      end
+
       -- AARate is how long to wait between attacks. 
       --  This should be less than actual delta (try not to wait too long some wiggle room here) 
       --  but close to it (don't stop doing other things before I should attack)
@@ -412,14 +430,8 @@ function aaTick()
       end
 
 
-      local wustr = "Windup "..trunc(getWindup()).." ("..trunc(lastWUDelta)..") - "..trunc(estimatedWU, 3)
-      if getWindup() < lastWUDelta then
-         wustr = wustr.."!!!"
-      end
-
       PrintState(-1, GetAARange())
       PrintState(1, aarstr) 
-      PrintState(2, wustr)
 
       if CanAttack() then
          setAttackState(0)
@@ -507,9 +519,6 @@ function setAttackState(state)
       attackState = state
 
       local delta = time() - lastAAState
-      if state == 2 then
-         lastWUDelta = delta
-      end
 
       if state == 0 then
          lastAAState = time()
@@ -531,11 +540,20 @@ function onObjAA(object)
       end
 
       if ModuleConfig.aaDebug then
+         gotObj = true
+         pp("Windup "..aaData.windup.." good. Decrementing.")
+         if windups[aaData.windup] then
+            windups[aaData.windup] = windups[aaData.windup] + 1
+         else
+            windups[aaData.windup] = 1
+         end
+         for wu,count in pairs(windups) do
+            pp(wu.." "..count)
+         end
+         aaData.windup = aaData.windup - .01
+
          local delta = time() - lastAAState         
          pp("AAP: "..trunc(delta).." "..object.charName)
-
-         lastWUDelta = time() - lastAttack
-         trackWindup(lastWUDelta)         
 
          if object and object.x and object.charName and
             GetDistance(object, me) < 100 
@@ -591,14 +609,6 @@ function trackAADuration()
    end
 end
 
-function trackWindup()
-   local testWU = lastWUDelta*getAttackSpeed()
-   table.insert(testWUs, testWU)
-   if #testWUs > 0 then
-      estimatedWU = sum(testWUs)/#testWUs
-   end
-end
-
 
 function isResetSpell(spell)
    local spellName = aaData.resets
@@ -639,6 +649,7 @@ function onSpellAA(unit, spell)
 
          if ModuleConfig.aaDebug then
             pp("AA at distance "..trunc(GetDistance(spell.target)))
+            gotObj = false
          end
 
       end
