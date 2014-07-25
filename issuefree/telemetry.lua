@@ -94,6 +94,10 @@ function AngleBetween(object1, object2)
    
    local angle = math.atan(a/b)
    
+   if a == 0 and b == 0 then
+      return 0
+   end
+
    if a > 0 and b < 0 then  -- q2
       angle = angle + (math.pi)
    elseif a < 0 and b < 0 then -- p3
