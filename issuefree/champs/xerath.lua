@@ -24,10 +24,11 @@ spells["bolt"] = {
    color=violet, 
    base={80,120,160,200,240}, 
    ap=.75,
-   delay=3,
+   delay=5,
    speed=0,
-   width=50,
+   width=75,
    noblock=true,
+   overShoot=100,
    cost={80,90,100,110,120},
    extraCooldown=.75
 } 
@@ -79,14 +80,17 @@ function Run()
       PrintState(0, "RITE")
    end
 
+   PrintState(0, GetSpellRange("bolt"))
+
    if P.charging then
       local chargeDuration = math.min(time() - chargeStartTime, 1.5)
       local addRange = spells["bolt"].maxRange - spells["bolt"].baseRange
       addRange = addRange * chargeDuration/1.5
-      spells["bolt"].range = spells["bolt"].baseRange + addRange
+      spells["bolt"].range = spells["bolt"].baseRange + addRange - spells["bolt"].overShoot
    else
       spells["bolt"].range = spells["bolt"].baseRange
    end
+
 
    if P.rite then
       spells["rite"].cost = 0
@@ -103,21 +107,35 @@ function Run()
       local hits,_,score = GetBestLine(me, "bolt", .1, 10, ENEMIES)
       if score >= maxScore and score > 0 then
          local target = GetWeakestEnemy("bolt")
-         if target then 
+         if target then
             FinishBolt(GetSpellFireahead("bolt", target))
             PrintAction("bolt", target)
             return true
          end
       end
 
-      if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
-         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
-         local hits,_,score = GetBestLine(me, "bolt", .1, 1, MINIONS)
-         if score >= maxScore and score > 0 then
-            FinishBolt(GetAngularCenter(hits))
-            PrintAction("bolt lh", score)
-            PauseToggle("lasthit", .5)
-            return true
+      if IsOn("lasthit") then
+         if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
+            local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
+            pp("max "..maxScore)
+            local hits,_,score = GetBestLine(me, "bolt", .15, 1, MINIONS)
+            pp("score "..score)
+
+            local killsNeeded = 5
+            if GetMPerc(me) > .75 then
+               killsNeeded = 2
+            elseif GetMPerc(me) > .5 then
+               killsNeeded = 3
+            elseif GetMPerc(me) > .25 then
+               killsNeeded = 4
+            end
+
+            if score >= maxScore and score >= killsNeeded then
+               PrintAction("bolt lh", score)
+               PauseToggle("lasthit", .5)
+               FinishBolt(GetAngularCenter(hits))
+               return true
+            end
          end
       end
 
@@ -216,6 +234,13 @@ function Action()
       return true
    end
 
+   -- for mana
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
+
    return false
 end
 
@@ -227,22 +252,21 @@ end
 function StartBolt(timeout)
    if IsLoLActive() and IsChatOpen() == 0 then
       if CanUse("bolt") and not P.charging then
-         pp(me.SpellTimeQ)
-         send.key_down(SKeys.Q)
-         PrintAction("Start Bolt")
+         send.key_up(SKeys.Q)
+         PrintAction("Start Bolt")         
          PersistTemp("charging", .25)
+         chargeStartTime = time()
 
-         if timeout then
-            DoIn(function() FinishBolt(mousePos) end, timeout)
-         end
+         send.key_down(SKeys.Q)
+         timeout = timeout or 5
+         DoIn(function() FinishBolt(mousePos) end, timeout)
       end
    end
 end
 
 local sx, sy
 function FinishBolt(t)
-   pp(debug.traceback())
-   if IsLoLActive() and IsChatOpen() == 0 and P.charging then      
+   if IsLoLActive() and IsChatOpen() == 0 and P.charging then
       if sx == nil then
          sx = GetCursorX()
          sy = GetCursorY()
