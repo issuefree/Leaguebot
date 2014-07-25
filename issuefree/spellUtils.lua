@@ -176,7 +176,16 @@ function GetSpellRange(thing)
 end
 
 function GetSpellName(thing)
-	return GetSpell(thing).name
+	local spell = GetSpell(thing)
+
+	if spell.name then return spell.name end
+
+	for name, s in pairs(spells) do
+		if spell == s then
+			return name
+		end
+	end
+
 end
 
 function GetSpell(thing)
