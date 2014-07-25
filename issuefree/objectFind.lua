@@ -18,7 +18,9 @@ function debugTick()
          if not testShot.firstPoint then
             testShot.firstPoint = Point(testShot.object)
             testShot.firstTime = time()
-         elseif not testShot.nextPoint then
+         elseif not testShot.nextPoint and 
+                GetDistance(testShot.firstPoint, Point(testShot.object)) > 200
+         then
             testShot.nextPoint = Point(testShot.object)
             testShot.nextTime = time()
          else
