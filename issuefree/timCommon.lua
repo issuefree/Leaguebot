@@ -695,7 +695,7 @@ function MoveToCursor()
    end
 end
 
-
+local LAST_KM_SPELL = nil
 -- weak, far, near, strong
 -- if force is false, try to play nice with auto attacking lasthits
 -- if force is true, kill it now.
@@ -731,9 +731,10 @@ function KillMinion(thing, method, force, targetOnly)
 
    local targets = {}
 
+   local spellName = GetSpellName(thing)
    -- first pass to prioritize big minions (yeah I'll get dup minions but who cares)
    for _,minion in ipairs(minions) do
-      if not ListContains(minion, WILL_KILLS) then
+      if not ListContains(minion, WILL_KILLS) or spellName == LAST_KM_SPELL then
          if IsBigMinion(minion) then
             table.insert(targets, minion)
          end
@@ -741,7 +742,7 @@ function KillMinion(thing, method, force, targetOnly)
    end
 
    for _,minion in ipairs(minions) do
-      if not ListContains(minion, WILL_KILLS) then
+      if not ListContains(minion, WILL_KILLS) or spellName == LAST_KM_SPELL then
          table.insert(targets, minion)
       end
    end
@@ -772,18 +773,20 @@ function KillMinion(thing, method, force, targetOnly)
    if ValidTarget(target) then
 
       AddWillKill(target)
+      LAST_KM_SPELL = spellName
 
       if spell.name and spell.name == "attack" then
          AA(target)
          PrintAction("Kill "..method.." minion")
          return target
       else
-         if IsBlockedSkillShot(thing) then
+         if IsSkillShot(thing) then
             CastFireahead(thing, target)
          else
             Cast(spell, target)
          end
-         PrintAction(thing.." "..method.." minion")
+         -- pp("setting lkms to "..spellName)
+         PrintAction(spellName.." "..method.." minion")
          return target
       end
    end
@@ -1681,7 +1684,7 @@ needMove = false
 function EndTickActions()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
-         return true         
+         return true
       end
    end
 
