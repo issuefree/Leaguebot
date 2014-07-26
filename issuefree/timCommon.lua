@@ -758,7 +758,8 @@ function KillMinion(thing, method, force, targetOnly)
             rangeThresh = GetAARange() + 50
          end
          if JustAttacked() or
-            GetDistance(minion) > rangeThresh
+            GetDistance(minion) > rangeThresh or
+            GetAADamage(minion)*1.5 < minion.health
          then
             target = minion
             break
@@ -1870,9 +1871,9 @@ function UseItem(itemName, target)
       end
 
    elseif itemName == "Deathfire Grasp" then
-      if target and GetDistance(target) < GetSpellRange(itemName) then
+      if target and GetDistance(target) < item.range then
          CastSpellTarget(slot, target)
-         PrintAction(itemName, target)
+         PrintAction(itemName, target, .5)
          return true
       end
 
