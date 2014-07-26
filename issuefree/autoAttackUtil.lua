@@ -161,8 +161,9 @@ function initAAData()
       KogMaw       = { projSpeed = 1.8, windup=.2,
                        particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"} },
 
-      Leblanc      = { projSpeed = 1.7,
-                       particles = {"leBlanc_basicAttack_cas", "leBlancBasicAttack_mis"} },
+      Leblanc      = { projSpeed = 1.7, windup=.2,
+                       extraRange=-10,
+                       particles = {"leBlancBasicAttack_mis"} },
 
       LeeSin       = { windup=.2, },
 
