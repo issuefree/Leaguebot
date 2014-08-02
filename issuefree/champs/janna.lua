@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Janna")
 
 spells["tailwind"] = {
-	range=800,
+	range=1000,
 	color=blue
 }
 spells["gale"] = {

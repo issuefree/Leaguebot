@@ -27,6 +27,15 @@ spells["barrel"] = {
   noblock=true,
   overShoot=50
 }
+
+spells["barrel"].damOnTarget =
+   function(target)
+      if IsMinion(target) then
+         return GetSpellDamage("barrel")*-.3
+      end
+      return 0
+   end
+
 spells["rage"] = {
   key="W",
   base={20,50,80,110,140},

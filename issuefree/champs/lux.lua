@@ -79,8 +79,9 @@ spells["spark"] = {
    noblock=true
 }
 spells["flare"] = {
-   base={10},
-   lvl=10,
+   base=10,
+   lvl=8,
+   ap=.2,
    type="M"
 }
 

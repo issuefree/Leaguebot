@@ -34,7 +34,7 @@ spells["fury"] = {
   range=525+110, 
   color=red,
   base={20,30,40,50,60},
-  ap=.2,
+  ap=.25,
   cost=45
 }
 spells["intervention"] = {

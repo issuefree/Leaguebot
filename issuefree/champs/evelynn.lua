@@ -28,12 +28,11 @@ spells["spike"] = {
    key="Q", 
    range=500, 
    color=violet, 
-   base={40,60,80,100,120}, 
-   ap=.45,
-   bonusAd=.5,
+   base={30,45,60,75,90}, 
+   ap={.35,.4,.45,.5,.55},
+   bonusAd={.5,.55,.6,.65,.7},
    width=80,
-   noblock=true,
-   cost={16,22,28,34,40}
+   noblock=true
 } 
 spells["frenzy"] = {
    key="W"

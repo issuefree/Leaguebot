@@ -47,11 +47,11 @@ spells["frenzy"] = {
 
 spells["cocoon"] = {
    key="E", 
-   range=1075, 
+   range=750+75, -- patch notes
    color=yellow, 
    delay=2,
    speed=14,
-   width=80,
+   width=55,  -- patch notes
    cost=50,
    showFireahead=true
 } 
