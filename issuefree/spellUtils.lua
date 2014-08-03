@@ -9,6 +9,7 @@ spells = {}
 
 function IsCooledDown(key, extraCooldown)
 	extraCooldown = extraCooldown or 0
+	if not key then return false end
    return me["SpellTime"..key] >= .9 + extraCooldown
 end
 
@@ -127,7 +128,7 @@ function CanUse(thing)
       	if not ListContains(thing.key, {"Q","W","E","R","D","F"}) then
       		return false
       	end
-         if GetSpellLevel(thing.key) > 0 and  me.mana >= GetSpellCost(thing) then             
+         if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and  me.mana >= GetSpellCost(thing) ) then
             return IsCooledDown(thing.key, thing.extraCooldown)
          else
             return false
@@ -163,16 +164,7 @@ function CanUse(thing)
 end
 
 function CanUseItem(itemName)
-	local item = ITEMS[itemName]
-   local slot = GetInventorySlot(item.id)
-   if not slot then return false end
-   slot = tostring(slot)
-
-   if IsCooledDown(slot) then 
-   	return true
-   else
-   	return false
-   end
+	return CanUse(ITEMS[itemName])
 end
 
 function GetSpellCost(thing)
@@ -500,12 +492,13 @@ function IsGoodFireahead(thing, target)
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
 
+   local point = GetSpellFireahead(spell, target)
+   -- TODO make IsUnblocked work on a point rather than a target
    if not spell.noblock and not IsUnblocked(me, thing, target, MINIONS, ENEMIES) then
    	-- pp("blocked")
  		return false
    end
 
-   local point = GetSpellFireahead(spell, target)
    if spell.overShoot then
       point = OverShoot(me, point, spell.overShoot)
    end
