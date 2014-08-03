@@ -162,6 +162,19 @@ function CanUse(thing)
    pp("Failed to get spell for "..thing)
 end
 
+function CanUseItem(itemName)
+	local item = ITEMS[itemName]
+   local slot = GetInventorySlot(item.id)
+   if not slot then return false end
+   slot = tostring(slot)
+
+   if IsCooledDown(slot) then 
+   	return true
+   else
+   	return false
+   end
+end
+
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
    if spell.key then
@@ -488,6 +501,7 @@ function IsGoodFireahead(thing, target)
     -- this should imply that the target is moving steadily.
 
    if not spell.noblock and not IsUnblocked(me, thing, target, MINIONS, ENEMIES) then
+   	-- pp("blocked")
  		return false
    end
 
@@ -498,10 +512,12 @@ function IsGoodFireahead(thing, target)
 
    -- TODO do something better!
    if IsSolid(point) then -- don't shoot into walls
+   	pp("solid")
       return false
    end
 
    if GetDistance(point) > GetSpellRange(spell) then
+   	-- pp("out of range")
       return false
    end
 
