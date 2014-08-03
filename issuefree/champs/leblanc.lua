@@ -10,11 +10,15 @@ require "issuefree/modules"
 pp("\nTim's LeBlanc")
 
 function getComboDamage(target, spells)
-   local dam = 0
+   local dam = Damage(0)
    local mana = me.mana
    local marked = false
    local mimicMarked = false
    local spells = spells or {"malice", "mimic", "distortion"}
+
+   if CanUse("ignite") then
+      dam = dam + GetSpellDamage("ignite", target)
+   end
 
    if CanUse("malice") and mana > GetSpellCost("malice") and ListContains("malice", spells) then
       local marked = true
@@ -57,7 +61,7 @@ function getComboDamage(target, spells)
       end
    end   
 
-   if target and dam > 0 then
+   if target and Damage(dam) > Damage(0) then
       if HasBuff("mark", target) then
          dam = dam + GetSpellDamage("malice")
       end
@@ -73,10 +77,9 @@ function getComboDamage(target, spells)
       dam = dam + CalculateDamage(target, Damage(target.maxHealth * .15, "M"))
    end
 
-   if type(dam) == "table" then
-      return dam:toNum()
-   end
-   return dam
+   dam = Damage(dam)
+
+   return dam:toNum()
 end
 
 AddToggle("harrass", {on=true, key=112, label="Harrass"})
@@ -378,7 +381,7 @@ function Run()
          if canDistortion() then
             if GetMPerc(me) > .75 then
                killThresh = 2
-            elseif GetMPerc(me) > .5 then
+            elseif GetMPerc(me) > .33 then
                killThresh = 3
             else
                killThresh = 4
@@ -395,6 +398,27 @@ function Run()
          end
       end
 
+   end
+
+   if IsOn("clear") then
+      if Alone() then
+         if canDistortion() then
+            local minScore
+            if GetMPerc(me) > .75 then
+               minScore = 4
+            elseif GetMPerc(me) > .33 then
+               minScore = 6
+            else
+               minScore = 8
+            end
+            local hits, kills, score = GetBestArea(me, "distortion", 1, 1, MINIONS)
+            if score >= minScore then
+               CastXYZ("distortion", GetAngularCenter(hits))
+               PrintAction("Distortion for AoE clear", score)
+               return true
+            end
+         end
+      end
    end
 
    
@@ -421,7 +445,6 @@ function Action()
    
    SortByHealth(ENEMIES)
    for _,target in ipairs(GetInRange(me, "malice", ENEMIES)) do
-      pp(getComboDamage(target))
       if getComboDamage(target) > target.health then
          
          UseItem("Deathfire Grasp", target)
@@ -540,10 +563,11 @@ function FollowUp()
    if IsOn("harrass") then
 
       if canDistortion() and me.SpellLevelQ == 0 then
-         local target = GetWeakest("distortion", GetInRange(me, GetSpellRange("distortion")+spells["distortion"].radius-25), ENEMIES)
+         local target = GetWeakest("distortion", GetInRange(me, GetSpellRange("distortion")+spells["distortion"].radius-50, ENEMIES))
          if target then
             lvl1harrass.target = target
             lvl1harrass:start()
+            pp("start")
             return true
          end
       end
