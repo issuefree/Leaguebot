@@ -145,7 +145,7 @@ end
 
 local line = 0
 function PrintState(state, str)
-   DrawText(str,100,100+state*15,0xFFCCEECC);
+   DrawText(tostring(str),100,100+state*15,0xFFCCEECC);
 end
 
 function ClearState(state)
@@ -278,6 +278,12 @@ end
 Damage = class()
 function Damage:__init(p, m, t)
    self.isDamage = true
+   if type(p) == "table" and p.isDamage then 
+      self.p = p.p
+      self.m = p.m
+      self.t = p.t
+      return self
+   end
    if m and type(m) == "string" then
       if type(p) ~= "number" then
          p = p:toNum()
