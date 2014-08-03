@@ -376,7 +376,10 @@ function Damage:__div(d)
 end
 
 function Damage:__le(d)
-   return self:toNum() <= d:toNum()
+   if type(d) == "table" then
+      d = d:toNum()
+   end
+   return self:toNum() <= d
 end
 
 function Damage:__lt(d)
