@@ -647,7 +647,7 @@ end
 
 -- "mark" the enemy closest to a mouse click (i.e. click to mark)
 function MarkTarget(target)
-   if target then
+   if target and IsEnemy(target) then
       Persist("markedTarget", target)
       return target
    end
@@ -2088,6 +2088,59 @@ end
 function OnWndMsg(msg, key)
 
 end
+
+Combo = class()
+function Combo:__init(name, timeout, onEnd)
+   self.state = nil   
+   self.states = {}
+
+   self.name = name
+   self.timeout = timeout
+   self.onEnd = onEnd
+end
+
+
+function Combo:__tostring()
+   return self.name..":"..self.state
+end
+
+function Combo:__concat(a)
+    return tostring(self) .. tostring(a) 
+end
+
+function Combo:reset()
+   self.state = nil
+   if self.onEnd then
+      self.onEnd()
+   end
+end
+
+function Combo:start()
+   self.endTime = time() + self.timeout
+   self.state = self.startState
+end
+
+function Combo:run()
+   if self.state then
+      if time() > self.endTime then
+         PrintAction(self.name.." timeout")
+         self:reset()
+         return false
+      end
+
+      PrintState(0, tostring(self))
+      self.states[self.state](self)
+      return true
+   end
+end
+
+function Combo:addState(state, action)
+   if not self.startState then
+      self.startState = state
+   end
+   self.states[state] = action
+end
+
 
 RegisterLibraryOnWndMsg(OnWndMsg)
 AddOnTick(TimTick)
