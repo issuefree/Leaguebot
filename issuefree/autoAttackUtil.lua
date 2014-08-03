@@ -135,7 +135,7 @@ function initAAData()
       Jayce        = { projSpeed = 2.2,
                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
-      Jax          = { windup=.4,
+      Jax          = { windup=.25,
                        particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
                        resets = {me.SpellNameW} },
@@ -405,7 +405,7 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
-      if not gotObj and time() - lastAttack > 1 then
+      if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
          pp("No object. Windup "..aaData.windup.." too short. Incrementing")
          if windups[aaData.windup] then
             windups[aaData.windup] = windups[aaData.windup] - 2
