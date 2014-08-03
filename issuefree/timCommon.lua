@@ -527,29 +527,45 @@ end
 
 WILL_KILLS = {}
 WILL_KILLS_TIMEOUTS = {}
+WILL_KILLS_BY_SPELL = {}
 
-function AddWillKill(items)
+function AddWillKill(items, spellName)
+   assert(spellName)
+
    if type(items) ~= "table"  then
-      AddWillKill({items})
+      AddWillKill({items}, spellName)
       return
    end
+
+   spellName = spellName or "nil"
 
    local timeout = time()+.75
    for _,item in ipairs(items) do
       table.insert(WILL_KILLS, item)
       table.insert(WILL_KILLS_TIMEOUTS, timeout)
+      table.insert(WILL_KILLS_BY_SPELL, spellName)
    end
 end
 
-function RemoveWillKills(list)
+function RemoveWillKills(list, spellName)
+   assert(spellName)
+   for i,sn in rpairs(WILL_KILLS_BY_SPELL) do
+      if sn == spellName then
+         table.remove(WILL_KILLS, i)
+         table.remove(WILL_KILLS_TIMEOUTS, i)
+         table.remove(WILL_KILLS_BY_SPELL, i)
+      end
+   end
+
    return FilterList(list, function(item) return not ListContains(item, WILL_KILLS) end)
 end
 
 function cleanWillKills()
    for i,_ in rpairs(WILL_KILLS_TIMEOUTS) do
       if time() > WILL_KILLS_TIMEOUTS[i] then
-         table.remove(WILL_KILLS_TIMEOUTS, i)
          table.remove(WILL_KILLS, i)
+         table.remove(WILL_KILLS_TIMEOUTS, i)
+         table.remove(WILL_KILLS_BY_SPELL, i)
       end
    end
 end
@@ -584,9 +600,9 @@ function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestLine(me, thing, .1, 1, RemoveWillKills(MINIONS))
-   if #kills >= killsNeeded then
-      AddWillKill(kills)
+   local hits, kills, score = GetBestLine(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
+   if score >= killsNeeded then
+      AddWillKill(kills, thing)
       local point = GetAngularCenter(hits)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
@@ -603,13 +619,13 @@ function HitMinionsInLine(thing, hitsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
    
-   local hits, kills, score = GetBestLine(me, thing, 1, 1, MINIONS)
-   if #hits >= hitsNeeded then
+   local hits, kills, score = GetBestLine(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
+   if score >= hitsNeeded then
       local point = GetAngularCenter(hits)
       if spell.overShoot then
          point = OverShoot(me, point, spell.overShoot)         
       end
-      Circle(point, 50, yellow)
+      AddWillKill(kills, thing)
       CastXYZ(thing, point)
       PrintAction(thing.." for hits", #hits)
       return true
@@ -695,7 +711,6 @@ function MoveToCursor()
    end
 end
 
-local LAST_KM_SPELL = nil
 -- weak, far, near, strong
 -- if force is false, try to play nice with auto attacking lasthits
 -- if force is true, kill it now.
@@ -711,9 +726,9 @@ function KillMinion(thing, method, force, targetOnly)
 
    local minions 
    if IsBlockedSkillShot(thing) then
-      minions = GetKills(thing, GetIntersection(MINIONS, GetUnblocked(me, thing, MINIONS, ENEMIES, PETS)))
+      minions = RemoveWillKills(GetKills(thing, GetIntersection(MINIONS, GetUnblocked(me, thing, MINIONS, ENEMIES, PETS))), thing)
    else
-      minions = GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS))
+      minions = RemoveWillKills(GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS)), thing)
    end      
 
    if method == "weak" then
@@ -734,17 +749,13 @@ function KillMinion(thing, method, force, targetOnly)
    local spellName = GetSpellName(thing)
    -- first pass to prioritize big minions (yeah I'll get dup minions but who cares)
    for _,minion in ipairs(minions) do
-      if not ListContains(minion, WILL_KILLS) or spellName == LAST_KM_SPELL then
-         if IsBigMinion(minion) then
-            table.insert(targets, minion)
-         end
+      if IsBigMinion(minion) then
+         table.insert(targets, minion)
       end
    end
 
    for _,minion in ipairs(minions) do
-      if not ListContains(minion, WILL_KILLS) or spellName == LAST_KM_SPELL then
-         table.insert(targets, minion)
-      end
+      table.insert(targets, minion)
    end
 
    local target = nil
@@ -773,8 +784,7 @@ function KillMinion(thing, method, force, targetOnly)
 
    if ValidTarget(target) then
 
-      AddWillKill(target)
-      LAST_KM_SPELL = spellName
+      AddWillKill(target, thing)
 
       if spell.name and spell.name == "attack" then
          AA(target)
@@ -936,9 +946,9 @@ function KillMinionsInArea(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestArea(me, thing, .1, 1, RemoveWillKills(MINIONS))
-   if #kills >= killsNeeded then
-      AddWillKill(kills)
+   local hits, kills, score = GetBestArea(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
+   if score >= killsNeeded then
+      AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for kills", #kills)
       return true
@@ -949,8 +959,9 @@ function HitMinionsInArea(thing, hitsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestArea(me, thing, 1, 1, MINIONS)
-   if #hits >= hitsNeeded then
+   local hits, kills, score = GetBestArea(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
+   if score >= hitsNeeded then
+      AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for hits", #hits)
       return true
@@ -962,9 +973,9 @@ function KillMinionsInCone(thing, killsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestCone(me, thing, .1, 1, RemoveWillKills(MINIONS))
-   if #kills >= killsNeeded then
-      AddWillKill(kills)
+   local hits, kills, score = GetBestCone(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
+   if score >= killsNeeded then
+      AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for kills", #kills)
       return true
@@ -976,8 +987,9 @@ function HitMinionsInCone(thing, hitsNeeded)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestCone(me, thing, 1, 1, MINIONS)
-   if #hits >= hitsNeeded then
+   local hits, kills, score = GetBestCone(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
+   if score >= hitsNeeded then
+      AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for hits", #hits)
       return true
@@ -1762,11 +1774,12 @@ end
 
 function ModAAFarm(thing)
    if CanUse(thing) and not P[thing] then
-      local minions = SortByHealth(RemoveWillKills(GetInRange(me, "AA", MINIONS)), thing)
+      local minions = SortByHealth(RemoveWillKills(GetInRange(me, "AA", MINIONS), thing), thing)
       for i,minion in ipairs(minions) do
          if WillKill(thing, minion) and 
             ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
          then
+            AddWillKill(minion, thing)
             Cast(thing, me)
             PrintAction(thing.." lasthit", minion)
             return true

@@ -208,7 +208,7 @@ function Run()
          local _,_,maxScore = GetBestLine(me, "maxArrow", .1, 1, MINIONS)
          local hits,kills,score = GetBestLine(me, "arrow", .1, 1, MINIONS)
          if score >= maxScore and score > 1 then
-            AddWillKill(kills)
+            AddWillKill(kills, "arrow")
             FinishArrow(GetAngularCenter(hits))
             PrintAction("arrow lh", score)
             -- PauseToggle("lasthit", .5)

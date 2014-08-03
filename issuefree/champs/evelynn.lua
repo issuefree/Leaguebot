@@ -94,7 +94,7 @@ function Run()
                   ( JustAttacked() or not IsInRange("AA", lt) )
                then
                   Cast("spike", me)
-                  AddWillKill(lt)
+                  AddWillKill(lt, "spike")
                   PrintAction("Spike last attack for LH")
                   return true
                end
@@ -102,7 +102,7 @@ function Run()
                local lt = SortByHealth(minions)[1]
                if lt and WillKill("spike", lt) then
                   Cast("spike", me)
-                  AddWillKill(lt)
+                  AddWillKill(lt, "spike")
                   PrintAction("Spike for LH")
                   return true
                end

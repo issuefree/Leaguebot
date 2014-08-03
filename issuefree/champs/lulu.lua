@@ -153,7 +153,7 @@ function Run()
 
 			-- 	if #allKills >= killsNeeded then
 			-- 		CastXYZ("lance", GetAngularCenter(myHits))
-			-- 		AddWillKill(allKills)
+			-- 		AddWillKill(allKills, "lance")
 			-- 		PrintAction("Lance for LH", #allKills)
 			-- 		return true
 			-- 	end

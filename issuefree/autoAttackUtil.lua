@@ -668,7 +668,7 @@ function onSpellAA(unit, spell)
                KillMinion("AA")
             end
          else
-            AddWillKill(minion)
+            AddWillKill(minion, "AA")
          end
       end
 
