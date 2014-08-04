@@ -9,8 +9,8 @@ spells["cleaver"] = {
    color=violet, 
    base={80,130,180,230,280},
    type="M",
-   width=60,
-   delay=1.3,
+   width=80, -- reticule
+   delay=2.3,  -- tss
    speed=20,
    showFireahead=true   
 }
@@ -39,6 +39,8 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
+   -- DrawReticule("cleaver")
+
    if StartTickActions() then
       return true
    end
@@ -55,7 +57,7 @@ function Run()
 
    if IsOn("jungle") and CanUse("cleaver") and JustAttacked() then
       if GetHPerc(me) > .5 then
-         local creeps = SortByHealth(GetUnblocked(me, "cleaver", CREEPS), "cleaver")
+         local creeps = SortByHealth(GetUnblocked("cleaver", me, CREEPS), "cleaver")
          if #creeps >= 1 then
             local target = creeps[#creeps]
             CastXYZ("cleaver", target)
@@ -64,7 +66,7 @@ function Run()
          end
       end
 
-      local target = GetUnblocked(me, "cleaver", BIGCREEPS, MAJORCREEPS)[1]
+      local target = GetUnblocked("cleaver", me, BIGCREEPS, MAJORCREEPS)[1]
       if target then
          CastXYZ("cleaver", target)
          PrintAction("Cleaver in the jungle", target)
@@ -85,7 +87,7 @@ function Run()
       end
 
       if Alone() and CanUse("cleaver") then
-         for _,minion in ipairs(GetUnblocked(me, "cleaver", MINIONS)) do
+         for _,minion in ipairs(GetUnblocked("cleaver", me, MINIONS)) do
             if GetDistance(minion) > spells["agony"].range and 
                WillKill("cleaver", minion)
             then
@@ -109,6 +111,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("cleaver")
+   CastXYZ("cleaver", mousePos)
+
    if SkillShot("cleaver") then
       return true
    end

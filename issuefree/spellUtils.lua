@@ -494,7 +494,7 @@ function IsGoodFireahead(thing, target)
 
    local point = GetSpellFireahead(spell, target)
    -- TODO make IsUnblocked work on a point rather than a target
-   if not spell.noblock and not IsUnblocked(me, thing, target, MINIONS, ENEMIES) then
+   if not spell.noblock and IsBlocked(point, thing, me, MINIONS, ENEMIES) then
    	-- pp("blocked")
  		return false
    end
@@ -612,4 +612,17 @@ function DrawSpellCone(thing)
    local p2 = ProjectionA(me, a2, GetSpellRange(thing))
    LineBetween(me, p1)
    LineBetween(me, p2)
+end
+
+function DrawReticule(thing)
+	local spell = GetSpell(thing)
+	if spell.cone then
+		DrawSpellCone(spell)
+	elseif spell.delay then
+		if spell.speed and spell.speed > 0 then
+			LineBetween(me, mousePos, spell.width)
+		else
+			Circle(mousePos, spell.radius)
+		end
+	end
 end

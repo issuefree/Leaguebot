@@ -155,7 +155,7 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if CanUse("spiderling") then
-         local unblocked = GetUnblocked(me, "spiderling", MINIONS)
+         local unblocked = GetUnblocked("spiderling", me, MINIONS)
          local bestK = 1
          local bestT
          for _,target in ipairs(unblocked) do

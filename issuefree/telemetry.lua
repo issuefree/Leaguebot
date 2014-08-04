@@ -40,6 +40,10 @@ function Point:__eq(p)
    return self.x == p.x and self.y == p.y and self.z == p.z
 end
 
+function Point:valid()
+   return self.x and self.y and self.z
+end
+
 function Point:near(p)
    return GetDistance(self, p) < 25
 end
@@ -49,6 +53,9 @@ function Point:unpack()
 end
 
 function Point:__tostring()
+   if not self:valid() then
+      return "(-)"
+   end
    return "("..trunc(self.x,0)..","..trunc(self.y,0)..","..trunc(self.z,0)..")"
 end
 
@@ -269,57 +276,38 @@ function GetWidth(unit)
    return GetDistance(unit, minbb)
 end
 
-function GetUnblocked(source, thing, ...)
-   local spell = GetSpell(thing)
-   local minionWidth = 55
-   local targets = GetAllInRange(source, spell, concat(...))
-   SortByDistance(targets, source)
-   
+function GetUnblocked(thing, source, ...)
+   assert(type(source) ~= "table")
+
+   local targets = GetAllInRange(source, thing, concat(...))
+
    local blocked = {}
-   
-   local width = spell.width or spell.radius
-   if not width then
-      pp("No width for:")
-      pp(spell)
-      pp(debug.traceback())
+   for _,target in ipairs(targets) do
+      if IsBlocked(target, thing, source, concat(...)) then
+         table.insert(blocked, target)
+         break
+      end      
    end
 
-   for i,target in ipairs(targets) do
-      local d = GetDistance(source, target)
-      for m = i+1, #targets do
-         local a = AngleBetween(source, targets[m])
-         local proj = {x=source.x+math.sin(a)*d, z=source.z+math.cos(a)*d}
-         if GetDistance(target, proj) < width+minionWidth then
-            table.insert(blocked, targets[m])
-         end
-      end
-   end
-
-
-   local unblocked = {}
-   for i,target in ipairs(targets) do
-      local mb = false
-      for m,bm in ipairs(blocked) do
-         if bm == target then          
-            mb = true
-            break
-         end
-      end
-      if not mb then
-         table.insert(unblocked, target)
-      end
-   end
-   return unblocked
+   return removeItems(targets, blocked)
 end
 
-function IsUnblocked(source, thing, target, ...)
-   local unblocked = GetUnblocked(source, thing, concat(...))
-   for _,t in ipairs(unblocked) do
-      if SameUnit(t, target) then
-         return true
+function IsBlocked(target, thing, source, ...)
+   local spell = GetSpell(thing)
+   local width = spell.width or spell.radius*2
+   for _,blocker in ipairs(concat(...)) do
+      if GetDistance(source, target) > GetDistance(source, blocker) then
+         local blockPoint = Projection(source, target, GetDistance(source, blocker))
+         if GetDistance(blocker, blockPoint) < (width/2 + GetWidth(blocker)/2) then
+            return true
+         end
       end
    end
    return false
+end
+
+function IsUnblocked(target, thing, source, ...)
+   return not IsBlocked(target, thing, source, concat(...))
 end
 
 function FacingMe(target)

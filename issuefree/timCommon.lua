@@ -345,7 +345,7 @@ function Disrupt(targetSpell, thing)
             if spell.noblock then
                CastXYZ(spell, target)
             else
-               if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+               if IsUnblocked(target, spell, me, MINIONS, ENEMIES) then
                   CastXYZ(spell, target)
                else
                   return false
@@ -726,7 +726,7 @@ function KillMinion(thing, method, force, targetOnly)
 
    local minions 
    if IsBlockedSkillShot(thing) then
-      minions = RemoveWillKills(GetKills(thing, GetIntersection(MINIONS, GetUnblocked(me, thing, MINIONS, ENEMIES, PETS))), thing)
+      minions = RemoveWillKills(GetKills(thing, GetIntersection(MINIONS, GetUnblocked(thing, me, MINIONS, ENEMIES, PETS))), thing)
    else
       minions = RemoveWillKills(GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS)), thing)
    end      
@@ -1006,7 +1006,7 @@ function GetBestCone(source, thing, hitScore, killScore, ...)
 
    local targets = GetInRange(source, thing, concat(...))
    if not spell.noblock then
-      targets = GetIntersection(targets, GetUnblocked(source, thing, MINIONS, ENEMIES, PETS))
+      targets = GetIntersection(targets, GetUnblocked(thing, source, MINIONS, ENEMIES, PETS))
    end
 
    -- results variables
@@ -1420,7 +1420,7 @@ function checkDodge(shot)
          pp("Blocking SS without defined range")
          pp(shot)
       end
-      if not shot.block or ( shot.block and IsUnblocked(shot.target, shot, me, MINIONS, ENEMIES) ) then
+      if not shot.block or ( shot.block and IsUnblocked(me, shot, shot.target, MINIONS, ENEMIES) ) then
          if not IsChannelling() or (shot.cc and shot.cc >= 3) then
             PrintAction("Dodge "..shot.name)
             BlockingMove(shot.safePoint)
@@ -2076,7 +2076,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
                CastXYZ(spell, target)
             end
          else
-            if IsUnblocked(me, spell, target, MINIONS, ENEMIES) then
+            if IsUnblocked(target, spell, me, MINIONS, ENEMIES) then
                if stillMoving then
                   CastFireahead(spell, target)
                else

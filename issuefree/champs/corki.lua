@@ -123,7 +123,7 @@ function Run()
       end
 
       if CanUse("barrage") and VeryAlone() and missiles >= 4 then
-         local minion = GetWeakest("barrage", GetUnblocked(me, "barrage", MINIONS))
+         local minion = GetWeakest("barrage", GetUnblocked("barrage", me, MINIONS))
          if WillKill("barrage", minion) and
             GetDistance(minion) > spells["AA"].range
          then

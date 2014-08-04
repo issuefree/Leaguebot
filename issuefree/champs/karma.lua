@@ -67,7 +67,7 @@ function Run()
 
 	if IsOn("lasthit") and Alone() then
       if CanUse("flame") then
-         local unblocked = GetUnblocked(me, "flame", MINIONS)
+         local unblocked = GetUnblocked("flame", me, MINIONS)
          local bestK = 1
          local bestT
          for _,target in ipairs(unblocked) do
@@ -109,7 +109,7 @@ function Action()
 
    if CanUse("flame") then
       if CanUse("mantra") then -- look for executes, then for clumps
-         local unblocked = GetUnblocked(me, "flame", MINIONS, ENEMIES)
+         local unblocked = GetUnblocked("flame", me, MINIONS, ENEMIES)
          unblocked = FilterList(unblocked, function(item) return not IsMinion(item) end)
          unblocked = SortByDistance(FilterList(unblocked, function(item) return IsGoodFireahead("flame", item) end))
          for _,target in ipairs(unblocked) do -- aim for the closest guy I can kill

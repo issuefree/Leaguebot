@@ -295,7 +295,7 @@ function Run()
       end
 
       if Alone() and CanUse("sonic") then
-         for _,minion in ipairs(GetUnblocked(me, "sonic", MINIONS)) do
+         for _,minion in ipairs(GetUnblocked("sonic", me, MINIONS)) do
             if GetDistance(minion) > GetSpellRange("AA") and 
                WillKill("sonic", minion)
             then
