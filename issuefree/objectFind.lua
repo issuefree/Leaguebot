@@ -14,26 +14,33 @@ local testShotSpeeds = {}
 
 function debugTick()
    if testShot then
-      if testShot.object and GetDistance(testShot.object) > 200 then
-         if not testShot.firstPoint then
-            testShot.firstPoint = Point(testShot.object)
-            testShot.firstTime = time()
-         elseif not testShot.nextPoint and 
-                GetDistance(testShot.firstPoint, Point(testShot.object)) > 200
-         then
-            testShot.nextPoint = Point(testShot.object)
-            testShot.nextTime = time()
-         else
-            local d = GetDistance(testShot.firstPoint, Point(testShot.object))
-            local t = time() - testShot.firstTime
-            local speed = d/t
-            table.insert(testShotSpeeds, speed)
-            pp("Speed: "..trunc(speed))
-            pp("\n -> "..trunc(sum(testShotDelays)/#testShotDelays).." "..trunc(sum(testShotSpeeds)/#testShotSpeeds/100).." <-")
-            testShot = nil
-         end
-      elseif time() - testShot.castTime > 2 then
+      if time() - testShot.castTime > 2 then
          testShot = nil
+      else
+         if Point(testShot.object):valid() then
+            if GetDistance(testShot.object) > 200 then
+               table.insert(testShot.points, Point(testShot.object))
+               table.insert(testShot.times, time())
+
+               -- else
+               -- end
+            end
+         else
+            local total = 0
+            if #testShot.points > 1 then
+               for i=2,#testShot.points do
+                  local d = GetDistance(testShot.points[i], testShot.points[1])
+                  local t = testShot.times[i] - testShot.times[1]
+                  local speed = d/t               
+                  total = total + speed
+               end
+               speed = total/(#testShot.points-1)
+               table.insert(testShotSpeeds, speed)
+               pp("Speed: "..trunc(speed))
+               pp("\n -> "..trunc(sum(testShotDelays)/#testShotDelays).." "..trunc(sum(testShotSpeeds)/#testShotSpeeds/100).." <-")
+               testShot = nil
+            end
+         end
       end
    end
 
@@ -149,6 +156,8 @@ function TestSkillShot(thing, charName)
       testShot.spell = spell
       testShot.charName = charName
       testShot.castTime = time()
+      testShot.points = {}
+      testShot.times = {}
       StartChannel(1)
    end
 end
