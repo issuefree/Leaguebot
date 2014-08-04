@@ -88,7 +88,7 @@ end
 
 function Action()
    if IsOn("bind") then
-      if CanUse("bind") then
+      if CanUse("binding") then
          if SkillShot("binding", "peel") then
             return true
          end
