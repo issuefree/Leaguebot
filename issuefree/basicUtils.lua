@@ -46,7 +46,11 @@ function pp(str)
    if not str then
       pp("nil")
    elseif type(str) == "table" then
-      pp(table_print(str, 2))
+      if str.__tostring then
+         printtext(tostring(str).."\n")
+      else
+         pp(table_print(str, 2))
+      end
    elseif type(str) == "userdata" then
       if str.charName then
          pp(str.charName..": "..str.id)
@@ -115,9 +119,9 @@ function concat(...)
    return resTable
 end
 
-function removeItems(table1, items)
+function removeItems(list, items)
    local resTable = {}
-   for _,t in ipairs(table1) do
+   for _,t in ipairs(list) do
       local addItem = true
       for _,item in ipairs(items) do
          if t == item then
