@@ -6,8 +6,8 @@ pp("\nTim's Tristana")
 SetChampStyle("marksman")
 -- SetChampStyle("caster")
 
-AddToggle("-", {on=true, key=112, label="- - -"})
-AddToggle("jump", {on=true, key=113, label="Jumps"})
+AddToggle("jump", {on=false, key=112, label="Jumps"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
