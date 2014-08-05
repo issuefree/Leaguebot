@@ -1,4 +1,5 @@
 require "Utils"
+require "issuefree/utils_scriptconfig"
 require "winapi"
 ModuleConfig = scriptConfig("Module Config", "modules")
 require "issuefree/basicUtils"
