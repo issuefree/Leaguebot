@@ -36,3 +36,8 @@ showskillshots.lua
 hotkeys/hotkey1.txt
 hotkeys/hotkey1.txt
 system.log
+yprediction_sample.lua
+yayo_sample.lua
+yupdate.py
+basic_functions.lua
+utils.lua
