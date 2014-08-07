@@ -2,45 +2,60 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 pp("\nTim's Sona")
-AddToggle("lastHit", {on=false, key=112, label="Last Hit", auxLabel="{0}", args={"blue"}})
-AddToggle("healTeam", {on=true, key=113, label="Heal Team", auxLabel="{0}", args={"green"}})
+
+
+AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("tear", {on=true, key=114, label="Charge Tear / Fastwalk"})
+AddToggle("", {on=true, key=115, label=""})
+
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "blue"}})
+AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
+
+
 
 spells["blue"] = {
    key="Q", 
-   range=700, 
+   range=650, 
    color=blue, 
-   base={50,100,150,200,250}, 
-   ap=.5,
-   cost={45,50,55,60,65}
+   base={40,80,120,160,200}, 
+   ap=.5
 }
 spells["green"] = {
    key="W", 
    range=1000, 
    color=green, 
-   base={40,55,70,85,100}, 
-   ap=.25,
-   cost={60,65,70,75,80},
+   base={25,45,65,85,105}, 
+   ap=.2,
+   damOnTarget=
+      function(target)
+         if target then
+            return GetSpellDamage("green")*(1-GetHPerc(target))
+         end
+         return 0
+      end
    type="H"
 }
 spells["violet"] = {
    key="E", 
-   range=999, 
+   range=350, 
    color=violet,
    cost=65
 }
 spells["yellow"] = {
    key="R", 
-   range=1001, 
+   range=1000, 
    color=yellow, 
    base={150,250,350}, 
-   ap=.5,
-   cost={100,150,200}
+   ap=.5
 }
 
 pcBlue = nil
 pcGreen = nil
 pcViolet = nil
+
+-- TODO track power chord and change AA target depending.
 
 function Run()
    if StartTickActions() then
@@ -48,25 +63,36 @@ function Run()
    end
 
    if IsOn("healTeam") and CanUse("green") then
-      local closeAllies = GetInRange(me, "green", ALLIES)
-      local count = 0
-      for _,hero in ipairs(closeAllies) do
-         if not IsRecalling(hero) then
-            if hero.health + GetSpellDamage("green") < hero.maxHealth*.66 then
-               Cast("green", me)
-               PrintAction("Heal because I should", hero)
-               break
-            end            
-            if hero.health + GetSpellDamage("green") < hero.maxHealth*.9 then
-               count = count + 1
-               if count >= 2 then
-                  Cast("green", me)
-                  PrintAction("Heal because I can")
-                  break
-               end
-            end
+      local closeAllies = SortByHealth(GetInRange(me, "green", ALLIES))
+      local target
+      for _,ca in ipairs(closeAllies) do
+         if not IsMe(ca) and
+            not IsRecalling(ca)
+         then
+            target = ca
          end
       end
+      
+      if GetMPerc(me) > .9 then
+         -- TODO check if there's an OOR heal that I should wait for
+         -- else top off
+         if target.health + GetSpellDamage("green", target) < target.maxHealth*.9 or
+            me.health + GetSpellDamage("green", me) < me.maxHealth*.9
+         end
+            Cast("green", me)
+            PrintAction("Top off")
+            return true
+         end
+      end
+
+      if target.health + GetSPellDamage("green", target) < target.maxHealth*.66 or
+         me.health + GetSPellDamage("green", me) < me.maxHealth*.66
+      then
+         Cast("green", me)
+         PrintAction("Heal because I should", target)
+         return true
+      end
+
    end
 
    if HotKey() then
@@ -132,6 +158,12 @@ function Action()
          return true
       end
    end
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
 end
 
 local function onObject(object)
