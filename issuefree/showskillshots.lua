@@ -14,7 +14,6 @@ local dodgeskillshotkey = 74 -- dodge skillshot key J
 local player=GetSelf()
 local show_allies=0
 
---require "utils"
 function round(num, idp)
   local mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
