@@ -3,6 +3,13 @@ require "issuefree/modules"
 
 print("\nTim's Teemo")
 
+InitAAData({ 
+	projSpeed = 1.3, windup=.25,
+	minMoveTime = 0,
+	extraRange=-20,
+	particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
+})
+
 AddToggle("shroom", {on=true, key=112, label="Auto Shroom"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

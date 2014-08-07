@@ -3,6 +3,13 @@ require "issuefree/modules"
 
 pp("\nTim's Tristana")
 
+InitAAData({
+   projSpeed = 2.25, windup=.15,
+   minMoveTime=0,
+   extraRange=0,  --TODO check range
+   -- particles = {"TristannaBasicAttack_mis"}  -- Trists object is shared with minions. This could result in clipping. Can be turned back on for testing
+})
+
 SetChampStyle("marksman")
 -- SetChampStyle("caster")
 

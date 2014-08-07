@@ -45,7 +45,7 @@ function IsMelee(target)
    return GetAARange(target) < 350
 end
 
-function initAAData()
+local function getAAData()
    local champData = { 
       Ahri         = { projSpeed = 1.6,
                        particles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"} },
@@ -126,8 +126,8 @@ function initAAData()
 
       Irelia       = { windup=.3 },
 
-      Janna        = { projSpeed = 1.2,
-                       particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
+      -- Janna        = { projSpeed = 1.2,
+      --                  particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
 
       JarvanIV     = { 
                        attacks={"JarvanIVBasicAttack"} },
@@ -236,13 +236,14 @@ function initAAData()
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
-      Teemo        = { projSpeed = 1.3, windup=.25,
-                       minMoveTime = 0,
-                       extraRange=-20,
-                       particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
+      -- Teemo        = { projSpeed = 1.3, windup=.25,
+      --                  minMoveTime = 0,
+      --                  extraRange=-20,
+      --                  particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
 
-      Tristana     = { projSpeed = 2.25, windup=.15,
-                       particles = {"TristannaBasicAttack_mis"} },
+      -- Tristana     = { projSpeed = 2.25, windup=.15,
+      --                  -- extraRange=-25,  --TODO check range
+      --                  particles = {"TristannaBasicAttack_mis"} },
 
       Tryndamere   = { 
                        particles = {"tryndamere_weapontrail"},
@@ -296,7 +297,15 @@ function initAAData()
 
    }
 
-   aaData = champData[me.name] or {}
+   return champData[me.name] or {}
+end
+
+function InitAAData(data)
+   if data then
+      aaData = data
+   else
+      aaData = getAAData()
+   end
 
    if IsMelee(me) then
       aaData.melee = true
@@ -343,7 +352,7 @@ function OrbWalk()
    end
 end
 
-initAAData()
+InitAAData()
 local lastAttack = 0 -- last time I cast an attack
 shotFired = true -- have I seen the projectile or waited long enough that it should show
 

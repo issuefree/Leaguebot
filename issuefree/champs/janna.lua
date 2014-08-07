@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Janna")
 
+InitAAData({ 
+	projSpeed = 1.2,
+	particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} 
+})
+
 spells["tailwind"] = {
 	range=1000,
 	color=blue
