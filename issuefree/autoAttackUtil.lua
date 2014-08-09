@@ -237,9 +237,6 @@ local function getAAData()
       TwistedFate  = { projSpeed = 1.5, windup=.4,
                        particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
 
-      Twitch       = { projSpeed = 2.5, windup = .25,
-                       particles = {"twitch_basicAttack_mis", "twitch_sprayandPray_mis"} },
-
       Urgot        = { projSpeed = 1.3, windup=.2,
                        particles = {"UrgotBasicAttack_mis"} },
 
