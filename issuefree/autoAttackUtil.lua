@@ -126,9 +126,6 @@ local function getAAData()
 
       Irelia       = { windup=.3 },
 
-      -- Janna        = { projSpeed = 1.2,
-      --                  particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} },
-
       JarvanIV     = { 
                        attacks={"JarvanIVBasicAttack"} },
 
@@ -205,9 +202,6 @@ local function getAAData()
       Orianna      = { projSpeed = 1.4,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
-      Poppy        = { windup=.3,
-                       particles = {"Poppy_DevastatingBlow"} },                       
-
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
@@ -235,15 +229,6 @@ local function getAAData()
 
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
-
-      -- Teemo        = { projSpeed = 1.3, windup=.25,
-      --                  minMoveTime = 0,
-      --                  extraRange=-20,
-      --                  particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} },
-
-      -- Tristana     = { projSpeed = 2.25, windup=.15,
-      --                  -- extraRange=-25,  --TODO check range
-      --                  particles = {"TristannaBasicAttack_mis"} },
 
       Tryndamere   = { 
                        particles = {"tryndamere_weapontrail"},
@@ -399,7 +384,10 @@ function aaTick()
       shotFired = true
    end
 
-   if IsMinion(lastAATarget) and not ValidTarget(lastAATarget) and IsAttacking() then
+   if lastAATarget and find(lastAATarget.name, "Minion") and
+      not ValidTarget(lastAATarget) and 
+      time() < lastAttack + getWindup()
+   then
       PrintAction("RESET kia")
       lastAATarget = nil
       ResetAttack()
@@ -591,12 +579,10 @@ function IAttack(unit, spell)
    local spellName = aaData.attacks
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
-         attackTarget = spell.target
          return true
       end
    else
       if find(spell.name, spellName) then                       
-         attackTarget = spell.target
          return true
       end
    end

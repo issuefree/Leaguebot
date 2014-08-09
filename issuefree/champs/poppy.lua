@@ -3,25 +3,32 @@ require "issuefree/modules"
 
 pp("\nTim's Poppy")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("autoUlt", {on=true, key=113, label="AutoUlt"})
-AddToggle("jungle", {on=true, key=114, label="Jungle"})
-AddToggle("kb", {on=true, key=115, label="Auto KB"})
+InitAAData({ 
+   windup=.3,
+   particles = {"Poppy_DevastatingBlow_tar"},
+   resets = {me.SpellNameQ},
+})
+
+
+AddToggle("autoUlt", {on=true, key=112, label="AutoUlt"})
+AddToggle("jungle", {on=true, key=113, label="Jungle"})
+AddToggle("kb", {on=true, key=114, label="Auto KB"})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "blow"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 spells["blow"] = {
    key="Q", 
    base={20,40,60,80,100}, 
    max={75,150,225,300,375},
-   percMaxHealth=.08,
+   targetMaxHealth=.08,
    ap=.6, 
    modAA="blow", -- modAA calcs won't be quite right because I don't convert the AA damage to magic
-   object="Poppy_DevastatingBlow",
+   object="Poppy_DevastatingBlow_buf",
    range=GetAARange,
-   type="M",
-   cost=55
+   type="M"
 }
 spells["paragon"] = {
    key="W"
@@ -33,11 +40,10 @@ spells["charge"] = {
    base={50,75,100,125,150}, 
    ap=.4,
    type="M",
-   knockback=400
+   knockback=300
 }
 spells["collision"] = {
    key="E", 
-   range=300, 
    base={75,125,175,225,275}, 
    ap=.4,
    type="M"
@@ -57,12 +63,12 @@ function Run()
       return true
    end
 
-   if CanUse("charge") then
-      local target = GetWeakestEnemy("charge")
-      if target then
-         DrawKnockback(target, "charge")
-      end
-   end
+   -- if CanUse("charge") then
+   --    local target = GetWeakestEnemy("charge")
+   --    if target then
+   --       DrawKnockback(target, "charge")
+   --    end
+   -- end
 
    if HotKey() then
       if Action() then
@@ -76,7 +82,7 @@ function Run()
       end
    end      
 
-   if IsOn("jungle") and GetMPerc(me) > .5 then
+   if IsOn("jungle") and GetMPerc(me) > .25 then
       if ModAAJungle("blow") then
          return true
       end
