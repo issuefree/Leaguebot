@@ -1716,7 +1716,7 @@ function EndTickActions()
    if IsOn("move") and CanMove() then
       if HotKey() then
          if GetDistance(mousePos) < 3000 then
-            MoveToMouse()
+            MoveToCursor()
             CURSOR = Point(mousePos)
          end
       end
