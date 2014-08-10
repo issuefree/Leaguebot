@@ -93,17 +93,6 @@ function GetCenterTarget(targets)
    return SortByDistance(targets, GetCenter(targets))[1]
 end
 
-function cloneMinion(minion)
-   local m = {}
-   m.x = minion.x
-   m.y = minion.y
-   m.z = minion.z
-   m.health = minion.health
-   m.maxHealth = minion.maxHealth
-   m.armor = minion.armor
-   return m
-end
-
 function wingChain(start, minionPool, numKills)
    local hits,kills,_ = GetBestArea(start, "wings", .1, 1, minionPool)
    for _,hit in ipairs(hits) do
@@ -177,7 +166,7 @@ function Run()
                local minionPool = {}
                local numKills = 0
                for _,minion in ipairs(MINIONS) do
-                  table.insert(minionPool, cloneMinion(minion))
+                  table.insert(minionPool, cloneTarget(minion))
                end
 
                local firstPos, numKills = wingChain(me, minionPool, numKills)
