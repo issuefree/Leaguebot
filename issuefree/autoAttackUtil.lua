@@ -162,8 +162,6 @@ local function getAAData()
                        extraRange=-10,
                        particles = {"leBlancBasicAttack_mis"} },
 
-      LeeSin       = { windup=.2, },
-
       Leona        = { windup=.3,
                        particles={"leona_basicattack_hit"} },
 
@@ -383,7 +381,7 @@ function aaTick()
 
    if lastAATarget and find(lastAATarget.name, "Minion") and
       not ValidTarget(lastAATarget) and 
-      time() < lastAttack + getWindup()
+      time() < lastAttack + (getWindup()/2)
    then
       PrintAction("RESET kia")
       lastAATarget = nil
