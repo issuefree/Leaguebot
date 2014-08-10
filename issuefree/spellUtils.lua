@@ -4,6 +4,9 @@ require "issuefree/persist"
 require "issuefree/telemetry"
 require "issuefree/walls"
 
+-- require 'yprediction'
+-- local YP = YPrediction()
+
 -- common spell defs
 spells = {}
 
@@ -445,14 +448,19 @@ function TrackSpellFireahead(thing, target)
    end
 end
 
--- do fireahead calculations with a speedup to account for player direction changes
-SS_FUDGE = 1.25
-
-function GetSpellFireahead(thing, target)
+function GetSpellFireahead2(thing, target)
    local spell = GetSpell(thing)
-   -- return Point(GetFireahead(target, spell.delay, spell.speed*SS_FUDGE))
-   -- if not tfas[spell.key] or not tfas[spell.key][target.charName] then
-   --    pp("faking fireahead")
+
+   local point, chance
+   if IsLinearSkillShot(spell) then
+		point, chance = YP:GetLineCastPosition(target, spell.delay/10, spell.width, spell.range, spell.speed*100, me)
+	else
+		point, chance = YP:GetCircularCastPosition(target, spell.delay/10, spell.radius, spell.range, spell.speed*100, me)
+	end
+
+	if true then
+		return point, chance
+	end
 
    local trackingFudge = 0
    if tfas[spell.key] then   
@@ -473,6 +481,33 @@ function GetSpellFireahead(thing, target)
    -- return Point(target) + GetCenter(tfas[spell.key][target.charName])
 end
 
+-- do fireahead calculations with a speedup to account for player direction changes
+SS_FUDGE = 1.25
+
+function GetSpellFireahead(thing, target)
+   local spell = GetSpell(thing)
+
+   local trackingFudge = 0
+   if tfas[spell.key] then   
+   	local trackedPoints = tfas[spell.key][target.charName]
+   	if trackedPoints and #trackedPoints > 1 then
+	      local trackError = GetDistance(trackedPoints[1], trackedPoints[#trackedPoints])
+	      local r = spell.width or spell.cone or spell.radius*2 
+
+	      trackingFudge = 1 + (trackError/r * .1)
+	   end
+   end
+
+   local fudge = trackingFudge
+
+   local chance = 2 - fudge
+
+   return Point(GetFireahead(target, spell.delay/fudge, spell.speed*fudge)), chance
+   -- end
+
+   -- return Point(target) + GetCenter(tfas[spell.key][target.charName])
+end
+
 function GetFireaheads(thing, targets)
    local fas = {}
    for _,target in ipairs(targets) do
@@ -483,19 +518,30 @@ function GetFireaheads(thing, targets)
    return fas
 end
 
--- HACK CAST MOAR
-local simple = false
-
 function IsGoodFireahead(thing, target)
+	-- PrintAction("SS", target.name)
    local spell = GetSpell(thing)
    if not ValidTarget(target) and not IsImmune(thing, target) then return false end   
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
 
-   local point = GetSpellFireahead(spell, target)
-   -- TODO make IsUnblocked work on a point rather than a target
-   if not spell.noblock and IsBlocked(point, thing, me, MINIONS, ENEMIES) then
-   	-- pp("blocked")
+   local point, chance = GetSpellFireahead(spell, target)
+
+   point.name = target.name
+   if GetDistance(point) > GetSpellRange(spell) then
+   	-- PrintAction("SS oor")
+      return false
+   end
+
+   if chance < .2 then
+   	-- PrintAction("Low chance SS")
+   	return false
+   end
+
+   local blockers = concat(MINIONS, ENEMIES, PETS)
+   blockers = RemoveFromList(blockers, {target})
+   if not spell.noblock and IsBlocked(point, thing, me, blockers) then
+   	-- PrintAction("SS blocked")
  		return false
    end
 
@@ -505,48 +551,11 @@ function IsGoodFireahead(thing, target)
 
    -- TODO do something better!
    if IsSolid(point) then -- don't shoot into walls
-   	pp("solid")
+   	PrintAction("Don't shoot into walls")
       return false
    end
 
-   if GetDistance(point) > GetSpellRange(spell) then
-   	-- pp("out of range")
-      return false
-   end
-
-   if simple then
-      return true
-   end
-
-   -- TODO I cast a lot of skillshots at people standing off for a teamfight.
-   -- they run toward us but turn back at spell range. I throw a spell at where they're going
-   -- even though I know they're not really charging 1v5.
-   -- I should handle that situation better.
-
-   if target.movespeed < 275 then
-   	return true
-   end
-
-   -- for collision skill shots dead on or dead away people are easy to hit
-   -- no spell speed is a short cut for this. Gragas barrel won't work the best.
-   if spell.speed > 0 then
-      if ApproachAngleRel(target, me) < 10 then
-         return true
-      end
-   end
-
-   local r = spell.width or spell.radius
-
-   local tps = tfas[spell.key][target.charName]
-   -- local point = GetCenter(tps)
-   -- if GetDistance(tps[1], point) < r and
-   --    GetDistance(tps[#tps], point) < r
-   -- then
-   if GetDistance(tps[1], tps[#tps]) < r/2 then
-      return true
-   end
-
-   return false   
+	return true
 end
 
 function GetGoodFireaheads(thing, ...)
