@@ -214,8 +214,98 @@ function getJumpPoint()
    return point, predTarget
 end
 
-function Run()
+function checkForHeals()
+   if not CanUse("shot") then return false end
 
+   local target = GetWithBuff("sadism", ENEMIES)[1]
+   if target and IsInRange("shot", target) then
+      Cast("shot", target)
+      PrintAction("Shrapnel for sadism", target)
+      return true
+   end
+
+   local target = GetWithBuff("crow", ENEMIES)[1]
+   if target and IsInRange("shot", target) then
+      Cast("shot", target)
+      PrintAction("Shrapnel for crow", target)
+      return true
+   end
+
+   local target = GetWithBuff("meditate", ENEMIES)[1]
+   if target and IsInRange("shot", target) then
+      Cast("shot", target)
+      PrintAction("Shrapnel for meditate", target)
+      return true
+   end
+
+   local target = GetWithBuff("healthPotion", ENEMIES)[1]
+   if target and IsInRange("shot", target) then
+      Cast("shot", target)
+      PrintAction("Shrapnel for healthPotion", target)
+      return true
+   end
+
+   local target = GetWeakestEnemy("AA")
+   if target then
+
+      local healers = GetInRange(target, 500, ENEMIES)
+      for _,healer in ipairs(healers) do
+         if ListContains(healer.name, {"Sona", "Soraka", "Nami", "Taric", "Alistar", "Nidalee", "Kayle"}) then
+            Cast("shot", target)
+            PrintAction("Shot to counter healers", healer)
+            return true
+         end
+      end
+
+   end
+
+   local target = GetWeakestEnemy("AA")
+   if target then
+      if target.name == "Akali" then
+         Cast("shot", target)
+         PrintAction("Shot to counter vamp", target)
+         return true
+      elseif target.name == "Gangplank" and IsCooledDown("E", 0, target) then
+         Cast("shot", target)
+         PrintAction("Shot to counter oranges", healer)
+         return true
+      elseif target.name == "Volibear" then
+         Cast("shot", target)
+         PrintAction("Shot to counter", target)
+         return true
+      elseif target.name == "Warwick" then
+         Cast("shot", target)
+         PrintAction("Shot to counter", target)
+         return true
+      elseif target.name == "FiddleSticks" and IsCooledDown("W", 0, target) then
+         Cast("shot", target)
+         PrintAction("Shot to counter drain", target)
+         return true
+      elseif target.name == "Fiora" then
+         Cast("shot", target)
+         PrintAction("Shot to counter", target)
+         return true
+      elseif target.name == "Garen" then
+         Cast("shot", target)
+         PrintAction("Shot to counter", target)
+         return true
+      elseif target.name == "Vladimir" then
+         Cast("shot", target)
+         PrintAction("Shot to counter", target)
+         return true
+      end
+   end
+end
+
+function Run()
+   -- for _,target in ipairs(ENEMIES) do
+   --    if target.name == "FiddleSticks" then
+   --       PrintState(1, "Fiddle")
+   --       if IsCooledDown("W", 0, target) then
+   --          PrintState(2, "CAN DRAIN")
+   --       end
+   --    end
+   -- end
    if StartTickActions() then
       return true
    end
@@ -240,6 +330,10 @@ function Run()
 
 
    -- auto stuff that always happen
+   if checkForHeals() then
+      return true
+   end
+
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
@@ -272,6 +366,15 @@ function Action()
       end
    end
 
+   if CanUse("buster") then
+      local target = GetKills("buster", GetInRange(me, "buster", ENEMIES))[1]
+      if target then
+         Cast("buster", target)
+         PrintAction("Buster for execute", target)
+         return true
+      end
+   end
+
    if CanUse("buster") and kbPoint then
       for _,target in ipairs(SortByDistance(GetInRange(me, "buster", ENEMIES))) do
          local targetKb = GetKnockback("buster", me, target)
@@ -288,8 +391,12 @@ function Action()
       end
    end
 
-   if CastBest("shot") then
-      return true
+   if CanUse("shot") then
+      if me.SpellLevelE >= me.SpellLevelQ then
+         if CastBest("shot") then
+            return true
+         end
+      end
    end
 
    if CanUse("rapid") then
@@ -314,6 +421,10 @@ function FollowUp()
 end
 
 local function onObject(object)
+   PersistOnTargets("sadism", object, "TODO", ENEMIES)
+   PersistOnTargets("crow", object, "swain_demonForm", ENEMIES)
+   PersistOnTargets("meditate", object, "MasterYi_Base_W_Buf", ENEMIES)
+   PersistOnTargets("healthPotion", object, "GLOBAL_Item_Health", ENEMIES)
 end
 
 local function onSpell(unit, spell)
