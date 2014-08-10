@@ -38,7 +38,7 @@ spells["standaside"] = {
 spells["death"] = {
    key="R",
    base={175,275,375},
-   bonusAd=1.1,
+   adBonus=1.1,
    type="P",
    cost=120
 }

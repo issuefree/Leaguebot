@@ -30,7 +30,7 @@ spells["spike"] = {
    color=violet, 
    base={30,45,60,75,90}, 
    ap={.35,.4,.45,.5,.55},
-   bonusAd={.5,.55,.6,.65,.7},
+   adBonus={.5,.55,.6,.65,.7},
    width=80,
    noblock=true
 } 
@@ -45,7 +45,7 @@ spells["ravage"] = {
    color=yellow, 
    base={70,110,150,190,230}, 
    ap=1,
-   bonusAd=1,
+   adBonus=1,
    cost={50,55,60,65,70}
 } 
 spells["embrace"] = {

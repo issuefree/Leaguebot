@@ -29,7 +29,7 @@ spells["burnout"] = {
    range=325, 
    color=red, 
    base={20,35,50,65,80}, 
-   bonusAd=.1
+   adBonus=.1
 } 
 spells["breath"] = {
    key="E", 

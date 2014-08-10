@@ -20,7 +20,7 @@ spells["bomb"] = {
    color=violet,
    base={80,130,180,230,280},
    ap=.5,
-   bonusAd=.5,
+   adBonus=.5,
    delay=1.4,
    speed=11,
    radius=300,
@@ -48,7 +48,7 @@ spells["gun"] = {
    noblock=true,
    
    base={20,32,44,56,68}, 
-   bonusAd=.4,
+   adBonus=.4,
 
    cost=50
 }

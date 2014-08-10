@@ -50,7 +50,7 @@ spells["sweep"] = {
    range=function() return GetWidth(me) + 187.5 end,  --TODO test
    color=red, 
    base={75,175,275},
-   bonusAd=1,
+   adBonus=1,
    targetHealth=.15,
    cost=100
 } 

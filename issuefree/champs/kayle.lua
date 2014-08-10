@@ -18,7 +18,7 @@ spells["reckoning"] = {
   color=violet, 
   base={60,110,160,210,260}, 
   ap=.6,
-  bonusAd=1,
+  adBonus=1,
   cost={70,75,80,85,90}
 }
 spells["blessing"] = {
