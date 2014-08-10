@@ -70,11 +70,6 @@ local function getAAData()
       Evelynn      = { windup=.3,
                        particles = {"EvelynnBasicAttack_tar"} },
 
-      Garen        = { windup = .35,
-                       extraRange=15,
-                       particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
-                       resets = {"GarenQ"} },
-
       Anivia       = { projSpeed = 1.05, windup = .4,
                        particles = {"cryoBasicAttack"} },
 
