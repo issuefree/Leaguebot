@@ -152,7 +152,7 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("clear") and Alone() then
+   if IsOn("clear") and Alone() and GetMPerc(me) > .66 then
       -- check for a big clear from pp
       if IsOn("pp") then
          if HitMinionsInLine("pp", 4) then
