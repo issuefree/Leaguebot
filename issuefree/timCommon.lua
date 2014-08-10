@@ -216,17 +216,18 @@ local function drawCommon()
                end
 
                if not target then break end
-               local point = GetSpellFireahead(key, target)
+               local point, chance = GetSpellFireahead(key, target)
 
                if GetDistance(point) < GetSpellRange(activeSpell)+100 then
 
-                  if IsGoodFireahead(key, target) then
-                     Circle(point, GetDistance(trackedPoints[1], trackedPoints[#trackedPoints]), green, 3)
-                  else
-                     -- Circle(point, GetDistance(trackedPoints[1], trackedPoints[#trackedPoints]), yellow, 1)
+                  if chance > .75 then
+                     Circle(point, 50, green, 3)
+                  elseif chance > .5 then
+                     Circle(point, 50, green, 2)                  
+                  elseif chance > .25 then
+                     Circle(point, 50, green, 1)
                   end
                   LineBetween(target, point)
-
                end
             end
          end
@@ -596,6 +597,17 @@ function GetWraith()
    end
 end
 
+function cloneTarget(target)
+   local t = {}
+   t.x = target.x
+   t.y = target.y
+   t.z = target.z
+   t.health = target.health
+   t.maxHealth = target.maxHealth
+   t.armor = target.armor
+   return t
+end
+
 
 function KillMinionsInLine(thing, killsNeeded)
    local spell = GetSpell(thing)
@@ -913,7 +925,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
    local bestT = {}
    local bestK = {}
    for _,target in ipairs(targets) do
-      local hits = GetInLine(source, spell, target, targets)
+      local hits = GetInLineR(source, spell, target, targets)
       local score, kills = scoreHits(spell, hits, hitScore, killScore)
       if not bestT or score > bestS then
          bestS = score
@@ -1043,9 +1055,9 @@ function GetSkillShot(thing, purpose, targets)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return nil end
 
-   if not targets then
-      targets = ENEMIES
-   end
+   targets = targets or ENEMIES   
+
+   targets = GetInRange(me, spell.range+500, targets)
 
    targets = GetGoodFireaheads(spell, targets)
 
@@ -1095,6 +1107,7 @@ function GetNearestIndex(target, list)
 end
 
 function GetKills(thing, list)
+   list = RemoveWillKills(list, thing)
    local result = FilterList(list, 
       function(item) 
          if not item.health then return false end
@@ -1141,7 +1154,7 @@ function WardJump(thing, pos)
       pos = GetMousePos()
    end
 
-   local ward = SortByDistance(GetAllInRange(pos, 150, ALLIES, MYMINIONS, WARDS), pos)[1]
+   local ward = SortByDistance(GetAllInRange(pos, 200, ALLIES, MYMINIONS, WARDS), pos)[1]
 
    -- there isn't so cast one and return, we'll jump on the next pass -- on second delay between casting wards to prevent doubles
    if not ward then
@@ -1490,7 +1503,7 @@ AddOnSpell(OnProcessSpell)
 local blockTimeout = .25
 local lastMove = 0 
 function BlockingMove(move_dest)
-   pp("block and move")
+   -- pp("block and move")
    if time() - lastMove > 1 then
       
       MoveToXYZ(move_dest.x, 0, move_dest.z)
@@ -1807,7 +1820,7 @@ function MeleeMove()
    if CanMove() then   
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
-         if GetDistance(target) > spells["AA"].range+25 then
+         if GetDistance(target) > spells["AA"].range then
             if not RetreatingFrom(target) then
                if MoveToTarget(target) then
                   return true
@@ -1826,8 +1839,8 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25) or
-          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.75)
+   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1) or
+          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25)
 end
 
 function DrawKnockback(object2, thing)
@@ -2107,6 +2120,8 @@ Combo = class()
 function Combo:__init(name, timeout, onEnd)
    self.state = nil   
    self.states = {}
+   self.vars = {}
+   self.target = nil
 
    self.name = name
    self.timeout = timeout
@@ -2124,9 +2139,17 @@ end
 
 function Combo:reset()
    self.state = nil
+   self.vars = {}
    if self.onEnd then
       self.onEnd()
    end
+end
+
+function Combo:set(var, value)
+   self.vars[var] = value
+end
+function Combo:get(var)
+   return self.vars[var]
 end
 
 function Combo:start()
