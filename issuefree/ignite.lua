@@ -17,7 +17,7 @@ function igniteTick()
    for _,enemy in ipairs(inRange) do      
       if CanUse("ignite") and WillKill("ignite", enemy) then
          Cast("ignite", enemy)
-         PrintAction("Ignite for kill", enemy)
+         PrintAction("Ignite for kill", enemy, 1)
          return
       end      
    end
