@@ -299,6 +299,7 @@ function IsBlocked(target, thing, source, ...)
       if GetDistance(source, target) > GetDistance(source, blocker) then
          local blockPoint = Projection(source, target, GetDistance(source, blocker))
          if GetDistance(blocker, blockPoint) < (width/2 + GetWidth(blocker)/2) then
+            -- pp(blocker.name.." blocking "..target.name)
             return true
          end
       end
@@ -338,7 +339,7 @@ end
 
 function RetreatingFrom(target)
    if not CURSOR then return false end
-   return GetDistance(CURSOR) > 750 and GetDistance(CURSOR) < GetDistance(CURSOR, target)
+   return GetDistance(CURSOR) > 500 and GetDistance(CURSOR) < GetDistance(CURSOR, target)
 end
 
 -- function Chasing(enemy)
@@ -452,12 +453,26 @@ function GetAllInRange(target, thing, ...)
    return result
 end
 
-function GetInLine(source, thing, target, targets)
-   local spell = GetSpell(thing)
-   local width = spell.width or spell.radius
+function GetInLine(source, thing, point, targets)
+   local spell = GetSpell(thing) or thing
+   local width = spell.width or spell.radius*2
 
    return FilterList( targets, function(item)
-                                  local odr = GetOrthDistRight(target, item)
+                                  if RadsToDegs(RelativeAngle(source, point, item)) > 90 then
+                                     return false
+                                  end
+                                  local od = GetOrthDist(source, item, point)
+                                  return od < width/2 + GetWidth(item)/2
+                               end )
+end
+
+
+function GetInLineR(source, thing, target, targets)
+   local spell = GetSpell(thing) or thing
+   local width = spell.width or spell.radius*2
+
+   return FilterList( targets, function(item)
+                                  local odr = GetOrthDistRight(source, item, target)
                                   return odr >= 0 and odr < width + GetWidth(target)/2 + GetWidth(item)/2
                                end )
 end
