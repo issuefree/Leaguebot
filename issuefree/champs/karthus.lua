@@ -46,7 +46,6 @@ spells["ult"] = {
    channel=true,
    name="KarthusFallenOne",
    object="Karthus_Base_R_Cas_Hand_Glow"
-
 }
 
 function Run()
@@ -102,7 +101,7 @@ end
 
 function Action()
    if CanUse("defile") then
-      local target = GetWeakEnemy("MAGIC", spells["defile"].range-50)      
+      local target = GetWeakEnemy("MAGIC", spells["defile"].range-50)   
       if target and not P.defile then
          CastBuff("defile")
       end
@@ -110,6 +109,7 @@ function Action()
 
    if CanUse("lay") then
       if SkillShot("lay") then
+         StartChannel(.5)
          return true
       end
    end
@@ -118,9 +118,7 @@ end
 
 
 local function onObject(object)
-   if PersistBuff("defile", object, "Karthus_Base_E_Defile.troy", 100) then
-      pp("defiling")
-   end
+   PersistBuff("defile", object, "Karthus_Base_E_Defile.troy", 100)
 end
 
 local function onSpell(object, spell)
