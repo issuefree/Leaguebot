@@ -1,7 +1,6 @@
 require "issuefree/timCommon"
 require "issuefree/modules"
 
-
 -- Try to stick to one "action" per loop.
 -- Action function should return 
 --   true if they perform an action that takes time (most spells attacks)
@@ -9,22 +8,28 @@ require "issuefree/modules"
 
 pp("\nTim's Lee Sin")
 
+InitAAData({ 
+   windup=.25
+})
+
+
 local altSpells = {}
 altSpells["BlindMonkQOne"] = {
    key="Q", 
-   range=975,
+   range=1100,
    color=violet, 
    base={50,80,110,140,170}, 
    adBonus=.9,
    type="P",
-   delay=2.5,
-   speed=18,
-   width=90,
-   cost=50
+   delay=2.5, -- tested
+   speed=17.5, 
+   width=65, -- reticule
+   cost=50,
+   showFireahead=true
 }
 altSpells["blindmonkqtwo"] = {
    key="Q", 
-   range=1100,
+   range=1300,
    color=violet, 
    base={50,80,110,140,170}, 
    adBonus=.9,
@@ -51,7 +56,7 @@ spells["safeguard"] = spells["BlindMonkWOne"]
 
 altSpells["BlindMonkEOne"] = {
    key="E", 
-   range=350, 
+   range=400, 
    color=yellow, 
    base={60,95,130,165,200}, 
    adBonus=1,
@@ -70,146 +75,55 @@ spells["kick"] = {
    range=375, 
    color=red, 
    base={200,400,600}, 
-   bonusAd=2,
-   type="P"
+   adBonus=2,
+   type="P",
+   knockback=1200
 } 
 
-qrq = {
-   state=nil,
-   target=nil,
-   timeout=0,
-
-   getLabel =
-      function()
-         return ( GetSpellDamage(altSpells["BlindMonkQOne"]) +
-                  GetSpellDamage("kick") +
-                  GetSpellDamage(altSpells["blindmonkqtwo"]) )
-      end,
-
-   run =
-      function()
-         if qrq.state then
-            if time() > qrq.timeout then
-               PrintAction("QRQ: timeout")
-               qrq.reset()
-               return false
-            end
-            qrq[qrq.state]()
-            return true
-         end
-         return false
-      end,
-
-   reset =
-      function()
-         qrq.target = nil
-         qrq.pos = nil
-         qrq.state = nil
-         qrq.timeout = 0
-      end,   
-
-   start =
-      function(target)
-         if CanUse("sonic") and CanUse("kick") and
-            me.mana > GetSpellCost("sonic") + altSpells["blindmonkqtwo"].cost
-         then
-            qrq.target = target
-            qrq.pos = Point(me)
-            qrq.state = "sonic"
-            qrq.timeout = time() + 3.5
-
-            return true
-         end
-         return false
-      end,
-
-   startInsec =
-      function(target, pos)
-         if CanUse("safeguard") and CanUse("sonic") and CanUse("kick") and
-            me.mana > GetSpellCost("sonic") + altSpells["blindmonkqtwo"].cost + GetSpellCost("safeguard")
-         then
-            qrq.target = target
-            qrq.pos = pos
-            qrq.state = "ward"
-            qrq.timeout = time() + 3.5
-
-            return true
-         end
-         return false
-      end,
-
-   ward =
-      function()
-         local wTarg = SortByDistance(GetAllInRange(qrq.pos, 100, ALLIES, MYMINIONS, WARDS), qrq.pos)[1]
-         if wTarg then
-            Cast("safeguard", wTarg)
-            PrintAction("QRQ: jump to position")
-            qrq.state = "sonic"
-            qrq.timeout = time() + 3.5
-            return true
-         else
-            WardJump("safeguard", qrq.pos)
-            return true
-         end
-         return false
-      end,
-
-   sonic = 
-      function()
-         if CanUse("sonic") and
-            GetDistance(qrq.target) < GetSpellRange("sonic") and
-            GetDistance(qrq.pos) < 100
-         then
-            CastXYZ("sonic", qrq.target)
-            DoIn(function() CastXYZ("sonic", qrq.target) end, .25)
-            PrintAction("QRQ: sonic", qrq.target)
-            qrq.state = "kick"
-            return true
-         end
-         return false
-      end,
-
-   kick =
-      function()
-         if CanUse("kick") and 
-            GetDistance(qrq.target) < GetSpellRange("kick") and
-            HasBuff("watched", qrq.target)
-         then
-            Cast("kick", qrq.target)
-            PrintAction("QRQ: kick", qrq.target)
-            qrq.state = "strike"
-            return true
-         end
-         return false
-      end,
-
-   strike = 
-      function()
-         if CanUse("strike") and 
-            GetDistance(qrq.target) < GetSpellRange("strike") and
-            GetDistance(qrq.target) > 350
-         then
-            Cast("strike", me)
-            PrintAction("QRQ: strike", qrq.target)
-            qrq.reset()
-            return true
-         end
-         return false
+harrass = Combo("harrass", 2, function() Toggle("harrass", false) end)
+harrass:addState("strike",
+   function(combo)
+      if CanUse("strike") then
+         Cast("strike", me)
+         PrintAction(combo, combo.target)
+      else
+         combo.state = "attack"
       end
-}
+   end
+)
+harrass:addState("attack",
+   function(combo)
+      AutoAA(watched)
+      if JustAttacked() then
+         combo.state = "return"
+      end
+   end
+)
+harrass:addState("return",
+   function(combo)
+      if CanUse("safeguard") then
+         Cast("safeguard", combo:get("bounceTarget"))
+         PrintAction(combo)
+      else
+         combo:reset()
+      end
+   end
+)
+
 
 function getBounceLabel()
    return ( GetSpellDamage(altSpells["BlindMonkQOne"]) +
             GetSpellDamage(altSpells["blindmonkqtwo"]) )
 end
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("bounce", {on=false, key=113, label="Bounce Harrass", auxLabel="{0}", args={getBounceLabel}})
-AddToggle("qrq", {on=false, key=114, label="QRQ Combo", auxLabel="{0}", args={qrq.getLabel}})
-AddToggle("jungle", {on=true, key=115, label="Jungle"})
+AddToggle("dive", {on=false, key=112, label="Dive"})
+AddToggle("harrass", {on=false, key=113, label="Bounce Harrass", auxLabel="{0}", args={getBounceLabel}})
+AddToggle("jungle", {on=true, key=114, label="Jungle"})
+AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 
 
@@ -223,9 +137,10 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 
 local bounceTarget
 local watched
+local watchedTime = 0
 
 function Run()
-
+   -- DrawReticule("sonic")
    if me.SpellNameQ == "BlindMonkQOne" then      
       spells["sonic"] = altSpells[me.SpellNameQ]
       spells["strike"] = nil
@@ -267,16 +182,6 @@ function Run()
 
    -- auto stuff that always happen
 
-   if IsOn("bounce") then
-      if bounceHarrass() then
-         return true
-      end
-   end
-
-   if qrq.run() then
-      return true
-   end
-
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
 		if Action() then
@@ -287,22 +192,30 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if CanUse("tempest") then
-         if #GetKills("tempest", GetAllInRange(me, "tempest", MINIONS)) >= 1 then
+         local kills = GetKills("tempest", GetAllInRange(me, "tempest", MINIONS))
+         if #kills >= 2 then
             Cast("tempest", me)
-            PrintAction("Tempest for lasthit")
+            PrintAction("Tempest for AoE LH")
+            return true
+         end
+         if JustAttacked() and #kills >= 1 then
+            Cast("tempest", me)
+            PrintAction("Tempest for LH")
             return true
          end
       end
 
-      if Alone() and CanUse("sonic") then
-         for _,minion in ipairs(GetUnblocked("sonic", me, MINIONS)) do
-            if GetDistance(minion) > GetSpellRange("AA") and 
-               WillKill("sonic", minion)
-            then
-               LineBetween(me, minion, spells["sonic"].width)
-               CastXYZ("sonic", minion)
-               PrintAction("Butcher minion")
-               return true
+      if VeryAlone() then
+         if CanUse("sonic") then
+            for _,minion in ipairs(GetUnblocked("sonic", me, MINIONS)) do
+               if GetDistance(minion) > GetSpellRange("AA") + 50 and 
+                  WillKill("sonic", minion)
+               then
+                  LineBetween(me, minion, spells["sonic"].width)
+                  CastXYZ("sonic", minion)
+                  PrintAction("Sonic minion LH")
+                  return true
+               end
             end
          end
       end
@@ -313,6 +226,16 @@ function Run()
       local near = GetAllInRange(me, GetSpellRange("AA")+25, CREEPS)
       if #near > 0 and not P.flurry and JustAttacked() then
          
+         if CanUse("sonic") then
+            for _,creep in ipairs(GetAllInRange(me, "sonic", CREEPS)) do
+               if creep.maxHealth > 1000 and IsGoodFireahead("sonic", creep) then                  
+                  CastXYZ("sonic", creep)
+                  PrintAction("Sonic in the jungle")
+                  return true
+               end
+            end
+         end
+
          if CanUse("strike") then
             Cast("strike", me)
             PrintAction("Strike in jungle")
@@ -340,6 +263,20 @@ function Run()
       not P.flurry and
       #GetAllInRange(me, GetSpellRange("AA")+25, ENEMIES, MINIONS, CREEPS) >= 1
    then
+      if VeryAlone() and IsOn("clear") then
+         if GetHPerc(me) < .75 and CanUse("safeguard") then
+            Cast("safeguard", me)
+            PrintAction("safeguard while clear")
+            return true
+         end
+
+         if CanUse("tempest") and #GetInRange(me, "tempest", MINIONS) >= 3 then
+            Cast("tempest", me)
+            PrintAction("tempest for clear")
+            return true
+         end
+      end
+
       if CanUse("will") then
          Cast("will", me)
          PrintAction("will for passive")
@@ -364,47 +301,46 @@ function Run()
 end
 
 function Action()
-   if IsOn("qrq") then
-      local target = GetWeakestEnemy("kick")
-      if target then
-         local tt = {}
-         tt.health = target.health
-         tt.maxHealth = target.maxHealth
-         tt.armor = target.armor
-         tt.magicArmor = target.magicArmor
-         tt.health = tt.health - GetSpellDamage("kick", target)
-         tt.health = tt.health - GetSpellDamage("sonic", target)
+   -- TestSkillShot("sonic", "Q_mis")
 
-         if WillKill(altSpells["blindmonkqtwo"], tt) then
-            if qrq.start(target) then
-               return true
-            end
-            -- if qrq.startInsec(target, Projection(me, target, GetDistance(target)+100)) then
-            --    return true
-            -- end
-         end
-      end
+   if harrass:run() then
+      return true
    end
 
    if CanUse("strike") then
-      local target = GetWithBuff("watched", ENEMIES)[1]
-      if target then
-         if WillKill("strike", "AA", "tempest", "kick", target) then
-            Cast("strike", target)
-            AA(target)
-            PrintAction("Strike for execute", target)
-            return true
+      if watched and WillKill("strike", "AA", watched) then
+         Cast("strike", me)
+         PrintAction("Strike for kill", watched)
+         return true
+      end
+   end
+
+   if IsOn("harrass") then
+      if watched and 
+         CanUse("safeguard") and CanUse("strike") and
+         CanAttack() and
+         GetSpellCost("strike") + GetSpellCost("safeguard") < me.mana 
+      then
+         local rt = SortByDistance(GetInRange(watched, altSpells["BlindMonkWOne"].range, ALLIES), me)[2] -- closest ally to me
+         if not rt then
+            rt = SortByDistance(GetAllInRange(watched, altSpells["BlindMonkWOne"].range, MYMINIONS, WARDS), me)[1]
+         end
+
+         if rt and GetDistance(rt) < 500 then
+            LineBetween(me, watched)
+            LineBetween(watched, rt)
+            harrass:set("bounceTarget", rt)
+            harrass:start()         
          end
       end
    end
 
-   if CanUse("tempest") then
-      local target = GetWeakestEnemy("tempest")
-      if target then
-         Cast("tempest", target)
-         PrintAction("Tempest", target)
-         return true
-      end
+   if SkillShot("sonic") then
+      return true
+   end
+
+   if not P.flurry and CastBest("tempest") then
+      return true
    end
 
    if CanUse("kick") then
@@ -414,17 +350,125 @@ function Action()
          PrintAction("Kick for execute", target)
          return true
       end
+
+      local targets = GetInRange(me, "kick", ENEMIES)
+      local target, score = SelectFromList(targets, 
+                               function(item) 
+                                  local collisions = getKickCollisions(item)
+                                  collisions = RemoveFromList(collisions, {item})
+                                  local kills = GetKills("kick", collisions)
+                                  return #collisions + 2*#kills
+                               end
+                            )
+      if target and score >= 2 then
+         Cast("kick", target)
+         PrintAction("Kick for collateral damage")
+         return true
+      end
+
+      if watched and IsInRange("kick", watched) and CanUse("strike") then
+         local tt = cloneTarget(watched)
+         tt.health = tt.health - GetSpellDamage("kick", tt)
+         if WillKill("strike", tt) then
+            Cast("kick", watched)
+            PrintAction("Kick for strike execute", watched)
+            return true
+         end
+      end
    end
 
+   if IsOn("dive") then
+      if CanUse("strike") and watched then
+         if GetDistance(watched) > GetAARange()+25 then
+            Cast("strike", me)
+            PrintAction("Strike to close", watched)
+            return true
+         end
+         if watchedTime + 2.5 < time() then
+            Cast("strike", me)
+            PrintAction("Strike for timeout", watched)
+            return true
+         end
+      end
+   end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if target and not P.flurry and IsInRange("AA", target) and CanUse("will") then
+      Cast("will", me)
+      PrintAction("Will for autos", target)
+      return true
+   end
+
    if AutoAA(target) then
       return true
    end
 
+   if CanUse("safeguard") then
+
+      local allies
+      if IsOn("dive") then
+         allies = concat(ALLIES, MYMINIONS, WARDS)
+      else
+         allies = ALLIES
+      end
+
+      local target = GetMarkedTarget()
+      if not target then
+         local eir = GetInRange(me, GetAARange()+50, ENEMIES)
+         for _,ally in ipairs(GetInRange(me, "safeguard", ALLIES, MYMINIONS, WARDS)) do
+            for _,e in ipairs(GetInRange(ally, GetAARange()+50, ENEMIES)) do
+               table.insert(eir, e)
+            end
+         end
+         target = GetWeakest("AA", eir)
+         if target and GetDistance(target, mousePos) > 200 then
+            target = nil
+         end
+      end
+
+      if target then
+         local ally = SortByDistance(GetInRange(target, GetAARange()+50, ALLIES, MYMINIONS, WARDS))[1]
+         if ally and GetDistance(ally) > 100 then
+            Cast("safeguard", ally)
+            PrintAction("Safeguard for improved position", ally)
+            return true
+         end
+      end
+
+      if CanUse("tempest") or CanUse("kick") then
+         if #GetInRange(me, GetAARange()+25, ENEMIES) == 0 then
+            local target = GetWeakest("AA", GetInRange(me, 525, ENEMIES))
+
+            if target then
+               if WillKill("AA", "tempest", "kick", target) --or
+                  --IsOn("dive") 
+               then
+                  WardJump("safeguard", OverShoot(me, target, 75))
+                  PrintAction("Wardjump to gap close", target)
+                  return true
+               end
+            end
+         end
+      end
+   end
+
+
    return false
 end
+
 function FollowUp()
+   if VeryAlone() then
+      if P.flurry then
+         if HitObjectives() then
+            return true
+         end
+
+         if HitMinion("AA", "weak") then
+            return true
+         end
+      end
+   end
+
    if IsOn("move") then
       if MeleeMove() then
          return true
@@ -434,50 +478,19 @@ function FollowUp()
    return false
 end
 
-function bounceHarrass()
-   if watched and 
-      CanUse("safeguard") and CanUse("strike") and
-      GetSpellCost("strike") + GetSpellCost("safeguard") < me.mana 
-   then
-      local rt = SortByDistance(GetInRange(watched, 1100, ALLIES), me)[2]
-      if not rt then
-         rt = SortByDistance(GetAllInRange(watched, 1100, MYMINIONS, WARDS), me)[1]
-      end
-
-      if rt and GetDistance(rt) < 500 then
-         LineBetween(me, watched)
-         LineBetween(watched, rt)
-         Cast("strike", watched)
-         bounceTarget = rt
-         PrintAction("BOUNCE")
-         DoIn(function() bounceTarget = nil end, 4)
-         return true
-      end
-   end
-   return false
+function getKickCollisions(target)
+   return GetInLine( target, 
+                     {width=GetWidth(target)}, 
+                     OverShoot(me, target, spells["kick"].knockback), 
+                     GetInRange(target, spells["kick"].kockback, ENEMIES) )
 end
 
-
-
--- pre: Spells are ready, have target, have enough energy
--- if no ward: lay ward -> set target
--- safeguard to ward
--- sonic target
--- kick target
--- strike target
-
 local function onCreate(object)
-   PersistOnTargets("watched", object, "blindMonk_Q_tar_indicator", MINIONS, ENEMIES, CREEPS)
+   if PersistOnTargets("watched", object, "blindMonk_Q_tar_indicator", MINIONS, ENEMIES, CREEPS) then
+      watchedTime = time()
+   end
 
    PersistBuff("flurry", object, "blindMonk_passive")
-
-   if find(object.charName, "blindmonk_resonatingstrike_tar") then
-      if bounceTarget then
-         DoIn(function() Cast("safeguard", bounceTarget) end, .1)
-         Cast("safeguard", bounceTarget)
-         PrintAction("Bounce back")
-      end
-   end
 end
 
 local function onSpell(unit, spell)
@@ -486,4 +499,3 @@ end
 AddOnCreate(onCreate)
 AddOnSpell(onSpell)
 SetTimerCallback("Run")
-
