@@ -10,10 +10,11 @@ require "issuefree/walls"
 -- common spell defs
 spells = {}
 
-function IsCooledDown(key, extraCooldown)
+function IsCooledDown(key, extraCooldown, hero)
+	hero = hero or me
 	extraCooldown = extraCooldown or 0
 	if not key then return false end
-   return me["SpellTime"..key] >= .9 + extraCooldown
+   return hero["SpellTime"..key] >= .9 + extraCooldown
 end
 
 function Cast(thing, target, force)
@@ -330,7 +331,7 @@ function GetSpellDamage(thing, target, ignoreResists)
    if type(damage) ~= "number" and damage.type ~= "H" and target then
       local mult = 1
       if HasMastery("havoc") then
-         mult = mult + .03
+         mult = mult + (.03)
       end
       if HasMastery("des") then
          mult = mult + .015
