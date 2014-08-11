@@ -5,7 +5,12 @@ pp("\nTim's Jinx")
 
 SetChampStyle("marksman")
 
-AddToggle("", {on=true, key=112, label=""})
+InitAAData({ 
+   projSpeed = 2.4, windup=.2,
+   particles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"}
+})
+
+AddToggle("switch", {on=true, key=112, label="Auto Switch"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -61,7 +66,6 @@ local launcherRange = 0
 local baseRange = 0
 
 function Run()
-
    if me.range <= 525 then
       minigun = true
       spells["AA"].ad = 1
@@ -79,12 +83,6 @@ function Run()
    end
 
 
-   if minigun then
-      PrintState(0, "Minigun "..GetAARange())
-   else
-      PrintState(0, "ROCKET "..GetAARange())
-   end
-
    if StartTickActions() then
       return true
    end
@@ -98,7 +96,7 @@ function Run()
 		end
 	end
 
-   if Alone() and CanUse("switch") then
+   if IsOn("switch") and Alone() and CanUse("switch") then
       if minigun then
          if #GetKills("AA", GetInRange(me, "AA", MINIONS)) == 0 then
             local minions = FilterList(GetInRange(me, launcherRange, MINIONS), function(m) return GetDistance(m) > GetAARange() end)
@@ -147,7 +145,7 @@ function Action()
       end
    end
 
-   if CanUse("switch") then
+   if IsOn("switch") and CanUse("switch") then
       local target
       if minigun then
          target = GetMarkedTarget() or GetWeakestEnemy("AA", GetSpellRange("switch"))
@@ -163,7 +161,7 @@ function Action()
          Cast("switch", me)
          PrintAction("Rockets - AoE AA")
          return true
-      elseif not minigun and target and GetDistance(target) < baseRange-50 ) then
+      elseif not minigun and target and GetDistance(target) < baseRange-50 then
          Cast("switch", me)
          PrintAction("Minigun - single target RoF")
          return true
@@ -188,7 +186,7 @@ end
 
 local function onSpell(unit, spell)
    if IAttack(unit, spell) then
-      -- if #GetAllInRange(spell.target, 150, MINIONS, ENEMIES, CREEPS) > 1 then
+      -- if #GetInRange(spell.target, 150, MINIONS, ENEMIES, CREEPS) > 1 then
       --    if minigun then
       --       Cast("switch", me)
       --    end
