@@ -335,8 +335,6 @@ doore:addState("malice",
    end
 )
 
-
-
 function Run()
    if me.SpellNameR == "LeblancChaosOrbM" then
       spells["mimic"] = spells["mimicMalice"]
