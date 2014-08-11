@@ -16,6 +16,9 @@ pp("\nTim's Template")
 --    particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 -- })
 
+-- SetChampStyle("marksman")
+-- SetChampStyle("caster")
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
