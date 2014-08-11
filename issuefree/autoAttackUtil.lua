@@ -86,14 +86,6 @@ local function getAAData()
       Brand        = { projSpeed = 1.975, windup=.4,
                        particles = {"BrandBasicAttack", "BrandCritAttack"} },
 
-
-
-      Caitlyn      = { projSpeed = 2.5, windup=.2,
-                       minMoveTime=0,
-                       extraRange=40,
-                       particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
-                       attacks = {"attack", "CaitlynHeadshotMissile"} },
-
       Cassiopeia   = { projSpeed = 1.22,
                        particles = {"CassBasicAttack_mis"} },
 
@@ -131,9 +123,6 @@ local function getAAData()
                        particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
                        attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
                        resets = {me.SpellNameW} },
-
-      Jinx         = { projSpeed = 2.4, windup=.3,
-                       particles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"} },
 
       Karma        = { projSpeed = nil,
                        particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
@@ -244,9 +233,6 @@ local function getAAData()
 
       Viktor       = { projSpeed = 2.25,
                        particles = {"ViktorBasicAttack"} },
-
-      Vladimir     = { projSpeed = 1.4,
-                       particles = {"VladBasicAttack"} },
 
       Warwick      = { windup=.35 },
 
@@ -375,7 +361,7 @@ function aaTick()
    end
 
    if lastAATarget and find(lastAATarget.name, "Minion") and
-      not ValidTarget(lastAATarget) and 
+      not IsValid(lastAATarget) and 
       time() < lastAttack + (getWindup()/2)
    then
       PrintAction("RESET kia")
@@ -543,20 +529,24 @@ function onObjAA(object)
          local delta = time() - lastAAState         
          pp("AAP: "..trunc(delta).." "..object.charName)
 
-         if object and object.x and object.charName and
-            GetDistance(object, me) < 100 
-         then
-            if not ListContains(object.charName, ignoredObjects) and
-               not ListContains(object.charName, aaObjects)
-            then
-               if time() - lastAttack < .5 then
-                  table.insert(aaObjects, object.charName)
-                  table.insert(aaObjectTime, time() - lastAttack)
-               end
+      end
+
+   end
+   if ModuleConfig.aaDebug then
+      if object and object.x and object.charName and
+         GetDistance(object, me) < 250 
+      then
+         if not ListContains(object.charName, ignoredObjects) and
+            not ListContains(object.charName, aaObjects) and
+            not ListContains(object.charName, aaData.particles)
+         then         
+            if time() - lastAttack < .5 then
+               table.insert(aaObjects, object.charName)
+               table.insert(aaObjectTime, time() - lastAttack)
+               pp(object.charName)
             end
          end
       end
-
    end
 
 end
@@ -630,7 +620,7 @@ function onSpellAA(unit, spell)
    end
 
    if IAttack(unit, spell) then
-      if ValidTarget(spell.target) then
+      if IsValid(spell.target) then
          lastAATarget = spell.target
 
          if ModuleConfig.aaDebug then
