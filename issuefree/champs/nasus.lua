@@ -82,19 +82,12 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if CanUse("strike") then
-         local targets = SortByDistance(GetAllInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
+         local targets = SortByDistance(GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
             if WillKill("strike", target) then
                Cast("strike", target)
-               if not ValidTarget(target) then
-               -- if ListContains(target, CREEPS) then
-                  ClickSpellXYZ("M", target.x, target.y, target.z, 0)
-                  needMove = true
-               else 
-                  AttackTarget(target) -- not using AA as I want to interupt auto attacks
-                  needMove = true
-               end
-               victim = target
+               AttackTarget(target) -- not using AA as I want to interupt auto attacks
+               needMove = true
                PrintAction("strike lasthit")
                return true
             end
@@ -174,7 +167,7 @@ end
 
 local function onObject(object)
    if find(object.charName, "DeathsCaress") then
-      if GetDistance(object) < 300 then
+      if GetDistance(object) < 300 then         
          setStrikes(spells["strike"].bonus + 3)
          if victim then
             if ListContains(victim.name, BigCreepNames, true) then
@@ -183,13 +176,19 @@ local function onObject(object)
                setStrikes(spells["strike"].bonus + 3)
             elseif find(victim.name, "Mech") then
                setStrikes(spells["strike"].bonus + 3)
+            elseif string.find(victim.name, "Wraith") == 0 then
+               setStrikes(spells["strike"].bonus + 3)
             end
+            victim = nil
          end
       end 
    end
 end
 
-local function onSpell(unit, spell)
+local function onSpell(unit, spell)   
+   if ICast("NasusQAttack", unit, spell) then
+      victim = spell.target
+   end
 end
 
 function onKey(msg, key)
