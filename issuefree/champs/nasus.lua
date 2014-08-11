@@ -170,13 +170,11 @@ local function onObject(object)
       if GetDistance(object) < 300 then         
          setStrikes(spells["strike"].bonus + 3)
          if victim then
-            if ListContains(victim.name, BigCreepNames, true) then
-               setStrikes(spells["strike"].bonus + 3)
-            elseif ListContains(victim.name, MajorCreepNames, true) then
-               setStrikes(spells["strike"].bonus + 3)
-            elseif find(victim.name, "Mech") then
-               setStrikes(spells["strike"].bonus + 3)
-            elseif string.find(victim.name, "Wraith") == 0 then
+            if ListContains(victim.name, BigCreepNames, true) or
+               ListContains(victim.name, MajorCreepNames, true) or
+               find(victim.name, "Mech") or
+               string.find(victim.name, "Wraith") == 0 
+            then
                setStrikes(spells["strike"].bonus + 3)
             end
             victim = nil
