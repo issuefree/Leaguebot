@@ -96,7 +96,7 @@ function Run()
       end
 
       if IsOn("jungle") then
-         local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS), "AA")
+         local creeps = SortByHealth(GetInRange(me, GetSpellRange("AA")+50, CREEPS), "AA")
          local creep = creeps[#creeps]
          if creep and not WillKill("AA", creep) then
             if JustAttacked() then

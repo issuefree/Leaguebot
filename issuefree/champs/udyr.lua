@@ -108,7 +108,7 @@ function Run()
    end
 
    if IsOn("jungle") and VeryAlone() then      
-      local creeps = GetAllInRange(me, 750, CREEPS)
+      local creeps = GetInRange(me, 750, CREEPS)
       if #creeps >= 1 then
          if me.mana > 200 and GetHPerc(me) < .8 then
             if CanUse("turtle") and JustAttacked() then

@@ -208,7 +208,7 @@ function Run()
    -- local angle = DegsToRads(0)
    -- local arc = DegsToRads(45)
    -- local range = 750
-   -- local targets = GetInCone(me, angle, arc, GetAllInRange(me, range, tests))
+   -- local targets = GetInCone(me, angle, arc, GetInRange(me, range, tests))
    -- for _,t in ipairs(targets) do
    --    Circle(t, 25, blue, 3)
    -- end

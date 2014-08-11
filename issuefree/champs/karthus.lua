@@ -64,7 +64,7 @@ function Run()
    end   
 
    if CanUse("defile") and P.defile then
-      if #GetAllInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
+      if #GetInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
          CastBuff("defile", false)
       end
    end

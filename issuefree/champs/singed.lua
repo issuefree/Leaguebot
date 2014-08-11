@@ -67,7 +67,7 @@ function Run()
       if CanChargeTear() and GetMPerc(me) > .25 and Alone() then
          CastBuff("poison")
       end
-      if not CanChargeTear() and VeryAlone() and #GetAllInRange(me, 500, CREEPS, MINIONS) == 0 then
+      if not CanChargeTear() and VeryAlone() and #GetInRange(me, 500, CREEPS, MINIONS) == 0 then
          Cast("poison", false)
       end
    end

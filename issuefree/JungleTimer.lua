@@ -88,7 +88,7 @@ function JungleTimer()
 				end
 			end
 
-			-- local creeps = GetAllInRange(me, 1000, camp.creeps)
+			-- local creeps = GetInRange(me, 1000, camp.creeps)
 			-- for i,creep in ipairs(creeps) do
 			-- 	PrintState(i, creep.charName.." "..creep.dead)
 			-- 	if find(creep.charName, "3.1.3") then

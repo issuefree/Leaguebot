@@ -79,7 +79,7 @@ function Run()
    end
    
    if IsOn("jungle") then
-      local creeps = GetAllInRange(me, GetSpellRange("swing"), CREEPS)
+      local creeps = GetInRange(me, GetSpellRange("swing"), CREEPS)
       
       if #creeps > 0 and JustAttacked() then -- justattacked keeps me from aggroing by accident
          if CanUse("axe") and GetMPerc(me) > .5 then

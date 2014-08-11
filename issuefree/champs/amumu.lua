@@ -54,7 +54,7 @@ function Run()
 
    if CanUse("despair") then
       if P.despair and 
-         #GetAllInRange(me, GetSpellRange("despair")+50, MINIONS, ENEMIES, CREEPS) == 0 
+         #GetInRange(me, GetSpellRange("despair")+50, MINIONS, ENEMIES, CREEPS) == 0 
       then
          CastBuff("despair", false)
       end
@@ -67,7 +67,7 @@ function Run()
 	end
 
    if IsOn("jungle") then
-      if #GetAllInRange(me, "despair", BIGCREEPS, MAJORCREEPS) > 0  then
+      if #GetInRange(me, "despair", BIGCREEPS, MAJORCREEPS) > 0  then
 
          CastBuff("despair")
 

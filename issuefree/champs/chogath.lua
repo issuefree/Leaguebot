@@ -126,7 +126,7 @@ function Run()
 	if IsOn("jungle") and Alone() then
 		if CanUse("feast") then
 
-			local creeps = reverse(SortByHealth(GetAllInRange(me, "feast", BIGCREEPS, MAJORCREEPS)))
+			local creeps = reverse(SortByHealth(GetInRange(me, "feast", BIGCREEPS, MAJORCREEPS)))
 			for _,creep in ipairs(creeps) do
 				if WillKill("feastCreep", creep) then
 					Cast("feast", creep)

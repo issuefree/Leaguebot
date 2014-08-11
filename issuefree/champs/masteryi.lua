@@ -174,7 +174,7 @@ function FollowUp()
 end
 
 function getAlphaPath(target)
-   local testNearby = SortByDistance(GetAllInRange(target, maxChainDist, MINIONS, ENEMIES), target)
+   local testNearby = SortByDistance(GetInRange(target, maxChainDist, MINIONS, ENEMIES), target)
    local path = {}
 
    local jumps = 0

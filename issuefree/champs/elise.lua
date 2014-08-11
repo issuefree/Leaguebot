@@ -189,7 +189,7 @@ function Run()
 
    if IsOn("jungle") and VeryAlone() then
       local creep
-      local creeps = GetAllInRange(me, "toxin", CREEPS)
+      local creeps = GetInRange(me, "toxin", CREEPS)
       if #creeps > 0 then
          table.sort(creeps, function(a,b) return a.maxHealth - a.health > b.maxHealth - b.health end)
          if creeps[1].maxHealth > creeps[1].health then

@@ -65,8 +65,8 @@ end
 
 
 function GetDistance(p1, p2)
-    p2 = p2 or myHero
-    if not p1 or not p1.x then
+   p2 = p2 or myHero
+   if not p1 or not p1.x then
       if not p1 then
          pp("null p1")
       end
@@ -76,8 +76,8 @@ function GetDistance(p1, p2)
       end
       print(debug.traceback())      
       return 99999 
-    end
-    if not p2.x then
+   end
+   if not p2.x then
       pp("Incomplete object")
       pp(p2)
       print(debug.traceback())      
@@ -279,7 +279,7 @@ end
 function GetUnblocked(thing, source, ...)
    assert(type(source) ~= "table")
 
-   local targets = GetAllInRange(source, thing, concat(...))
+   local targets = GetInRange(source, thing, concat(...))
 
    local blocked = {}
    for _,target in ipairs(targets) do
@@ -397,12 +397,12 @@ end
 
 function UnderTower(target)
    if not target then target = me end
-   return #GetAllInRange(target, 950, TURRETS) > 0
+   return #GetInRange(target, 950, TURRETS) > 0
 end
 
 function UnderMyTower(target)
    if not target then target = me end
-   return #GetAllInRange(target, 950, MYTURRETS) > 0
+   return #GetInRange(target, 950, MYTURRETS) > 0
 end
 
 function IsInRange(thing, target, source)
@@ -416,6 +416,7 @@ function IsInRange(thing, target, source)
 end
 
 function GetInRange(target, thing, ...)
+   assert(type(target) == "table" or type(target) == "userdata")
    local range
    if type(thing) ~= "number" then
       range = GetSpellRange(thing)

@@ -192,7 +192,7 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if CanUse("tempest") then
-         local kills = GetKills("tempest", GetAllInRange(me, "tempest", MINIONS))
+         local kills = GetKills("tempest", GetInRange(me, "tempest", MINIONS))
          if #kills >= 2 then
             Cast("tempest", me)
             PrintAction("Tempest for AoE LH")
@@ -223,11 +223,11 @@ function Run()
    end
 
    if IsOn("jungle") then
-      local near = GetAllInRange(me, GetSpellRange("AA")+25, CREEPS)
+      local near = GetInRange(me, GetSpellRange("AA")+25, CREEPS)
       if #near > 0 and not P.flurry and JustAttacked() then
          
          if CanUse("sonic") then
-            for _,creep in ipairs(GetAllInRange(me, "sonic", CREEPS)) do
+            for _,creep in ipairs(GetInRange(me, "sonic", CREEPS)) do
                if creep.maxHealth > 1000 and IsGoodFireahead("sonic", creep) then                  
                   CastXYZ("sonic", creep)
                   PrintAction("Sonic in the jungle")
@@ -243,7 +243,7 @@ function Run()
          end
 
          if CanUse("tempest") and 
-            #GetAllInRange(me, "tempest", CREEPS) >= 2 
+            #GetInRange(me, "tempest", CREEPS) >= 2 
          then
             Cast("tempest", me)
             PrintAction("Tempest for jungle AOE")
@@ -261,7 +261,7 @@ function Run()
 
    if GetMPerc(me) > .5 and 
       not P.flurry and
-      #GetAllInRange(me, GetSpellRange("AA")+25, ENEMIES, MINIONS, CREEPS) >= 1
+      #GetInRange(me, GetSpellRange("AA")+25, ENEMIES, MINIONS, CREEPS) >= 1
    then
       if VeryAlone() and IsOn("clear") then
          if GetHPerc(me) < .75 and CanUse("safeguard") then
@@ -323,7 +323,7 @@ function Action()
       then
          local rt = SortByDistance(GetInRange(watched, altSpells["BlindMonkWOne"].range, ALLIES), me)[2] -- closest ally to me
          if not rt then
-            rt = SortByDistance(GetAllInRange(watched, altSpells["BlindMonkWOne"].range, MYMINIONS, WARDS), me)[1]
+            rt = SortByDistance(GetInRange(watched, altSpells["BlindMonkWOne"].range, MYMINIONS, WARDS), me)[1]
          end
 
          if rt and GetDistance(rt) < 500 then

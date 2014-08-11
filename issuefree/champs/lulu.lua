@@ -67,7 +67,7 @@ Persist("pix", me)
 pixTimeout = 0
 
 function Run()
-	if not ValidTarget(P.pix) or GetDistance(P.pix) > spells["pix"].leash or time() > pixTimeout then
+	if not IsValid(P.pix) or GetDistance(P.pix) > spells["pix"].leash or time() > pixTimeout then
 		Persist("pix", me)
 	end
 

@@ -130,9 +130,9 @@ function Action()
 
       local target = GetMarkedTarget() or GetWeakestEnemy("grave")
       if target then
-         if #GetAllInRange(target, 750, ENEMIES) >= 2 then
+         if #GetInRange(target, 750, ENEMIES) >= 2 then
             local hpThresh = 1
-            if GetAllInRange(target, 1000, ALLIES) >= 2 then
+            if GetInRange(target, 1000, ALLIES) >= 2 then
                hpThresh = .75
             end
             if GetSpellDamage("grave", target) > target.health*hpThresh then
@@ -145,7 +145,7 @@ function Action()
    end
 
    if CanUse("shield") then
-      if #GetAllInRange(me, spells["shield"].radius+GetWidth(me), ENEMIES) > 0 then
+      if #GetInRange(me, spells["shield"].radius+GetWidth(me), ENEMIES) > 0 then
          Cast("shield", me)
          PrintAction("Shield me")
          return true

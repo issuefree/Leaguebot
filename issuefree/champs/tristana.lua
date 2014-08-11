@@ -82,7 +82,7 @@ function getKBPoint()
    --    return Point(HOME)
    -- end
 
-   local point = SortByDistance(GetAllInRange(me, 750+kbDist+busterRange+jumpRange, MYTURRETS))[1]
+   local point = SortByDistance(GetInRange(me, 750+kbDist+busterRange+jumpRange, MYTURRETS))[1]
    if point then 
       PrintState(0, "TURRET")
       kbType = "TURRET"
