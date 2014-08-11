@@ -32,6 +32,8 @@ require "Common/SKeys"
 
 SetScriptTimer(10)
 
+FRAME = time()
+
 if me.SpellLevelQ == 0 and
    me.SpellLevelW == 0 and
    me.SpellLevelE == 0
@@ -184,7 +186,7 @@ local function drawCommon()
    end
 
    for _,minion in ipairs(MINIONS) do
-      if ValidTarget(minion) then
+      if IsValid(minion) and GetDistance(minion) < 2000 then
          local hits = math.ceil(minion.health/GetAADamage(minion))
          if hits == 1 then
             DrawTextObject(hits.." hp", minion, blueT)
@@ -193,6 +195,21 @@ local function drawCommon()
             DrawTextObject(hits.." hp", minion, greenT)
          end
 
+         for _,spell in pairs(spells) do
+            if spell.lh and CanUse(spell) and GetDistance(minion) < GetSpellRange(spell)*1.5 then
+               if WillKill(spell, minion) then
+                  if spell.key == "Q" then
+                     Circle(minion, 55, spell.color, 2)
+                  elseif spell.key =="W" then
+                     Circle(minion, 60, spell.color, 2)
+                  elseif spell.key =="E" then
+                     Circle(minion, 65, spell.color, 2)
+                  elseif spell.key =="R" then
+                     Circle(minion, 70, spell.color, 2)
+                  end
+               end
+            end
+         end
       end
    end
 
@@ -478,12 +495,16 @@ function DumpSpells(unit, spell)
 end
 
 function IsMinion(unit)
-   if not ValidTarget(unit) then return false end
+   if not IsValid(unit) then return false end
    return find(unit.name, "Minion")
 end
 
 function IsBigMinion(minion)
    return find(minion.name, "MechCannon")
+end
+
+function IsSuperMinion(minion)
+   return find(minion.name, "MechMelee")
 end
 
 function IsHero(unit)
@@ -500,18 +521,28 @@ function IsEnemy(unit)
    return unit.team ~= me.team and IsHero(unit)
 end
 
+function IsValid(target)
+   if not target or not target.x then
+      return false
+   end
+   if target.dead == 1 or target.invulnerable == 1 then
+      return false
+   end
+   if target.visible == 0 then
+      if target.type == 36 then
+
+      else
+         return false
+      end
+   end
+   return true
+end
+
 function ValidTargets(list)
    if not list then return {} end
    return FilterList(list, 
       function(item)
-         if not item.dead then
-            return item
-         end
-         return 
-            item.dead == 0 and 
-            item.invulnerable == 0 and 
-            item.visible == 1 and 
-            item.x and item.z 
+         return IsValid(item)
       end
    )
 end
@@ -795,7 +826,7 @@ function KillMinion(thing, method, force, targetOnly)
       return target
    end
 
-   if ValidTarget(target) then
+   if IsValid(target) then
 
       AddWillKill(target, thing)
 
@@ -856,7 +887,7 @@ function HitMinion(thing, method, extraRange)
 end
 
 function HitObjectives()
-   local targets = GetAllInRange(me, "AA", CREEPS, TURRETS, INHIBS)
+   local targets = GetInRange(me, "AA", TURRETS, INHIBS)
    table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
@@ -919,7 +950,7 @@ function GetBestLine(source, thing, hitScore, killScore, ...)
       pp("No width set for "..thing)
    end
 
-   local targets = GetAllInRange(source, spell, concat(...))
+   local targets = GetInRange(source, spell, concat(...))
 
    local bestS = 0
    local bestT = {}
@@ -1497,6 +1528,12 @@ function OnProcessSpell(unit, spell)
       end
    end
 
+   -- shortcut for "creep" cast a spell
+   if unit.team == 300 then
+      CREEP_ACTIVE = true
+      DoIn(function() CREEP_ACTIVE = false end, 2, "creepactive")
+   end
+
 end
 AddOnSpell(OnProcessSpell)
 
@@ -1521,6 +1558,7 @@ TICK_DELAY = .05
 -- Common stuff that should happen every time
 local tt = time()
 function TimTick()
+   FRAME = time()
    DrawText(trunc(1/(time()-tt),1),1800,60,0xFFCCEECC);
    TICK_DELAY = time()-tt
    tt = time()
@@ -1708,24 +1746,7 @@ end
 
 needMove = false
 
-function EndTickActions()
-   if IsOn("lasthit") and Alone() then
-      if KillMinion("AA") then
-         return true
-      end
-   end
-
-   if HotKey() and IsOn("clear") and Alone() then
-      if HitObjectives() then
-         return true
-      end
-
-      if HitMinion("AA", "strong") then
-         return true
-      end
-
-   end
-
+function AutoMove()
    if IsOn("move") and CanMove() then
       if HotKey() then
          if GetDistance(mousePos) < 3000 then
@@ -1739,6 +1760,28 @@ function EndTickActions()
          needMove = false
       end
    end
+end
+
+function EndTickActions()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true
+      end
+   end
+
+   if HitObjectives() then
+      return true
+   end
+
+   if HotKey() and IsOn("clear") and Alone() then
+
+      if HitMinion("AA", "strong") then
+         return true
+      end
+
+   end
+
+   AutoMove()
 
    PrintAction()
    return false
@@ -1749,7 +1792,7 @@ function IsLoLActive()
 end
 
 function AA(target)
-   if CanAttack() and ValidTarget(target) then
+   if CanAttack() and IsValid(target) then
       AttackTarget(target)
       needMove = true
       return true
@@ -1805,7 +1848,7 @@ end
 
 function ModAAJungle(thing)
    if CanUse(thing) and not P[thing] then
-      local creeps = SortByHealth(GetAllInRange(me, GetSpellRange("AA")+50, CREEPS), thing)
+      local creeps = SortByHealth(GetInRange(me, GetSpellRange("AA")+50, CREEPS), thing)
       local creep = creeps[#creeps]
       if creep and not WillKill("AA", creep) and JustAttacked() then
          Cast(thing, me)
