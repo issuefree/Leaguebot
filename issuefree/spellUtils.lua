@@ -112,6 +112,15 @@ function CastFireahead(thing, target)
    return false
 end
 
+function GetReachPoint(thing, target)
+	local range = GetSpellRange(thing)
+	if GetDistance(target) > range then
+		return Projection(me, target, range)
+	else
+		return Point(target)
+	end
+end
+
 function GetCD(thing)
    local spell = GetSpell(thing)
    local cd = math.ceil(1 - me["SpellTime"..spell.key])
@@ -324,14 +333,11 @@ function GetSpellDamage(thing, target, ignoreResists)
    	damage = damage + GetAADamage() + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
    end
 
-   if spell.offModAA then
-   	damage = damage + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
-   end
 
    if type(damage) ~= "number" and damage.type ~= "H" and target then
       local mult = 1
       if HasMastery("havoc") then
-         mult = mult + (.03)
+         mult = mult + .03
       end
       if HasMastery("des") then
          mult = mult + .015
@@ -344,6 +350,10 @@ function GetSpellDamage(thing, target, ignoreResists)
       damage = damage*mult
    end
 
+   if spell.offModAA then
+   	damage = damage + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
+   end
+
    if spell.onHit then
       damage = damage + GetOnHitDamage(target, false)
    end
@@ -351,6 +361,9 @@ function GetSpellDamage(thing, target, ignoreResists)
    if target then
       if HasBuff("dfg", target) then
          damage.m = damage.m*1.2
+      end
+      if HasBuff("hemoplague", target) then
+         damage.m = damage.m*1.12
       end
       if not ignoreResists then
       	damage = CalculateDamage(target, damage)
@@ -436,7 +449,7 @@ function TrackSpellFireahead(thing, target)
    if not tfas[key] then
       tfas[key] = {}
    end
-   if not ValidTarget(target) or not tfas[key][tcn] then
+   if not IsValid(target) or not tfas[key][tcn] then
       tfas[key][tcn] = {}
    end
    local p = Point(GetFireahead(target, spell.delay, spell.speed)) - Point(target)
@@ -522,7 +535,7 @@ end
 function IsGoodFireahead(thing, target)
 	-- PrintAction("SS", target.name)
    local spell = GetSpell(thing)
-   if not ValidTarget(target) and not IsImmune(thing, target) then return false end   
+   if not IsValid(target) and not IsImmune(thing, target) then return false end   
     -- check for "goodness". I'm testing good is when the tfas are all the same (or similar)
     -- this should imply that the target is moving steadily.
 
@@ -628,7 +641,7 @@ function DrawReticule(thing)
 	local spell = GetSpell(thing)
 	if spell.cone then
 		DrawSpellCone(spell)
-	elseif spell.delay then
+	elseif spell.delay or spell.radius then
 		if spell.speed and spell.speed > 0 then
 			LineBetween(me, mousePos, spell.width)
 		else
