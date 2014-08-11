@@ -4,6 +4,8 @@ require "issuefree/basicUtils"
 MINIONS = {}
 MYMINIONS = {}
 
+CREEP_ACTIVE = false
+
 CREEPS = {} -- all creeps
 MINORCREEPS = {} -- minor creeps (little wolves, lizards)
 BIGCREEPS = {} -- Big wolf and big wraith and big golem
@@ -472,6 +474,8 @@ function createForPersist(object)
    PersistBuff("iceborn", object, "bluehands_buf", 100)
 
    PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
+
+   PersistOnTargets("hemoplague", object, "Vladimir_Base_R_debuff.troy", ENEMIES)
 
    PersistBuff("muramana", object, "ItemMuramanaToggle")
 
