@@ -1837,7 +1837,8 @@ function ModAAFarm(thing)
             ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
          then
             AddWillKill(minion, thing)
-            Cast(thing, me)
+            Cast(thing, minion)
+            AttackTarget(minion)
             PrintAction(thing.." lasthit", minion)
             return true
          end
