@@ -174,9 +174,6 @@ local function getAAData()
                        particles = {"nassus_siphonStrike_tar"},
                        resets = {me.SpellNameQ} },
 
-      Nidalee      = { projSpeed = 1.7,
-                       particles = {"nidalee_javelin_mis"} },
-
       Olaf         = { windup=.3,
                        minMoveTime=0,
                      },
