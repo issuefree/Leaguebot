@@ -174,7 +174,7 @@ local function getAAData()
                        particles = {"nassus_siphonStrike_tar"},
                        resets = {me.SpellNameQ} },
 
-      Olaf         = { windup=.3,
+      Olaf         = { windup=.35,
                        minMoveTime=0,
                      },
 
@@ -221,9 +221,6 @@ local function getAAData()
 
       Vayne        = { projSpeed = 2.0, windup=.2, -- !
                        particles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" } },
-
-      Varus        = { projSpeed = 2.0, windup=.25,
-                       particles = {"Varus_basicAttack_mis"} },
 
       Veigar       = { projSpeed = 1.05,
                        particles = {"permission_basicAttack_mis"} },

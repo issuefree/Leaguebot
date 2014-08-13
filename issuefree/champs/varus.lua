@@ -9,6 +9,11 @@ require "issuefree/modules"
 
 pp("\nTim's Varus")
 
+InitAAData({ 
+   projSpeed = 2.0, windup=.25,
+   particles = {"Varus_basicAttack_mis"}
+})
+
 SetChampStyle("marksman")
 
 AddToggle("", {on=true, key=112, label=""})
@@ -216,9 +221,7 @@ function Run()
          end
       end
 
-      if IsOn("move") and HotKey() then
-         MoveToMouse()
-      end
+      AutoMove()
       return true
    end
 
@@ -267,10 +270,10 @@ function Run()
       end
 
       if Alone() then
-         -- if KillMinionsInArea("hail", killThreshold) then
-         --    -- PauseToggle("lasthit", .75)
-         --    return true
-         -- end
+         if KillMinionsInArea("hail", killThreshold) then
+            -- PauseToggle("lasthit", .75)
+            return true
+         end
       end
 
       if VeryAlone() then
@@ -394,7 +397,7 @@ function FinishArrow(t)
                sy = nil
             end
          end, 
-         .5
+         .1
       )
    end
 end
