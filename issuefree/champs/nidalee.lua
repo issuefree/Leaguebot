@@ -226,7 +226,7 @@ function Action()
          return true
       end
       
-   else -- TODO cougar form needs lots of work
+   else 
       
       if CanUse("pounce") then
          local target = GetMarkedTarget() or GetWeakestEnemy("pounce", spells["pounce"].radius)
@@ -288,6 +288,18 @@ function Action()
 end
 
 function FollowUp()
+   if IsOn("clear") then
+      if isCougar then
+         if VeryAlone() then
+            if CanUse("swipe") then
+               if HitMinionsInCone("swipe", 3) then
+                  return true
+               end
+            end
+         end
+      end
+   end
+
    if isCougar then
       if IsOn("move") then
          if MeleeMove() then
