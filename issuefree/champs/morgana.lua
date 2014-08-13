@@ -41,7 +41,7 @@ spells["shield"] = {
    key="E", 
    range=750, 
    color=blue, 
-   base={95,160,225,290,355}, 
+   base={70,140,210,280,350}, 
    ap=.7,
    cost=50
 }
@@ -49,7 +49,7 @@ spells["shackles"] = {
    key="R", 
    range=600, 
    color=red, 
-   base={175,250,325}, 
+   base={150,225,300}, 
    ap=.7,
    cost=100
 }
