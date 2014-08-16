@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Sona")
 
+InitAAData({ 
+   projSpeed = 1.6, windup=.2,
+   extraRange=-20,
+   particles = {"Sona_Base_BA", "PowerChord_mis"}
+})
 
 AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"green"}})
 AddToggle("", {on=true, key=113, label=""})
@@ -14,13 +19,25 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 
-
+spells["chord"] = {
+   base=0,
+   lvl={13,20,27,35,43,52,62,72,82,92,102,112,122,132,147,162,177,192},
+   ap=.2
+}
 spells["blue"] = {
    key="Q", 
    range=650, 
    color=blue, 
    base={40,80,120,160,200}, 
    ap=.5
+}
+spells["valor"] = {
+   base={40,50,60,70,80},
+   ap=.25,
+   bonus=function() 
+      base={10,20,30}
+      return base[GetSpellLevel("R")]
+   end
 }
 spells["green"] = {
    key="W", 
@@ -34,8 +51,19 @@ spells["green"] = {
             return GetSpellDamage("green")*(1-GetHPerc(target))
          end
          return 0
-      end
+      end,
    type="H"
+}
+spells["shield"] = {
+   key="W",
+   range=350,
+   color=green,
+   base={40,60,80,100,120},
+   ap=.2,
+   bonus=function() 
+      base={10,20,30}
+      return base[GetSpellLevel("R")]
+   end   
 }
 spells["violet"] = {
    key="E", 
@@ -51,13 +79,23 @@ spells["yellow"] = {
    ap=.5
 }
 
-pcBlue = nil
-pcGreen = nil
-pcViolet = nil
 
 -- TODO track power chord and change AA target depending.
 
 function Run()
+   spells["AA"].bonus = 0
+
+   if P.pcBlue or P.pcGreen or P.pcViolet then
+      spells["AA"].bonus = GetSpellDamage("chord")
+      if P.pcBlue then
+         spells["AA"].bonus = spells["AA"].bonus * 1.5
+      end
+   end
+
+   if P.valor then
+      spells["AA"].bonus = spells["AA"].bonus + GetSpellDamage("valor")
+   end
+
    if StartTickActions() then
       return true
    end
@@ -70,26 +108,40 @@ function Run()
             not IsRecalling(ca)
          then
             target = ca
+            break
          end
       end
       
       if GetMPerc(me) > .9 then
          -- TODO check if there's an OOR heal that I should wait for
          -- else top off
-         if target.health + GetSpellDamage("green", target) < target.maxHealth*.9 or
+         if target and
+            target.health + GetSpellDamage("green", target) < target.maxHealth*.9 or
             me.health + GetSpellDamage("green", me) < me.maxHealth*.9
-         end
+         then
             Cast("green", me)
             PrintAction("Top off")
             return true
          end
       end
 
-      if target.health + GetSPellDamage("green", target) < target.maxHealth*.66 or
-         me.health + GetSPellDamage("green", me) < me.maxHealth*.66
-      then
+      local score = 0      
+      if target then
+         if target.health + GetSpellDamage("green", target) < target.maxHealth*.75 then
+            score = score + 2
+         elseif target.health + GetSpellDamage("green", target) < target.maxHealth*.9 then
+            score = score + 1
+         end
+      end
+      if me.health + GetSpellDamage("green", me) < me.maxHealth*.75 then
+         score = score + 2
+      elseif me.health + GetSpellDamage("green", me) < me.maxHealth*.9 then
+         score = score + 1
+      end
+
+      if score >= 2 then
          Cast("green", me)
-         PrintAction("Heal because I should", target)
+         PrintAction("Heal because I should", score)
          return true
       end
 
@@ -101,7 +153,7 @@ function Run()
       end
    end
    
-   if IsOn("lastHit") and Alone() and CanUse("blue") then
+   if IsOn("lasthit") and Alone() and CanUse("blue") then
       local minionRays = 2
       local targets = SortByDistance(GetInRange(me, "blue", MINIONS))
       for _,minion in ipairs(targets) do
@@ -109,7 +161,7 @@ function Run()
             break
          end
          if WillKill("blue", minion) then
-            Cast("blue", minion)
+            Cast("blue", me)
             PrintAction("Blue for lasthit")
             return true
          end
@@ -159,7 +211,30 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   local target = GetMarkedTarget()
+   if not target then
+      if P.pcGreen then
+         if IsInRange(EADC) then 
+            target = EADC
+         elseif IsInRange(EAPC) then
+            target = EAPC
+         end
+      end
+   end
+   if not target then
+      if me.selflevel <= 5 or 
+         P.pcBlue or 
+         P.pcGreen or 
+         P.pcViolet or 
+         P.valor or
+         P.lichbane or
+         P.iceborn or
+         P.enrage
+      then
+         target = GetWeakestEnemy("AA")
+      end
+   end
+
    if AutoAA(target) then
       return true
    end
@@ -167,19 +242,30 @@ function Action()
 end
 
 local function onObject(object)
-   if find(object.charName, "SonaPowerChordReady") then
-      if find(object.charName, "blue") then
-         pcBlue = {object.charName, object}
-      elseif find(object.charName, "green") then
-         pcGreen = {object.charName, object}
-      elseif find(object.charName, "violet") then
-         pcViolet = {object.charName, object}
-      end
+   if PersistBuff("pcBlue", object, "Sona_Base_Q_PCReady_CoreRings") then
+      ResetAttack()
    end
-   
+   if PersistBuff("pcGreen", object, "Sona_Base_W_PCReady_CoreRings") then
+      ResetAttack()
+   end
+   if PersistBuff("pcViolet", object, "Sona_Base_E_PCReady_CoreRings") then
+      ResetAttack()
+   end
+
+   PersistBuff("valor", object, "Sona_Base_Q_Buff.troy")
 end
 
 local function onSpell(object, spell)
+   if CheckShield("shield", unit, spell, "CHECK") then
+      local allies = GetInRange(me, "heal", ALLIES)
+      for _,ally in ipairs(allies) do
+         if GetHPerc(ally) < .9 then
+            Cast("green", me)
+            PrintAction("Shield")
+            break
+         end
+      end
+   end
 end
 
 AddOnCreate(onObject)

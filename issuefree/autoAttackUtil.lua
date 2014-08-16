@@ -197,9 +197,6 @@ local function getAAData()
                        resets = {me.SpellNameW},
                        particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
 
-      Sona         = { projSpeed = 1.6,
-                       particles = {"SonaBasicAttack_mis", "SonaBasicAttack_tar", "SonaCritAttack_mis", "SonaPowerChord_AriaofPerseverance_mis", "SonaPowerChord_AriaofPerseverance_tar", "SonaPowerChord_HymnofValor_mis", "SonaPowerChord_HymnofValor_tar", "SonaPowerChord_SongOfSelerity_mis", "SonaPowerChord_SongOfSelerity_tar", "SonaPowerChord_mis", "SonaPowerChord_tar"} },
-
       Soraka       = { projSpeed = 1.0,
                        particles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"} },
 
