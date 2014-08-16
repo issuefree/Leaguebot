@@ -138,7 +138,7 @@ end
 
 function Action()
    if CanUse("spike") then
-      local kills = GetKills("spike", ENEMIES)
+      local kills = GetKills("spike", GetInRange(me, "spike", ENEMIES))
       if kills[1] then
          Cast("spike", kills[1])
          PrintAction("Spike for execute", kills[1])
@@ -183,7 +183,7 @@ end
 
 local function onSpell(unit, spell)
    if ICast("orb", unit, spell) then
-      PersistTemp("orb", .25)
+      PersistTemp("orb", .5)
    end
 end
 
