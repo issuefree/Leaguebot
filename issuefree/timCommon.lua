@@ -728,7 +728,7 @@ end
 
 function MoveToTarget(t)
    if CanMove() then
-      local x,y,z = GetFireahead(t, 5, 0)
+      local x,y,z = GetFireahead(t, 2.5, 0)
       MoveToXYZ(x,y,z)
       CURSOR = Point(x,y,z)
       PrintAction("MTT", t, 1)
@@ -1864,7 +1864,7 @@ function MeleeMove()
    if CanMove() then   
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
-         if GetDistance(target) > spells["AA"].range then
+         if GetDistance(target) > GetAARange() then
             if not RetreatingFrom(target) then
                if MoveToTarget(target) then
                   return true
