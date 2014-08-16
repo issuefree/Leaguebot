@@ -406,6 +406,7 @@ function UnderMyTower(target)
 end
 
 function IsInRange(thing, target, source)
+   if not target then return false end
    local range
    if type(thing) ~= "number" then
       range = GetSpellRange(thing)
