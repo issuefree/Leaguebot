@@ -11,6 +11,11 @@ pp("\nTim's Yorick")
 
 SetChampStyle("bruiser")
 
+InitAAData({ 
+   windup=.30,
+   resets = {me.SpellNameQ}
+})
+
 AddToggle("tear", {on=true, key=112, label="Charge Tear"})
 AddToggle("autoDeath", {on=true, key=113, label="Omen of Death allies"})
 AddToggle("", {on=true, key=114, label=""})
@@ -55,11 +60,6 @@ spells["death"] = {
    color=red,
    cost=100
 }
-
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
 
 local numGhouls = 0
 
@@ -120,20 +120,11 @@ function Run()
    if IsOn("lasthit") then
       if Alone() then
          
-         if #GetInRange(me, GetAARange()+250, MINIONS) >= 2 then
+         -- if #GetInRange(me, GetAARange()+250, MINIONS) >= 2 then
             if ModAAFarm("war") then
                return true
             end
-         end
-
-         local manaThresh = .5
-         if CanChargeTear() then 
-            manaThresh = manaThresh * .5
-         end
-         if VeryAlone() then
-            manaThresh = manaThresh * .75
-         end
-
+         -- end
 
          -- pestilence for aoe
          if CanUse("pestilence") then

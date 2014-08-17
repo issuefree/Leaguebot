@@ -222,9 +222,6 @@ local function getAAData()
                        particles={"xen_ziou_intimidate"},
                        resets={me.SpellNameQ}, },
 
-      Yorick       = { windup=.30,
-                       resets = {me.SpellNameQ} },
-
       Ziggs        = { projSpeed = 1.5,
                        particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
 
