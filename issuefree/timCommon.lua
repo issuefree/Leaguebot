@@ -1638,7 +1638,7 @@ function TimTick()
       -- StopMove()
    end
 
-   if CURSOR then
+   if Point(CURSOR):valid() then
       Circle(CURSOR, 33, blue)
       LineBetween(me, CURSOR)
    end
