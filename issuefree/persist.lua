@@ -95,8 +95,7 @@ ccNames = {
    "Zyra_E_sequence_root",
 
    -- self inflicted ccs
-   -- "pantheon_heartseeker_cas2",
-   -- "gragas_drunkenRage_attack_buf",
+   "pantheon_heartseeker_cas2",
    "Katarina_deathLotus_cas",
    "drain.troy",
    "ReapTheWhirlwind_green_cas",
@@ -456,6 +455,14 @@ function createForPersist(object)
       PersistOnTargets("cc", object, object.charName, ENEMIES, ALLIES)
    end
 
+   for _,enemy in ipairs(ENEMIES) do
+      if enemy.y - me.y > 75 then
+         PersistOnTargets("cc", enemy, enemy.charName, ENEMIES)
+      else
+         P["cc"..enemy.id] = nil
+      end
+   end
+
    if find(object.charName, "Ward") then
       table.insert(WARDS, object)
    end
@@ -476,6 +483,9 @@ function createForPersist(object)
    PersistOnTargets("dfg", object, "deathFireGrasp_tar", ENEMIES)
 
    PersistOnTargets("hemoplague", object, "Vladimir_Base_R_debuff.troy", ENEMIES)
+
+   PersistBuff("blind", object, "Global_miss.troy")
+   PersistBuff("silence", object, "LOC_Silence.troy")
 
    PersistBuff("muramana", object, "ItemMuramanaToggle")
 
