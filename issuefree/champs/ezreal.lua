@@ -5,6 +5,13 @@ pp("\nTim's Ezreal")
 
 SetChampStyle("marksman")
 
+InitAAData({ 
+   projSpeed = 2.0, windup=.2,
+   minMoveTime=0,
+   extraRange=-25,
+   particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}
+})
+
 AddToggle("harrass", {on=true, key=112, label="Harrass"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("tear", {on=true, key=114, label="Charge tear"})
@@ -114,9 +121,6 @@ function Run()
    end
 
    if IsOn("clear") then
-      if HitMinion("shot") then
-         return true
-      end
    end
 
    if HotKey() and CanAct() then

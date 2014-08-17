@@ -5,6 +5,11 @@ pp("Tim's Soraka")
 
 SetChampStyle("support")
 
+InitAAData({ 
+	projSpeed = 1.0, windup=.25,
+	particles = {"SorakaBasicAttack"}
+})
+
 spells["starfall"] = {
 	key="Q", 
 	range=650,  

@@ -1,6 +1,11 @@
 require "issuefree/timCommon"
 require "issuefree/modules"
 
+InitAAData({ 
+   projSpeed = 2.4, windup=.25,
+   particles = {"ManaLeach_mis"}
+})
+
 pp("Tim's Ryze")
 pp(" - prison > overload > flux")
 pp(" - lasthit w/overload depending on mana")

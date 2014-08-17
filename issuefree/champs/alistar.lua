@@ -5,6 +5,10 @@ pp("\nTim's Alistar")
 pp(" - Heal nearby allies")
 pp(" - Knock shit up, do the Ali dance.")
 
+InitAAData({ 
+   windup=.25
+})
+
 AddToggle("heal", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"roar"}})
 AddToggle("combo", {on=true, key=113, label="Combo"})
 AddToggle("", {on=true, key=114, label=""})
