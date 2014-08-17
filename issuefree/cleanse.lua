@@ -41,7 +41,8 @@ local function cleanseObj(object)
 		end
 		
 		if me.name == "Olaf" and CanUse("R") and
-			CheckCC(object, byAbil) 
+			CheckCC(object, byAbil) and
+			not Alone()
       then
 			Cast("R", me)
 			pp("Removed "..object.charName.." with Ragnarok.")
