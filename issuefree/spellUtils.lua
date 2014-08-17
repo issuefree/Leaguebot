@@ -141,7 +141,10 @@ function CanUse(thing)
       	if not ListContains(thing.key, {"Q","W","E","R","D","F"}) then
       		return false
       	end
-         if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and  me.mana >= GetSpellCost(thing) ) then
+         if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and me.mana >= GetSpellCost(thing) ) then
+         	if P.silence then
+         		return false
+         	end
             return IsCooledDown(thing.key, thing.extraCooldown)
          else
             return false
