@@ -52,8 +52,6 @@ local function getAAData()
 
       Akali        = { windup = .2 },
 
-      Alistar      = { windup=.25 },
-
       Amumu        = { windup=.30,
                        particles = {"SadMummyBasicAttack"} },
 
@@ -94,11 +92,6 @@ local function getAAData()
 
       Draven       = { projSpeed = 1.4,
                        particles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"} },
-
-      Ezreal       = { projSpeed = 2.0, windup=.2,
-                       minMoveTime=0,
-                       extraRange=-25,
-                       particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"} },
 
       FiddleSticks = { projSpeed = 1.75, windup=.30,
                        particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
@@ -187,18 +180,12 @@ local function getAAData()
       Riven        = { windup=.25,
                        resets = {me.SpellNameQ} },
 
-      Ryze         = { projSpeed = 2.4, windup=.25,
-                       particles = {"ManaLeach_mis"} },
-
       Shyvana      = { 
                        resets = {me.SpellNameQ} },
 
       Sivir        = { projSpeed = 1.4, windup=.15,
                        resets = {me.SpellNameW},
                        particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
-
-      Soraka       = { projSpeed = 1.0,
-                       particles = {"SorakaBasicAttack_mis", "SorakaBasicAttack_tar"} },
 
       Swain        = { projSpeed = 1.6,
                        particles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"} },
@@ -433,6 +420,9 @@ function ResetAttack()
 end
 
 function CanAttack()
+   if P.blind then
+      return false
+   end
    return time() > getNextAttackTime() - latency
 end
 
