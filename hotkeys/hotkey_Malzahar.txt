@@ -1,0 +1,11 @@
+LALT LOADSCRIPT=issuefree/champs/malzahar.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
