@@ -10,6 +10,10 @@ pp(" - Slash for last hit >= 2")
 
 SetChampStyle("caster")
 
+InitAAData({ 
+   windup = .25
+})
+
 AddToggle("ultSpam", {on=true, key=112, label="Ult Spam"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -155,9 +159,9 @@ end
 
 local function onObject(object)
    local target = PersistOnTargets("mark", object, "akali_markOftheAssasin_marker", ENEMIES)
-   if not GetMarkedTarget() then
-      Persist("markedTarget", target)
-   end
+   -- if not GetMarkedTarget() then
+   --    Persist("markedTarget", target)
+   -- end
    PersistOnTargets("mark", object, "akali_markOftheAssasin_marker", MINIONS)
 
    Persist("shroud", object, "akali_smoke_bomb_tar_team_green")
