@@ -40,7 +40,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["transfusion"] = {
    key="Q", 
-   range=600-50,
+   range=600-25,
    color=violet, 
    base={90,125,160,195,230}, 
    ap=.6
@@ -55,7 +55,7 @@ spells["pool"] = {
 } 
 spells["tides"] = {
    key="E", 
-   range=610-35, 
+   range=610-45, 
    color=yellow, 
    base={60,85,110,135,160}, 
    ap=.45,
