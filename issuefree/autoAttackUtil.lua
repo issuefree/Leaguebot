@@ -50,8 +50,6 @@ local function getAAData()
       Ahri         = { projSpeed = 1.6,
                        particles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"} },
 
-      Akali        = { windup = .2 },
-
       Amumu        = { windup=.30,
                        particles = {"SadMummyBasicAttack"} },
 
@@ -148,9 +146,6 @@ local function getAAData()
       Lux          = { projSpeed = 1.55, windup=.15,
                        particles = {"LuxBasicAttack"} },
 
-      Malzahar     = { projSpeed = 1.5,
-                       particles = {"AlzaharBasicAttack_cas", "AlZaharBasicAttack_mis"} },
-
       MasterYi     = { windup=.25,
                        particles = {"Wuju_Trail"} },
 
@@ -186,9 +181,6 @@ local function getAAData()
       Sivir        = { projSpeed = 1.4, windup=.15,
                        resets = {me.SpellNameW},
                        particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
-
-      Swain        = { projSpeed = 1.6,
-                       particles = {"swain_basicAttack_bird_cas", "swain_basicAttack_cas", "swainBasicAttack_mis"} },
 
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
