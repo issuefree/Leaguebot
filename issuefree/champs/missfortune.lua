@@ -312,8 +312,7 @@ function Action()
    end
 
    if CanUse("impure") then
-      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-      if target then
+      if GetWeakestEnemy("AA") then
          Cast("impure", me)         
          PrintAction("Impure")
       end
