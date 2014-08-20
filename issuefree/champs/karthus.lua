@@ -14,7 +14,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["lay"] = {
    key="Q", 
-   range=900, 
+   range=900-35, 
    color=violet, 
    base={40,60,80,100,120}, 
    ap=.3, 
@@ -78,7 +78,7 @@ function Run()
             
    Circle(GetMousePos(), spells["lay"].radius, red)
    
-   if IsOn("farm") and Alone() and CanUse("lay") then
+   if IsOn("lasthit") and Alone() and CanUse("lay") then
       if KillMinionsInArea("lay", 1) then
          PrintAction("Lay minions in area")
          return true
