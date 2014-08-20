@@ -23,7 +23,6 @@ spells["barrel"] = {
   delay=2,
   speed=12,
   radius=275,
-  cost={60,65,70,75,80},
   noblock=true,
   overShoot=50
 }
@@ -51,7 +50,6 @@ spells["slam"] = {
   delay=1.6,
   speed=9,
   area=150,
-  cost=50
 }
 spells["cask"] = {
   key="R", 
@@ -61,20 +59,17 @@ spells["cask"] = {
   ap=.7,
   delay=1.6,
   speed=30,
-  radius=400,
-  cost=100
+  radius=400
 }
-
-spells["AA"].damOnTarget = 
-   function(target)
-      if P.rage then
-         return GetSpellDamage("rage", target)
-      end
-   end
 
 local barrelTime = 0
 
 function Run()
+   spells["AA"].bonus = 0
+   if P.rage then
+      spells["AA"].bonus = GetSpellDamage("rage", target)
+   end
+
    if P.barrel then
       local mult = .5*math.min(time() - barrelTime, 2) / 2
       spells["barrel"].bonus = GetSpellDamage("barrel") * mult
@@ -99,7 +94,7 @@ function Run()
          local nextPos = Point(GetFireahead(enemy, 4, 0))
          if GetDistance(P.barrel, nextPos) > spell.radius then
             Cast(spell, me, true)
-            PrintAction("Pop escapees")
+            PrintAction("Pop escapees", nil, 1)
             break
          end
       end
@@ -150,6 +145,11 @@ function Action()
    local target = SkillShot("barrel")
    if target then
       UseItem("Deathfire Grasp", target)
+      return true
+   end
+
+   local target = GetMarkedTarget() or GetMeleeTarget()
+   if AutoAA(target) then
       return true
    end
 end
