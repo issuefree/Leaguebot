@@ -6,7 +6,7 @@ pp("\nTim's Tristana")
 InitAAData({
    projSpeed = 2.25, windup=.15,
    minMoveTime=0,
-   extraRange=0,  --TODO check range
+   extraRange=-25,  --TODO check range
    -- particles = {"TristannaBasicAttack_mis"}  -- Trists object is shared with minions. This could result in clipping. Can be turned back on for testing
 })
 
@@ -32,7 +32,6 @@ end
 
 spells["rapid"] = {
    key="Q", 
-   cost=50
 } 
 spells["jump"] = {
    key="W", 
@@ -43,7 +42,6 @@ spells["jump"] = {
    delay=2,
    speed=12, --?
    radius=300, --?
-   cost=60
 } 
 spells["shot"] = {
    key="E", 
@@ -52,7 +50,6 @@ spells["shot"] = {
    base={80,125,170,215,260}, 
    ap=1,
    radius=150,
-   cost={50,60,70,80,90}
 } 
 spells["buster"] = {
    key="R", 
@@ -62,7 +59,6 @@ spells["buster"] = {
    ap=1.5,
    knockback={600,800,1000},
    radius=200,
-   cost=100
 } 
 
 local jumpPoint = nil
