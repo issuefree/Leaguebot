@@ -3,13 +3,18 @@ require "issuefree/modules"
 
 print("\nTim's Nunu")
 
-AddToggle("", {on=true, key=112, label=""})
-AddToggle("boil",  {on=true, key=113, label="Boil ADC"})
-AddToggle("blast", {on=true, key=114, label="Auto Blast", auxLabel="{0}", args={"iceblast"}})
+InitAAData({ 
+   windup=.25,
+})
+
+AddToggle("boil",  {on=true, key=112, label="Boil ADC"})
+AddToggle("blast", {on=true, key=113, label="Auto Blast", auxLabel="{0}", args={"iceblast"}})
+AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "consume"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 
 spells["consume"] = {
