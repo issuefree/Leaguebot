@@ -1088,7 +1088,7 @@ function GetSkillShot(thing, purpose, targets)
 
    targets = targets or ENEMIES   
 
-   targets = GetInRange(me, spell.range+500, targets)
+   targets = GetInRange(me, GetSpellRange(spell)+500, targets)
 
    targets = GetGoodFireaheads(spell, targets)
 
@@ -1883,8 +1883,8 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1) or
-          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25)
+   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25) or
+          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5)
 end
 
 function DrawKnockback(object2, thing)
