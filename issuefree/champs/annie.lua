@@ -209,6 +209,14 @@ function Action()
       end
    end
 
+   if not CanUse("inc") then
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      -- local target = GetMarkedTarget() or GetMeleeTarget()
+      if AutoAA(target) then
+         return true
+      end
+   end
+
    return false
 end   
 
