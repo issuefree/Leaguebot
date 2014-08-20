@@ -206,10 +206,6 @@ local function getAAData()
 
       Warwick      = { windup=.35 },
 
-      Xerath       = { projSpeed = 1.2, windup=.35,
-                       attacks = {"XerathBasicAttack"},
-                       particles = {"Xerath_Base_BA_mis"} },
-
       XinZhao      = { windup=.35,
                        particles={"xen_ziou_intimidate"},
                        resets={me.SpellNameQ}, },

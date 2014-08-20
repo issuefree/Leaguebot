@@ -2,9 +2,15 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 pp("\nTim's Xerath")
-pp(" - Xerath sucks")
+pp(" - Xerath sucks (hard to script)")
 
 SetChampStyle("caster")
+
+InitAAData({ 
+   projSpeed = 1.2, windup=.3,
+   attacks = {"XerathBasicAttack"},
+   particles = {"Xerath_Base_BA_mis"}
+})
 
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
@@ -29,7 +35,6 @@ spells["bolt"] = {
    width=75,
    noblock=true,
    overShoot=100,
-   cost={80,90,100,110,120},
    extraCooldown=.75
 } 
 spells["eye"] = {
@@ -40,8 +45,7 @@ spells["eye"] = {
    ap=.6,
    delay=7,
    speed=0,
-   radius=275,
-   cost={70,80,90,100,110}
+   radius=275
 } 
 spells["orb"] = {
    key="E", 
@@ -51,8 +55,7 @@ spells["orb"] = {
    ap=.45,
    delay=2,
    speed=14,
-   width=90,
-   cost={60,65,70,75,80}
+   width=90
 } 
 spells["rite"] = {
    key="R",
@@ -64,8 +67,6 @@ spells["rite"] = {
    speed=0,
    noblock=true,
    radius=150,
-   cost=100,
-   baseCost=100
 } 
 
 spells["maxBolt"] = copy(spells["bolt"])
@@ -74,14 +75,12 @@ spells["maxBolt"].range = spells["maxBolt"].maxRange
 local chargeStartTime = 0
 
 local x,y = me.x, me.z
+canSurge = true
 
 function Run()
-   if P.rite then
-      PrintState(0, "RITE")
-   end
-
-   PrintState(0, GetSpellRange("bolt"))
-
+   PrintState(0, me.SpellTimeQ)
+   PrintState(1, me.SpellTimeW)
+   PrintState(2, me.SpellTimeE)
    if P.charging then
       local chargeDuration = math.min(time() - chargeStartTime, 1.5)
       local addRange = spells["bolt"].maxRange - spells["bolt"].baseRange
@@ -117,9 +116,7 @@ function Run()
       if IsOn("lasthit") then
          if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
             local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
-            pp("max "..maxScore)
             local hits,_,score = GetBestLine(me, "bolt", .15, 1, MINIONS)
-            pp("score "..score)
 
             local killsNeeded = 5
             if GetMPerc(me) > .75 then
@@ -209,6 +206,15 @@ function Run()
 
    end
 
+   if canSurge then
+      local target = GetInRange(me, "AA", ENEMIES, MINIONS, CREEPS, PETS)
+      if AA(target) then
+         PrintAction("AA for surge")
+         return true
+      end
+   end
+
+
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() then
       if FollowUp() then
@@ -221,9 +227,24 @@ function Run()
 end
 
 function Action()
+   if CanUse("orb") then
+      if GetMPerc(me) > .5 then
+         if SkillShot("orb") then
+            return true
+         end
+      else
+         local target = GetSkillShot("orb")
+         if target and GetDistance(target) < 750 then
+            CastFireahead("orb", target)
+            PrintAction("Orb at close", target)
+            return true
+         end
+      end
+   end
+
    if CanUse("bolt") and not P.charging then
 
-      local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, ENEMIES)
+      local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, GetInRange(me, "maxBolt", ENEMIES))
       if maxScore >= 1 then
          StartBolt()
          return true
@@ -235,7 +256,7 @@ function Action()
    end
 
    -- for mana
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   local target = GetWeakestEnemy("AA")
    if AutoAA(target) then
       return true
    end
@@ -273,7 +294,6 @@ function FinishBolt(t)
       end
       ClickSpellXYZ("Q", t.x, t.y, t.z, 0)
       PrintAction("Finish Bolt")
-      send.key_up(SKeys.Q)
       DoIn(
          function() 
             if sx then 
@@ -281,10 +301,12 @@ function FinishBolt(t)
                sx = nil
                sy = nil
             end
+            P.charging = nil
          end, 
          .1 
       )
    end
+   send.key_up(SKeys.Q)
 end
 
 
@@ -300,7 +322,16 @@ local function onSpell(unit, spell)
    if IsMe(unit) and spell.name == "xeratharcanopulse2" then
       P.charging = nil
    end
+
+   if IAttack(unit, spell) then
+      if not canSurge then
+         DoIn(function() canSurge = true end, 12, "surge")
+         canSurge = false
+      end
+   end
 end
+
+
 
 AddOnCreate(onObject)
 AddOnSpell(onSpell)
