@@ -62,7 +62,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
-AddToggle("", {on=true, key=118, label="Move"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
 	spells["infuseMana"].cost = me.maxMana * .05
@@ -132,6 +132,12 @@ function Action()
 			return true
 		end
    end
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
 	return false		
 end
 
