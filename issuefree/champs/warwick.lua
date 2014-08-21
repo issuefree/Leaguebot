@@ -92,7 +92,7 @@ end
 function Action()
    if CanUse("howl") and GetWeakestEnemy("AA",100) then
       Cast("howl", me) -- non blocking
-      PrintAction("Howl")
+      PrintAction("Howl", nil, 1)
    end
 
    if CastBest("strike") then
