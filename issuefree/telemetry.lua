@@ -339,7 +339,10 @@ end
 
 function RetreatingFrom(target)
    if not CURSOR then return false end
-   return GetDistance(CURSOR) > 500 and GetDistance(CURSOR) < GetDistance(CURSOR, target)
+
+   return GetDistance(CURSOR) > 500 and 
+          GetDistance(target) < GetDistance(CURSOR, target) and
+          GetDistance(CURSOR) < GetDistance(CURSOR, target)
 end
 
 -- function Chasing(enemy)
