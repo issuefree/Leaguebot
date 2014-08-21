@@ -9,6 +9,11 @@ require "issuefree/modules"
 
 pp("\nTim's Evelynn")
 
+InitAAData({ 
+   windup=.3,
+   extraRange=-25,
+   particles = {"EvelynnBasicAttack_tar"}
+})
 AddToggle("stealth", {on=false, key=112, label="Stealth Mode"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
@@ -59,11 +64,6 @@ spells["embrace"] = {
    cost=100
 } 
 
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
-
 function Run()
    if StartTickActions() then
       return true
@@ -85,7 +85,7 @@ function Run()
       then
 
          if CanUse("spike") then
-            if ( Alone() and GetMPerc(me) > .33 ) or
+            if ( Alone() and GetMPerc(me) > .25 ) or
                VeryAlone()
             then
                local minions = GetInRange(me, "spike", MINIONS)
@@ -99,12 +99,14 @@ function Run()
                   return true
                end
 
-               local lt = SortByHealth(minions)[1]
+               local lt = SortByHealth(minions)[1]               
                if lt and WillKill("spike", lt) then
-                  Cast("spike", me)
-                  AddWillKill(lt, "spike")
-                  PrintAction("Spike for LH")
-                  return true
+                  if not IsInRange("AA", lt) or JustAttacked() then
+                     Cast("spike", me)
+                     AddWillKill(lt, "spike")
+                     PrintAction("Spike for LH")
+                     return true
+                  end
                end
             end
          end
@@ -113,9 +115,9 @@ function Run()
             if ( Alone() and GetMPerc(me) > .5 ) or
                ( VeryAlone() and GetMPerc(me) > .25 )
             then
-               local target = KillMinion("ravage", "strong", true)
+               local target = KillMinion("ravage", "strong", false, true)
                if target and not WillKill("AA", target) then
-                  if KillMinion("ravage", "strong") then
+                  if KillMinion("ravage", "strong", true) then
                      return true
                   end
                end
@@ -125,6 +127,20 @@ function Run()
       end
    end
    
+   if IsOn("clear") then
+      if CanUse("spike") then
+         if ( Alone() and GetMPerc(me) > .5 ) or 
+            ( VeryAlone() and GetMPerc(me) > .25 )
+         then
+            if #GetInRange(me, "spike", MINIONS) > 0 then
+               Cast("spike", me)
+               PrintAction("Spike for clear")
+               return true
+            end
+         end
+      end
+   end
+
    if IsOn("jungle") and Alone() then
       if JustAttacked() then
          if CanUse("spike") then
@@ -169,15 +185,13 @@ function Action()
       end
    end
 
-   if CastBest("spike") then
-      return true
-   end
-
    if CastBest("ravage") then
       return true
    end
 
-   -- TODO auto W?
+   if CastBest("spike") then
+      return true
+   end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
    if AutoAA(target) then

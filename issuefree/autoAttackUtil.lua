@@ -63,9 +63,6 @@ local function getAAData()
       Elise        = { windup=.25,
                        particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
 
-      Evelynn      = { windup=.3,
-                       particles = {"EvelynnBasicAttack_tar"} },
-
       Anivia       = { projSpeed = 1.05, windup = .4,
                        particles = {"cryoBasicAttack"} },
 
