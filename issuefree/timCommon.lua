@@ -1729,6 +1729,12 @@ function StartTickActions()
       end
    end
 
+   if HotKey() then
+      if GetDistance(mousePos) < 3000 then
+         CURSOR = Point(mousePos)
+      end
+   end
+
    return false
 end
 
@@ -1751,7 +1757,6 @@ function AutoMove()
       if HotKey() then
          if GetDistance(mousePos) < 3000 then
             MoveToCursor()
-            CURSOR = Point(mousePos)
          end
       end
       if needMove and CURSOR then      
@@ -1861,11 +1866,15 @@ function ModAAJungle(thing)
 end
 
 function MeleeMove()
+   local lockRange = 350
    if CanMove() then   
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
-         if GetDistance(target) > GetAARange() then
-            if not RetreatingFrom(target) then
+         if GetDistance(target) > GetAARange() then            
+            -- if not RetreatingFrom(target) then
+            Circle(target, lockRange, yellow)
+            if GetDistance(target, CURSOR) < 350 then
+               Circle(target, lockRange, red, 3)
                if MoveToTarget(target) then
                   return true
                end
@@ -1883,8 +1892,8 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.25) or
-          GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5)
+   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5) or
+          GetWeakEnemy("PHYS", GetSpellRange("AA")*2)
 end
 
 function DrawKnockback(object2, thing)
