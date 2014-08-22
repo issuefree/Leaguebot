@@ -22,7 +22,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["hunter"] = {
    key="Q", 
-   range=1000,
+   range=1000-50,
    lockedRange=1200,
    color=violet, 
    base={10,40,70,100,130}, 
