@@ -13,54 +13,34 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["bomb"] = {
-  key="Q", 
-  range=695, 
-  color=violet, 
-  base={90,145,200,260,320}, 
-  ap=.9,
-  cost={70,85,100,115,130},
-  radius=325
+   key="Q", 
+   range=695, 
+   color=violet, 
+   base={90,145,200,260,320}, 
+   ap=.9,
+   radius=325
+   -- cost={70,85,100,115,130},
 }
 spells["rewind"] = {
-  key="W", 
-  cost=50
+   key="W", 
+   -- cost=50
 }
 spells["warp"] = {
-  key="E", 
-  range=700, 
-  color=yellow, 
-  cost=80
+   key="E", 
+   range=700, 
+   color=yellow, 
+   -- cost=80
 }
 spells["chrono"] = {
-  key="R", 
-  range=780, 
-  color=green, 
-  cost={125,150,175}
-}
+   key="R", 
+   range=780, 
+   color=green, 
+   -- cost={125,150,175}
+} 
 
 function Run()
    if StartTickActions() then
       return true
-   end
-
-   if IsOn("autoChrono") and CanUse("chrono") then
-      local targets = GetInRange(me, "chrono", ALLIES)
-      local bestT
-      local bestP
-      for _,target in ipairs(targets) do
-         local tp = GetHPerc(target)
-         if tp < .2 and #GetInRange(target, 500, ENEMIES) > 0 then
-            if not bestT or tp < bestP then
-               bestT = target
-               bestP = tp
-            end
-         end
-      end
-      if bestT then
-         Cast("chrono", bestT)
-         PrintAction("Save", bestT)
-         return true
-      end
    end
 
 	if HotKey() and CanAct() then
@@ -94,12 +74,13 @@ function Run()
          return true
       end
    end
+
    EndTickActions()
 end
 
 function Action()
    if GetWeakestEnemy("bomb") then
-      if GetCD("bomb") > 4 and CanUse("rewind") then
+      if GetCD("bomb") > 3 and CanUse("rewind") then
          Cast("rewind", me)
          PrintAction("Rewind")
          return true
@@ -122,7 +103,14 @@ end
 local function onObject(object)
 end
 
-local function onSpell(object, spell)
+local function onSpell(unit, spell)
+   if IsOn("autoChrono") and CanUse("chrono") then
+      local target = CheckShield("chrono", unit, spell, "CHECK")
+      if target and GetHPerc(target) < .2 then
+         Cast("chrono", target)
+         PrintAction("CHRONO to save from "..spell.name, bestT)
+      end
+   end
 end
 
 AddOnCreate(onObject)
