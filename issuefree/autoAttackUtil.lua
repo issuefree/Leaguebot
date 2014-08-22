@@ -201,8 +201,6 @@ local function getAAData()
       Viktor       = { projSpeed = 2.25,
                        particles = {"ViktorBasicAttack"} },
 
-      Warwick      = { windup=.35 },
-
       XinZhao      = { windup=.35,
                        particles={"xen_ziou_intimidate"},
                        resets={me.SpellNameQ}, },

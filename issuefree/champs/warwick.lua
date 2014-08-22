@@ -6,6 +6,10 @@ pp(" - Howl if near enemies")
 pp(" - Strike enemies")
 pp(" - AA enemies")
 
+InitAAData({
+   windup=.4
+})
+
 local thirstDam = {3,3.5,4,4.5,5,5.5,6,6.5,7,8,9,10,11,12,13,14,15,16}
 
 AddToggle("", {on=true, key=112, label=""})
