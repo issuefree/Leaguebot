@@ -96,9 +96,6 @@ local function getAAData()
       Graves       = { projSpeed = 3.0, windup=.25,
                        particles = {"Graves_BasicAttack_mis"} },
 
-      Heimerdinger = { projSpeed = 1.4,
-                       particles = {"heimerdinger_basicAttack_mis", "heimerdinger_basicAttack_tar"} },
-
       Irelia       = { windup=.3 },
 
       JarvanIV     = { 
@@ -338,10 +335,12 @@ function aaTick()
    if ModuleConfig.aaDebug then
       if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
          pp("No object. Windup "..aaData.windup.." too short. Incrementing")
-         if windups[aaData.windup] then
-            windups[aaData.windup] = windups[aaData.windup] - 2
-            if windups[aaData.windup] < 1 then
-               windups[aaData.windup] = nil
+         for wu,_ in ipairs(windups) do
+            if wu <= aaData.windup then
+               windups[wu] = windups[wu] - 5
+               if windups[wu] < 1 then
+                  windups[wu] = nil
+               end
             end
          end
 

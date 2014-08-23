@@ -3,54 +3,59 @@ require "issuefree/modules"
 
 pp("\nTim's Heimerdinger")
 
+SetChampStyle("caster")
+
+InitAAData({
+  projSpeed = 1.4, windup=.25,
+  particles = {"Heimerdinger_Base_AA"}
+})
+
 AddToggle("ult", {on=true, key=112, label="Auto Ult"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "grenade"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
-spells["aura"] = {
-  range=1100, 
-  color=green
-}
 spells["turret"] = {
-  key="Q", 
-  range=450,
-  turretRange=525,
-  color=yellow,
-  cost=20
+   key="Q", 
+   range=450,
+   turretRange=525,
+   color=yellow,
+   -- cost=20
 }
 spells["rockets"] = {
-  key="W", 
-  range=1200, 
-  color=violet, 
-  base={60,90,120,150,180}, 
-  ap=.45,
-  delay=1,
-  speed=20,
-  width=50,
-  overShoot=-100,
-  cost={70,80,90,100,110}
+   key="W", 
+   range=1200, 
+   color=violet, 
+   base={60,90,120,150,180}, 
+   ap=.45,
+   delay=2.4,  -- TestSkillShot
+   speed=22,
+   width=50,
+   overShoot=-100,
+   noblock=true,
+   -- cost={70,80,90,100,110}
 }
 spells["grenade"] = {
-  key="E", 
-  range=925, 
-  color=blue, 
-  base={60,100,140,180,220}, 
-  ap=.6,
-  delay=2.5,
-  speed=12,
-  noblock=true,
-  radius=210,
-  radiusBase=210,
-  radiusUp=420,
-  cost=85
+   key="E", 
+   range=925, 
+   color=blue, 
+   base={60,100,140,180,220}, 
+   ap=.6,
+   delay=2.4, -- TestSkillShot
+   speed=12,
+   noblock=true,
+   radius=165, -- reticule
+   radiusBase=165,
+   radiusUp=330,
+   -- cost=85
 }
 spells["upgrade"] = {
-  key="R", 
-  cost=100
+   key="R", 
+   -- cost=100
 }
 
 function Run()
@@ -62,16 +67,27 @@ function Run()
 
    if P.upgrade then
       PrintState(1, "UPGRADE")
-      spells["rockets"].noblock = true
+      -- spells["rockets"].noblock = true
       spells["grenade"].radius = spells["grenade"].radiusUp
    else
-      spells["rockets"].noblock = false
+      -- spells["rockets"].noblock = false
       spells["grenade"].radius = spells["grenade"].radiusBase
    end
 
    if CheckDisrupt("grenade") then
       return true
    end
+
+   if CanUse("rockets") and CanUse("upgrade") and not P.upgrade then
+     local target = CastAtCC("rockets", true, true)
+     if target then
+        Cast("upgrade", me)
+        StartChannel(.25)
+        -- CastXYZ("rockets", target)
+        PrintAction("Destroy CCd", target)
+        return true
+     end
+  end
 
    if CastAtCC("rockets") or
       CastAtCC("grenade")
@@ -97,6 +113,16 @@ function Run()
    --    end
    -- end
 
+   if IsOn("lasthit") then
+      if CanUse("grenade") then
+         if GetMPerc(me) > .66 then
+            if KillMinionsInArea("grenade", 3) then
+               return true
+            end
+         end
+      end
+   end
+
    if HotKey() then
       if FollowUp() then
          return true
@@ -106,6 +132,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("grenade", "Heimerdinger_Base_E_Mis")
+   -- TestSkillShot("rockets", nil, {"W_cas"})
+
    if IsOn("ult") and ( CanUse("upgrade") or P.upgrade ) then
 
       if CanUse("grenade") then
@@ -121,26 +150,41 @@ function Action()
          end
       end
 
-      if CanUse("rockets") then
-         spells["rockets"].noblock = true
-         local target = GetSkillShot("rockets")
-         if target then
-            if not P.upgrade then
-               Cast("upgrade", me)
-            end
-            UseItem("Deathfire Grasp", target)
-            CastFireahead("rockets", target)
-            PrintAction("Rockets (UPGRADE)", target)
-            return true
-         end
-      end
+      -- if CanUse("rockets") then
+      --    spells["rockets"].noblock = true
+      --    local target = GetSkillShot("rockets")
+      --    if target then
+      --       if not P.upgrade then
+      --          Cast("upgrade", me)
+      --       end
+      --       UseItem("Deathfire Grasp", target)
+      --       CastFireahead("rockets", target)
+      --       PrintAction("Rockets (UPGRADE)", target)
+      --       return true
+      --    end
+      -- end
 
    end
 
    if SkillShot("grenade") then
+      PersistTemp("grenade", 1)
       return true
    end
-   if SkillShot("rockets") then
+
+   if not CanUse("grenade") and not P.grenade then
+      if SkillShot("rockets") then
+         return true
+      end
+   end
+
+   if P.parts then
+      if SkillShot("turret") then
+         return true
+      end
+   end
+
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
       return true
    end
 
@@ -152,8 +196,9 @@ function FollowUp()
 end
 
 local function onObject(object)
-   PersistBuff("upgrade", object, "HolyFervor_buf")
+   PersistBuff("upgrade", object, "Heimerdinger_Base_R_Beam.troy")
    PersistAll("sentry", object, "H-28G Evolution Turret")
+   PersistBuff("parts", object, "Heimer_Q_Ammo")
 end
 
 local function onSpell(object, spell)
