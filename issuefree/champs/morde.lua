@@ -132,7 +132,7 @@ function Action()
       if target then
          if #GetInRange(target, 750, ENEMIES) >= 2 then
             local hpThresh = 1
-            if GetInRange(target, 1000, ALLIES) >= 2 then
+            if #GetInRange(target, 1000, ALLIES) >= 2 then
                hpThresh = .75
             end
             if GetSpellDamage("grave", target) > target.health*hpThresh then
