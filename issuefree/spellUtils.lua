@@ -192,6 +192,10 @@ function GetSpellCost(thing)
    end
 end
 
+function GetSpellCostPerc(thing)
+	return GetSpellCost(thing) / me.mana
+end
+
 function GetSpellRange(thing)
    return GetLVal(GetSpell(thing), "range")
 end
@@ -647,8 +651,7 @@ function DrawReticule(thing)
 	elseif spell.delay or spell.radius then
 		if spell.speed and spell.speed > 0 then
 			LineBetween(me, mousePos, spell.width)
-		else
-			Circle(mousePos, spell.radius)
 		end
+		Circle(mousePos, spell.radius)
 	end
 end
