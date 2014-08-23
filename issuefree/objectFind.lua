@@ -127,13 +127,25 @@ local function onObject(object)
          not find(object.charName, "ElixirSight") and
          ( not testShot.charName or find(object.charName, testShot.charName) )
       then
-         pp("Particle: "..object.charName)
-         local delay = trunc(time() - testShot.castTime)
-         delay = delay - 2*.05 -- lag
-         delay = delay * 10  -- leaguebot units 
-         table.insert(testShotDelays, delay)
-         pp("Delay: "..delay)
-         testShot.object = object
+         local exclude = false
+         if testShot.excludes then
+            for _,cn in ipairs(testShot.excludes) do
+               if find(object.charName, cn) then
+                  pp("here")
+                  exclude = true
+                  break
+               end
+            end
+         end
+         if not exclude then
+            pp("Particle: "..object.charName)
+            local delay = trunc(time() - testShot.castTime)
+            delay = delay - 2*.05 -- lag
+            delay = delay * 10  -- leaguebot units 
+            table.insert(testShotDelays, delay)
+            pp("Delay: "..delay)
+            testShot.object = object
+         end
       end
    end
 
@@ -147,7 +159,7 @@ local function onObject(object)
    end
 end
 
-function TestSkillShot(thing, charName)
+function TestSkillShot(thing, charName, excludes)
    local spell = GetSpell(thing)
 
    if CanUse(spell) then
@@ -155,6 +167,7 @@ function TestSkillShot(thing, charName)
       testShot = {}
       testShot.spell = spell
       testShot.charName = charName
+      testShot.excludes = excludes
       testShot.castTime = time()
       testShot.points = {}
       testShot.times = {}
