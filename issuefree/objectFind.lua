@@ -131,7 +131,6 @@ local function onObject(object)
          if testShot.excludes then
             for _,cn in ipairs(testShot.excludes) do
                if find(object.charName, cn) then
-                  pp("here")
                   exclude = true
                   break
                end
