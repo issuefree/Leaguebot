@@ -85,9 +85,7 @@ function Run()
       then
 
          if CanUse("spike") then
-            if ( Alone() and GetMPerc(me) > .25 ) or
-               VeryAlone()
-            then
+            if GetThreshMP("spike", .15) <= 1 then
                local minions = GetInRange(me, "spike", MINIONS)
                local lt = SortByHealth(GetWithBuff("attack", minions))[1]
                if lt and WillKill("spike", lt) and
@@ -112,9 +110,7 @@ function Run()
          end
 
          if CanUse("ravage") then
-            if ( Alone() and GetMPerc(me) > .5 ) or
-               ( VeryAlone() and GetMPerc(me) > .25 )
-            then
+            if GetThreshMP("ravage", .15) <= 1 then
                local target = KillMinion("ravage", "strong", false, true)
                if target and not WillKill("AA", target) then
                   if KillMinion("ravage", "strong", true) then
@@ -129,9 +125,7 @@ function Run()
    
    if IsOn("clear") then
       if CanUse("spike") then
-         if ( Alone() and GetMPerc(me) > .5 ) or 
-            ( VeryAlone() and GetMPerc(me) > .25 )
-         then
+         if GetThreshMP("spike", .15) <= 1 then
             if #GetInRange(me, "spike", MINIONS) > 0 then
                Cast("spike", me)
                PrintAction("Spike for clear")

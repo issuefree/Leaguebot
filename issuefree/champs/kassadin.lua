@@ -105,17 +105,15 @@ function Run()
 	   end
 
 	   if VeryAlone() then
-	      if GetMPerc(me) > .5 then
-	      	if CanUse("pulse") and P.pulse then
-	      		if KillMinionsInCone("pulse", 4) then
-	      			return true
-	      		end
-	      	end
+      	if CanUse("pulse") and P.pulse then
+      		if KillMinionsInCone("pulse") then
+      			return true
+      		end
+      	end
 
-	      	if KillMinion("sphere", "far") then
-	      		return true
-	      	end
-	      end
+      	if KillMinion("sphere", "far") then
+      		return true
+      	end
 	   end
    end
 

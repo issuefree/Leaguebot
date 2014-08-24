@@ -10,12 +10,16 @@ InitAAData({
   particles = {"Heimerdinger_Base_AA"}
 })
 
+function ggt()
+   return trunc(GetThreshMP("grenade", .1, 1.5))
+end
+
 AddToggle("ult", {on=true, key=112, label="Auto Ult"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "grenade"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}({2})", args={GetAADamage, "grenade", ggt}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
@@ -48,9 +52,9 @@ spells["grenade"] = {
    delay=2.4, -- TestSkillShot
    speed=12,
    noblock=true,
-   radius=165, -- reticule
-   radiusBase=165,
-   radiusUp=330,
+   radius=150,
+   radiusBase=150,
+   radiusUp=300,
    -- cost=85
 }
 spells["upgrade"] = {
@@ -114,12 +118,8 @@ function Run()
    -- end
 
    if IsOn("lasthit") then
-      if CanUse("grenade") then
-         if GetMPerc(me) > .66 then
-            if KillMinionsInArea("grenade", 3) then
-               return true
-            end
-         end
+      if KillMinionsInArea("grenade") then
+         return true
       end
    end
 

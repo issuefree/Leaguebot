@@ -166,7 +166,7 @@ function Run()
             end
          end
          if bestT then
-            if bestK >= 3 or (bestK >= 2 and GetMPerc(me) > .5) then
+            if bestK >= GetThreshMP("spiderling", nil, 1.5) then
                CastXYZ("spiderling", bestT)
                PrintAction("spiderling for lasthit")
                return true

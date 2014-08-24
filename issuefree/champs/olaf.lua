@@ -72,7 +72,7 @@ function Run()
          return true
       end
 
-      if KillMinionsInLine("axe", 2) then
+      if KillMinionsInLine("axe") then
          PrintAction("Axe for lasthit")
          return true
       end

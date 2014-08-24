@@ -66,18 +66,7 @@ function Run()
       if Alone() then
 
          if CanUse("boomerang") then
-            local killThresh
-            if GetMPerc(me) > .9 then
-               killThresh = 2
-            elseif GetMPerc(me) > .75 then
-               killThresh = 3
-            elseif GetMPerc(me) > .5 then
-               killThresh = 4
-            else
-               killThresh = 5
-            end
-
-            if KillMinionsInLine("doubleMinBoomerang", killThresh) then
+            if KillMinionsInLine("doubleMinBoomerang") then
                return true
             end
          end

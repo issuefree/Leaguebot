@@ -78,8 +78,8 @@ function Run()
       end
    end
 
-   if IsOn("lasthit") and Alone() and GetMPerc(me) > .5 then
-      if KillMinionsInCone("shot", 2) then
+   if IsOn("lasthit") and Alone() then
+      if KillMinionsInCone("shot") then
          return true
       end
 

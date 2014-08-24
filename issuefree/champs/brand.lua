@@ -81,17 +81,11 @@ function Run()
 
    -- auto stuff that should happen if you didn't do something more important
    if VeryAlone() and IsOn("lasthit") then
-      local killsNeeded = 4
-      if GetMPerc(me) > .75 then
-         killsNeeded = 2
-      elseif GetMPerc(me) > .5 then
-         killsNeeded = 3
-      end
       if CanUse("conflag") then
          local minions = GetInRange(me, "conflag", GetWithBuff("ablaze", MINIONS))
          for _,minion in ipairs(minions) do
             local kills = GetKills("conflag", GetInRange(minion, spells["conflag"].radius, MINIONS))
-            if #kills >= 2 then
+            if #kills >= GetThreshMP("conflag", .1, 1.5) then
                Cast("conflag", minion)
                PrintAction("Conflagration for AoE LH", #kills)
                return true
@@ -99,14 +93,12 @@ function Run()
          end
       end
 
-      if KillMinionsInArea("pillar", 2) then
+      if KillMinionsInArea("pillar") then
          return true
       end
 
-      if GetMPerc(me) > .5 then
-         if KillMinion("sear") then
-            return true
-         end
+      if KillMinion("sear") then
+         return true
       end
 
    end

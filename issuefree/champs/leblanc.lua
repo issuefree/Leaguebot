@@ -367,24 +367,15 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if CanUse("malice") and GetMPerc(me) > .75 then
-            if KillMinion("malice") then
-               return true
-            end
+         if KillMinion("malice") then
+            return true
          end
       end
 
       if VeryAlone() then
 
          if canDistortion() then
-            if GetMPerc(me) > .75 then
-               killThresh = 2
-            elseif GetMPerc(me) > .33 then
-               killThresh = 3
-            else
-               killThresh = 4
-            end
-            if KillMinionsInArea("distortion", killThresh) then
+            if KillMinionsInArea("distortion") then
                return true
             end
          end
@@ -401,16 +392,8 @@ function Run()
    if IsOn("clear") then
       if Alone() then
          if canDistortion() then
-            local minScore
-            if GetMPerc(me) > .75 then
-               minScore = 4
-            elseif GetMPerc(me) > .33 then
-               minScore = 6
-            else
-               minScore = 8
-            end
             local hits, kills, score = GetBestArea(me, "distortion", 1, 1, MINIONS)
-            if score >= minScore then
+            if score >= GetThreshMP("distortion", .1, 3) then
                CastXYZ("distortion", GetAngularCenter(hits))
                PrintAction("Distortion for AoE clear", score)
                return true

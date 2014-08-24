@@ -60,24 +60,14 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if CanUse("strike") and Alone() then
-      local minions = SortByHealth(GetInRange(me, "strike", MINIONS), "strike")
-      
-      if #minions > 0 then
-         if GetMPerc(me) > .75 then
-            for _,minion in ipairs(minions) do
-               if GetDistance(minion) > spells["AA"].range and
-                  WillKill("strike", minion)
-               then
-                  Cast("strike", minion)
-                  PrintAction("Strike for lasthit")
-                  return true
-               end
-            end
-         end
 
-         if GetHPerc(me) < .75 and GetHPerc(me) < GetMPerc(me) then
-            Cast("strike", minions[1])
-            PrintAction("Strike for health")
+      if KillMinion("strike") then
+         return true
+      end
+      
+      if GetHPerc(me) < .75 and GetHPerc(me) < GetMPerc(me) then
+         if HitMinion("strike", "weak") then
+            PrintAction("Strike for health", nil, 1)
             return true
          end
       end

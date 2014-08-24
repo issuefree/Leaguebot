@@ -76,7 +76,7 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important   
    if IsOn("lasthit") then
-      if Alone() and GetMPerc(me) > .5 then
+      if Alone() then
          if ModAAFarm("talon") then
             return true
          end

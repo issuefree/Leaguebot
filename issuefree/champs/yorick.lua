@@ -128,22 +128,7 @@ function Run()
 
          -- pestilence for aoe
          if CanUse("pestilence") then
-            local killsNeeded = 4
-            if CanChargeTear() then
-               if GetMPerc(me) > .5 then
-                  killsNeeded = 2
-               elseif GetMPerc(me) > .25 then
-                  killsNeeded = 3
-               end
-            else
-               if GetMPerc(me) > .75 then
-                  killsNeeded = 2
-               elseif GetMPerc(me) > .5 then
-                  killsNeeded = 3
-               end
-            end               
-
-            if KillMinionsInArea("pestilence", killsNeeded) then
+            if KillMinionsInArea("pestilence") then
                return true
             end
          end
@@ -154,30 +139,8 @@ function Run()
             if #GetKills("AA", GetInRange(me, "AA", MINIONS)) < 0 or
                JustAttacked()
             then
-               if GetMPerc(me) > .9 then
-                  doFamine = true
-                  msg = "high mana"
-               elseif VeryAlone() and GetMPerc(me) > .75 then
-                  doFamine = true
-                  msg = "very alone high mana"
-               elseif GetHPerc(me) < GetMPerc(me) or GetHPerc(me) < .33 then
-                  doFamine = true
-                  msg = "need health more than mana"
-               elseif CanChargeTear() then
-                  if GetMPerc(me) > .5 then
-                     doFamine = true
-                     msg = "tear high mana"
-                  elseif VeryAlone() and GetMPerc(me) > .33 then
-                     doFamine = true
-                     msg = "tear very alone high mana"
-                  end
-               end
-
-               if doFamine then
-                  if KillMinion("famine", "strong") then
-                     PrintAction(msg, nil, 1)
-                     return true
-                  end
+               if KillMinion("famine", "strong") then
+                  return true
                end
             end
          end

@@ -111,10 +111,8 @@ function Run()
 
    if IsOn("lasthit") then
       if VeryAlone() then
-         if GetMPerc(me) > .33 then         
-            if KillMinionsInLine("ooze", 3) then
-               return true
-            end
+         if KillMinionsInLine("ooze") then
+            return true
          end
       end
 
@@ -125,10 +123,8 @@ function Run()
             end
          end
 
-         if GetMPerc(me) > .5 then
-            if KillMinion("spittle") then
-               return true
-            end
+         if KillMinion("spittle") then
+            return true
          end
       end
 

@@ -82,10 +82,8 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if GetMPerc(me) > .5 then
-            if ModAAFarm("shield") then
-               return true
-            end
+         if ModAAFarm("shield") then
+            return true
          end
       end
    end

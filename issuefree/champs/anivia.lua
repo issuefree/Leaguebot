@@ -99,7 +99,7 @@ function Run()
    end      
 
    if IsOn("lasthit") then
-      if CanUse("spike") and GetMPerc(me) > .5 then
+      if CanUse("spike") then
          if VeryAlone() then
             if KillMinion("spike", "strong") then
                return true

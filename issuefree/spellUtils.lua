@@ -193,7 +193,7 @@ function GetSpellCost(thing)
 end
 
 function GetSpellCostPerc(thing)
-	return GetSpellCost(thing) / me.mana
+	return GetSpellCost(thing) / (me.mana+(MP5*5))
 end
 
 function GetSpellRange(thing)

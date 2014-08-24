@@ -86,10 +86,8 @@ function Run()
       end    
 
       if Alone() then
-         if GetMPerc(me) > .5 then
-            if KillMinion("spear", "far") then
-               return true
-            end
+         if KillMinion("spear", "far") then
+            return true
          end
       end
    end

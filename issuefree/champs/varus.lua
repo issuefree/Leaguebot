@@ -258,19 +258,8 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
-      local killThreshold
-      if GetMPerc(me) > .9 then
-         killThreshold = 2
-      elseif GetMPerc(me) > .66 then
-         killThreshold = 3
-      elseif GetMPerc(me) > .33 then
-         killThreshold = 4
-      else
-         killThreshold = 5
-      end
-
       if Alone() then
-         if KillMinionsInArea("hail", killThreshold) then
+         if KillMinionsInArea("hail") then
             -- PauseToggle("lasthit", .75)
             return true
          end

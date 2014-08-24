@@ -76,7 +76,7 @@ function Run()
       end
    end
 
-   if IsOn("lasthit") and GetMPerc(me) > .5 and Alone() then
+   if IsOn("lasthit") and Alone() then
       if ModAAFarm("blow") then
          return true
       end

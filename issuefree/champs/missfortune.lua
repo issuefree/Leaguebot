@@ -82,7 +82,6 @@ function getDoubleHits(target, debug)
 
    local targets = GetInCone(target, angle, DegsToRads(40), GetInRange(target, spells["double"].radius, impureEnemies))
    if #targets > 0 then
-      pp("here")
       return targets
    end
 
@@ -263,22 +262,9 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if CanUse("double") then
-         local bestS = 1.1
-         -- local bestT = nil
-
-         if GetMPerc(me) > .9 then
-            bestS = 1.1
-         elseif GetMPerc(me) > .75 then
-            bestS = 1.2
-         elseif GetMPerc(me) > .5 then
-            bestS = 1.5
-         else
-            bestS = 1.75
-         end
-
          local target, score = SelectFromList(GetInRange(me, "double", MINIONS), scoreDouble)
 
-         if target and score > bestS then
+         if target and score > GetThreshMP("double") then
             -- getDoubleHits(bestT, true)
             -- scoreDouble(bestT, true)
             Cast("double", target)

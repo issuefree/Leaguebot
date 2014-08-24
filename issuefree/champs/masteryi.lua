@@ -60,6 +60,9 @@ function getAlphaKills(target, dam)
    for _, t in ipairs(path) do
       if CalculateDamage(t, dam) > t.health then
          kills = kills + 1
+         if IsBigMinion(t) then
+            kills = kills + .5
+         end
       end            
    end
    return kills
@@ -88,12 +91,9 @@ function Run()
 
    if IsOn("lasthit") then
 	   if CanUse("alpha") and Alone() then
-         local bestT, bestK = SelectFromList(GetInRange(me, "alpha", MINIONS), getAlphaKills, getADam())
+         local bestT, score = SelectFromList(GetInRange(me, "alpha", MINIONS), getAlphaKills, getADam())
 
-	   	if (GetMPerc(me) > .75 and bestK >= 2) or
-            (GetMPerc(me) > .5 and bestK >= 3) or
-            (GetMPerc(me) > .33 and bestK >= 4)
-         then
+	   	if score >= GetThreshMP("alpha", nil, 1.5) then
 	   		Cast("alpha", bestT)
 	   		PrintAction("Alpha minions:", bestK)
 	   		return true

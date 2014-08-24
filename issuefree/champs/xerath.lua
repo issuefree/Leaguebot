@@ -118,16 +118,7 @@ function Run()
             local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
             local hits,_,score = GetBestLine(me, "bolt", .15, 1, MINIONS)
 
-            local killsNeeded = 5
-            if GetMPerc(me) > .75 then
-               killsNeeded = 2
-            elseif GetMPerc(me) > .5 then
-               killsNeeded = 3
-            elseif GetMPerc(me) > .25 then
-               killsNeeded = 4
-            end
-
-            if score >= maxScore and score >= killsNeeded then
+            if score >= maxScore and score >= GetThreshMP("bolt") then
                PrintAction("bolt lh", score)
                PauseToggle("lasthit", .5)
                FinishBolt(GetAngularCenter(hits))
@@ -179,17 +170,8 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
 
    if IsOn("lasthit") and not P.rite then
-      local killsNeeded = 5
-      if GetMPerc(me) > .75 then
-         killsNeeded = 2
-      elseif GetMPerc(me) > .5 then
-         killsNeeded = 3
-      elseif GetMPerc(me) > .25 then
-         killsNeeded = 4
-      end
-
       if Alone() and CanUse("eye") then
-         if KillMinionsInArea("eye", killsNeeded) then
+         if KillMinionsInArea("eye") then
             PauseToggle("lasthit", .75)
             return true
          end
@@ -233,8 +215,8 @@ function Action()
             return true
          end
       else
-         local target = GetSkillShot("orb")
-         if target and GetDistance(target) < 750 then
+         local target = GetSkillShot("orb", nil, GetInRange(me, 750, ENEMIES))
+         if target then
             CastFireahead("orb", target)
             PrintAction("Orb at close", target)
             return true

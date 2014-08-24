@@ -114,10 +114,8 @@ function Run()
    	end
 
    	if Alone() then
-   		if GetMPerc(me) > .33 then
-		      if KillMinionsInArea("rupture", 2) then
-		         return true
-		      end
+		   if KillMinionsInArea("rupture") then
+		      return true
 			end
 		end
    end

@@ -9,6 +9,11 @@ pp(" - auto homing hunters")
 pp(" - auto ss hunters")
 pp(" - minion farming")
 
+InitAAData({
+   projSpeed = 1.3, windup=.2,
+   particles = {"UrgotBasicAttack_mis"}
+})
+
 SetChampStyle("marksman")
 
 AddToggle("capacitor", {on=true, key=112, label="Capacitor"})
@@ -58,7 +63,6 @@ spells["reverser"] = {
 }
 
 function Run()
-
    for _,enemy in ipairs(GetWithBuff("charge", ENEMIES)) do
       Circle(enemy, nil, green, 3)
    end
@@ -88,10 +92,8 @@ function Run()
    end
 
    if IsOn("lasthit") and CanUse("hunter") and Alone() then
-      if GetMPerc(me) > .33 or CanChargeTear() then
-         if KillMinion("hunter") then
-            return true
-         end
+      if KillMinion("hunter") then
+         return true
       end
    end
 
@@ -167,10 +169,7 @@ function FollowUp()
    if IsOn("clear") and Alone() then
       if CanUse("hunter") then
          local minion = SortByDistance(GetInRange(me, "hunter", MINIONS))[1]
-         local mp = GetMPerc(me)
-         if ( CanChargeTear() and mp > .33 ) or
-            mp > .66
-         then
+         if GetThreshMP(thing, .1) < 1 then
             if minion then
                CastXYZ("hunter", minion)
                PrintAction("Hunter for clear")

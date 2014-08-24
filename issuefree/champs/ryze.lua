@@ -70,12 +70,8 @@ function Run()
    end
 
    if IsOn("lasthit") and Alone() then
-      if ( CanChargeTear() and GetMPerc(me) > .33 ) or
-         GetMPerc(me) > .5
-      then
-         if KillMinion("overload", nil, true) then
-            return true
-         end
+      if KillMinion("overload", nil, true) then
+         return true
       end
    end
 

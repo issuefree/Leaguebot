@@ -58,10 +58,10 @@ CHAMP_STYLE = nil
 function SetChampStyle(style)
    CHAMP_STYLE = style
    if style == "caster" then
-      MASTERIES = {"havoc", "des", "executioner"}
+      MASTERIES = {"executioner"} -- "havoc", "des", -- might not be applied to minions?
       BLOCK_FOR_AA = false
    elseif style == "marksman" then
-      MASTERIES = {"havoc", "executioner"}
+      MASTERIES = {"executioner"} -- "havoc", 
    elseif style == "bruiser" then
    elseif style == "support" then
       BLOCK_FOR_AA = false
@@ -322,7 +322,7 @@ function doCreateObj(object)
                end
             else               
                if PersistBuff(name, object, spells[name].object, 200) then
-                  -- PrintAction("found a channel object "..object.charName.." for "..name)
+                  PrintAction("found a channel object "..object.charName.." for "..name)
                end
             end
          else
@@ -508,12 +508,13 @@ function IsSuperMinion(minion)
 end
 
 function IsHero(unit)
-   for _,hero in ipairs(concat(ALLIES, ENEMIES)) do
-      if SameUnit(unit, hero) then
-         return true
-      end
-   end
-   return false
+   return unit.type == 20
+   -- for _,hero in ipairs(concat(ALLIES, ENEMIES)) do
+   --    if SameUnit(unit, hero) then
+   --       return true
+   --    end
+   -- end
+   -- return false
 end
 
 function IsEnemy(unit)
@@ -640,12 +641,14 @@ function cloneTarget(target)
 end
 
 
-function KillMinionsInLine(thing, killsNeeded)
+function KillMinionsInLine(thing, thresh)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestLine(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
-   if score >= killsNeeded then
+   thresh = thresh or GetThreshMP(thing, .1, 1.5)
+
+   local hits, kills, score = GetBestLine(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
+   if score >= thresh then
       AddWillKill(kills, thing)
       local point = GetAngularCenter(hits)
       if spell.overShoot then
@@ -653,7 +656,7 @@ function KillMinionsInLine(thing, killsNeeded)
       end
       Circle(point, 50, yellow)
       CastXYZ(thing, point)
-      PrintAction(thing.." for kills", #kills)
+      PrintAction(thing.." for kills", score)
       return true
    end
    return false
@@ -772,7 +775,7 @@ function KillMinion(thing, method, force, targetOnly)
    if IsBlockedSkillShot(thing) then
       minions = RemoveWillKills(GetKills(thing, GetIntersection(MINIONS, GetUnblocked(thing, me, MINIONS, ENEMIES, PETS))), thing)
    else
-      minions = RemoveWillKills(GetKills(thing, GetInRange(me, GetSpellRange(spell), MINIONS)), thing)
+      minions = RemoveWillKills(GetKills(thing, GetInRange(me, thing, MINIONS)), thing)
    end      
 
    if method == "weak" then
@@ -822,11 +825,20 @@ function KillMinion(thing, method, force, targetOnly)
       end
    end
 
-   if targetOnly then
-      return target
-   end
-
    if IsValid(target) then
+
+      local score = 1
+      if IsBigMinion(target) then
+         score = 1.5
+      end
+      if GetThreshMP(thing, .1) > score then
+         return nil
+      end
+
+      if targetOnly then
+         return target
+      end
+
 
       AddWillKill(target, thing)
 
@@ -986,53 +998,73 @@ function scoreHits(spell, hits, hitScore, killScore)
    return score, kills
 end
 
-function KillMinionsInArea(thing, killsNeeded)
+function GetThreshMP(thing, mPercHit, min)
+   mPercHit = mPercHit or .1
+   min = min or 1
+   local thresh = GetSpellCostPerc(thing)/mPercHit
+   if CanChargeTear() then
+      thresh = thresh * .5
+   end
+   if VeryAlone() then
+      thresh = thresh * .8
+   end
+   if GetMPerc(me) == 1 then
+      thresh = thresh * .5
+   end
+   return math.max(min, thresh)
+end
+
+function KillMinionsInArea(thing, thresh)   
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestArea(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
-   if score >= killsNeeded then
+   thresh = thresh or GetThreshMP(thing, .1, 1.5)
+
+   local hits, kills, score = GetBestArea(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
+   if score >= thresh then
       AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for kills", #kills)
+      PrintAction(thing.." for kills", score)
       return true
    end
    return false
 end
-function HitMinionsInArea(thing, hitsNeeded)
+function HitMinionsInArea(thing, thresh)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
    local hits, kills, score = GetBestArea(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
-   if score >= hitsNeeded then
+   if score >= thresh then
       AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for hits", #hits)
+      PrintAction(thing.." for hits", score)
       return true
    end
    return false
 end
 
-function KillMinionsInCone(thing, killsNeeded)
+function KillMinionsInCone(thing, thresh)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
-   local hits, kills, score = GetBestCone(me, thing, .1, 1, RemoveWillKills(MINIONS, thing))
-   if score >= killsNeeded then
+   thresh = thresh or GetThreshMP(thing, .1, 1.5)
+
+   local hits, kills, score = GetBestCone(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
+   if score >= thresh then
       AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for kills", #kills)
+      PrintAction(thing.." for kills", score)
       return true
    end
    return false
 end
 
-function HitMinionsInCone(thing, hitsNeeded)
+function HitMinionsInCone(thing, thresh)
    local spell = GetSpell(thing)
    if not spell or not CanUse(spell) then return false end
 
    local hits, kills, score = GetBestCone(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
-   if score >= hitsNeeded then
+   if score >= thresh then
       AddWillKill(kills, thing)
       CastXYZ(thing, GetAngularCenter(hits))
       PrintAction(thing.." for hits", #hits)
@@ -1554,6 +1586,8 @@ function BlockingMove(move_dest)
 
 end
 
+MP5 = 0
+
 TICK_DELAY = .05
 -- Common stuff that should happen every time
 local tt = time()
@@ -1595,6 +1629,24 @@ function TimTick()
    updateObjects()
    drawCommon()
    
+   MP5 = 5 + (me.selflevel/2)
+   local haveChalice = false
+   for slot=1, 7 do
+      local item = itemPrices[me["InventorySlot"..slot]]        
+      if item then
+         MP5 = MP5 + item.mp5
+         if item.name == "Chalice of Harmony" or
+            item.name == "Mikael's Crucible" or
+            item.name == "Athene's Unholy Grail"
+         then
+            haveChalice = true
+         end
+      end
+   end 
+   if haveChalice then
+      MP5 = MP5*1.5
+   end
+
    if ModuleConfig.ass then
       if blockAndMove then 
          blockAndMove() 
@@ -1835,7 +1887,7 @@ function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "em
 end
 
 function ModAAFarm(thing)
-   if CanUse(thing) and not P[thing] then
+   if CanUse(thing) and not P[thing] and GetThreshMP(thing) <= 1 then
       local minions = SortByHealth(RemoveWillKills(GetInRange(me, "AA", MINIONS), thing), thing)
       for i,minion in ipairs(minions) do
          if WillKill(thing, minion) and 

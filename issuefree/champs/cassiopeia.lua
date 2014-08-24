@@ -11,7 +11,6 @@ pp("\nTim's Cassiopeia")
 
 InitAAData({ 
    projSpeed = 1.3, windup=.25,
-   -- minMoveTime = 0,
    extraRange=-10,
    particles = {"CassBasicAttack"} 
 })
@@ -23,7 +22,7 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2}", args={GetAADamage, "blast", "fang"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
@@ -66,11 +65,6 @@ spells["gaze"] = {
    noblock=true
 } 
 
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
-
 function Run()
    if StartTickActions() then
       return true
@@ -85,7 +79,7 @@ function Run()
    end
 
    -- high priority hotkey actions, e.g. killing enemies
-	if HotKey() and CanAct() then
+	if HotKey() then
 		if Action() then
 			return true
 		end
@@ -94,23 +88,25 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if CanUse("blast") then
-            if GetMPerc(me) > .66 then
-               if KillMinionsInArea("blast", 2) then
-                  return true
-               end
-            else
-               if KillMinionsInArea("blast", 3) then
-                  return true
-               end
-            end
-
+         if KillMinionsInArea("blast") then
+            return true
          end
 
-         if GetMPerc(me) > .5 then
-            if KillMinion("fang") then
-               return true
+         if CanUse("fang") then
+            if GetThreshMP("fang", .1) <= 1 then
+               local minions = GetKills("fang", GetWithBuff("poison", GetInRange(me, "fang", MINIONS)))
+               local minion = SortByHealth(minions, "fang", true)[1]
+               if minion then
+                  AddWillKill(minion, "fang")
+                  Cast("fang", minion)
+                  PrintAction("Fang LH poisoned")
+                  return true
+               end
             end
+         end
+
+         if KillMinion("fang") then
+            return true
          end
       end      
    end
@@ -123,8 +119,9 @@ function Run()
    end
 
    if IsOn("clear") then
-      if VeryAlone() then
-         if CanUse("miasma") then
+      if Alone() then
+         if HitMinionsInArea("miasma") then
+            return true
          end
       end
    end
