@@ -298,7 +298,7 @@ function IsBlocked(target, thing, source, ...)
    for _,blocker in ipairs(concat(...)) do
       if GetDistance(source, target) > GetDistance(source, blocker) then
          local blockPoint = Projection(source, target, GetDistance(source, blocker))
-         if GetDistance(blocker, blockPoint) < (width/2 + GetWidth(blocker)/2) then
+         if GetDistance(blocker, blockPoint) < (width/2 + GetWidth(blocker)) then
             -- pp(blocker.name.." blocking "..target.name)
             return true
          end
