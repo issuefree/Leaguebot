@@ -24,7 +24,7 @@ spells["boomerang"] = {
    speed=14,   -- testskillshot
    width=100,
    noblock=true,
-   overshoot=-200,
+   overShoot=-200,
    cost={70,80,90,100,110}
 }
 spells["doubleMinBoomerang"] = copy(spells["boomerang"])
