@@ -5,6 +5,11 @@ pp("\nTim's Zyra")
 
 SetChampStyle("caster")
 
+InitAAData({
+   projSpeed = 1.7, windup=.2,
+   particles = {"Zyra_basicAttack"}
+})
+
 AddToggle("seed", {on=true, key=112, label="Auto seed", auxLabel="{0}", args={function() return seedCharges end}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -20,12 +25,12 @@ spells["bloom"] = {
    color=violet, 
    base={70,105,140,175,210}, 
    ap=.65,
-   delay=7,
+   delay=8-1, -- TestSkillShot
    speed=0,
    noblock=true,
-   radius=250,
-   cost={75,80,85,90,95},
+   radius=225, -- reticle
    name="ZyraQFissure"
+   -- cost={75,80,85,90,95},
 }
 spells["seed"] = {
    key="W", 
@@ -41,13 +46,13 @@ spells["roots"] = {
    color=yellow, 
    base={60,95,130,165,200}, 
    ap=.5,
-   delay=1.2,
+   delay=2.4,
    speed=11.5,
    noblock=true,
    width=90,  --?
    growWidth=315,
-   cost={70,75,80,85,90},
    name="ZyraGraspingRoots"
+   -- cost={70,75,80,85,90},
 }
 spells["strangle"] = {
    key="R", 
@@ -58,8 +63,8 @@ spells["strangle"] = {
    delay=2,
    speed=0,
    noblock=true,
-   radius=600,  --?
-   cost={100,120,140}
+   radius=525,  -- reticle
+   -- cost={100,120,140}
 }
 
 castSeedAt = time()
@@ -114,9 +119,17 @@ function Run()
    end
 
    -- auto stuff that should happen if you didn't do something more important
-   if IsOn("lasthit") and Alone() then
-      if KillMinionsInArea("bloom", 2) then
-         return true
+   if IsOn("lasthit") then
+      if Alone() then
+         if KillMinionsInArea("bloom") then
+            return true
+         end      
+      end
+
+      if VeryAlone() then
+         if KillMinionsInLine("roots") then
+            return true
+         end
       end
    end
 
@@ -131,6 +144,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("roots")
+   -- TestSkillShot("bloom", "zyra_Q_expire")
+
    if CanUse("roots") then
       local target = GetSkillShot("roots")
       if target then
@@ -165,6 +181,11 @@ function Action()
 end
 
 function FollowUp()
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
    return false
 end
 
@@ -182,28 +203,30 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
-   if ICast("roots", unit, spell) then
-      if canSeed() then
-         for _,enemy in ipairs(ENEMIES) do 
-            if GetOrthDist(spell.endPos, enemy) < spells["roots"].growWidth then
-               local point = Projection(me, spell.endPos, GetDistance(enemy))
-               if GetDistance(point) > GetSpellRange("seed") then
-                  point = Projection(me, point, GetSpellRange("seed"))
+   if IsOn("seed") then
+      if ICast("roots", unit, spell) then
+         if canSeed() then
+            for _,enemy in ipairs(ENEMIES) do 
+               if GetOrthDist(spell.endPos, enemy) < spells["roots"].growWidth then
+                  local point = Projection(me, spell.endPos, GetDistance(enemy))
+                  if GetDistance(point) > GetSpellRange("seed") then
+                     point = Projection(me, point, GetSpellRange("seed"))
+                  end
+                  CastXYZ("seed", point)
+                  PrintAction("Seed on roots")
+                  break
                end
-               CastXYZ("seed", point)
-               PrintAction("Seed on roots")
-               break
             end
          end
       end
-   end
 
-   if ICast("bloom", unit, spell) then
-      if canSeed() then
-         -- if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
-            CastXYZ("seed", spell.endPos)
-            PrintAction("Seed on bloom")
-         -- end
+      if ICast("bloom", unit, spell) then
+         if canSeed() then
+            -- if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
+               CastXYZ("seed", spell.endPos)
+               PrintAction("Seed on bloom")
+            -- end
+         end
       end
    end
 
