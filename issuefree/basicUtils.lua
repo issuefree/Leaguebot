@@ -157,7 +157,7 @@ function ClearState(state)
 end
 
 function find(source, target)
-   if not source then
+   if not source or not target then
       return false
    end
    if string.len(target) == 0 then
