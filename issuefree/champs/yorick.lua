@@ -21,7 +21,7 @@ AddToggle("autoDeath", {on=true, key=113, label="Omen of Death allies"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "war"}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2} / {3}", args={GetAADamage, "war", "pestilence", "famine"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
@@ -120,29 +120,16 @@ function Run()
    if IsOn("lasthit") then
       if Alone() then
          
-         -- if #GetInRange(me, GetAARange()+250, MINIONS) >= 2 then
-            if ModAAFarm("war") then
-               return true
-            end
-         -- end
-
-         -- pestilence for aoe
-         if CanUse("pestilence") then
-            if KillMinionsInArea("pestilence") then
-               return true
-            end
+         if ModAAFarm("war") then
+            return true
          end
 
-         if CanUse("famine") then
-            local doFamine = false
-            local msg
-            if #GetKills("AA", GetInRange(me, "AA", MINIONS)) < 0 or
-               JustAttacked()
-            then
-               if KillMinion("famine", "strong") then
-                  return true
-               end
-            end
+         if KillMinionsInArea("pestilence", GetThreshMP(thing, .1, 1)) then
+            return true
+         end
+
+         if KillMinion("famine", "strong") then
+            return true
          end
 
       end
@@ -202,10 +189,18 @@ function FollowUp()
 end
 
 local function onCreate(object)
-   Persist("warSpectre", object, "yorick_spectralGhoul_idle_spirit_birth", me.team)
-   Persist("pestilence", object, "yorick_necroGhoul_idle", me.team)
-   Persist("famine", object, "yorick_ravenousGhoul_idle", me.team)
-   Persist("death", object, "yorick_revive_skin", me.team)
+   Persist("warSpectre", object, "Clyde", me.team)
+   Persist("pestilence", object, "Inky", me.team)
+   Persist("famine", object, "Blinky", me.team)
+   if object.type == 12 then
+      for _,hero in ipairs(concat(ENEMIES, ALLIES)) do
+         if object.charName == hero.charName then
+            Persist("death", object)
+            break
+         end
+      end
+   end
+
 end
 
 local function onSpell(unit, spell)
