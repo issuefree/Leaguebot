@@ -640,46 +640,6 @@ function cloneTarget(target)
    return t
 end
 
-
-function KillMinionsInLine(thing, thresh)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-
-   thresh = thresh or GetThreshMP(thing, .1, 1.5)
-
-   local hits, kills, score = GetBestLine(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
-   if score >= thresh then
-      AddWillKill(kills, thing)
-      local point = GetAngularCenter(hits)
-      if spell.overShoot then
-         point = Projection(me, point, GetDistance(point)+spell.overShoot)
-      end
-      Circle(point, 50, yellow)
-      CastXYZ(thing, point)
-      PrintAction(thing.." for kills", score)
-      return true
-   end
-   return false
-end
-
-function HitMinionsInLine(thing, hitsNeeded)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-   
-   local hits, kills, score = GetBestLine(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
-   if score >= hitsNeeded then
-      local point = GetAngularCenter(hits)
-      if spell.overShoot then
-         point = OverShoot(me, point, spell.overShoot)         
-      end
-      AddWillKill(kills, thing)
-      CastXYZ(thing, point)
-      PrintAction(thing.." for hits", #hits)
-      return true
-   end
-   return false
-end
-
 THROTTLES = {}
 function throttle(id, millis)
    -- first time, set a timer and return false
@@ -813,7 +773,7 @@ function KillMinion(thing, method, force, targetOnly)
       else
          rangeThresh = GetAARange()
          if IsMelee(me) then
-            rangeThresh = GetAARange() + 50
+            rangeThresh = GetAARange() + 25
          end
          if JustAttacked() or
             GetDistance(minion) > rangeThresh or
@@ -899,7 +859,7 @@ function HitMinion(thing, method, extraRange)
 end
 
 function HitObjectives()
-   local targets = GetInRange(me, "AA", TURRETS, INHIBS)
+   local targets = GetInRange(me, GetAARange()+50, TURRETS, INHIBS)
    table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
@@ -909,6 +869,112 @@ function HitObjectives()
       end
    end
    return false
+end
+
+function scoreHits(spell, hits, hitScore, killScore)
+   local score = #hits*hitScore
+   local kills = {}
+
+   if killScore ~= 0 then     
+      for _,hit in ipairs(hits) do
+         if WillKill(spell, hit) then
+            if IsBigMinion(hit) then
+               score = score + (killScore / 2)
+            end
+            score = score + killScore
+            table.insert(kills, hit)
+         end
+      end
+   end
+   return score, kills
+end
+
+function GetThreshMP(thing, mPercHit, min)
+   mPercHit = mPercHit or .1
+   min = min or 1
+   local thresh = GetSpellCostPerc(thing)/mPercHit
+   if CanChargeTear() then
+      thresh = thresh * .5
+   end
+   if VeryAlone() then
+      thresh = thresh * .8
+   end
+   if GetMPerc(me) == 1 then
+      thresh = thresh * .5
+   end
+   return math.max(min, thresh)
+end
+
+function HitInShape(thing, GetBestF, targets, thresh, hs, ks, action)
+   local spell = GetSpell(thing)
+   if not spell or not CanUse(spell) then return false end
+
+   thresh = thresh or GetThreshMP(thing, .1, 1.5)
+   action = action or "hits"
+
+   local hits, kills, score = GetBestF(me, thing, hs, ks, RemoveWillKills(targets, thing))
+   if score >= thresh then
+      AddWillKill(kills, thing)
+      local point = GetAngularCenter(hits)
+      if spell.overShoot then
+         point = Projection(me, point, GetDistance(point)+spell.overShoot)
+      end
+      CastXYZ(thing, point)
+      PrintAction(thing.." for "..action, score)
+      return true
+   end
+   return false
+end
+
+local khs, kks = .05, .95
+local hhs, hks = 1, .5
+
+function KillMinionsInArea(thing, thresh)   
+   if HitInShape(thing, GetBestArea, MINIONS, thresh, khs, kks, "kills") then
+      return true
+   end
+end
+
+function HitMinionsInArea(thing, thresh)
+   if HitInShape(thing, GetBestArea, MINIONS, thresh, hhs, hks, "hits") then
+      return true
+   end
+end
+
+function KillMinionsInCone(thing, thresh)
+   if HitInShape(thing, GetBestCone, MINIONS, thresh, khs, kks, "kills") then
+      return true
+   end
+end
+
+function HitMinionsInCone(thing, thresh)
+   if HitInShape(thing, GetBestCone, MINIONS, thresh, hhs, hks, "hits") then
+      return true
+   end
+end
+
+function KillMinionsInLine(thing, thresh)
+   if HitInShape(thing, GetBestLine, MINIONS, thresh, khs, kks, "kills") then
+      return true
+   end
+end
+
+function HitMinionsInLine(thing, thresh)
+   if HitInShape(thing, GetBestLine, MINIONS, thresh, hhs, hks, "kills") then
+      return true
+   end
+end
+
+function KillMinionsInPB(thing, thresh)
+   if HitInShape(thing, GetBestPB, MINIONS, thresh, khs, kks, "kills") then
+      return true
+   end
+end
+
+function HitMinionsInPB(thing, thresh)
+   if HitInShape(thing, GetBestPB, MINIONS, thresh, hhs, hks, "hits") then
+      return true
+   end
 end
 
 -- returns hits, kills (if scored), score
@@ -954,125 +1020,6 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
    return bestT, bestK, bestS
 end
 
-function GetBestLine(source, thing, hitScore, killScore, ...)
-   local spell = GetSpell(thing)
-   local width = spell.width or spell.radius
-   if not width then
-      spell.width = 80
-      pp("No width set for "..thing)
-   end
-
-   local targets = GetInRange(source, spell, concat(...))
-
-   local bestS = 0
-   local bestT = {}
-   local bestK = {}
-   for _,target in ipairs(targets) do
-      local hits = GetInLineR(source, spell, target, targets)
-      local score, kills = scoreHits(spell, hits, hitScore, killScore)
-      if not bestT or score > bestS then
-         bestS = score
-         bestT = hits
-         bestK = kills
-      end
-   end
-
-   return bestT, bestK, bestS
-end
-
-function scoreHits(spell, hits, hitScore, killScore)
-   local score = #hits*hitScore
-   local kills = {}
-
-   if killScore ~= 0 then     
-      for _,hit in ipairs(hits) do
-         if WillKill(spell, hit) then
-            if IsBigMinion(hit) then
-               score = score + (killScore / 2)
-            end
-            score = score + killScore
-            table.insert(kills, hit)
-         end
-      end
-   end
-   return score, kills
-end
-
-function GetThreshMP(thing, mPercHit, min)
-   mPercHit = mPercHit or .1
-   min = min or 1
-   local thresh = GetSpellCostPerc(thing)/mPercHit
-   if CanChargeTear() then
-      thresh = thresh * .5
-   end
-   if VeryAlone() then
-      thresh = thresh * .8
-   end
-   if GetMPerc(me) == 1 then
-      thresh = thresh * .5
-   end
-   return math.max(min, thresh)
-end
-
-function KillMinionsInArea(thing, thresh)   
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-
-   thresh = thresh or GetThreshMP(thing, .1, 1.5)
-
-   local hits, kills, score = GetBestArea(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
-   if score >= thresh then
-      AddWillKill(kills, thing)
-      CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for kills", score)
-      return true
-   end
-   return false
-end
-function HitMinionsInArea(thing, thresh)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-
-   local hits, kills, score = GetBestArea(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
-   if score >= thresh then
-      AddWillKill(kills, thing)
-      CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for hits", score)
-      return true
-   end
-   return false
-end
-
-function KillMinionsInCone(thing, thresh)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-
-   thresh = thresh or GetThreshMP(thing, .1, 1.5)
-
-   local hits, kills, score = GetBestCone(me, thing, .05, .95, RemoveWillKills(MINIONS, thing))
-   if score >= thresh then
-      AddWillKill(kills, thing)
-      CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for kills", score)
-      return true
-   end
-   return false
-end
-
-function HitMinionsInCone(thing, thresh)
-   local spell = GetSpell(thing)
-   if not spell or not CanUse(spell) then return false end
-
-   local hits, kills, score = GetBestCone(me, thing, 1, .5, RemoveWillKills(MINIONS, thing))
-   if score >= thresh then
-      AddWillKill(kills, thing)
-      CastXYZ(thing, GetAngularCenter(hits))
-      PrintAction(thing.." for hits", #hits)
-      return true
-   end
-   return false
-end
-
 function GetBestCone(source, thing, hitScore, killScore, ...)
    local spell = GetSpell(thing)
    if not spell.cone then
@@ -1102,6 +1049,39 @@ function GetBestCone(source, thing, hitScore, killScore, ...)
    end
          
    return bestT, bestK, bestS
+end
+
+function GetBestLine(source, thing, hitScore, killScore, ...)
+   local spell = GetSpell(thing)
+   local width = spell.width or spell.radius
+   if not width then
+      spell.width = 80
+      pp("No width set for "..thing)
+   end
+
+   local targets = GetInRange(source, spell, concat(...))
+
+   local bestS = 0
+   local bestT = {}
+   local bestK = {}
+   for _,target in ipairs(targets) do
+      local hits = GetInLineR(source, spell, target, targets)
+      local score, kills = scoreHits(spell, hits, hitScore, killScore)
+      if not bestT or score > bestS then
+         bestS = score
+         bestT = hits
+         bestK = kills
+      end
+   end
+
+   return bestT, bestK, bestS
+end
+
+-- this is pretty obvious but I need it for the interface
+function GetBestPB(source, thing, hitScore, killScore, ...)
+   local hits = GetInRange(source, thing, concat(...))
+   local score, kills = scoreHits(spell, hits, hitScore, killScore)
+   return hits, kills, score
 end
 
 function SkillShot(thing, purpose, targets)
@@ -1564,6 +1544,11 @@ function OnProcessSpell(unit, spell)
    if unit.team == 300 then
       CREEP_ACTIVE = true
       DoIn(function() CREEP_ACTIVE = false end, 2, "creepactive")
+   end
+
+   if spell.name == "HallucinateFull" then
+      PersistTemp("shacoClone", 3)
+      P.shacoClone.charName = unit.charName
    end
 
 end
