@@ -41,7 +41,7 @@ spells["nevermore"] = {
    ap=.7,
    delay=2.6, -- testskillshot
    speed=0,
-   radius=250, -- reticule
+   radius=250, -- reticle
    noblock=true,
 } 
 spells["torment"] = {

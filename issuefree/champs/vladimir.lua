@@ -71,7 +71,7 @@ spells["plague"] = {
    color=red, 
    base={168,280,392}, 
    ap=.784,
-   radius=375, -- reticule
+   radius=375, -- reticle
    timeout=5
 } 
 

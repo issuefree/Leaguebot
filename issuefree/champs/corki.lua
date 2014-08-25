@@ -44,7 +44,7 @@ spells["gun"] = {
 
    color=red, 
    range=600, 
-   cone=55,  -- checked through DrawSpellCone aagainst the reticule
+   cone=55,  -- checked through DrawSpellCone aagainst the reticle
    noblock=true,
    
    base={20,32,44,56,68}, 

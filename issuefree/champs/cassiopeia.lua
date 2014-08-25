@@ -61,7 +61,7 @@ spells["gaze"] = {
    color=red, 
    base={200,325,450}, 
    ap=.6,
-   cone=80, -- reticule
+   cone=80, -- reticle
    noblock=true
 } 
 

@@ -644,7 +644,7 @@ function DrawSpellCone(thing)
    LineBetween(me, p2)
 end
 
-function DrawReticule(thing)
+function DrawReticle(thing)
 	local spell = GetSpell(thing)
 	if spell.cone then
 		DrawSpellCone(spell)

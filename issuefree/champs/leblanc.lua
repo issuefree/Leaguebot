@@ -120,7 +120,7 @@ spells["distortion"] = {
    delay=2.4, 
    speed=0,
    noblock=true, 
-   radius=225 -- reticule
+   radius=225 -- reticle
 } 
 spells["chains"] = {
    key="E", 
@@ -131,7 +131,7 @@ spells["chains"] = {
    ap=.5,
    delay=2.5, -- testskillshot
    speed=17, -- testskillshot
-   width=80 -- reticule
+   width=80 -- reticle
 } 
 spells["mimicMalice"] = copy(spells["malice"])
 spells["mimicMalice"].base = {100,200,300}

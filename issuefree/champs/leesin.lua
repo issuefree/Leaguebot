@@ -23,7 +23,7 @@ altSpells["BlindMonkQOne"] = {
    type="P",
    delay=2.5, -- tested
    speed=17.5, 
-   width=65, -- reticule
+   width=65, -- reticle
    cost=50,
    showFireahead=true
 }
@@ -140,7 +140,6 @@ local watched
 local watchedTime = 0
 
 function Run()
-   -- DrawReticule("sonic")
    if me.SpellNameQ == "BlindMonkQOne" then      
       spells["sonic"] = altSpells[me.SpellNameQ]
       spells["strike"] = nil

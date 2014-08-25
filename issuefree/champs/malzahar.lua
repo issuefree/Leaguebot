@@ -45,7 +45,7 @@ spells["zone"] = {
    targetMaxHealthAP=.0005,
    delay=1,
    speed=0,
-   radius=250, -- reticule
+   radius=250, -- reticle
    noblock=true
 } 
 spells["visions"] = {

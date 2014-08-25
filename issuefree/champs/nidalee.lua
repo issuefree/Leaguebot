@@ -60,7 +60,7 @@ spells["trap"] = {
    targetHealthAP=.0002,
    delay=5, -- 2.5 to land ~2.5 to arm
    speed=0,
-   radius=85, -- reticule
+   radius=85, -- reticle
    noblock=true,
    cost={40,45,50,55,60},
    cd={13,12,11,10,9}
@@ -74,7 +74,7 @@ spells["pounce"] = {
       return base[GetSpellLevel("R")]
    end,
    ap=.3,
-   radius=140+75, -- plus cougar size I imagine (reticule is close)
+   radius=140+75, -- plus cougar size I imagine (reticle is close)
    cd=5
 }
 spells["pounceProwl"] = copy(spells["pounce"])
@@ -92,14 +92,14 @@ spells["heal"] = {
 }
 spells["swipe"] = {
    key="E",
-   range=300+75+1, -- reticule
+   range=300+75+1, -- reticle
    color=red,   
    base=function()
       base={70,130,190,250}
       return base[GetSpellLevel("R")]
    end,
    ap=.45,
-   cone=180, -- reticule
+   cone=180, -- reticle
    noblock=true,
    cd=5
 }

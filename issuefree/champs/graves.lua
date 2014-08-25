@@ -20,7 +20,7 @@ spells["shot"] = {
    adBonus=.8,
    delay=2.4,
    speed=20,
-   cone=30, -- checked through DrawSpellCone aagainst the reticule
+   cone=30, -- checked through DrawSpellCone aagainst the reticle
    noblock=true,
    cost={60,70,80,90,100}
 }

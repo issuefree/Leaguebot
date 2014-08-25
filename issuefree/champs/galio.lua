@@ -35,7 +35,7 @@ spells["smite"] = {
    delay=2.6, -- TestSkillShot
    speed=12.5, 
    noblock=true,
-   radius=215, -- reticule
+   radius=215, -- reticle
 } 
 spells["bulwark"] = {
    key="W", 
@@ -50,7 +50,7 @@ spells["gust"] = {
    ap=.5,
    delay=2.4, -- TestSkillShot
    speed=12.5, 
-   width=125, -- reticule
+   width=125, -- reticle
 } 
 spells["idol"] = {
    key="R",

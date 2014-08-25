@@ -9,7 +9,7 @@ spells["cleaver"] = {
    color=violet, 
    base={80,130,180,230,280},
    type="M",
-   width=80, -- reticule
+   width=80, -- reticle
    delay=2.3,  -- tss
    speed=20,
    showFireahead=true   
@@ -39,8 +39,6 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
-   -- DrawReticule("cleaver")
-
    if StartTickActions() then
       return true
    end

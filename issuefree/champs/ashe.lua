@@ -26,7 +26,7 @@ spells["volley"] = {
    ad=1,
    delay=2.5,
    speed=20,
-   cone=50, -- wiki says 57.5 but through DrawSpellCone aagainst the reticule it's 50
+   cone=50, -- wiki says 57.5 but through DrawSpellCone aagainst the reticle it's 50
    cost=60,
    width=25
 }
