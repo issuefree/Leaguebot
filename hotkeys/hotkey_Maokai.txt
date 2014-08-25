@@ -1,4 +1,4 @@
-LALT LOADSCRIPT=issuefree/champs/template.lua
+LALT LOADSCRIPT=issuefree/champs/maokai.lua
  
  
  
@@ -8,3 +8,4 @@ LALT LOADSCRIPT=issuefree/champs/template.lua
  
  
  
+250 0
