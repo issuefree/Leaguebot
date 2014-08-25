@@ -170,10 +170,21 @@ function PersistToTrack(object, charName, champName, spellName)
    end
 end
 
+function PersistPet(object, charName, name)
+   if find(object.charName, charName) or find(object.name, name) then
+      if object.team == me.team then
+         return PersistAll("MYPET", object)
+      else
+         return PersistAll("PET", object)
+      end
+   end   
+end
+
 function PersistAll(name, object, charName)
    if object and (not charName or find(object.charName, charName)) then      
       Persist(name..object.id, object)
       PData[name..object.id].name = name
+      PData[name..object.id].time = time()
       return true
    end
 end
@@ -215,6 +226,7 @@ function PersistOnTargets(name, object, charName, ...)
          end
          Persist(name..object.id, object)
          PData[name..object.id].unit = target
+         PData[name..object.id].time = time()
          table.insert(pOn[name], name..object.id)
          -- pp("Persisting "..name.." on "..target.charName.." as "..name..object.id)
          return target
@@ -257,7 +269,8 @@ function CleanPersistedObjects()
    for name,obj in pairs(P) do
       if not obj or 
          not obj.charName or obj.charName ~= PData[name].cn or
-         not obj.x or not obj.z
+         not obj.x or not obj.z or
+         ( obj.team ~= 0 and obj.dead == 1 )
       then
          -- pp("Clean "..name)
          P[name] = nil
@@ -287,7 +300,11 @@ end
 function Clean(list, field, value)
    for i, obj in rpairs(list) do
       if field and value then
-         if not find(obj[field], value) then
+         if type(value) == number then
+            if obj[field] ~= value then
+               table.remove(list, i)
+            end
+         elseif not find(obj[field], value) then
             table.remove(list,i)
          end
       elseif not obj or not obj.x or not obj.z then
@@ -433,12 +450,10 @@ function createForPersist(object)
       end
    end
 
-   if startsWith(object.charName, "Turret_T") then
-      if object.team ~= me.team then
-         table.insert(TURRETS, object)
-      else
-         table.insert(MYTURRETS, object)
-      end
+   if object.team ~= me.team then
+      PersistAll("TURRET", object, "Turret_T")
+   else
+      PersistAll("MYTURRET", object, "Turret_T")
    end
 
    if startsWith(object.charName, "Inhibit_Gem") then
@@ -521,14 +536,50 @@ function createForPersist(object)
 
    PersistOnTargets("spellImmune", object, "Sivir_Base_E_shield", ENEMIES)
    PersistOnTargets("spellImmune", object, "nocturne_shroudofDarkness_shield", ENEMIES)
+
+
+   -- PETS
+   -- zyra
+   PersistPet(object, nil, "ZyraThornPlant")
+   PersistPet(object, nil, "ZyraGraspingPlant")
+   
+   -- malzahar
+   PersistPet(object, "Voidling")
+
+   -- yorick
+   PersistPet(object, "Inky")
+   PersistPet(object, "Blinky")
+   PersistPet(object, "Clyde")
+   if object.type == 12 then
+      for _,hero in ipairs(concat(ENEMIES, ALLIES, me)) do
+         if object.charName == hero.charName then
+            PersistPet(object, object.charName)
+            break
+         end
+      end
+   end
+
+   -- heimerdinger
+   PersistPet(object, "H-28G Evolution Turret")
+
+   -- leblanc
+   PersistPet(object, "LeblancImage")
+
+   -- morde (-- hard to test)
+
+   -- shaco
+   PersistPet(object, "Jack In The Box")
+   if object.type == 12 and P.shacoClone then
+      PersistPet(object, P.shacoClone.charName)
+   end
+
 end
 
 function persistTick()
    Clean(WARDS, "charName", "Ward")
-   Clean(TURRETS, "name", "Turret")
-   Clean(MYTURRETS, "name", "Turret")
    Clean(INHIBS, "name", "Inhibit_Gem")
    Clean(MYINHIBS, "name", "Inhibit_Gem")
+
    CleanPersistedObjects()
 
    updateMinions()
@@ -536,6 +587,10 @@ function persistTick()
    updateHeroes()
    updateTrackedSpells()
 
+   TURRETS = GetPersisted("TURRET")
+   MYTURRETS = GetPersisted("MYTURRET")
+   PETS = GetPersisted("PET")
+   MYPETS = GetPersisted("MYPET")
 end
 
 function getADC(list)
