@@ -16,8 +16,11 @@ local latency = ping * 2 / 1000
 -- Round up a bit as losing .05s is nothing but clipping the attack is bad.
 
 -- The third thing is the min move time. If you send a move command too soon it doesn't work.
--- It seems to be generally .2s min. Some characters need slightly more (Ashe).
--- Get some move speed (like 1.5 total) and orbwalk. If it misses some move commands, up the minMoveTime.
+-- Get some attack speed (like 1.5 total) and orbwalk. If it misses some move commands, up the minMoveTime.
+
+-- attack range can also need some tweaking. 
+-- What seems to work is near the blue side wraiths there are some flowers due south (marked with circle if debug is on)
+-- attack move the south wraith and note the range that the attack started from.
 
 -- Particles used to be important but it is all timing based now. May as well throw them in...
 
@@ -84,9 +87,6 @@ local function getAAData()
 
       Corki        = { projSpeed = 2.0, windup=.1, -- !
                        particles = {"corki_basicAttack_mis", "Corki_crit_mis"} },
-
-      Draven       = { projSpeed = 1.4,
-                       particles = {"Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"} },
 
       FiddleSticks = { projSpeed = 1.75, windup=.30,
                        particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
@@ -204,9 +204,6 @@ local function getAAData()
 
       Zilean       = { projSpeed = 1.25,
                        particles = {"ChronoBasicAttack_mis"} },
-
-      Zyra         = { projSpeed = 1.7, windup=.25,
-                       particles = {"Zyra_basicAttack"} },
 
    }
 
@@ -330,6 +327,7 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
+      Circle(Point(6529,51,4099), 25, red, 3)
       if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
          pp("No object. Windup "..aaData.windup.." too short. Incrementing")
          for wu,_ in ipairs(windups) do
