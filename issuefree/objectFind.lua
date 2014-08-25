@@ -15,7 +15,7 @@ local testShotSpeeds = {}
 function debugTick()
    if testShot then
       if time() - testShot.castTime > 2 then
-         testShot = nil
+         testShot.object = nil
       else
          if Point(testShot.object):valid() then
             if GetDistance(testShot.object) > 200 then
@@ -31,7 +31,8 @@ function debugTick()
                for i=2,#testShot.points do
                   local d = GetDistance(testShot.points[i], testShot.points[1])
                   local t = testShot.times[i] - testShot.times[1]
-                  local speed = d/t               
+                  local speed = d/t
+                  -- pp(speed)
                   total = total + speed
                end
                speed = total/(#testShot.points-1)
@@ -49,10 +50,10 @@ function debugTick()
    end
    Circle(GetMousePos(), range, blue) 
 
-   PrintState(-5, me.SpellNameQ)
-   PrintState(-4, me.SpellNameW)
-   PrintState(-3, me.SpellNameE)
-   PrintState(-2, me.SpellNameR)
+   PrintState(-5, me.SpellNameQ.."  "..me.SpellTimeQ)
+   PrintState(-4, me.SpellNameW.."  "..me.SpellTimeW)
+   PrintState(-3, me.SpellNameE.."  "..me.SpellTimeE)
+   PrintState(-2, me.SpellNameR.."  "..me.SpellTimeR)
 
    objects = {}
    for i = 1, objManager:GetMaxObjects(), 1 do
