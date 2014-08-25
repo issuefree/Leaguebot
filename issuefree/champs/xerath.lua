@@ -127,10 +127,7 @@ function Run()
          end
       end
 
-      if IsOn("move") and HotKey() then
-         MoveToMouse()
-      end
-
+      AutoMove()
       return true
    end
 
