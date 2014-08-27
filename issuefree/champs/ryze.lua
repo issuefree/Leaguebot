@@ -130,7 +130,7 @@ function CheckPower(target)
    if CanUse("power") then
       if #GetInRange(target, spells["power"].radius, ENEMIES) > 0 then
          Cast("power", me)
-         PrintAction("Power UP")
+         PrintAction("Power UP", nil, 1)
       end
    end
 end
