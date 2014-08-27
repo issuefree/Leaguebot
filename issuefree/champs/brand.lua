@@ -133,6 +133,12 @@ function Action()
       return true
    end
 
+   if CanUse("sear") and GetMPerc(me) > .75 then
+      if SkillShot("sear") then
+         return true
+      end
+   end
+
    if CanUse("pyro") then
       for _,enemy in ipairs(SortByHealth(GetInRange(me, "pyro", ENEMIES)), "pyro") do
          if WillKill("pyro", enemy) then
