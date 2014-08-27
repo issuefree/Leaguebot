@@ -171,7 +171,7 @@ itemPrices = {
    [3253] = {name="Enchantment: Distortion", price=1475, mp5=0.0},
    [3151] = {name="Liandry's Torment", price=2900, mp5=0.0},
    [3504] = {name="Ardent Censer", price=2200, mp5=10.0},
-   [3508] = {name="Essence Reaver", price=3400, mp5=0.0},
+   [3508] = {name="Essence Reaver", price=3200, mp5=0.0},
    [3145] = {name="Hextech Revolver", price=1200, mp5=0.0},
    [3001] = {name="Abyssal Scepter", price=2560, mp5=0.0},
    [3003] = {name="Archangel's Staff", price=2700, mp5=10.0},
