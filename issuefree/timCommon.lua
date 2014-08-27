@@ -1540,6 +1540,14 @@ function OnProcessSpell(unit, spell)
       end
    end
 
+   for _,sp in pairs(spells) do
+      if sp.manualCooldown then
+         if ICast(sp, unit, spell) then
+            sp.lastCast = time() + .1 -- lag
+         end
+      end
+   end
+
    -- shortcut for "creep" cast a spell
    if unit.team == 300 then
       CREEP_ACTIVE = true
