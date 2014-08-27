@@ -268,7 +268,7 @@ function Run()
       if VeryAlone() then
          if CanUse("arrow") and not P.charging then
             local hits, kills, score = GetBestLine(me, "maxArrow", .1, 1, MINIONS, ENEMIES)
-            if score > killThreshold then
+            if score > GetThreshMP("arrow", .1, 1.5) then
                StartArrow()
                PrintAction("Starting arrow for LH", #kills)
                --PauseToggle("lasthit", .75)
