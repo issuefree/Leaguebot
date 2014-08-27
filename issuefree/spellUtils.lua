@@ -10,11 +10,26 @@ require "issuefree/walls"
 -- common spell defs
 spells = {}
 
-function IsCooledDown(key, extraCooldown, hero)
+function IsCooledDown(thing, hero)
 	hero = hero or me
-	extraCooldown = extraCooldown or 0
-	if not key then return false end
-   return hero["SpellTime"..key] >= .9 + extraCooldown
+	-- extraCooldown = thing.extraCooldown or 0
+
+
+
+	local key
+	if type(thing) == "string" or type(thing) == "number" then
+		key = thing
+	else
+		key = thing.key
+		if thing.manualCooldown then
+			local cd = GetLVal(thing, "manualCooldown") * (1+me.cdr)
+			if time() - thing.lastCast >= cd then
+				return true
+			end
+		end
+	end
+	if not key then return false end	
+   return hero["SpellTime"..key] >= .9 --+ extraCooldown
 end
 
 function Cast(thing, target, force)
@@ -123,6 +138,13 @@ end
 
 function GetCD(thing)
    local spell = GetSpell(thing)
+
+	if spell.manualCooldown then
+		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
+		PrintState(1, cd)
+		return time() - spell.lastCast
+	end
+
    local cd = math.ceil(1 - me["SpellTime"..spell.key])
    if cd > 0 then
       return cd
@@ -144,8 +166,8 @@ function CanUse(thing)
          if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and me.mana >= GetSpellCost(thing) ) then
          	if P.silence then
          		return false
-         	end
-            return IsCooledDown(thing.key, thing.extraCooldown)
+         	end         	
+            return IsCooledDown(thing)
          else
             return false
          end
