@@ -19,7 +19,7 @@ AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", args={GetAADamage, "bolt"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
-AddToggle("move", {on=true, key=112, label="Move"})
+AddToggle("move", {on=true, key=118, label="Move"})
 
 
 spells["bolt"] = {
@@ -31,8 +31,8 @@ spells["bolt"] = {
    base={80,120,160,200,240}, 
    ap=.75,
    delay=5,
-   speed=0,
-   width=75,
+   speed=100,
+   width=90,  -- reticle
    noblock=true,
    overShoot=100,
    extraCooldown=.75
@@ -43,9 +43,11 @@ spells["eye"] = {
    color=blue,
    base={60,90,120,150,180},
    ap=.6,
-   delay=7,
+   delay=8, -- test skill shot
    speed=0,
-   radius=275
+   radius=275-10, -- reticle
+   manualCooldown={14,13,12,11,10},
+   lastCast=0
 } 
 spells["orb"] = {
    key="E", 
@@ -53,9 +55,11 @@ spells["orb"] = {
    color=yellow, 
    base={80,110,140,170,200}, 
    ap=.45,
-   delay=2,
+   delay=2.4,  -- tss
    speed=14,
-   width=90
+   width=75, -- reticle
+   manualCooldown={13,12.5,12,11.5,11},
+   lastCast=0
 } 
 spells["rite"] = {
    key="R",
@@ -78,9 +82,6 @@ local x,y = me.x, me.z
 canSurge = true
 
 function Run()
-   PrintState(0, me.SpellTimeQ)
-   PrintState(1, me.SpellTimeW)
-   PrintState(2, me.SpellTimeE)
    if P.charging then
       local chargeDuration = math.min(time() - chargeStartTime, 1.5)
       local addRange = spells["bolt"].maxRange - spells["bolt"].baseRange
@@ -115,10 +116,10 @@ function Run()
 
       if IsOn("lasthit") then
          if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
-            local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS)
-            local hits,_,score = GetBestLine(me, "bolt", .15, 1, MINIONS)
+            local _,_,maxScore = GetBestLine(me, "maxBolt", .05, .95, MINIONS)
+            local hits,_,score = GetBestLine(me, "bolt", .05, .95, MINIONS)
 
-            if score >= maxScore and score >= GetThreshMP("bolt") then
+            if score >= maxScore and score >= 1 then
                PrintAction("bolt lh", score)
                PauseToggle("lasthit", .5)
                FinishBolt(GetAngularCenter(hits))
@@ -175,9 +176,9 @@ function Run()
       end
 
       if Alone() and CanUse("bolt") and not P.charging then
-         local _,_,maxScore = GetBestLine(me, "maxBolt", .1, 1, MINIONS, ENEMIES)
+         local _,_,maxScore = GetBestLine(me, "maxBolt", .05, .95, MINIONS, ENEMIES)
 
-         if maxScore >= killsNeeded then
+         if maxScore >= GetThreshMP("bolt", .1, 1.5) then
             StartBolt()
             return true
          end
@@ -206,6 +207,9 @@ function Run()
 end
 
 function Action()
+   -- TestSkillShot("eye", "Xerath_Base_W_aoe_explosion.troy")
+   -- TestSkillShot("orb", "Xerath_Base_E_mis")
+
    if CanUse("orb") then
       if GetMPerc(me) > .5 then
          if SkillShot("orb") then
