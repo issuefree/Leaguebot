@@ -33,9 +33,9 @@ spells["hunter"] = {
    base={10,40,70,100,130}, 
    ad=.85,
    type="P",
-   delay=1.5,
-   speed=15.5,
-   width=85,
+   delay=1.5, -- TestSkillShot
+   speed=16,
+   width=65,  -- reticle
    cost=40
 }
 spells["capacitor"] = {
