@@ -14,9 +14,9 @@ local exceptions = {"StunReady"}
 
 local cleanseKey
 
-if me.SummonerD == "SummonerBoost" then
+if me.SummonerD == "summonerboost" then
    cleanseKey = "D"
-elseif me.SummonerF == "SummonerBoost" then
+elseif me.SummonerF == "summonerboost" then
    cleanseKey = "F" 
 end
 
