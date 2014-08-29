@@ -123,12 +123,12 @@ function Run()
       end
 
       if VeryAlone() then
-         if KillMinion("dis", nil, true) then
+         if KillMinion("dis", "burn", true) then
             return true
          end
-      elseif Alone() then
+      elseif not GetWeakestEnemy("dis") then
          if IsOn("stoke") and not P.stun then
-            if KillMinion("dis", nil, true) then
+            if KillMinion("dis", "burn", true) then
                return true
             end
          end    
@@ -209,18 +209,17 @@ function Action()
       end
    end
 
-   if not CanUse("inc") then
+   return false
+end   
+
+function FollowUp()
+   if not CanUse("dis") then
       local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-      -- local target = GetMarkedTarget() or GetMeleeTarget()
       if AutoAA(target) then
          return true
       end
    end
 
-   return false
-end   
-
-function FollowUp()
    return false
 end
 
