@@ -4,10 +4,10 @@ local smite = {range=750, base=0}
 local smiteDam = {390,410,430,450,480,510,540,570,600,640,680,720,760,800,850,900,950,1000}
 local smiteTargets = {}
 
-if me.SummonerD == "SummonerSmite" then
+if me.SummonerD == "summonersmite" then
    smite.key = "D"
    spells["smite"] = smite
-elseif me.SummonerF == "SummonerSmite" then
+elseif me.SummonerF == "summonersmite" then
    smite.key = "F"
    spells["smite"] = smite
 end
