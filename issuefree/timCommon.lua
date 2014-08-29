@@ -738,6 +738,8 @@ function KillMinion(thing, method, force, targetOnly)
       minions = RemoveWillKills(GetKills(thing, GetInRange(me, thing, MINIONS)), thing)
    end      
 
+   local ignoreMana = false
+
    if method == "weak" then
       SortByHealth(minions, spell)
    elseif method == "far" then
@@ -748,7 +750,10 @@ function KillMinion(thing, method, force, targetOnly)
    elseif method == "strong" then
       SortByHealth(minions, spell)
       minions = reverse(minions)
+   elseif method == "burn" then
+      ignoreMana = true
    end
+
 
 
    local targets = {}
@@ -787,12 +792,14 @@ function KillMinion(thing, method, force, targetOnly)
 
    if IsValid(target) then
 
-      local score = 1
-      if IsBigMinion(target) then
-         score = 1.5
-      end
-      if GetThreshMP(thing, .1) > score then
-         return nil
+      if not ignoreMana then
+         local score = 1
+         if IsBigMinion(target) then
+            score = 1.5
+         end
+         if GetThreshMP(thing, .1) > score then
+            return nil
+         end
       end
 
       if targetOnly then
