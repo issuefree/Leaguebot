@@ -12,24 +12,20 @@ spells = {}
 
 function IsCooledDown(thing, hero)
 	hero = hero or me
-	-- extraCooldown = thing.extraCooldown or 0
 
+	local spell = GetSpell(thing)
+	local extraCooldown = spell.extraCooldown or 0
 
+	local key = spell.key
+	if not key then return false end	
 
-	local key
-	if type(thing) == "string" or type(thing) == "number" then
-		key = thing
-	else
-		key = thing.key
-		if thing.manualCooldown then
-			local cd = GetLVal(thing, "manualCooldown") * (1+me.cdr)
-			if time() - thing.lastCast >= cd then
-				return true
-			end
+	if spell.manualCooldown then
+		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
+		if time() - spell.lastCast >= cd then
+			return true
 		end
 	end
-	if not key then return false end	
-   return hero["SpellTime"..key] >= .9 --+ extraCooldown
+   return hero["SpellTime"..key] >= .9 + extraCooldown
 end
 
 function Cast(thing, target, force)
@@ -97,6 +93,7 @@ function CastBuff(spell, switch)
          return
       end
       if not P[spell] and switch ~= false then
+      	pp("here")
          Cast(spell, me)
          PersistTemp(spell, .5)
          PrintAction(spell.." ON")
