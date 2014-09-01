@@ -11,8 +11,6 @@ pp("\nTim's Maokai")
 
 InitAAData({ 
    windup=.4, -- TODO
---    extraRange=-20,
---    particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 })
 
 -- SetChampStyle("marksman")
@@ -45,7 +43,8 @@ spells["smashPB"] = {
    base={70,115,160,205,250}, 
    ap=.4,
    delay=4,
-   speed=0
+   speed=0,
+   noblock=true
 } 
 spells["advance"] = {
    key="W", 
@@ -63,6 +62,7 @@ spells["sapling"] = {
    ap=.4,
    delay=3.8, -- TestSkillShot
    speed=10, 
+   noblock=true,
    radius=225, -- reticle (wiki says 175)
 } 
 spells["maelstrom"] = {
