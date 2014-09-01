@@ -5,7 +5,7 @@ pp("Tim's Mundo")
 
 spells["cleaver"] = {
    key="Q", 
-   range=1000, 
+   range=1000-100, 
    color=violet, 
    base={80,130,180,230,280},
    type="M",
@@ -110,7 +110,6 @@ end
 
 function Action()
    -- TestSkillShot("cleaver")
-   CastXYZ("cleaver", mousePos)
 
    if SkillShot("cleaver") then
       return true
