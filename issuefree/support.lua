@@ -75,7 +75,7 @@ function CheckShield(thing, unit, spell, type)
    local shield = GetSpell(thing)
    
    if spell.target and 
-      not find(spell.target.name, "Minion") and 
+      IsHero(spell.target) and spell.target.team == me.team and
       GetDistance(spell.target) < GetSpellRange(shield)
    then
       if type == "MAGIC" then
