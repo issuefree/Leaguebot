@@ -334,7 +334,7 @@ function Action()
          return true
       end
 
-      if #enemies > 0 and GetDistance(enemies[1]) > GetAARange() then
+      if #enemies > 0 and GetDistance(enemies[1]) > GetSpellRange("arrow") then
          local target = GetWeakestEnemy("maxArrow")
          if target and GetMPerc(me) > .5 then
             StartArrow()
