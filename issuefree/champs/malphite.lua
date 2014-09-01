@@ -73,6 +73,12 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
 
+   if IsOn("lasthit") then
+      if KillMinionsInPB("slam") then
+         return true
+      end
+   end
+
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
       if FollowUp() then
@@ -84,7 +90,10 @@ function Run()
 end
 
 function Action()
-   if #GetInRange(me, "slam") > 0 then
+   if CastBest("shard") then
+      return true
+   end
+   if #GetInRange(me, "slam", ENEMIES) > 0 then
       if CanUse("strikes") then
          Cast("strikes", me)
          PrintAction("Strikes!")
