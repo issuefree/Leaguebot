@@ -35,6 +35,7 @@ local minMoveTime = .2  -- this seems to work for almost everyone. Lots of peopl
 function GetAARange(target)
    target = target or me
    local range = target.range + 85
+
    if aaData and aaData.extraRange then
       range = range + aaData.extraRange
    end
@@ -134,9 +135,6 @@ local function getAAData()
       Leona        = { windup=.3,
                        particles={"leona_basicattack_hit"} },
 
-      Lulu         = { projSpeed = 2.5, windup=.2,
-                       particles = {"lulu_attack_cas", "LuluBasicAttack", "LuluBasicAttack_tar"} },
-
       Lux          = { projSpeed = 1.55, windup=.15,
                        particles = {"LuxBasicAttack"} },
 
@@ -178,10 +176,6 @@ local function getAAData()
 
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
-
-      Tryndamere   = { 
-                       particles = {"tryndamere_weapontrail"},
-                       attacks = {"attack", "Bloodlust"} },
 
       TwistedFate  = { projSpeed = 1.5, windup=.4,
                        particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
