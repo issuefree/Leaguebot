@@ -6,6 +6,11 @@ pp("\nTim's Lulu")
 -- SetChampStyle("caster")
 SetChampStyle("support")
 
+InitAAData({
+	projSpeed = 2.5, windup=.2,
+	particles = {"LuluBasicAttack"}
+})
+
 spells["pix"] = {
 	base=function() return 9 + math.floor((me.selflevel-1)/2)*12 end,
 	ap=.15,
@@ -211,7 +216,7 @@ local function onSpell(unit, spell)
 	end
 
 	if ICast("help", unit, spell) then
-		if spell.target.team == me.team then
+		if spell.target and spell.target.team == me.team then
 			pixTimeout = time() + spells["pix"].allyTimeout
 		else
 			pixTimeout = time() + spells["pix"].otherTimeout
