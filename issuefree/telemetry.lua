@@ -421,6 +421,8 @@ end
 
 function GetInRange(target, thing, ...)
    assert(type(target) == "table" or type(target) == "userdata")
+   -- assert(type(concat(...)[1]) ~= "nil")
+
    local range
    if type(thing) ~= "number" then
       range = GetSpellRange(thing)
