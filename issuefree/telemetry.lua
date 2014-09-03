@@ -149,7 +149,10 @@ function Projection(source, target, dist, max) -- returns a point on the line be
    return Point(source.x+math.sin(a)*dist, y, source.z+math.cos(a)*dist)
 end
 
-function ProjectionA(source, angle, dist)
+function ProjectionA(source, angle, dist, max)
+   if max an dist > max then
+      dist = max
+   end
    local y = source.y
    return Point(source.x+math.sin(angle)*dist, y, source.z+math.cos(angle)*dist)
 end
