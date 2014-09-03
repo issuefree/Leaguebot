@@ -322,6 +322,7 @@ function GetSpellDamage(thing, target, ignoreResists)
    damage = damage + GetLVal(spell, "adBonus")*me.addDamage
    damage = damage + GetLVal(spell, "adBase")*me.baseDamage
    damage = damage + GetLVal(spell, "mana")*me.maxMana
+   damage = damage + GetLVal(spell, "maxHealth")*me.maxHealth
    damage = damage + GetLVal(spell, "armor")*me.armor
    damage = damage + GetLVal(spell, "lvl")*me.selflevel
    damage = damage + GetLVal(spell, "bonus")
