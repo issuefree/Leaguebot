@@ -3,6 +3,12 @@ require "issuefree/modules"
 
 pp("\nTim's Karthus")
 
+InitAAData({
+   projSpeed = 1.25, windup=.55,
+   extraRange=-15,
+   particles = {"Karthus_Base_AA_tar", "Karthus_Base_AA_mis"},
+})
+
 AddToggle("tear", {on=true, key=112, label="Tear"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -49,14 +55,6 @@ spells["ult"] = {
 }
 
 function Run()
-   if CanChargeTear() then
-      PrintState(0, "TEAR")
-   end
-
-   if CanUse("defile") then
-      PrintState(1, "DEFILE")
-   end
-
    local target = GetWeakEnemy("MAGIC", 90000) 
    if target and CanUse("ult") and WillKill("ult", target) then
       LineBetween(GetMousePos(), target, 3)
@@ -78,18 +76,17 @@ function Run()
    end   
 
    if CanUse("defile") and P.defile then
-      if #GetInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
+      if #GetInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS, PETS) == 0 then
          CastBuff("defile", false)
       end
    end
 
-   if IsOn("tear") and CanChargeTear() and CanUse("lay") then
+   if IsOn("tear") and CanChargeTear() and 
+      CanUse("lay") and GetMPerc(me) > .66 and
+      Alone()
+   then
       if #GetInRange(me, spells["defile"].range+50, ENEMIES, MINIONS, CREEPS) == 0 then
-         local point = Point(mousePos)
-         if GetDistance(mousePos) > GetSpellRange("lay") then
-            point = Projection(me, mousePos, GetSpellRange("lay"))
-         end
-         CastXYZ("lay", point)
+         CastXYZ("lay", GetCastPoint(mousePos, "lay"))
          return true
       end
    end
@@ -131,18 +128,28 @@ function Run()
 end
 
 function Action()
-   if CanUse("defile") then
+   if CanUse("defile") and not P.defile then
       local target = GetWeakEnemy("MAGIC", spells["defile"].range-50)   
-      if target and not P.defile then
+      if target then
          CastBuff("defile")
       end
    end
 
    if SkillShot("lay") then
-      StartChannel(.5)
+      -- StartChannel(.5)
       return true
    end
    
+   if CanUse("lay") then
+      local hits, kills, score = GetBestArea(me, "lay", 1, 1, ENEMIES, MINIONS, PETS)
+      if #hits > 0 then
+         CastXYZ("lay", GetAngularCenter(hits))
+         PrintAction("lay for AoE")
+         return true
+      end
+   end
+
+   return false
 end
 
 

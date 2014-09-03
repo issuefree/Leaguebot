@@ -113,9 +113,6 @@ local function getAAData()
       Karma        = { projSpeed = nil,
                        particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
 
-      Karthus      = { projSpeed = 1.25,
-                       particles = {"LichBasicAttack_cas", "LichBasicAttack_glow", "LichBasicAttack_mis", "LichBasicAttack_tar"} },
-
       Kassadin     = { windup=.2,
                        resets = {me.SpellNameW} },
 
