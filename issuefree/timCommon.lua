@@ -922,7 +922,7 @@ function HitInShape(thing, GetBestF, targets, thresh, hs, ks, action)
    local hits, kills, score = GetBestF(me, thing, hs, ks, RemoveWillKills(targets, thing))
    if score >= thresh then
       AddWillKill(kills, thing)
-      local point = GetAngularCenter(hits)
+      local point = GetCastPoint(hits, thing)
       if spell.overShoot then
          point = Projection(me, point, GetDistance(point)+spell.overShoot)
       end
@@ -1000,21 +1000,17 @@ function GetBestArea(source, thing, hitScore, killScore, ...)
    for _,target in ipairs(targets) do
       -- get everything that could be hit and still hit the target (a double blast radius)
       local hits = GetInRange(target, spell.radius*2, targets)
+
       local center
       -- trim outliers until everyone fits
       while true do
-         center = GetAngularCenter(hits, source)
+         center = GetCastPoint(hits, spell, source)
          SortByDistance(hits, center)         
          if GetDistance(center, hits[#hits]) > spell.radius then
             table.remove(hits, #hits)
          else
             break
          end
-      end
-
-      center = GetAngularCenter(hits, source)
-      if GetDistance(source, center) > GetSpellRange(spell) then
-         hits = {}
       end
 
       local score, kills = scoreHits(spell, hits, hitScore, killScore)
