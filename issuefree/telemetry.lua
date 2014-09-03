@@ -557,8 +557,9 @@ function SortByAngle(things, target, switch)
 end
 
 function GetCircleLocs(center, dist)
-   local num = 16
+   local num = math.floor(math.pi*dist*2 / 150)
 
+   PrintState(0, num)
    local locs = {}
    for i=1,num,1 do
       local angle = 2*math.pi/num*i

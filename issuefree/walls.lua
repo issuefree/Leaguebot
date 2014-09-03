@@ -330,12 +330,28 @@ end
 function WillCollide(s, t)
    local dist = GetDistance(s,t)
    local cp = s
-   cp = Projection(cp,t,RES)
+   cp = Projection(cp,t,RES/4)
    while GetDistance(s, cp) < dist do
       if IsSolid(cp) then --or #getNearPoints(cp) >= 1 then
          return cp
       end
-      cp = Projection(cp,t,RES)
+      cp = Projection(cp,t,RES/4)
    end
    return nil
+end
+
+function GetNearestWall(target, dist)
+   local wallPoint
+   local wallDist
+   local points = GetCircleLocs(target, dist)
+   for _,point in ipairs(points) do
+      local cp = WillCollide(target, point)
+      if cp and ( not wallPoint or GetDistance(cp) < wallDist ) then
+         wallPoint = cp
+         wallDist = GetDistance(cp)
+      end
+   end
+   if wallPoint then
+      return wallPoint
+   end
 end

@@ -250,7 +250,7 @@ function Action()
    if CanUse("gnar") then
       local targets = SortByDistance(GetInRange(me, "gnar", ENEMIES))
       for _,target in ipairs(targets) do
-         local cp = NearWall(target, spells["gnar"].knockback)
+         local cp = GetNearestWall(target, spells["gnar"].knockback)
          if cp then
             local angle = AngleBetween(target, cp)
             CastXYZ("gnar", ProjectionA(me, angle, 100))
