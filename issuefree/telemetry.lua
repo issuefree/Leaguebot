@@ -140,7 +140,10 @@ function ApproachAngle(attacker, target)
    return aa
 end
 
-function Projection(source, target, dist) -- returns a point on the line between two objects at a certain distance
+function Projection(source, target, dist, max) -- returns a point on the line between two objects at a certain distance
+   if max and dist > max then 
+      dist = max
+   end
    local a = AngleBetween(source, target)
    local y = source.y or target.y
    return Point(source.x+math.sin(a)*dist, y, source.z+math.cos(a)*dist)
@@ -257,6 +260,20 @@ function GetAngularCenter(targets, source)
 
    return GetCenter({l, r})
 end
+
+function GetCastPoint(targets, thing, source)
+   source = source or me
+   local point
+   if type(targets) == "table" then
+      point = GetAngularCenter(targets, source)
+   else
+      point = Point(targets)
+   end
+   if not point then return nil end
+   return Projection(source, point, GetDistance(point, source), GetSpellRange(thing))
+end
+
+
 
 function GetOffset(p1, p2)
    return Point(p1.x-p2.x, p1.y-p2.y, p1.z-p2.z)
