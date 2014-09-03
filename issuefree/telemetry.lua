@@ -150,7 +150,7 @@ function Projection(source, target, dist, max) -- returns a point on the line be
 end
 
 function ProjectionA(source, angle, dist, max)
-   if max an dist > max then
+   if max and dist > max then
       dist = max
    end
    local y = source.y
