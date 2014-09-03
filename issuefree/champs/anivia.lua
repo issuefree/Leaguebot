@@ -61,10 +61,6 @@ spells["storm"] = {
 }
 
 function Run()
-   for _,t in ipairs(GetWithBuff("freeze", ENEMIES)) do
-      Circle(hero, nil, blue, 3)
-   end
-
    if StartTickActions() then
       return true
    end
