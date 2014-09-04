@@ -267,7 +267,7 @@ end
 function GetCastPoint(targets, thing, source)
    source = source or me
    local point
-   if type(targets) == "table" then
+   if type(targets) == "table" and not targets.x then
       point = GetAngularCenter(targets, source)
    else
       point = Point(targets)
