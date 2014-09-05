@@ -39,7 +39,7 @@ spells["fission"] = {
 } 
 spells["rift"] = {
    key="W", 
-   range=1050, 
+   range=900, 
    color=yellow, 
    base={30,50,70,90,110}, 
    ap=.25,
@@ -100,12 +100,14 @@ function Run()
    if P.fission and fissionAngle then
       local targets = GetInRange(P.fission, spells["fission"].splitDist, ENEMIES)
       for _,target in ipairs(targets) do
-         local ra = RadsToDegs(RelativeAngle(P.fission, me, target))
+         local r = GetDistance(target) / GetDistance(P.fission, target)
+         local point = Point(GetFireahead(target, 2, 15*r))
+         local ra = RadsToDegs(RelativeAngle(P.fission, me, point))
          if ra > 85 and ra < 95 then
-            if not IsBlocked(target, "fission", P.fission, ENEMIES, MINIONS, PETS) then
+            if not IsBlocked(point, "fission", P.fission, ENEMIES, MINIONS, PETS) then
                Cast("fission", me, true)
                PrintAction("Fission for split", target)
-               return true
+               break
             end
          end
       end
