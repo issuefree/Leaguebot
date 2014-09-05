@@ -1,0 +1,11 @@
+LALT LOADSCRIPT=issuefree/champs/velkoz.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
