@@ -110,7 +110,6 @@ spells["cougar"] = {
 local isCougar = false
 
 function Run()
-   PrintState(0, GetSpellDamage("takedown", GetGolem()))
    if me.SpellNameQ == "Takedown" then
       isCougar = true
    else
@@ -119,7 +118,7 @@ function Run()
 
    if isCougar then
       InitAAData({ -- cougar
-         projSpeed = 1.7, windup=.2,
+         windup=.2,
          resets = {me.SpellNameQ},   
       })
       spells["jav"].key = "--"
@@ -149,10 +148,9 @@ function Run()
       return true
    end
    
-   if CastAtCC("spear") then
-      return true
-   end
-   if CastAtCC("trap") then
+   if CastAtCC("spear") or
+      CastAtCC("trap")
+   then
       return true
    end
 
@@ -200,12 +198,11 @@ function Action()
          return true
       end      
       
-      if CanUse("cougar") then
+      if CanUse("cougar") and me.SpellLevelW > 0 then
          local target = GetWeakest("pounce", GetInRange(me, "pounceProwl", GetWithBuff("prowl", ENEMIES)))
          if target then
-            MarkTarget(target)
             Cast("cougar", me)
-            PrintAction("Coxugar for big pounce", target)
+            PrintAction("Cougar for big pounce", target)
             return true
          end
       end
@@ -228,15 +225,6 @@ function Action()
       
    else 
       
-      if CanUse("pounce") then
-         local target = GetMarkedTarget() or GetWeakestEnemy("pounce", spells["pounce"].radius)
-         if target and not IsInRange("AA", target) then
-            CastXYZ("pounce", target)
-            PrintAction("Pounce toward", target)
-            return true
-         end
-      end
-
       -- check for execute, those are good
       if CanUse("takedown") then
          local target = SortByHealth(GetKills("takedown", GetInRange(me, "takedown", ENEMIES)), "takedown")[1]
@@ -248,6 +236,19 @@ function Action()
          end
       end
 
+      -- pounce marked, prowled, other for gap close
+      if CanUse("pounce") then
+         local target = GetMarkedTarget() or 
+                        GetWeakest("pounce", GetInRange(me, "pounceProwl", GetWithBuff("prowl", ENEMIES))) or
+                        GetWeakestEnemy("pounce", spells["pounce"].radius)
+         if target and not IsInRange("AA", target) then
+            CastXYZ("pounce", GetCastPoint(target, "pounce"))
+            PrintAction("Pounce toward", target)
+            return true
+         end
+      end
+
+      -- swipe preferring to hit prowled
       if CanUse("swipe") then
          local target = GetMarkedTarget()
          if not target then
@@ -266,8 +267,9 @@ function Action()
          end
       end
 
+      -- takedown for deeps
       if CanUse("takedown") then
-         local target = GetMarkedTarget() or GetWeakestEnemy("takedown")  -- GetWeakestEnemy should take intou account prowl
+         local target = GetMarkedTarget() or GetWeakestEnemy("takedown")  -- GetWeakestEnemy should take into account prowl
          if target then
             Cast("takedown", target)
             AttackTarget(target)
