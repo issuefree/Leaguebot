@@ -9,6 +9,11 @@ require "issuefree/modules"
 
 pp("\nTim's Riven")
 
+InitAAData({
+   windup=.25,
+   resets = {me.SpellNameQ}
+})
+
 SetChampStyle("bruiser")
 
 AddToggle("", {on=true, key=112, label=""})
@@ -22,7 +27,13 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["runic"] = {
    base=0, 
-   ad=function() if P.runic then return .20+(math.floor(me.selflevel/3)*.05) end end
+   ad=
+      function() 
+         if P.runic then 
+            return .20+(math.floor(me.selflevel/3)*.05) 
+         end
+         return 0
+      end
 } 
 spells["wings"] = {
    key="Q", 
@@ -79,11 +90,6 @@ spells["exile"].damOnTarget =
       return dam * 8/3 * missingPerc
    end
 
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
-
 local wingsStage = 1
 local lastWings = 0
 
@@ -114,11 +120,7 @@ function Run()
       wingsStage = 1
    end
 
-   if P.runic then
-      spells["AA"].bonus = GetSpellDamage("runic")
-   else
-      spells["AA"].bonus = 0
-   end
+   spells["AA"].bonus = GetSpellDamage("runic")
 
    if P.exile then
       spells["wings"].radius = spells["wings"].radiusE[wingsStage]+GetWidth(me)

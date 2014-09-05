@@ -161,9 +161,6 @@ local function getAAData()
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Riven        = { windup=.25,
-                       resets = {me.SpellNameQ} },
-
       Shyvana      = { 
                        resets = {me.SpellNameQ} },
 
@@ -379,14 +376,22 @@ function aaTick()
 
 end
 
-function ResetAttack()
+function ResetAttack(spell)
    needMove = false
+   if ModuleConfig.aaDebug then
+      if spell and spell.name then
+         PrintAction("Reset", spell.name)
+      end
+   end
    lastAttack = time() - getAADuration()
 end
 
 function CanAttack()
    if P.blind then
       return false
+   end
+   if time() > getNextAttackTime() - latency then
+      -- PrintAction("CANATTACK")
    end
    return time() > getNextAttackTime() - latency
 end
@@ -562,7 +567,7 @@ function onSpellAA(unit, spell)
    end
    
    if isResetSpell(spell) then
-      ResetAttack()
+      ResetAttack(spell)
    end
 
    if IAttack(unit, spell) then
