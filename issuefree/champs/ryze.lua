@@ -19,7 +19,7 @@ spells["overload"] = {
    color=violet, 
    base={60,85,110,135,160}, 
    ap=.4, 
-   mana=.065,
+   maxMana=.065,
    cost=60
 }
 spells["prison"] = {
@@ -28,7 +28,7 @@ spells["prison"] = {
    color=red,    
    base={60,95,130,165,200}, 
    ap=.6, 
-   mana=.045,
+   maxMana=.045,
    cost={60,70,80,90,100}
 }
 spells["flux"] = {
@@ -37,7 +37,7 @@ spells["flux"] = {
    color=violet, 
    base={50,70,90,110,130},  
    ap=.35, 
-   mana=.01,
+   maxMana=.01,
    cost={80,90,100,110,120}
 }
 spells["power"] = {

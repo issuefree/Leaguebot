@@ -32,14 +32,14 @@ spells["infuseMana"] = {
 	range=725,
 	color=blue,   
 	base={20,40,60,80,100},
-	mana=.05,
+	maxMana=.05,
 	type="H"
 }
 spells["infuse"] = {
 	key="E",
 	range=725,
 	base={40,70,100,130,160}, 
-	mana=.05,
+	maxMana=.05,
 	ap=.4
 }
 spells["wish"] = {

@@ -53,7 +53,7 @@ spells["rift"] = {
 	range=700,
 	color=blue, 
 	base={80,100,120},
-	mana=.02,
+	maxMana=.02,
 	cost=function() return 75*(2^riftStacks) end,
 	bonus=function() return GetSpellDamage("riftStack")*riftStacks end,
 	timeout=12,
@@ -61,7 +61,7 @@ spells["rift"] = {
 }
 spells["riftStack"] = {
 	base={40,50,60},
-	mana=.01
+	maxMana=.01
 }
 
 lastRift = 0
