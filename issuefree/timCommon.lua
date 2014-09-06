@@ -2165,7 +2165,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
 
    if not CanUse(spell) then return end
 
-   local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell)+50, ENEMIES)))
+   local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell), ENEMIES)))
    local stillMoving = false
    if not target then
 
