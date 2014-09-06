@@ -16,7 +16,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["binding"] = {
    key="Q", 
-   range=1100, -- this is really 1300 but max range never seems to hit
+   range=1300-200, -- this is really 1300 but max range never seems to hit
    color=red, 
    base={80,135,190,245,300}, 
    ap=.9,
