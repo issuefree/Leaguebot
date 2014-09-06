@@ -30,7 +30,7 @@ local latency = ping * 2 / 1000
       --                  attacks = {"attack", "frostarrow"} },
 
 local windup = .4  -- this is the slowest I've seen. Shouldn't ever clip with this but not the most responsive.
-local minMoveTime = .2  -- this seems to work for almost everyone. Lots of people don't need this but it's safer to have something
+local minMoveTime = .1
 
 function GetAARange(target)
    target = target or me
