@@ -23,6 +23,8 @@ function IsCooledDown(thing, hero)
 		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
 		if time() - spell.lastCast >= cd then
 			return true
+		else
+			return false
 		end
 	end
    return hero["SpellTime"..key] >= .9 + extraCooldown
