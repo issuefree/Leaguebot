@@ -7,7 +7,7 @@ pp(" - Xerath sucks (hard to script)")
 SetChampStyle("caster")
 
 InitAAData({ 
-   projSpeed = 1.2, windup=.3,
+   projSpeed = 1.2, windup=.35,
    attacks = {"XerathBasicAttack"},
    particles = {"Xerath_Base_BA_mis"}
 })
@@ -39,13 +39,14 @@ spells["bolt"] = {
 } 
 spells["eye"] = {
    key="W",
-   range=1100,
+   range=1100-100, -- reticle fail
    color=blue,
    base={60,90,120,150,180},
    ap=.6,
    delay=8, -- test skill shot
    speed=0,
    radius=275-10, -- reticle
+   noblock=true,
    manualCooldown={14,13,12,11,10},
    lastCast=0
 } 
@@ -152,9 +153,7 @@ function Run()
       return true
    end
 
-   if CastAtCC("eye") or
-      CastAtCC("orb")
-   then
+   if CastAtCC("eye") then
       return true
    end
 
@@ -211,12 +210,14 @@ function Action()
    -- TestSkillShot("orb", "Xerath_Base_E_mis")
 
    if CanUse("orb") then
-      if GetMPerc(me) > .5 then
+      if GetMPerc(me) > .33 and
+         ( CanUse("eye") or CanUse("bolt") ) 
+      then
          if SkillShot("orb") then
             return true
          end
       else
-         local target = GetSkillShot("orb", nil, GetInRange(me, 750, ENEMIES))
+         local target = GetSkillShot("orb", nil, GetInRange(me, 500, ENEMIES))
          if target then
             CastFireahead("orb", target)
             PrintAction("Orb at close", target)
