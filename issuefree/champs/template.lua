@@ -131,6 +131,15 @@ function FollowUp()
    return false
 end
 
+-- function AutoJungle()
+--    local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+--    if AA(creep) then
+--       PrintAction("AA "..creep.charName)
+--       return true
+--    end
+-- end   
+-- SetAutoJungle(AutoJungle)
+
 local function onCreate(object)
 end
 

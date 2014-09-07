@@ -182,6 +182,25 @@ function FollowUp()
    return false
 end
 
+function AutoJungle()
+   local creep = GetBiggestCreep(GetInRange(me, "hunter", CREEPS))
+   if CanUse("hunter") then
+      local score = ScoreCreeps(creep)
+      if score > GetThreshMP("hunter", .1, 0) then
+         Cast("hunter", creep)
+         PrintAction("Hunter in the jungle")
+         return true
+      end
+   end
+
+   local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+   if AA(creep) then
+      PrintAction("AA "..creep.charName)
+      return true
+   end
+end   
+SetAutoJungle(AutoJungle)
+
 local function onObject(object)
    PersistOnTargets("charge", object, "UrgotCorrosiveDebuff", ENEMIES)
    if find(object.charName, "UrgotPlasmaGrenade") then

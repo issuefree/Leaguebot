@@ -34,6 +34,8 @@ SetScriptTimer(10)
 
 FRAME = time()
 
+CREEP_ACTIVE = false
+
 if me.SpellLevelQ == 0 and
    me.SpellLevelW == 0 and
    me.SpellLevelE == 0
@@ -1815,6 +1817,25 @@ function AutoMove()
    end
 end
 
+local autoJungleFunction = nil
+function SetAutoJungle(ajf)
+   autoJungleFunction = ajf
+end
+
+function AutoJungle()   
+   if HotKey() and CREEP_ACTIVE then
+      if autoJungleFunction then
+         return autoJungleFunction()
+      end
+      local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+      if AA(creep) then
+         PrintAction("AA "..creep.charName)
+         return true
+      end
+
+   end
+end   
+
 function EndTickActions()
    if IsOn("lasthit") and Alone() then
       if KillMinion("AA") then
@@ -1823,6 +1844,10 @@ function EndTickActions()
    end
 
    if HitObjectives() then
+      return true
+   end
+
+   if AutoJungle() then
       return true
    end
 
@@ -2212,6 +2237,28 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
    end
    return nil
 end
+
+function GetBiggestCreep(creeps)
+   return SortByMaxHealth(creeps, nil, true)[1]
+end
+
+function ScoreCreeps(creeps)
+   if type(creeps) ~= "table" then
+      creeps = {creeps}
+   end
+   local points = 0
+   for _,creep in ipairs(creeps) do
+      if IsMinorCreep(creep) then
+         points = points + 1
+      elseif IsBigCreep(creep) then
+         points = points + 2
+      elseif IsMajorCreep(creep) then
+         points = points + 4
+      end
+   end
+   return points
+end
+
 
 function OnWndMsg(msg, key)
 
