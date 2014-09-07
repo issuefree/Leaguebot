@@ -365,12 +365,14 @@ function RetreatingFrom(target)
           GetDistance(CURSOR) < GetDistance(CURSOR, target)
 end
 
--- function Chasing(enemy)
---    return true
---    -- if I was closer last tick than i was the tick before then I'm chasing
---    -- return GetDistance(myPos[1], enemy) > GetDistance(myPos[2], enemy)
---    -- return GetDistance(CURSOR) > GetDistance(CURSOR, enemy)
--- end
+function Chasing(enemy)
+   if CURSOR and 
+      GetDistance(CURSOR, enemy) < 250 and
+      not FacingMe(enemy)
+   then 
+      return true
+   end
+end
 
 function GetMousePos()
    return Point(GetCursorWorldX(), GetCursorWorldY(), GetCursorWorldZ())
