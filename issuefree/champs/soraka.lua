@@ -115,33 +115,23 @@ function Run()
 end 
 
 function Action()
-	if CanUse("infuse") then
-		local target = GetMarkedTarget() or GetWeakestEnemy("infuse")
-		if target then
-			Cast("infuse", target)
-			PrintAction("Infuse D", target)
-			return true
-		end
+	if CastBest("infuse") then
+		return true
 	end
 
-	if CanUse("starfall") then
-		local target = GetWeakestEnemy("starfall")
-		if target then
-			Cast("starfall", me) 
-			PrintAction("Starfall")
-			return true
-		end
-   end
-
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AutoAA(target) then
-      return true
+	if CastBest("starfall") then
+		return true
    end
 
 	return false		
 end
 
 function FollowUp()
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
 	if IsOn("clear") and Alone() then
 		if CanUse("starfall") then
 			if #GetInRange(me, "starfall", MINIONS) > 2 then
@@ -264,6 +254,28 @@ function Wish()
 	end
 	return false
 end
+
+function AutoJungle()
+	local score = ScoreCreeps(GetInRange(me, "starfall", CREEPS))
+	if score > GetThreshMP("starfall", .05, 0) then
+		Cast("starfall", me)
+		PrintAction("Starfall jungle")
+		return true
+	end
+
+	local score = ScoreCreeps(GetBiggestCreep(GetInRange(me, "infuse", CREEPS)))
+	if score > GetThreshMP("infuse", .05, 0) then
+		PrintAction("Infuse jungle")
+		return true
+	end
+
+   local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+   if AA(creep) then
+      PrintAction("AA "..creep.charName)
+      return true
+   end
+end   
+SetAutoJungle(AutoJungle)
 
 function onCreateObj(object)
 end
