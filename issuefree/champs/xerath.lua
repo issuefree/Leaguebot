@@ -32,7 +32,7 @@ spells["bolt"] = {
    ap=.75,
    delay=5,
    speed=100,
-   width=90,  -- reticle
+   width=90-5,  -- reticle
    noblock=true,
    overShoot=100,
    extraCooldown=.75
@@ -83,6 +83,7 @@ local x,y = me.x, me.z
 canSurge = true
 
 function Run()
+   P.markedTarget = nil
    if P.charging then
       local chargeDuration = math.min(time() - chargeStartTime, 1.5)
       local addRange = spells["bolt"].maxRange - spells["bolt"].baseRange
@@ -104,23 +105,26 @@ function Run()
    end
 
    if P.charging then
-      local _,_,maxScore = GetBestLine(me, "maxBolt", 0, 10, ENEMIES)
-      local hits,_,score = GetBestLine(me, "bolt", .1, 10, ENEMIES)
-      if score >= maxScore and score > 0 then
-         local target = GetWeakestEnemy("bolt")
-         if target then
+      local target = GetWeakestEnemy("maxBolt")
+      if target and IsInRange("bolt", target) then
+      -- local _,_,maxScore = GetBestLine(me, "maxBolt", 1, 10, ENEMIES)
+      -- local hits,_,score = GetBestLine(me, "bolt", 1, 10, ENEMIES)
+      -- if score >= maxScore and score >= 1 then
+      --    local target = GetWeakestEnemy("bolt")
+      --    if target then
             FinishBolt(GetSpellFireahead("bolt", target))
             PrintAction("bolt", target)
             return true
-         end
+         -- end
       end
 
       if IsOn("lasthit") then
          if #GetInRange(me, GetSpellRange("maxBolt")*1.1, ENEMIES) == 0 then
             local _,_,maxScore = GetBestLine(me, "maxBolt", .05, .95, MINIONS)
-            local hits,_,score = GetBestLine(me, "bolt", .05, .95, MINIONS)
+            local hits,kills,score = GetBestLine(me, "bolt", .05, .95, MINIONS)
 
             if score >= maxScore and score >= 1 then
+               AddWillKill(kills, "bolt")
                PrintAction("bolt lh", score)
                PauseToggle("lasthit", .5)
                FinishBolt(GetAngularCenter(hits))
@@ -201,7 +205,6 @@ function Run()
       end
    end
 
-   P.markedTarget = nil
    EndTickActions()
 end
 
@@ -250,6 +253,14 @@ function Action()
 end
 
 function FollowUp()
+   if CanAttack() and canSurge then
+      local target = SortByDistance(GetInRange(me, "AA", ENEMIES, MINIONS, PETS))[1]
+      if target then
+         AA(target)
+         PrintAction("AA for surge")
+         return true
+      end
+   end
 
    return false
 end
@@ -264,7 +275,7 @@ function StartBolt(timeout)
 
          send.key_down(SKeys.Q)
          timeout = timeout or 5
-         DoIn(function() FinishBolt(mousePos) end, timeout)
+         DoIn(function() FinishBolt(mousePos) end, timeout, "bolt")
       end
    end
 end
@@ -277,10 +288,12 @@ function FinishBolt(t)
          sy = GetCursorY()
       end
       ClickSpellXYZ("Q", t.x, t.y, t.z, 0)
-      PrintAction("Finish Bolt")
+      PrintAction("Finish Bolt", nil, 1)
       DoIn(
          function() 
             if sx then 
+               P.markedTarget = nil
+               send.key_up(SKeys.Q)
                send.mouse_move(sx, sy) 
                sx = nil
                sy = nil
@@ -300,18 +313,16 @@ local function onObject(object)
    end
 
    Persist("rite", object, "Xerath_Base_R_buf")
+
+   if PersistBuff("surge", object, "Xerath_Base_P_ManaRestore.troy") then
+      canSurge = false
+      DoIn(function() canSurge = true end, 12, "surge")      
+   end
 end
 
 local function onSpell(unit, spell)
    if IsMe(unit) and spell.name == "xeratharcanopulse2" then
       P.charging = nil
-   end
-
-   if IAttack(unit, spell) then
-      if not canSurge then
-         DoIn(function() canSurge = true end, 12, "surge")
-         canSurge = false
-      end
    end
 end
 
