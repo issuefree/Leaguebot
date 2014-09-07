@@ -1,1 +1,11 @@
-LALT LOADSCRIPT=issuefree/champs/template.lua
+LALT LOADSCRIPT=issuefree/champs/tryndamere.lua
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+250 0
