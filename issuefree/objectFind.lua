@@ -4,7 +4,7 @@ local num = 10
 local objects = {}
 local spells = {}
 
-local range = 200
+local range = 250
 
 local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "Mfx_"}
 
