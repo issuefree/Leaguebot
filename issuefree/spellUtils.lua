@@ -647,6 +647,27 @@ function IsBlockedSkillShot(thing)
 	return IsLinearSkillShot(thing) and not spell.noblock
 end
 
+function IsPointAoE(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return spell.radius and spell.noblock
+end
+
+function IsLineAoE(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return spell.width and spell.noblock
+end
+
+function IsConeAoE(thing)
+	local spell = GetSpell(thing)
+	if not spell then return false end
+
+	return spell.cone
+end
+
 function DrawCone(source, angle, arc, dist)
    local a1 = angle - arc/2
    local a2 = angle + arc/2
