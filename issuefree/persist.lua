@@ -4,8 +4,6 @@ require "issuefree/basicUtils"
 MINIONS = {}
 MYMINIONS = {}
 
-CREEP_ACTIVE = false
-
 CREEPS = {} -- all creeps
 MINORCREEPS = {} -- minor creeps (little wolves, lizards)
 BIGCREEPS = {} -- Big wolf and big wraith and big golem
