@@ -416,6 +416,22 @@ local function updateHeroes()
    end
 end
 
+function IsMinorCreep(creep)
+   if ListContains(creep.name, MinorCreepNames, true) then
+      return true
+   end
+end
+function IsBigCreep(creep)
+   if ListContains(creep.name, BigCreepNames, true) then
+      return true
+   end
+end
+function IsMajorCreep(creep)
+   if ListContains(creep.name, MajorCreepNames, true) then
+      return true
+   end
+end   
+
 function createForPersist(object)
       -- find minions
    if ( ( find(object.name, "Blue_Minion") and playerTeam == "Red" ) or 
@@ -431,15 +447,15 @@ function createForPersist(object)
       table.insert(MYMINIONS, object)
    end
 
-   if ListContains(object.name, MinorCreepNames, true) then
+   if IsMinorCreep(object) then
       table.insert(MINORCREEPS, object)
       table.insert(CREEPS, object)
    end
-   if ListContains(object.name, BigCreepNames, true) then
+   if IsBigCreep(object) then
       table.insert(BIGCREEPS, object)
       table.insert(CREEPS, object)
    end
-   if ListContains(object.name, MajorCreepNames, true) then
+   if IsMajorCreep(object) then
       table.insert(MAJORCREEPS, object)
       table.insert(CREEPS, object)
       if object.name == "Dragon" then
@@ -587,8 +603,8 @@ function persistTick()
    updateHeroes()
    updateTrackedSpells()
 
-   TURRETS = GetPersisted("TURRET")
-   MYTURRETS = GetPersisted("MYTURRET")
+   TURRETS = ValidTargets(GetPersisted("TURRET"))
+   MYTURRETS = ValidTargets(GetPersisted("MYTURRET"))
    PETS = GetPersisted("PET")
    MYPETS = GetPersisted("MYPET")
 end
