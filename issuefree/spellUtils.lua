@@ -10,6 +10,7 @@ require "issuefree/walls"
 -- common spell defs
 spells = {}
 
+local ping = .05
 function IsCooledDown(thing, hero)
 	hero = hero or me
 
@@ -27,7 +28,7 @@ function IsCooledDown(thing, hero)
 			return false
 		end
 	end
-   return hero["SpellTime"..key] >= .9 + extraCooldown
+   return hero["SpellTime"..key] >= 1 - ping*2 + extraCooldown
 end
 
 function Cast(thing, target, force)
