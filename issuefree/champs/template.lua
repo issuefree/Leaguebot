@@ -133,6 +133,7 @@ end
 
 -- function AutoJungle()
 --    local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+--    local score = ScoreCreeps(creep)
 --    if AA(creep) then
 --       PrintAction("AA "..creep.charName)
 --       return true
