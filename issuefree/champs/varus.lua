@@ -125,6 +125,7 @@ spells["AA"].damOnTarget =
 local chargeStartTime = 0
 
 function Run()
+   P.markedTarget = nil
 
    if P.charging then      
       local chargeDuration = math.min(time() - chargeStartTime, spells["arrow"].chargeTime)
