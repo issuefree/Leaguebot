@@ -31,6 +31,22 @@ function IsCooledDown(thing, hero)
    return hero["SpellTime"..key] >= 1 - ping*2 + extraCooldown
 end
 
+
+function GetCD(thing)
+   local spell = GetSpell(thing)
+
+	if spell.manualCooldown then
+		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
+		return time() - spell.lastCast
+	end
+
+   local cd = math.ceil(1 - me["SpellTime"..spell.key])
+   if cd > 0 then
+      return cd
+   end
+   return 0
+end
+
 function Cast(thing, target, force)
    local spell = GetSpell(thing)
    spell = spell or thing
@@ -136,21 +152,6 @@ function GetReachPoint(thing, target)
 	end
 end
 
-function GetCD(thing)
-   local spell = GetSpell(thing)
-
-	if spell.manualCooldown then
-		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
-		PrintState(1, cd)
-		return time() - spell.lastCast
-	end
-
-   local cd = math.ceil(1 - me["SpellTime"..spell.key])
-   if cd > 0 then
-      return cd
-   end
-   return 0
-end
 
 function CanUse(thing)
    if type(thing) == "table" then -- spell or item
