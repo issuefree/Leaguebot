@@ -1518,6 +1518,7 @@ function processShot(shot)
          checkDodge(shot)
       end
    end
+
 end
 
 function OnProcessSpell(unit, spell)
@@ -1562,6 +1563,10 @@ function OnProcessSpell(unit, spell)
    if spell.name == "HallucinateFull" then
       PersistTemp("shacoClone", 3)
       P.shacoClone.charName = unit.charName
+   end
+
+   if IsMe(unit) and spell.target and IsCreep(spell.target) then
+      DoIn(function() CREEP_ACTIVE = false end, 2, "creepactive")      
    end
 
 end
