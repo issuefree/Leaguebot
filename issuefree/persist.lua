@@ -429,6 +429,10 @@ function IsMajorCreep(creep)
       return true
    end
 end   
+function IsCreep(creep)
+   return creep.team == 300
+end   
+
 
 function createForPersist(object)
       -- find minions
