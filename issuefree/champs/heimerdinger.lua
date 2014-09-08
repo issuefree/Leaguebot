@@ -28,6 +28,9 @@ spells["turret"] = {
    range=450,
    turretRange=525,
    color=yellow,
+   delay=2,
+   speed=0,
+   radius=100,
    -- cost=20
 }
 spells["rockets"] = {
