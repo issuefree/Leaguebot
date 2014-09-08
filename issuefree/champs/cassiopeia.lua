@@ -30,9 +30,11 @@ spells["blast"] = {
    key="Q", 
    range=825, 
    color=yellow, 
-   base={75,115,155,195,235},
-   ap=.8,
-   delay=3, -- hard to test but delay is 2.4 plus .6 from wiki.
+   base={25,38,52,65,75},
+   ap=.27,
+   -- base={75,115,155,195,235},
+   -- ap=.8,
+   delay=3+2, -- hard to test but delay is 2.4 plus .6 from wiki.
    speed=0,
    noblock=true,
    radius=150
@@ -88,7 +90,7 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if KillMinionsInArea("blast") then
+         if KillMinionsInArea("blast", GetThreshMP(thing, .1, 1)) then
             return true
          end
 
@@ -139,7 +141,7 @@ function Action()
    if CanUse("miasma") then
       local hits = GetBestArea(me, "miasma", 1, 0, GetFireaheads("miasma", ENEMIES))
       if #hits > 0 then
-         CastXYZ("miasma", GetAngularCenter(hits))
+         CastXYZ("miasma", GetCastPoint(hits, "miasma"))
          PrintAction("Miasma for AoE", #hits)
          return true
       end
@@ -199,6 +201,51 @@ end
 function FollowUp()
    return false
 end
+
+function AutoJungle()
+   if CanUse("miasma") then
+      local creep = GetBiggestCreep(GetInRange(me, "miasma", CREEPS))
+      if creep then
+         local score = ScoreCreeps(GetInRange(creep, spells["miasma"].radius, CREEPS))
+         if score >= GetThreshMP("miasma", .1, 0) then
+            CastXYZ("miasma", creep)
+            PrintAction("Miasma in the jungle")
+            return true
+         end
+      end
+   end
+
+   if CanUse("blast") then
+      local creep = GetBiggestCreep(GetInRange(me, "blast", CREEPS))
+      if creep then
+         local score = ScoreCreeps(GetInRange(creep, spells["blast"].radius, CREEPS))
+         if score >= GetThreshMP("blast", .1, 0) then
+            CastXYZ("blast", creep)
+            PrintAction("Blast in the jungle")
+            return true
+         end
+      end
+   end
+
+   if CanUse("fang") then
+      local creep = GetBiggestCreep(GetInRange(me, "fang", CREEPS))
+      if creep then
+         if HasBuff("poison", creep) then
+            Cast("fang", creep)
+            PrintAction("Fang jungle")
+            return true
+         end
+      end
+   end
+
+   local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+   local score = ScoreCreeps(creep)
+   if AA(creep) then
+      PrintAction("AA "..creep.charName)
+      return true
+   end
+end   
+SetAutoJungle(AutoJungle)
 
 local function onCreate(object)
    PersistOnTargets("poison", object, "Global_Poison", ENEMIES, MINIONS, CREEPS)
