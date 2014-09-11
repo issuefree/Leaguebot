@@ -386,7 +386,7 @@ local function updateHeroes()
    EAPC = nil
    for i = 1, objManager:GetMaxHeroes(), 1 do
       local hero = objManager:GetHero(i)
-      if ValidTarget(hero) then
+      if IsValid(hero) then
          if hero.team == me.team then
             table.insert(ALLIES, hero)
          else
@@ -436,18 +436,18 @@ end
 
 function createForPersist(object)
       -- find minions
-   if ( ( find(object.name, "Blue_Minion") and playerTeam == "Red" ) or 
-        ( find(object.name, "Red_Minion") and playerTeam == "Blue" ) )
-   then
-      table.insert(MINIONS, object)
-   end
+   -- if ( ( find(object.name, "Blue_Minion") and playerTeam == "Red" ) or 
+   --      ( find(object.name, "Red_Minion") and playerTeam == "Blue" ) )
+   -- then
+   --    table.insert(MINIONS, object)
+   -- end
 
-   -- find my minions
-   if ( ( find(object.name, "Blue_Minion") and playerTeam == "Blue" ) or 
-        ( find(object.name, "Red_Minion") and playerTeam == "Red" ) )
-   then
-      table.insert(MYMINIONS, object)
-   end
+   -- -- find my minions
+   -- if ( ( find(object.name, "Blue_Minion") and playerTeam == "Blue" ) or 
+   --      ( find(object.name, "Red_Minion") and playerTeam == "Red" ) )
+   -- then
+   --    table.insert(MYMINIONS, object)
+   -- end
 
    if IsMinorCreep(object) then
       table.insert(MINORCREEPS, object)
@@ -470,8 +470,10 @@ function createForPersist(object)
 
    if object.team ~= me.team then
       PersistAll("TURRET", object, "Turret_T")
+      PersistAll("MINIONS", object, "Minion_T")
    else
       PersistAll("MYTURRET", object, "Turret_T")
+      PersistAll("MYMINIONS", object, "Minion_T")
    end
 
    if startsWith(object.charName, "Inhibit_Gem") then
@@ -605,6 +607,8 @@ function persistTick()
    updateHeroes()
    updateTrackedSpells()
 
+   MINIONS = ValidTargets(GetPersisted("MINIONS"))
+   MYMINIONS = ValidTargets(GetPersisted("MYMINIONS"))
    TURRETS = ValidTargets(GetPersisted("TURRET"))
    MYTURRETS = ValidTargets(GetPersisted("MYTURRET"))
    PETS = GetPersisted("PET")

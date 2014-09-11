@@ -13,7 +13,7 @@ AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 local function feastRange()
-	return GetWidth(me)+150
+	return GetWidth(me)+150+50
 end
 
 MAX_FEAST_RANGE = 161
@@ -64,12 +64,6 @@ spells["feastCreep"] = {
 	type="T"
 }
 
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
-
-
 function Run()
 	spells["AA"].bonus = GetSpellDamage("vorpal")
 
@@ -107,7 +101,6 @@ function Run()
    	if VeryAlone() then
    		if me.range < MAX_FEAST_RANGE then   		
 	   		if KillMinion("feastCreep") then
-	   			PrintAction("Feast on creep")
 	   			return true
 	   		end
 	   	end
@@ -169,7 +162,7 @@ function Action()
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "rupture", 1, 3, ENEMIES)
       if score >= 3 then
-         CastXYZ("rupture", GetAngularCenter(hits))
+         CastXYZ("rupture", GetCastPoint(hits, "rupture"))
          PrintAction("Rupture for AoE")
          return true
       end

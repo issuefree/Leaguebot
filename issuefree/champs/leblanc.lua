@@ -394,7 +394,7 @@ function Run()
          if canDistortion() then
             local hits, kills, score = GetBestArea(me, "distortion", 1, 1, MINIONS)
             if score >= GetThreshMP("distortion", .1, 3) then
-               CastXYZ("distortion", GetAngularCenter(hits))
+               CastXYZ("distortion", GetCastPoint(hits, "distortion"))
                PrintAction("Distortion for AoE clear", score)
                return true
             end

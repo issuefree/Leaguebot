@@ -162,7 +162,7 @@ function Action()
       local hits, kills, score = GetBestArea(me, "tibbers", 1, 3, ENEMIES)
       if score >= 2 then
          UseItem("Deathfire Grasp", GetWeakest("tibbers", hits))
-         CastXYZ("tibbers", GetAngularCenter(hits))
+         CastXYZ("tibbers", GetCastPoint(hits, "tibbers"))
          PrintAction("Tibbers for AoE")
          return true
       end
@@ -203,7 +203,7 @@ function Action()
       local hits, kills, score = GetBestArea(me, "tibbers", .1, 1, ENEMIES)
 
       if #kills >= 1 then
-         CastXYZ("tibbers", GetAngularCenter(hits))
+         CastXYZ("tibbers", GetCastPoint(hits, "tibbers"))
          PrintAction("Tibbers for execute", target)
          return true
       end

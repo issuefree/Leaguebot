@@ -173,7 +173,7 @@ function Action()
    if CanUse("embrace") then
       local hits, kills, score = GetBestArea(me, "embrace", 1, 1, ENEMIES)
       if #hits >= 2 then
-         CastXYZ("embrace", GetAngularCenter(hits))
+         CastXYZ("embrace", GetCastPoint(hits, "embrace"))
       elseif #hits == 1 and GetHPerc(hits[1]) > .75 then
          CastXYZ("embrace", hits[1])
       end

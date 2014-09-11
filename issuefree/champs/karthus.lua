@@ -143,7 +143,7 @@ function Action()
    if CanUse("lay") then
       local hits, kills, score = GetBestArea(me, "lay", 1, 1, ENEMIES, PETS)
       if #hits > 0 then
-         CastXYZ("lay", GetAngularCenter(hits))
+         CastXYZ("lay", GetCastPoint(hits, "lay"))
          PrintAction("lay for AoE")
          return true
       end

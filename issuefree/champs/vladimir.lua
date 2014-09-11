@@ -162,7 +162,7 @@ function Action()
 
          -- I hit at least 2 and a better hit isn't "just" out of range
          if score >= 2 and score >= tscore then
-            CastXYZ("plague", GetAngularCenter(hits, me))
+            CastXYZ("plague", GetCastPoint(hits, "plague"))
             PrintAction("Plague for AoE", score)
             return true
          end

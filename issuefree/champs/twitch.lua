@@ -154,7 +154,7 @@ function Action()
       if #hits >= 2 or
          ( #hits == 1 and GetDistance(hits[1]) > GetAARange() )
       then
-         CastXYZ("cask", GetAngularCenter(hits))
+         CastXYZ("cask", GetCastPoint(hits, "cask"))
          PrintAction("Cask")
          return true
       end

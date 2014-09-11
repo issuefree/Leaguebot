@@ -147,7 +147,7 @@ function Action()
             if not P.upgrade then
                Cast("upgrade", me)
             end
-            CastXYZ("grenade", GetAngularCenter(hits))
+            CastXYZ("grenade", GetCastPoint(hits, "grenade"))
             PrintAction("Grenade (UPGRADE)", #hits)
             return true
          end

@@ -191,7 +191,7 @@ function Action()
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
-         CastXYZ("singularity", GetAngularCenter(hits))
+         CastXYZ("singularity", GetCastPoint(hits, "singularity"))
          PrintAction("Singularity for AoE")
          return true
       end
@@ -256,7 +256,7 @@ function FollowUp()
       if CanUse("singularity") then
          local hits, kills, score = GetBestArea(me, "singularity", 1, 1, MINIONS)
          if score >= 7 then
-            CastXYZ("singularity", GetAngularCenter(hits))
+            CastXYZ("singularity", GetCastPoint(hits, "singularity"))
             PrintAction("Singularity for clear")
             return true
          end
