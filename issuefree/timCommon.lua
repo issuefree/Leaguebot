@@ -1827,6 +1827,21 @@ function SetAutoJungle(ajf)
    autoJungleFunction = ajf
 end
 
+function JungleAoE(thing)
+   local spell = GetSpell(thing)
+   if CanUse(spell) then
+      local creep = GetBiggestCreep(GetInRange(me, spell, CREEPS))
+      if creep then
+         local score = ScoreCreeps(GetInRange(creep, spell.radius, CREEPS))
+         if score >= GetThreshMP(spell, .1, 2) then
+            CastFireahead(spell, creep)
+            PrintAction(thing.." (jungle)")
+            return true
+         end
+      end
+   end
+end
+
 function AutoJungle()   
    if HotKey() and CREEP_ACTIVE then
       if autoJungleFunction then
