@@ -20,17 +20,12 @@ function AutoLane()
       return
    end
 
-   local pointMinion = SortByDistance(MYMINIONS, enemyTurret)[1]
-   if not pointMinion then
+   local pointMinion = Point(SortByDistance(MYMINIONS, enemyTurret)[1])
+   if not pointMinion:valid() then
       return
    end
    Circle(pointMinion)
-   local p
-   if pointMinion then
-      p = Projection(HOME, pointMinion, GetDistance(HOME, pointMinion)-200)
-   else
-      p = Point(myTurret)
-   end
+   local p = Projection(HOME, pointMinion, GetDistance(HOME, pointMinion)-200)
 
    if IsAttacking() then
       loc = nil
