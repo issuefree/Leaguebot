@@ -598,7 +598,7 @@ function IsGoodFireahead(thing, target)
 
    -- TODO do something better!
    if IsSolid(point) then -- don't shoot into walls
-   	PrintAction("Don't shoot into walls")
+   	-- PrintAction("Don't shoot into walls")
       return false
    end
 
