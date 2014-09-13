@@ -198,7 +198,7 @@ function Run()
          return false  -- you've got a blighted target in sights, hold... hold...
       end
 
-      local target = GetWeakest("maxArrow", GetGoodFireaheads("maxArrow", ENEMIES))
+      local target = GetWeakest("maxArrow", GetGoodFireaheads("maxArrow", nil, ENEMIES))
       if target and 
          GetDistance(target) < GetSpellRange("arrow") - 75 and 
          chargingTime > spells["arrow"].chargeTime 
