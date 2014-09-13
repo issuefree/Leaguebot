@@ -528,7 +528,10 @@ function IsValid(target)
    if not target or not target.x then
       return false
    end
-   if target.dead == 1 or target.invulnerable == 1 then
+   if target.dead == 1 or 
+      target.invulnerable == 1 or
+      target.name == "" or target.charName == ""
+   then
       return false
    end
    if target.visible == 0 then
@@ -881,11 +884,14 @@ function HitObjectives()
 end
 
 function scoreHits(spell, hits, hitScore, killScore)
+   if #hits == 0 then
+      return 0, {}
+   end
    local score = #hits*hitScore
    local kills = {}
 
    if killScore ~= 0 then     
-      for _,hit in ipairs(hits) do
+      for i,hit in ipairs(hits) do         
          if WillKill(spell, hit) then
             if IsBigMinion(hit) then
                score = score + (killScore / 2)
@@ -1085,12 +1091,12 @@ end
 -- this is pretty obvious but I need it for the interface
 function GetBestPB(source, thing, hitScore, killScore, ...)
    local hits = GetInRange(source, thing, concat(...))
-   local score, kills = scoreHits(spell, hits, hitScore, killScore)
+   local score, kills = scoreHits(thing, hits, hitScore, killScore)
    return hits, kills, score
 end
 
-function SkillShot(thing, purpose, targets)
-   local target = GetSkillShot(thing, purpose, targets)
+function SkillShot(thing, purpose, targets, minChance)
+   local target = GetSkillShot(thing, purpose, targets, minChance)
    if target then
       CastFireahead(thing, target)
       PrintAction(thing, target)
@@ -1099,7 +1105,7 @@ function SkillShot(thing, purpose, targets)
    return false
 end
 
-function GetSkillShot(thing, purpose, targets)
+function GetSkillShot(thing, purpose, targets, minChance)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return nil end
 
@@ -1107,7 +1113,7 @@ function GetSkillShot(thing, purpose, targets)
 
    targets = GetInRange(me, GetSpellRange(spell)+500, targets)
 
-   targets = GetGoodFireaheads(spell, targets)
+   targets = GetGoodFireaheads(spell, minChance, targets)
 
    local target
    -- find the best target in the remaining unblocked
