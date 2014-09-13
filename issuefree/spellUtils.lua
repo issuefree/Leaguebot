@@ -565,7 +565,7 @@ function GetFireaheads(thing, targets)
    return fas
 end
 
-function IsGoodFireahead(thing, target)
+function IsGoodFireahead(thing, target, minChance)
 	-- PrintAction("SS", target.name)
    local spell = GetSpell(thing)
    if not IsValid(target) and not IsImmune(thing, target) then return false end   
@@ -580,7 +580,9 @@ function IsGoodFireahead(thing, target)
       return false
    end
 
-   if chance < .2 then
+   minChance = minChance or .2
+
+   if chance < minChance then
    	-- PrintAction("Low chance SS")
    	return false
    end
@@ -605,11 +607,11 @@ function IsGoodFireahead(thing, target)
 	return true
 end
 
-function GetGoodFireaheads(thing, ...)
+function GetGoodFireaheads(thing, minChance, ...)
    return FilterList(
       concat(...), 
       function(item)
-         return IsGoodFireahead(thing, item)
+         return IsGoodFireahead(thing, item, minChance)
       end
    )
 end
