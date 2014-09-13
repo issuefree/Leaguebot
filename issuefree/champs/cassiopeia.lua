@@ -30,10 +30,10 @@ spells["blast"] = {
    key="Q", 
    range=825, 
    color=yellow, 
-   base={25,38,52,65,75},
-   ap=.27,
+   base={25,38,52,65,78},
+   ap=.1167,
    -- base={75,115,155,195,235},
-   -- ap=.8,
+   -- ap=.35,
    delay=3+2, -- hard to test but delay is 2.4 plus .6 from wiki.
    speed=0,
    noblock=true,
@@ -43,8 +43,8 @@ spells["miasma"] = {
    key="W", 
    range=850, 
    color=yellow, 
-   base={25,35,45,55,65}, 
-   ap=.15,
+   base={10,15,20,25,30}, 
+   ap=.1,
    delay=2.3,
    speed=25,
    noblock=true,
@@ -54,15 +54,15 @@ spells["fang"] = {
    key="E", 
    range=700, 
    color=violet, 
-   base={50,85,120,155,190}, 
-   ap=.55,
+   base={55,80,105,130,155},
+   ap={.4,.45,.5,.55,.6},
 } 
 spells["gaze"] = {
    key="R", 
    range=825, 
    color=red, 
-   base={200,325,450}, 
-   ap=.6,
+   base={150,250,350}, 
+   ap=.5,
    cone=80, -- reticle
    noblock=true
 } 
@@ -75,7 +75,7 @@ function Run()
    -- auto stuff that always happen
 
    if CastAtCC("blast") or
-      CastAtCC("Miasma")
+      CastAtCC("miasma")
    then
       return true
    end
@@ -90,12 +90,12 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if KillMinionsInArea("blast", GetThreshMP(thing, .1, 1)) then
+         if HitMinionsInArea("blast", GetThreshMP(thing, .05, 2)) then
             return true
          end
 
          if CanUse("fang") then
-            if GetThreshMP("fang", .1) <= 1 then
+            if GetThreshMP("fang", .15) <= 1 then
                local minions = GetKills("fang", GetWithBuff("poison", GetInRange(me, "fang", MINIONS)))
                local minion = SortByHealth(minions, "fang", true)[1]
                if minion then
@@ -203,28 +203,11 @@ function FollowUp()
 end
 
 function AutoJungle()
-   if CanUse("miasma") then
-      local creep = GetBiggestCreep(GetInRange(me, "miasma", CREEPS))
-      if creep then
-         local score = ScoreCreeps(GetInRange(creep, spells["miasma"].radius, CREEPS))
-         if score >= GetThreshMP("miasma", .1, 0) then
-            CastXYZ("miasma", creep)
-            PrintAction("Miasma in the jungle")
-            return true
-         end
-      end
+   if JungleAoE("miasma") then
+      return true
    end
-
-   if CanUse("blast") then
-      local creep = GetBiggestCreep(GetInRange(me, "blast", CREEPS))
-      if creep then
-         local score = ScoreCreeps(GetInRange(creep, spells["blast"].radius, CREEPS))
-         if score >= GetThreshMP("blast", .1, 0) then
-            CastXYZ("blast", creep)
-            PrintAction("Blast in the jungle")
-            return true
-         end
-      end
+   if JungleAoE("blast") then
+      return true
    end
 
    if CanUse("fang") then
@@ -232,14 +215,13 @@ function AutoJungle()
       if creep then
          if HasBuff("poison", creep) then
             Cast("fang", creep)
-            PrintAction("Fang jungle")
+            PrintAction("Fang (jungle)")
             return true
          end
       end
    end
 
    local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
-   local score = ScoreCreeps(creep)
    if AA(creep) then
       PrintAction("AA "..creep.charName)
       return true
