@@ -165,7 +165,7 @@ function Action()
    end
 
    if CanUse("artillery") then
-      local target = SortByHealth(GetGoodFireaheads("artillery", ENEMIES), "artillery")[1]
+      local target = SortByHealth(GetGoodFireaheads("artillery", nil, ENEMIES), "artillery")[1]
       local tManaP = (me.mana - GetSpellCost("artillery")) / me.maxMana
       if target and 
          ( GetDistance(target) > spells["AA"].range or
