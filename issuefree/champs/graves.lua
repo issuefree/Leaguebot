@@ -14,7 +14,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["shot"] = {
    key="Q", 
-   range=950-150, 
+   range=950-200, 
    color=violet, 
    base={60,95,130,165,200}, 
    adBonus=.8,
@@ -104,8 +104,13 @@ function Action()
       return true
    end
 
-   if SkillShot("smoke") then
-      return true
+   if CanUse("smoke") then
+      local target = GetSkillShot("smoke", nil, GetInRange(me, "AA", ENEMIES))
+      if target then
+         CastFireahead("smoke", target)
+         PrintAction("Smoke", target)         
+         return true
+      end
    end
 
    local target = GetMarkedTarget() or GetWeakestEnemy("AA")
