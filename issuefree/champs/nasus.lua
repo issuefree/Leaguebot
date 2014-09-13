@@ -15,6 +15,12 @@ function setStrikes(val)
    SaveConfig("nasus", config)
 end
 
+InitAAData({
+   windup=.3,
+   particles = {"nassus_siphonStrike_tar"},
+   resets = {me.SpellNameQ}
+})
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

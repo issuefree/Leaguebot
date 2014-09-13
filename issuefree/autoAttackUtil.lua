@@ -147,10 +147,6 @@ local function getAAData()
       Morgana      = { projSpeed = 1.6,
                        particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"} },
 
-      Nasus        = { windup=.3,
-                       particles = {"nassus_siphonStrike_tar"},
-                       resets = {me.SpellNameQ} },
-
       Olaf         = { windup=.35,
                        minMoveTime=0,
                      },
