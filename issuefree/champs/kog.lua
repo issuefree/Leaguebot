@@ -88,8 +88,6 @@ local function updateSpells()
 end
 
 function Run()
-   PrintState(0, GetAADamage(GetNearestCreep()))
-
    updateSpells()
 
    if StartTickActions() then
