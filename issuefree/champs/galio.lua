@@ -84,12 +84,14 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
-      if KillMinionsInArea("smite") then
-         return true
-      end
+      if Alone() then
+         if KillMinionsInArea("smite") then
+            return true
+         end
 
-      if KillMinionsInLine("gust") then
-         return true
+         if KillMinionsInLine("gust") then
+            return true
+         end
       end
    end
    
@@ -105,11 +107,11 @@ end
 
 function Action()
    -- TestSkillShot("gust", nil, {"Launcher"})
-   if CastBest("smite") then
+   if SkillShot("smite") then
       return true
    end
 
-   if CastBest("gust") then
+   if SkillShot("gust") then
       return true
    end
 
