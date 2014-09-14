@@ -2178,7 +2178,6 @@ function UseItem(itemName, target)
       if GetDistance(HOME) < 800 then
          flaskCharges = 3
       end
-      PrintState(0, flaskCharges)
       if flaskCharges > 0 then
          if GetHPerc(me) < .75 and not P.healthPotion then
             CastSpellTarget(slot, me)
