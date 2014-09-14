@@ -871,7 +871,7 @@ function HitMinion(thing, method, extraRange)
 end
 
 function HitObjectives()
-   local targets = GetInRange(me, GetAARange()+50, TURRETS, INHIBS)
+   local targets = GetInRange(me, GetAARange()+25, TURRETS, INHIBS)
    table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
