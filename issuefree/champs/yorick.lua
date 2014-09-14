@@ -1,12 +1,6 @@
 require "issuefree/timCommon"
 require "issuefree/modules"
 
-
--- Try to stick to one "action" per loop.
--- Action function should return 
---   true if they perform an action that takes time (most spells attacks)
---   false if no action or the spell takes no time
-
 pp("\nTim's Yorick")
 
 SetChampStyle("bruiser")
