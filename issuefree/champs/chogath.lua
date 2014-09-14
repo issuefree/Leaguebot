@@ -26,7 +26,7 @@ spells["rupture"] = {
 	ap=1,
 	delay=10,
 	speed=0,
-	radius=275,
+	radius=275-25,
 	cost=90,
 	noblock=true,
 	cost=90
@@ -168,7 +168,7 @@ function Action()
       end
 
       -- barring that throw it at the weakest single
-      if SkillShot("rupture") then
+      if SkillShot("rupture", nil, nil, 1) then
          return true
       end
    end
