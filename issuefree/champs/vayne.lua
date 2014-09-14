@@ -9,37 +9,44 @@ require "issuefree/modules"
 
 pp("\nTim's Vayne")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
-AddToggle("kb", {on=true, key=113, label="Auto KB"})
+InitAAData({
+   projSpeed = 2.0, windup=.2,
+   extraRange=-10,
+   resets={me.SpellNameQ},
+   particles = {"vayne_basicAttack_mis.troy", "vayne_critAttack_mis.troy", "vayne_ult_mis.troy"}
+})
+AddToggle("kb", {on=true, key=112, label="Auto KB"})
+AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 spells["tumble"] = {
    key="Q", 
    range=300, 
+   color=blue,
    base=0,
    ad={.3,.35,.4,.45,.5},
-   color=blue,
-   cost=30
+   type="P",
 } 
 spells["bolts"] = {
    key="W",
    base={20,30,40,50,60}, 
-   percMaxHealth={.04,.05,.06,.07,.08},
+   targetMaxHealth={.04,.05,.06,.07,.08},
    type="T"
 } 
 spells["condemn"] = {
    key="E", 
-   range=550, 
+   range=700, 
    color=violet, 
    base={45,80,115,150,185}, 
    adBonus=.5,
    type="P",
    cost=90,
-   knockback=435+25
+   knockback=435
 } 
 spells["final"] = {
    key="R", 
@@ -49,15 +56,15 @@ spells["final"] = {
 spells["AA"].damOnTarget = 
    function(target)
       if HasBuff("rings", target) then
-         return GetSpellDamage("bolts", target)
+         return GetSpellDamage("bolts", target, true)
       end
+      return 0
    end
 
 function Tick()
+   spells["AA"].bonus = 0
    if P.tumble then
       spells["AA"].bonus = GetSpellDamage("tumble")      
-   else
-      spells["AA"].bonus = 0
    end
    
    if StartTickActions() then
@@ -83,13 +90,13 @@ function Tick()
          local kb = GetKnockback("condemn", me, enemy)
          if WillCollide(enemy, kb) then
             Cast("condemn", enemy)
-            AttackTarget(enemy)
+            -- AttackTarget(enemy)
             PrintAction("Condemn for stun", enemy)
             return true
          end
       end
 
-      if CanUse("tumble") then
+      if CanUse("tumble") and not P.tumble then
          for _,loc in ipairs(GetTumbleLocs()) do
             enemies = SortByHealth(GetInRange(loc, "condemn", ENEMIES), "condemn")
             for _,enemy in ipairs(enemies) do
@@ -113,54 +120,65 @@ function Tick()
 end
 
 function TumbleCondemn(enemy)
-   if CanUse("tumble") and CanUse("condemn") then
+   if CanUse("tumble") and CanUse("condemn") and not P.tumble then
+      local bestLoc
+      local bestDist
       for _,loc in ipairs(GetTumbleLocs()) do
-         local kb = GetKnockback("condemn", loc, enemy)
-         if WillCollide(enemy, kb) then
-            Circle(loc, 25, yellow, 5)
-            CastXYZ("tumble", loc)
-            PrintAction("Tumble for condemn", enemy)
-            return true
+         if GetDistance(loc, enemy) < GetSpellRange("condemn") then
+            local kb = GetKnockback("condemn", loc, enemy)
+            local cp =  WillCollide(enemy, kb)
+            if cp then
+               local dist = GetDistance(loc, cp)
+               if not bestLoc or dist < bestDist then
+                  bestLoc = loc
+                  bestDist = dist
+               end
+            end
          end
+      end
+      if bestLoc then
+         Circle(bestLoc, 25, yellow, 5)
+         CastXYZ("tumble", bestLoc)
+         PrintAction("Tumble for condemn", enemy)
+         return true
       end
    end
    return false
 end
 
 function Action()
-   -- if CanAttack() then
-   --    if HitMinion("AA", "weak") then
-   --       return true
-   --    end
-   --    if GetGolem() then
-   --       AttackTarget(GetGolem())
-   --       return true
-   --    end
-   -- end
-   -- if CanMove() then
-   --    MoveToMouse()
-   --    PrintAction("MTM")
-   --    return true
-   -- end   
 
-   local target = GetMarkedTarget()
-   if target then
+   for _,target in ipairs(GetInRange(me, GetSpellRange("condemn"), ENEMIES)) do
       if TumbleCondemn(target) then
-         return true
-      end
-      if GetDistance(target) < GetSpellRange("AA") then
-         if AA(target) then
-            PrintAction("AA marked", target)
-            return true
-         end         
-      elseif CanUse("tumble") and GetDistance(target) < GetSpellRange("AA") + GetSpellRange("tumble") then
-         CastXYZ("tumble", target)
-         PrintAction("Tumble toward", target)
          return true
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if CanUse("tumble") and not P.tumble then
+      local target = GetWithBuff("rings", ENEMIES)[1]
+      if target then
+         if not IsInRange("AA", target) then
+            CastXYZ("tumble", target)
+            PrintAction("Tumble for close (rings)", target)
+            return true
+         end
+      end
+
+      local target = SortByDistance(GetKills("AA", GetInRange(me, GetSpellRange("tumble")+GetAARange(), ENEMIES)))[1]
+      if target then
+         if not IsInRange("AA", target) then
+            CastXYZ("tumble", target)
+            PrintAction("Tumble for close (exe)", target)
+            return true
+         end
+      end
+   end
+
+
+   local target = GetMarkedTarget() or 
+                  GetWithBuff("rings", ENEMIES)[1] or 
+                  GetWithBuff("ring", ENEMIES)[1] or 
+                  GetWeakestEnemy("AA")
    if AutoAA(target) then
       return true
    end
@@ -169,6 +187,21 @@ function Action()
 end
 
 function FollowUp()
+   if IsOn("lasthit") and Alone() then
+      if KillMinion("AA") then
+         return true
+      end
+   end
+
+   if IsOn("clear") and Alone() then
+      local minion = GetWithBuff("rings", MINIONS)[1] or
+                     GetWithBuff("ring", MINIONS)[1]
+      if AA(minion) then
+         PrintAction("AA ringed for clear")
+         return true
+      end
+
+   end
    return false
 end
 
@@ -179,10 +212,7 @@ end
 
 local function onCreate(object)
    PersistOnTargets("ring", object, "vayne_W_ring1", ENEMIES, MINIONS, CREEPS)
-   local mark = PersistOnTargets("rings", object, "vayne_W_ring2", ENEMIES)
-   if mark then
-      MarkTarget(mark)
-   end
+   PersistOnTargets("rings", object, "vayne_W_ring2", ENEMIES)
    PersistOnTargets("rings", object, "vayne_W_ring2", MINIONS, CREEPS)
    PersistBuff("tumble", object, "vayne_Q_buf")
 end

@@ -170,9 +170,6 @@ local function getAAData()
       TwistedFate  = { projSpeed = 1.5, windup=.4,
                        particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
 
-      Vayne        = { projSpeed = 2.0, windup=.2, -- !
-                       particles = {"vayne_basicAttack_mis", "vayne_critAttack_mis", "vayne_ult_mis" } },
-
       Veigar       = { projSpeed = 1.05,
                        particles = {"permission_basicAttack_mis"} },
 
