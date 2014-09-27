@@ -26,7 +26,7 @@ spells["chord"] = {
 }
 spells["blue"] = {
    key="Q", 
-   range=650, 
+   range=850, 
    color=blue, 
    base={40,80,120,160,200}, 
    ap=.5
