@@ -10,37 +10,37 @@ InitAAData({
 	particles = {"SorakaBasicAttack"}
 })
 
-spells["starfall"] = {
+spells["starcall"] = {
 	key="Q", 
-	range=650,  
-	color=red,    
-	base={40,65,90,115,140},
-	ap=.4,
-	cost={30,40,50,60,70}
+	range=950,  
+	color=violet,    
+	base={70,110,150,190,230},
+	ap=.35,
+	delay=2.4+5-5,
+	speed=15, --?
+	radius=300, -- reticle
+	innerRadius=100,
+	noblock=true,
 }
 spells["heal"] = {
 	key="W", 
-	range=750,  
+	range=450,  
 	color=green,  
-	base={70,120,170,220,270}, 
-	ap=.35,
+	base={110,140,170,200,230}, 
+	ap=.6,
 	type="H",
 	cost={80,100,120,140,160}
 }
-spells["infuseMana"] = {
+spells["equinox"] = {
 	key="E", 
-	range=725,
-	color=blue,   
-	base={20,40,60,80,100},
-	maxMana=.05,
-	type="H"
-}
-spells["infuse"] = {
-	key="E",
-	range=725,
-	base={40,70,100,130,160}, 
-	maxMana=.05,
-	ap=.4
+	range=925,  
+	color=blue,    
+	base={70,110,150,190,230},
+	ap=.4,
+	delay=2.4+5-3, 
+	speed=0, 
+	radius=300, -- reticle
+	noblock=true,
 }
 spells["wish"] = {
 	key="R",
@@ -48,32 +48,24 @@ spells["wish"] = {
 	ap=.55,
 	cost=100
 }
-spells["consecration"] = {
-	range=1000, 
-	color=yellow
-}
-
-
 
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
-AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"starfall", "infuse"}})
+AddToggle("lasthit", {on=false, key=116, label="Last Hit", auxLabel="{0} / {1}", args={"AA", "starcall"}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
 function Run()
-	spells["infuseMana"].cost = me.maxMana * .05
-
    if StartTickActions() then
       return true
    end
 		
 	Wish()
 
-   if CheckDisrupt("infuse") then
+   if CheckDisrupt("equinox") then
       return true
    end
 
@@ -86,10 +78,6 @@ function Run()
    	return true
    end
 
-	if infuseTeam() then
-		return true
-	end
-
 	if HotKey() then
 		if Action() then
 			return true
@@ -97,11 +85,7 @@ function Run()
 	end
 	
 	if IsOn("lasthit") and Alone() then
-		if KillMinion("infuse", nil, true) then
-			return true
-		end
-
-		if KillMinion("starfall", nil, true) then
+		if KillMinionsInArea("starcall") then
 			return true
 		end
 	end
@@ -115,11 +99,11 @@ function Run()
 end 
 
 function Action()
-	if CastBest("infuse") then
+	if SkillShot("equinox") then
 		return true
 	end
 
-	if CastBest("starfall") then
+	if SkillShot("starcall") then
 		return true
    end
 
@@ -133,13 +117,6 @@ function FollowUp()
    end
 
 	if IsOn("clear") and Alone() then
-		if CanUse("starfall") then
-			if #GetInRange(me, "starfall", MINIONS) > 2 then
-				Cast("starfall", me)
-				PrintAction("Starfall for clear")
-				return true
-			end
-		end
 
    end
 
@@ -148,8 +125,10 @@ end
 
 function healTeam()   
    if not CanUse("heal") then return false end
+
+   if GetHPerc(me) < .33 then return false end
       
-   local base = GetSpellDamage("heal")
+   local value = GetSpellDamage("heal")
 
    local spell = GetSpell("heal")
 
@@ -159,28 +138,30 @@ function healTeam()
    local bestOutRangeP = 1
    
    for _,hero in ipairs(ALLIES) do
-   	local value = base * 1+(1-GetHPerc(hero))/2
-      if GetDistance(HOME, hero) > spell.range+250 and
-         hero.health + value < hero.maxHealth*.9 and
-         not HasBuff("wound", hero) and 
-         not IsRecalling(hero)
-      then
-         if GetDistance(hero) < spell.range then        
-            if not bestInRangeT or
-               GetHPerc(hero) < bestInRangeP
-            then           
-               bestInRangeT = hero
-               bestInRangeP = GetHPerc(hero)
-            end
-         elseif GetDistance(hero) < spell.range+250 then
-            if not bestOutRangeT or
-               GetHPerc(hero) < bestOutRangeP
-            then           
-               bestOutRangeT = hero
-               bestOutRangeP = GetHPerc(hero)
-            end
-         end
-      end
+   	if not IsMe(hero) then
+	      if GetDistance(HOME, hero) > spell.range+250 and
+	         hero.health + value < hero.maxHealth*.9 and
+	         GetHPerc(me) >= GetHPerc(hero) and
+	         not HasBuff("wound", hero) and 
+	         not IsRecalling(hero)
+	      then
+	         if GetDistance(hero) < spell.range then        
+	            if not bestInRangeT or
+	               GetHPerc(hero) < bestInRangeP
+	            then           
+	               bestInRangeT = hero
+	               bestInRangeP = GetHPerc(hero)
+	            end
+	         elseif GetDistance(hero) < spell.range+250 then
+	            if not bestOutRangeT or
+	               GetHPerc(hero) < bestOutRangeP
+	            then           
+	               bestOutRangeT = hero
+	               bestOutRangeP = GetHPerc(hero)
+	            end
+	         end
+	      end
+	   end
    end
    if bestInRangeT then
       Circle(bestInRangeT, 100, green)
@@ -195,48 +176,6 @@ function healTeam()
    end
    return false
 end
-
-function infuseTeam()
-	if not CanUse("infuse") then
-		return false
-	end
-	
-	local base = GetSpellDamage("infuseMana")
-
-	local bestInRangeT = nil
-	local bestInRangeP = 1
-		
-	local heroes = GetInRange(me, "infuse", ALLIES)
-	for _,hero in ipairs(heroes) do
-		local value = base * 1+(1-GetMPerc(hero))/2
-		if not IsMe(hero) and
-		   GetDistance(HOME, hero) > 1000 and
-		   hero.mana > 0 and 
-		   hero.mana + value <= hero.maxMana and
-		   not IsRecalling(hero)
-		then			
-			if not bestInRangeT or
-			   GetMPerc(hero) < bestInRangeP
-			then		
-				bestInRangeT = hero
-				bestInRangeP = GetMPerc(hero)
-			end
-		end
-	end
-	
-	if bestInRangeT then
-		-- don't infuse mostly full people if there's a nearby enemy
-		if Alone() or bestInRangeP < .5 then
-			Cast("infuse", bestInRangeT)
-			PrintAction("Infuse M", bestInRangeT)
-			return true
-		else
-			Circle(bestInRangeT, 100, blue)
-			return false
-		end
-	end
-	return false
-end     
 
 function Wish()
 	if not CanUse("wish") then
@@ -256,19 +195,6 @@ function Wish()
 end
 
 function AutoJungle()
-	local score = ScoreCreeps(GetInRange(me, "starfall", CREEPS))
-	if score > GetThreshMP("starfall", .05, 0) then
-		Cast("starfall", me)
-		PrintAction("Starfall jungle")
-		return true
-	end
-
-	local score = ScoreCreeps(GetBiggestCreep(GetInRange(me, "infuse", CREEPS)))
-	if score > GetThreshMP("infuse", .05, 0) then
-		PrintAction("Infuse jungle")
-		return true
-	end
-
    local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
    if AA(creep) then
       PrintAction("AA "..creep.charName)
