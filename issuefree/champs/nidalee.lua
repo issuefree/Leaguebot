@@ -32,8 +32,8 @@ spells["takedown"] = {
       base={4,20,50,90}
       return base[GetSpellLevel("R")]
    end,
-   ad=1,
-   ap=.24,
+   ad=.75,
+   ap=.36,
    modAA="takedown",
    object="Nidalee_Base_Cougar_Q_Buf.troy",
    damOnTarget=function(target)
