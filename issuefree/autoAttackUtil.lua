@@ -94,7 +94,7 @@ local function getAAData()
 
       Gragas       = { windup=.35 },
 
-      Graves       = { projSpeed = 3.0, windup=.25,
+      Graves       = { projSpeed = 3.0, windup=.3,
                        particles = {"Graves_BasicAttack_mis"} },
 
       Irelia       = { windup=.3 },
@@ -215,6 +215,7 @@ function InitAAData(data)
 
    if not aaData.duration then
       aaData.duration = 1/me.baseattackspeed
+      aaData.duration = aaData.duration*.9
    end
 
 end
