@@ -99,7 +99,8 @@ ccNames = {
    "ReapTheWhirlwind_green_cas",
    "missFortune_ult_cas",
    "AbsoluteZero2",
-   "InfiniteDuress_tar"
+   "InfiniteDuress_tar",
+   "Xerath_Base_R_buf"
 }
 
 
