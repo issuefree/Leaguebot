@@ -52,7 +52,7 @@ spells["arise"] = {
    ap=.7,
 } 
 spells["soldier"] = {
-   range=400+15, 
+   range=400, 
    base=0,
    bonus=function() 
             local dam = {50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170}
@@ -153,6 +153,7 @@ function Action()
    for _,soldier in ipairs(soldiers) do
       targets = merge(targets, GetInRange(soldier, "soldier", ENEMIES))
    end
+
    SortByHealth(targets, "soldier")   
 
    if canSoldier() then
