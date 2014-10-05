@@ -2060,7 +2060,7 @@ function UseItem(itemName, target)
           itemName == "Ravenous Hydra"
    then
       if not target then
-         target = GetMeleeTarget()
+         target = GetWeakestEnemy("Tiamat")
       end
       if target and JustAttacked() then
          CastSpellTarget(slot, me)
