@@ -96,7 +96,7 @@ function Run()
       #GetInRange(me, 1000, CREEPS, MINIONS) == 0
    then
       if CanUse("pestilence") then
-         Cast("pestilence", me)
+         CastXYZ("pestilence", GetCastPoint({mousePos}, "pestilence"))
          PrintAction("Pestilence for charge")
          return true
       end
