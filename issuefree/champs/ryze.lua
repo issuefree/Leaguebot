@@ -139,13 +139,15 @@ function FollowUp()
    if IsOn("clear") and Alone() then
       local minion = GetWeakest("overload", GetInRange(me, "overload", MINIONS))
 
-      if ( CanChargeTear() and GetMPerc(me) > .5 ) or
-         GetMPerc(me) > .75
-      then
-         if #GetInRange(minion, 200, minions) > 0 and CanUse("flux") then
-            Cast("flux", minion)
-            PrintAction("Flux for clear")
-            return true
+      if minion then
+         if ( CanChargeTear() and GetMPerc(me) > .5 ) or
+            GetMPerc(me) > .75
+         then
+            if #GetInRange(minion, 200, minions) > 0 and CanUse("flux") then
+               Cast("flux", minion)
+               PrintAction("Flux for clear")
+               return true
+            end
          end
       end
 
