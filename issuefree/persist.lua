@@ -79,7 +79,7 @@ ccNames = {
    "LOC_Stun",
    "LOC_Suppress",
    "LOC_Taunt",
-   "LuxLightBinding",
+   "LuxLightBinding_tar.troy",
    "maokai_elementalAdvance_root_01", 
    "monkey_king_ult_unit_tar_02",
    "xenZiou_ChainAttack_03",
@@ -488,16 +488,19 @@ function createForPersist(object)
    PersistOnTargets("recall", object, "TeleportHome", ENEMIES, ALLIES)
 
    if ListContains(object.charName, ccNames) then
-      PersistOnTargets("cc", object, object.charName, ENEMIES, ALLIES)
-   end
-
-   for _,enemy in ipairs(ENEMIES) do
-      if enemy.y - me.y > 75 then
-         PersistOnTargets("cc", enemy, enemy.charName, ENEMIES)
-      else
-         P["cc"..enemy.id] = nil
+      local target = PersistOnTargets("cc", object, object.charName, ENEMIES, ALLIES)
+      if target then
+         pp("CC on "..target.name.." "..object.charName)
       end
    end
+
+   -- for _,enemy in ipairs(ENEMIES) do
+   --    if enemy.y - me.y > 75 then
+   --       PersistOnTargets("cc", enemy, enemy.charName, ENEMIES)
+   --    else
+   --       P["cc"..enemy.id] = nil
+   --    end
+   -- end
 
    if find(object.charName, "Ward") then
       table.insert(WARDS, object)
