@@ -10,6 +10,14 @@ pp(" - prep leap with empower and counter")
 pp(" - start counter if I'm in range")
 pp(" - lasthit with empower")
 
+
+InitAAData({
+	windup=.25,
+	particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
+	attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
+	resets = {me.SpellNameW}
+})
+
 SetChampStyle("bruiser")
 
 AddToggle("", {on=true, key=112, label="- - -"})
