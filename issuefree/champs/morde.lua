@@ -77,7 +77,6 @@ function Run()
 
       if CanUse("siphon") then
          if KillMinionsInCone("siphon", 2) then
-            PrintAction("Siphon minions")
             return true
          end
       end
