@@ -105,11 +105,6 @@ local function getAAData()
       Jayce        = { projSpeed = 2.2,
                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
-      Jax          = { windup=.25,
-                       particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
-                       attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
-                       resets = {me.SpellNameW} },
-
       Karma        = { projSpeed = nil,
                        particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
 
