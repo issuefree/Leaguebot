@@ -268,7 +268,7 @@ function GetSpell(thing)
    return spell
 end
 
-function GetLVal(spell, field)
+function GetLVal(spell, field, target)
 	if not spell[field] then return 0 end
 
    if type(spell[field]) == "number" then
@@ -276,7 +276,7 @@ function GetLVal(spell, field)
    end
 
    if type(spell[field]) == "function" then
-   	return spell[field]()
+   	return spell[field](target)
    end
 
    if spell[field].isDamage then
@@ -320,34 +320,54 @@ function GetSpellDamage(thing, target, ignoreResists)
 		return GetAADamage()
    end
 
-   damage = damage + Damage(GetLVal(spell, "base"), spell.type or "M")
-   damage = damage + GetLVal(spell, "ap")*me.ap
-   damage = damage + GetLVal(spell, "ad")*(me.baseDamage+me.addDamage)
-   damage = damage + GetLVal(spell, "adBonus")*me.addDamage
-   damage = damage + GetLVal(spell, "adBase")*me.baseDamage
-   damage = damage + GetLVal(spell, "mana")*me.mana
-   damage = damage + GetLVal(spell, "maxMana")*me.maxMana
-   damage = damage + GetLVal(spell, "health")*me.health
-   damage = damage + GetLVal(spell, "maxHealth")*me.maxHealth
-   damage = damage + GetLVal(spell, "armor")*me.armor
-   damage = damage + GetLVal(spell, "lvl")*me.selflevel
-   damage = damage + GetLVal(spell, "bonus")
+   damage = damage + Damage(GetLVal(spell, "base", target), spell.type or "M")
+   damage = damage + GetLVal(spell, "ap", target)*me.ap
+   damage = damage + GetLVal(spell, "ad", target)*(me.baseDamage+me.addDamage)
+   damage = damage + GetLVal(spell, "adBonus", target)*me.addDamage
+   damage = damage + GetLVal(spell, "adBase", target)*me.baseDamage
+   damage = damage + GetLVal(spell, "mana", target)*me.mana
+   damage = damage + GetLVal(spell, "maxMana", target)*me.maxMana
+   damage = damage + GetLVal(spell, "health", target)*me.health
+   damage = damage + GetLVal(spell, "maxHealth", target)*me.maxHealth
+   damage = damage + GetLVal(spell, "armor", target)*me.armor
+   damage = damage + GetLVal(spell, "lvl", target)*me.selflevel
+   damage = damage + GetLVal(spell, "bonus", target)
    if target then
-      local targetMaxHealth = GetLVal(spell, "targetMaxHealth")
-      targetMaxHealth = targetMaxHealth + GetLVal(spell, "targetMaxHealthAP")*me.ap
+      local targetMaxHealth = GetLVal(spell, "targetMaxHealth", target)
+      targetMaxHealth = targetMaxHealth + GetLVal(spell, "targetMaxHealthAP", target)*me.ap
       damage = damage + targetMaxHealth*target.maxHealth
    end
    if target then
-      local targetHealth = GetLVal(spell, "targetHealth")
-      targetHealth = targetHealth + GetLVal(spell, "targetHealthAP")*me.ap
+      local targetHealth = GetLVal(spell, "targetHealth", target)
+      targetHealth = targetHealth + GetLVal(spell, "targetHealthAP", target)*me.ap
       damage = damage + targetHealth*target.health
    end
    if target then
-      damage = damage + GetLVal(spell, "targetMissingHealth")*(target.maxHealth - target.health)
+      damage = damage + GetLVal(spell, "targetMissingHealth", target)*(target.maxHealth - target.health)
    end
 
    if spell.damOnTarget and target then
       damage = damage + spell.damOnTarget(target)
+   end
+
+   if spell.scale then
+   	damage = damage * GetLVal(spell, "scale", target)
+   end
+
+   if type(damage) ~= "number" and damage.type ~= "H" and target then
+      local mult = 1
+      if HasMastery("havoc") then
+         mult = mult + .03
+      end
+      if HasMastery("des") then
+         mult = mult + .015
+      end
+      if HasMastery("executioner") then
+         if target and GetHPerc(target) < .5 then
+            mult = mult + .05
+         end
+      end
+      damage = damage*mult
    end
 
    -- this is technically not right. This should only count for SINGLE TARGETS
@@ -364,23 +384,6 @@ function GetSpellDamage(thing, target, ignoreResists)
    if spell.modAA and not P[spell.modAA] then
    	-- if the mod is off then add the aa damage here
    	damage = damage + GetAADamage() + GetSpellbladeDamage(false) - GetSpellbladeDamage(true)
-   end
-
-
-   if type(damage) ~= "number" and damage.type ~= "H" and target then
-      local mult = 1
-      if HasMastery("havoc") then
-         mult = mult + .03
-      end
-      if HasMastery("des") then
-         mult = mult + .015
-      end
-      if HasMastery("executioner") then
-         if target and GetHPerc(target) < .5 then
-            mult = mult + .05
-         end
-      end
-      damage = damage*mult
    end
 
    if spell.offModAA then
@@ -574,8 +577,10 @@ function IsGoodFireahead(thing, target, minChance)
 
    local point, chance = GetSpellFireahead(spell, target)
 
-   point.name = target.name
-   if GetDistance(point) > GetSpellRange(spell) then
+   point.name = target.name -- hack for IsBlocked I think
+   local range = GetSpellRange(spell) + (spell.radius or 0)
+
+   if GetDistance(point) > range then
    	-- PrintAction("SS oor")
       return false
    end
@@ -602,6 +607,14 @@ function IsGoodFireahead(thing, target, minChance)
    if IsSolid(point) then -- don't shoot into walls
    	-- PrintAction("Don't shoot into walls")
       return false
+   end
+
+   -- if the target is at the edge of range and they're the closest enemy then do something different
+   if GetDistance(point) > range*.8 then
+   	if GetDistance(SortByDistance(ENEMIES)[1]) <= GetDistance(target) then
+   		-- pp("SS target alone at edge of range")
+   		return false
+   	end
    end
 
 	return true
