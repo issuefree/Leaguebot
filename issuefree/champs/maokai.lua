@@ -51,7 +51,7 @@ spells["advance"] = {
    range=525, 
    color=blue, 
    base=0, 
-   targetMaxHealth={9,10,11,12,13},
+   targetMaxHealth={.09,.10,.11,.12,.13},
    targetMaxHealthAP=.0003,
 } 
 spells["sapling"] = {
@@ -61,7 +61,7 @@ spells["sapling"] = {
    base={40,60,80,100,120}, 
    ap=.4,
    delay=3.8, -- TestSkillShot
-   speed=10, 
+   speed=10+5, -- might go deeper
    noblock=true,
    radius=225, -- reticle (wiki says 175)
 } 
@@ -132,7 +132,7 @@ function Action()
       return true
    end
 
-   if CastBest("smashPB") then
+   if CastBest("smash") then
       return true
    end
 
