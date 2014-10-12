@@ -1,4 +1,4 @@
-require "Utils"
+require "utils"
 require "issuefree/utils_scriptconfig"
 require "winapi"
 ModuleConfig = scriptConfig("Module Config", "modules")
@@ -2215,7 +2215,12 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
 
    if not CanUse(spell) then return end
 
-   local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, GetSpellRange(spell), ENEMIES)))
+   local range = GetSpellRange(spell)
+   if spell.radius then 
+      range = range + spell.radius
+   end
+
+   local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, range, ENEMIES)))
    local stillMoving = false
    if not target then
 
@@ -2232,20 +2237,20 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
          end
       end
    end
-   if target and IsInRange(spell, target) then
+   if target and IsInRange(range, target) then
       if not targetOnly then
          if spell.noblock then
             if stillMoving then
                CastFireahead(spell, target)
             else
-               CastXYZ(spell, target)
+               CastXYZ(spell, GetCastPoint({target}, spell))
             end
          else
             if IsUnblocked(target, spell, me, MINIONS, ENEMIES) then
                if stillMoving then
                   CastFireahead(spell, target)
                else
-                  CastXYZ(spell, target)
+                  CastXYZ(spell, GetCastPoint({target}, spell))
                end
             else
                return false
