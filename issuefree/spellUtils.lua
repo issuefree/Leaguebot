@@ -351,7 +351,10 @@ function GetSpellDamage(thing, target, ignoreResists)
    end
 
    if spell.scale then
-   	damage = damage * GetLVal(spell, "scale", target)
+   	local scale = GetLVal(spell, "scale", target)
+   	if scale then
+   		damage = damage * scale
+   	end
    end
 
    if type(damage) ~= "number" and damage.type ~= "H" and target then
