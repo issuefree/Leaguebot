@@ -20,7 +20,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["lay"] = {
    key="Q", 
-   range=900-25, 
+   range=900-35, 
    color=violet, 
    base={40,60,80,100,120}, 
    ap=.3, 
@@ -118,7 +118,7 @@ function Run()
 
    if IsOn("tear") then
       if CanChargeTear() then
-         if HitMinionsInArea("lay", 1) then
+         if HitMinionsInArea("lay", GetThreshMP(thing, .05)) then
             return true
          end
       end
