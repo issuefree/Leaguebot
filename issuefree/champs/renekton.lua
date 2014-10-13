@@ -15,8 +15,7 @@ InitAAData({
    resets = {me.SpellNameQ, me.SpellNameW, me.SpellNameE}
 })
 
--- SetChampStyle("marksman")
--- SetChampStyle("caster")
+SetChampStyle("bruiser")
 
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
@@ -33,7 +32,8 @@ spells["cull"] = {
    color=yellow, 
    base={60,90,120,150,180}, 
    adBonus=.8,
-   type="P"
+   type="P",
+   scale=function() if GetMPerc(me) >= .5 then return 1.5 end end
 } 
 spells["predator"] = {
    key="W", 
@@ -43,6 +43,7 @@ spells["predator"] = {
    modAA="predator",
    object="Renekton_Weapon_Hot.troy",
    range=GetAARange,   
+   scale=function() if GetMPerc(me) >= .5 then return 1.5 end end
 } 
 spells["slice"] = {
    key="E", 
@@ -54,20 +55,13 @@ spells["slice"] = {
    delay=2,
    speed=12,
    width=75,
+   scale=function() if GetMPerc(me) >= .5 then return 1.5 end end
 } 
 spells["dominus"] = {
    key="R", 
 } 
 
 function Run()
-   spells["cull"].bonus = 0
-   spells["predator"].bonus = 0
-   spells["slice"].bonus = 0
-   if GetMPerc(me) >= .5 then
-      spells["cull"].bonus = GetSpellDamage("cull")*.5
-      spells["predator"].bonus = GetSpellDamage("predator")*.5
-      spells["slice"].bonus = GetSpellDamage("slice")*.5
-   end
 
    if StartTickActions() then
       return true
