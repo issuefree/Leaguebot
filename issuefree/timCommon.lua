@@ -1585,7 +1585,7 @@ function BlockingMove(move_dest)
    if time() - lastMove > 1 then
       
       MoveToXYZ(move_dest.x, 0, move_dest.z)
-      BlockOrders()
+      -- BlockOrders()
       DoIn( function()
                UnblockOrders()
             end,
