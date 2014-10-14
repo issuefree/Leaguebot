@@ -186,7 +186,8 @@ function Wish()
 			for _,enemy in ipairs(ENEMIES) do
 				if GetDistance(ally, enemy) < 1000 then
 					-- PlaySound("Beep")
-					return false
+					LineBetween(me, ally)
+					-- return false
 				end
 			end
 		end
