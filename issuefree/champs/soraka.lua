@@ -185,7 +185,7 @@ function Wish()
 		if GetHPerc(ally) < .33 then
 			for _,enemy in ipairs(ENEMIES) do
 				if GetDistance(ally, enemy) < 1000 then
-					PlaySound("Beep")
+					-- PlaySound("Beep")
 					return false
 				end
 			end
