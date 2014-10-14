@@ -159,9 +159,8 @@ function Action()
       return true
    end
 
+   local target = GetMarkedTarget() or GetMeleeTarget()
    if CanUse("mace") then
-      -- local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-      local target = GetMarkedTarget() or GetMeleeTarget()
       if target and 
          not P.mace and
          GetDistance(target) < spells["AA"].range+25 
@@ -170,9 +169,9 @@ function Action()
          PrintAction("Mace up", nil, 1)
       end
 
-      if AutoAA(target) then
-         return true
-      end
+   end
+   if AutoAA(target) then
+      return true
    end
 
    return false
