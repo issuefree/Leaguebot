@@ -61,8 +61,10 @@ function Run()
       -- PlaySound("Beep")
    end 
 
-   if me.dead == 1 then
-      Action()
+   if P.death then
+      if Action() then
+         return true
+      end
    end
 
    if StartTickActions() then
@@ -100,7 +102,7 @@ function Run()
    
    if IsOn("lasthit") and Alone() and CanUse("lay") then
       if KillMinionsInArea("lay", 1) then
-         return true
+         return true 
       end
 
       local nearMinions = SortByHealth(GetInRange(me, "lay", MINIONS), "lay")
@@ -118,7 +120,7 @@ function Run()
 
    if IsOn("tear") then
       if CanChargeTear() then
-         if HitMinionsInArea("lay", GetThreshMP(thing, .05)) then
+         if HitMinionsInArea("lay", GetThreshMP(thing, .025)) then
             return true
          end
       end
@@ -155,6 +157,7 @@ end
 
 local function onObject(object)
    PersistBuff("defile", object, "Karthus_Base_E_Defile.troy", 100)
+   PersistBuff("death", object, "Karthus_Base_P_Avatar.troy")
 end
 
 local function onSpell(object, spell)
