@@ -118,7 +118,7 @@ function Run()
          if CanUse("tides") then
             local cost = GetLVal(spells["tides"], "healthCost")*(tideStacks+4)*.25
             local kills = GetKills("tides", GetInRange(me, "tides", MINIONS))
-            if cost/me.health < #kills * .025 then
+            if cost/me.health < #kills * .075 then
                Cast("tides", me)
                PrintAction("Tides for AoE LH", #kills)
                return true
@@ -187,7 +187,6 @@ function Action()
          local dam = preDam * 1.12 -- for the plague
          dam = dam + GetSpellDamage("plague")
          for _,target in ipairs(targets) do
-            pp(CalculateDamage(target, dam).." "..CalculateDamage(target, preDam))
             -- if the combo will kill them without plague, don't do it.
             -- if the combo will kill them with plague do do it.
             if not IsImmune("plague", target) and
