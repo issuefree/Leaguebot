@@ -60,8 +60,7 @@ function CheckShield(thing, unit, spell, type)
    if not IsEnemy(unit) or
       IsRecalling(me) or
       me.dead == 1 or
-      not CanUse(thing) or
-      unit.team == me.team
+      not CanUse(thing)
    then
       return false
    end
@@ -87,7 +86,7 @@ function CheckShield(thing, unit, spell, type)
 
       if type == "CC" then
          local shot = GetSpellDef(unit.name, spell.name)
-         if not shot or not shot.CC or shot.CC <= 1 then
+         if not shot or not shot.cc or shot.cc <= 1 then
             return false
          end
       end         
@@ -108,8 +107,7 @@ function CheckShield(thing, unit, spell, type)
          end
 
          if type == "CC" then
-            local shot = GetSpellDef(unit.name, spell.name)
-            if not shot or not shot.CC or shot.CC <= 1 then
+            if not shot or not shot.cc or shot.cc <= 1 then
                return false
             end
          end         
