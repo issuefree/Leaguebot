@@ -944,6 +944,18 @@ end
 local khs, kks = .05, .95
 local hhs, hks = 1, .5
 
+function KillMinionsInShape(thing, thresh, shapeFunc)
+   if HitInShape(thing, shapeFunc, MINIONS, thresh, khs, kks, "kills") then
+      return true
+   end
+end
+
+function HitMinionsInShape(thing, thresh, shapeFunc)
+   if HitInShape(thing, shapeFunc, MINIONS, thresh, hhs, hks, "hits") then
+      return true
+   end
+end
+
 function KillMinionsInArea(thing, thresh)   
    if HitInShape(thing, GetBestArea, MINIONS, thresh, khs, kks, "kills") then
       return true
@@ -974,6 +986,7 @@ function KillMinionsInLine(thing, thresh)
    end
 end
 
+
 function HitMinionsInLine(thing, thresh)
    if HitInShape(thing, GetBestLine, MINIONS, thresh, hhs, hks, "kills") then
       return true
@@ -991,6 +1004,8 @@ function HitMinionsInPB(thing, thresh)
       return true
    end
 end
+
+
 
 -- returns hits, kills (if scored), score
 function GetBestArea(source, thing, hitScore, killScore, ...)
@@ -1273,7 +1288,7 @@ function WillKill(...)
             end
          end
       end
-      if damage > target.health then
+      if damage > target.health + 3 then
          return true
       end
    end
@@ -2383,7 +2398,6 @@ function Combo:addState(state, action)
    end
    self.states[state] = action
 end
-
 
 RegisterLibraryOnWndMsg(OnWndMsg)
 AddOnTick(TimTick)

@@ -268,11 +268,11 @@ end
 
 function CalculateDamage(target, dam)
    if dam.m and dam.m > 0 then
-      local res = math.ceil(math.max(target.magicArmor*me.magicPenPercent - me.magicPen, 0+3)) -- see if the 5 prevents slivering folks
+      local res = math.ceil(target.magicArmor*me.magicPenPercent - me.magicPen)
       dam.m = math.floor(dam.m*(100/(100+res)))
    end
    if dam.p and dam.p > 0 then
-      local res = math.ceil(math.max(target.armor*me.armorPenPercent - me.armorPen, 0+3))
+      local res = math.ceil(target.armor*me.armorPenPercent - me.armorPen)
       dam.p = math.floor(dam.p*(100/(100+res)))
    end
 
