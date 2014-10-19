@@ -9,13 +9,14 @@ require "issuefree/modules"
 
 pp("\nTim's Thresh")
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 spells["hook"] = {
    key="Q", 
@@ -42,7 +43,7 @@ spells["flay"] = {
    color=yellow, 
    base={65,95,125,155,185}, 
    ap=.4,
-   cost={60,65,70,75 / 80}
+   cost={60,65,70,75,80}
 } 
 spells["box"] = {
    key="R", 
@@ -52,11 +53,6 @@ spells["box"] = {
    ap=1,
    cost=100
 } 
-
-spells["AA"].damOnTarget = 
-   function(target)
-      return 0
-   end
 
 function Run()
    if StartTickActions() then
