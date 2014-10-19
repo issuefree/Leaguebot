@@ -2254,6 +2254,9 @@ function UseItem(itemName, target)
 end
 
 function CastAtCC(thing, hardCCOnly, targetOnly)
+   -- TODO Use this to target dash endpoints
+   --    when vayne rolls you know where she's going to land. SS there.
+
    local spell = GetSpell(thing)
 
    if not CanUse(spell) then return end
