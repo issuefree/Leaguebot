@@ -9,6 +9,12 @@ require "issuefree/modules"
 
 pp("\nTim's Thresh")
 
+-- TODO flay away dives / pulls
+--    Flay away leona when she lands her sword
+--    Flay away alister when he headbutts
+--    Flay away blitz when he pulls
+--    Flay away darius when he pulls
+
 InitAAData({
    windup=.35+.1,  -- fundge because of his very poor speed scaling.
    extraRange=15,
@@ -70,7 +76,7 @@ spells["flay"] = {
    noblock=true,
 
    buildup=10,
-   flayScale={.80,1.10,1.40,1.70,2.00},
+   flayScale={.80,1.10,1.40,1.70,2},
 
    cost={60,65,70,75,80}
 } 
@@ -82,14 +88,6 @@ spells["box"] = {
    ap=1
 }
 
-spells["AA"].bonus = function()
-   return souls + GetLVal(spells["flay"], "flayScale")*(me.baseDamage+me.addDamage) * math.min(time() - aaTime, 9) / 9
-end
-
-spells["flayAA"] = {
-   base=function() return souls end,
-}
-
 spells["box"] = {
    key="R", 
    range=450, 
@@ -98,6 +96,10 @@ spells["box"] = {
    ap=1,
    cost=100
 } 
+
+spells["AA"].bonus = function()
+   return souls + GetLVal(spells["flay"], "flayScale")*(me.baseDamage+me.addDamage) * math.min(time() - aaTime, 9) / 9
+end
 
 aaTime = 0
 souls = 0
