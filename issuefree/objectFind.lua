@@ -19,6 +19,7 @@ function debugTick()
       else
          if Point(testShot.object):valid() then
             if GetDistance(testShot.object) > 200 then
+               Circle(testShot.object)
                table.insert(testShot.points, Point(testShot.object))
                table.insert(testShot.times, time())
 
