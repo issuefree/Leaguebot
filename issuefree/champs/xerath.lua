@@ -48,7 +48,6 @@ spells["eye"] = {
    radius=275-10, -- reticle
    noblock=true,
    manualCooldown={14,13,12,11,10},
-   lastCast=0
 } 
 spells["orb"] = {
    key="E", 
@@ -60,7 +59,6 @@ spells["orb"] = {
    speed=14,
    width=75, -- reticle
    manualCooldown={13,12.5,12,11.5,11},
-   lastCast=0
 } 
 spells["rite"] = {
    key="R",
