@@ -9,6 +9,12 @@ require "issuefree/modules"
 
 pp("\nTim's Vayne")
 
+-- TODO condemn away dives / pulls
+--    condemn away leona when she lands her sword
+--    condemn away alister when he headbutts
+--    condemn away blitz when he pulls
+--    condemn away darius when he pulls
+
 InitAAData({
    projSpeed = 2.0, windup=.2,
    extraRange=-10,
