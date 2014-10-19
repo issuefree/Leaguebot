@@ -1553,10 +1553,17 @@ function OnProcessSpell(unit, spell)
    end
 
    for _,sp in pairs(spells) do
-      if sp.manualCooldown then
-         if ICast(sp, unit, spell) then
-            sp.lastCast = time() + .1 -- lag
+      if ICast(sp, unit, spell) then
+         sp.lastCast = time() + .1 -- lag
+
+         if sp.useCharges then
+            if sp.charges == sp.maxCharges then
+               sp.lastRecharge = time()
+            end
+
+            sp.charges = math.max(0, sp.charges - 1)
          end
+
       end
    end
 
@@ -1675,6 +1682,24 @@ function TimTick()
             TrackSpellFireahead(spell, enemy)
          end
       end
+
+      if spell.useCharges and GetSpellLevel(spell.key) > 0 then
+         if not spell.lastRecharge then
+            spell.lastRecharge = time()
+         end
+
+         if spell.charges < spell.maxCharges then
+            local ttRecharge = GetLVal(spell, "rechargeTime") * (1+me.cdr)
+            if ttRecharge > 0 then -- no recharge time means time doesn't generate charges
+               if time() - spell.lastRecharge > ttRecharge then
+                  spell.lastRecharge = time()
+                  spell.charges = spell.charges + 1
+               end
+            end
+         else
+            spell.lastRecharge = time()
+         end
+      end
    end
 
    TrackMyPosition()
@@ -1760,6 +1785,9 @@ function StartTickActions()
       for name, spell in pairs(spells) do
          if spell.channel then
             AddChannelSpell(name)
+         end
+         if spell.useCharges and not spell.charges then
+            spell.charges = 0
          end
       end
 

@@ -10,7 +10,7 @@ InitAAData({
    particles = {"Zyra_basicAttack"}
 })
 
-AddToggle("seed", {on=true, key=112, label="Auto seed", auxLabel="{0}", args={function() return seedCharges end}})
+AddToggle("seed", {on=true, key=112, label="Auto seed", auxLabel="{0}", args={function() return spells["seed"].charges end}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -36,9 +36,15 @@ spells["seed"] = {
    key="W", 
    range=850, 
    color=green,
-   recharge={17,16,15,14,13},
    width=150,
-   name="ZyraSeed"
+   name="ZyraSeed",
+
+   useCharges=true,
+   maxCharges=2,
+   rechargeTime={17,16,15,14,13},
+   charges=1,
+
+   extraCooldown=.75
 }
 spells["roots"] = {
    key="E", 
@@ -67,25 +73,9 @@ spells["strangle"] = {
    -- cost={100,120,140}
 }
 
-castSeedAt = time()
 seedDelay = .75
-seedCharges = 2
-st = time()
 
 function Run()
-   local lvl = GetSpellLevel("W")
-   if lvl > 0 then
-      if seedCharges == 2 then
-         st = time()
-      else
-         local sTime = spells["seed"].recharge[lvl] * (1+me.cdr)
-         if time() - st > sTime then
-            st = time()
-            seedCharges = seedCharges + 1
-         end
-      end
-   end
-
    if StartTickActions() then
       return true
    end
@@ -150,7 +140,7 @@ function Action()
    if CanUse("roots") then
       local target = GetSkillShot("roots")
       if target then
-         -- if canSeed() then
+         -- if CanUse("seed") then
          --    local point = GetSpellFireahead("roots", target)
          --    if GetDistance(point) > GetSpellRange("seed") then
          --       point = Projection(me, point, GetSpellRange("seed"))
@@ -167,7 +157,7 @@ function Action()
    if CanUse("bloom") then
       local target = GetSkillShot("bloom")
       if target then
-         -- if canSeed() then
+         -- if CanUse("seed") then
          --    CastXYZ("seed", GetSpellFireahead("bloom", target))
          -- end
          CastFireahead("bloom", target)
@@ -189,23 +179,14 @@ function FollowUp()
    return false
 end
 
-function canSeed()
-   return CanUse("seed") and 
-          time() - castSeedAt > seedDelay and 
-          seedCharges > 0
-end
-
 local function onObject(object)
-   if PersistAll("seed", object, "Zyra_seed_indicator_team") then
-      castSeedAt = time()
-      seedCharges = seedCharges - 1
-   end
+   PersistAll("seed", object, "Zyra_seed_indicator_team")
 end
 
 local function onSpell(unit, spell)
    if IsOn("seed") then
       if ICast("roots", unit, spell) then
-         if canSeed() then
+         if CanUse("seed") then
             for _,enemy in ipairs(ENEMIES) do 
                if GetOrthDist(spell.endPos, enemy) < spells["roots"].growWidth then
                   local point = Projection(me, spell.endPos, GetDistance(enemy))
@@ -221,7 +202,7 @@ local function onSpell(unit, spell)
       end
 
       if ICast("bloom", unit, spell) then
-         if canSeed() then
+         if CanUse("seed") then
             -- if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
                CastXYZ("seed", spell.endPos)
                PrintAction("Seed on bloom")

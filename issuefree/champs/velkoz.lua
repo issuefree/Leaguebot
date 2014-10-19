@@ -47,7 +47,11 @@ spells["rift"] = {
    speed=15,  -- guess
    width=90,  -- reticle
    noblock=true,
-   chargeTime={18,17,16,15,14}
+
+   useCharges=true,
+   maxCharges=2,
+   rechargeTime={18,17,16,15,14},
+   charges=1
 } 
 spells["disruption"] = {
    key="E", 
@@ -70,28 +74,11 @@ spells["ray"] = {
 } 
 
 local fissionAngle
-local charges = 2
-local riftTime = time()
 
 function Run()
    for _,t in ipairs(GetWithBuff("deconstruction", CREEPS)) do
       Circle(t)
    end
-
-   local lvl = GetSpellLevel("W")
-   if lvl > 0 then
-      if charges == 2 then
-         riftTime = time()
-      else
-         local rTime = spells["rift"].chargeTime[lvl] * (1+me.cdr)
-         PrintState(1, rTime)
-         if time() - riftTime > rTime then
-            riftTime = time()
-            charges = charges + 1
-         end
-      end
-   end
-
 
    if StartTickActions() then
       return true
@@ -138,7 +125,7 @@ function Run()
          if KillMinionsInArea("disruption") then
             return true
          end
-         if charges > 1 then
+         if spells["rift"].charges > 1 then
             if KillMinionsInLine("rift") then
                return true
             end
@@ -230,10 +217,8 @@ function Action()
       end
    end
 
-   if CanUse("rift") and charges > 0 then
-      if SkillShot("rift") then
-         return true
-      end
+   if SkillShot("rift") then
+      return true
    end
 
    if SkillShot("disruption") then
@@ -259,10 +244,6 @@ end
 local function onSpell(unit, spell)
    if ICast("fission", unit, spell) then
       fissionAngle = AngleBetween(me, spell.endPos)
-   end
-
-   if ICast("rift", unit, spell) then
-      charges = charges - 1
    end
 end
 

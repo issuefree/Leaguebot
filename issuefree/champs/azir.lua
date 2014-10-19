@@ -40,16 +40,22 @@ spells["arise"] = {
    key="W", 
    range=450+50, 
    color=violet,
+
    delay=2.4, -- TODO
    speed=0,
    radius=350, -- hacky
-   recharge={12,11,10,9,8},
+
    base=0,
    bonus=function() 
             local dam = {50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170}
             return dam[me.selflevel]
          end,
    ap=.7,
+
+   useCharges=true,
+   maxCharges=2,
+   rechargeTime={12,11,10,9,8},
+   charges=1
 } 
 spells["soldier"] = {
    range=400, 
@@ -75,26 +81,9 @@ spells["divide"] = {
 } 
 
 local soldiers = {}
-soldierCharges = 2
-st = time()
-
 
 function Run()
    soldiers = GetPersisted("soldier")
-
-   local lvl = GetSpellLevel("W")
-   if lvl > 0 then
-      if soldierCharges == 2 then
-         st = time()
-      else
-         local sTime = spells["arise"].recharge[lvl] * (1+me.cdr)
-         if time() - st > sTime then
-            st = time()
-            soldierCharges = soldierCharges + 1
-         end
-      end
-   end
-
 
    if StartTickActions() then
       return true
@@ -115,7 +104,7 @@ function Run()
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
       if Alone() then
-         if canSoldier() and soldierCharges == 2 then
+         if CanUse("arise") and spells["arise"].charges == 2 then
             local hits, kills = GetBestArea(me, "arise", 1, 1, MINIONS)
             if #hits >= 2 and #kills >= 1 then
                CastXYZ("arise", GetCastPoint(hits, "arise"))
@@ -156,8 +145,8 @@ function Action()
 
    SortByHealth(targets, "soldier")   
 
-   if canSoldier() then
-      if #targets == 0 or soldierChargets == 2 then
+   if CanUse("arise") then
+      if #targets == 0 or spells["arise"].charges == 2 then
          local target = GetWeakestEnemy("arise", spells["soldier"].range-50)
          if target then
             CastFireahead("arise", target)
@@ -199,11 +188,6 @@ function FollowUp()
    return false
 end
 
-function canSoldier()
-   return CanUse("soldier") and           
-          soldierCharges > 0
-end
-
 -- function AutoJungle()
 --    local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
 --    local score = ScoreCreeps(creep)
@@ -215,9 +199,7 @@ end
 -- SetAutoJungle(AutoJungle)
 
 local function onCreate(object)
-   if PersistAll("soldier", object, "AzirSoldier") then
-      soldierCharges = soldierCharges - 1
-   end
+   PersistAll("soldier", object, "AzirSoldier")
 end
 
 local function onSpell(unit, spell)

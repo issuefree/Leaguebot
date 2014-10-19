@@ -7,10 +7,10 @@ InitAAData({
 	projSpeed = 1.3, windup=.25,
 	minMoveTime = 0,
 	extraRange=-20,
-	particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
+	-- particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 })
 
-AddToggle("shroom", {on=true, key=112, label="Auto Shroom"})
+AddToggle("shroom", {on=true, key=112, label="Auto Shroom", auxLabel="{0} - {1}", args={"shroom", function() return spells["shroom"].charges end}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -39,13 +39,19 @@ spells["shroom"] = {
 	base={200,325,450},
 	ap=.5,
 	radius=115,
-	cost={75,100,125}
+	cost={75,100,125},
+
+   useCharges=true,
+   maxCharges=3,
+   rechargeTime={35,31,27},
+   charges=1
 }
 
 local poisons = {}
 local shrooms = {}
 
 function Run()
+	PrintState(8, CanUseSpell("R"))
 	Clean(poisons, "charName", "Global_poison")
 	Clean(shrooms, "charName", "Noxious Trap")
 

@@ -4,6 +4,87 @@ require "issuefree/persist"
 require "issuefree/telemetry"
 require "issuefree/walls"
 
+--[[
+spells["alias"] = {
+   name="spellCastName",      -- this is used for ICast. If the spell reports casting as me.SpellNameX then this can be left blank.
+                                 if you need to detect the spell under a different name put that name here
+
+   key="Q",                   -- the key that casts the spell. If no key is supplied then the spell will always read "ready"
+   range=1175,                -- range of the spell
+   color=violet,              -- color of the range circle
+
+      Most fields are passed through GetLVal which will handle a few ways of specifying a value:
+         a number - is just a number
+         a list - this is a value per spell level so {5,10,15} will be 5 if the spell is level 1, 10 if the spell is level 2 etc.
+         a function - this function will be executed at evaluation time and must return a number. the variable "target" will be passed into the function if it is needed
+
+   base={60,110,160,210,260}, -- base spell damage
+   <stat>=.7,                 -- scaling. Scaling is a scalar i.e. damage bonus is stat*scaling
+      ap,                  -- ap
+      ad,                  -- ad
+      adBonus,             -- bonus ad
+      adBase,              -- base ad
+      mana,                -- current mana
+      maxMana,             -- maximum mana
+      health,              -- current health
+      maxHealth,           -- maximum health
+      armor,               -- character armor
+      lvl,                 -- character level (not spell level)
+      targetMaxHealth,     -- target's maximum health
+      targetMaxHealthAP,   -- extra damage scaling against target max health based on AP.
+      targetHealth,        -- target's current health
+      targetHealthAP,      -- extra damage scaling against target current health based on AP.
+      targetMissingHealth, -- scales against maxHealth - health
+
+   bonus,                     -- a non scaling value added to the damage. often a function for handling non standard damage modifiers
+   damOnTarget,               -- a function that gets passed in the target and returns a number
+                                    usually this is for modifying the spell damage based on some property of the target
+                                    like akali's mark or katarina's dagger
+   scale,                     -- scale the WHOLE spell damage by this. For things like "spell does 60% damage vs minions" or "spell does double damage if the target is full health"
+   type,                      -- "P" for physical, "M" for magical, "T" for true, "H" for heal. Defaults to "M"
+
+   -- auto attack modifier spells
+   modAA=<alias>,             -- trigger for this spell being an autoattack modifier. Should be set to the "alias" of the spell
+   object="object.charName",  -- required for modAA to work. This should be a substring that matches the object.charName of the buff this spell applies   
+   -- reset=true,                -- casting this resets auto attack timer
+
+   onHit=true,                -- set to true if this spell triggers on hit affects e.g. gangplank Q
+
+   knockback=400,             -- if the spell has knockback this is how far it knocks them back
+
+   -- skill shots
+   delay=2,                   -- delay between casting and the missile firing, must be set for skillshots
+   speed=12,                  -- speed of the missile, must be set for skillshots, 0 means it doesn't travel
+   width=80,                  -- width of the missile for linear skill shots
+   radius=150,                -- radius of the affect, usually for nonlinear skill shots
+      -- usually you only use width or radius not both
+   noblock=true,              -- set if the skillshot passes through objects
+   overShoot=150,             -- if you want the point of impact to be past the target then set this.
+   
+
+   -- channelling
+   channel=true,              -- if the spell is channelled (e.g. fiddle's drain). If set up it will detect the channel and the bot won't break the channel
+   object="object.charName",  -- this is the object to detect while channelling. As long as this object exists the bot won't interrupt
+   objectTimeout=.5,          -- if the channelling object is transient you can specify a timeout here.
+                                 katarina's ult needs this as the channelling object comes and goes
+
+   manualCooldown=10,         -- if LB cooldown is bugged this will manually manage the cooldown
+
+   extraCooldown=.5,          -- waits a little longer after cooldown to report a spell ready
+
+   -- spells that use charges
+   useCharges=true,           -- this spell requires charges to cast
+   maxCharges=7,              -- max charges
+   rechargeTime={12,10,8},    -- time to generate a charge, 0 means never
+   charges=4,                 -- starting charges, defaults to 0
+
+   cost={10,20,30,40,50}      -- cost of the spell (usually in mana) this is ignored for now as LB handles it. Optional.
+} 
+
+]]
+
+
+
 -- require 'yprediction'
 -- local YP = YPrediction()
 
@@ -20,7 +101,7 @@ function IsCooledDown(thing, hero)
 	local key = spell.key
 	if not key then return false end	
 
-	if spell.manualCooldown then
+	if spell.manualCooldown and spell.lastCast then
 		local cd = GetLVal(spell, "manualCooldown") * (1+me.cdr)
 		if time() - spell.lastCast >= cd then
 			return true
@@ -167,7 +248,11 @@ function CanUse(thing)
          if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and me.mana >= GetSpellCost(thing) ) then
          	if P.silence then
          		return false
-         	end         	
+         	end
+            if thing.useCharges and thing.charges == 0 then
+               return false
+            end
+
             return IsCooledDown(thing)
          else
             return false
@@ -193,10 +278,11 @@ function CanUse(thing)
          if thing == "D" or thing == "F" then
             return IsSpellReady(thing) == 1
          end
-         if #thing > 1 then
+         if #thing > 1 then -- spell keys are single charactes so I don't know what you passed in
             return false
          end
-         return GetSpellLevel(thing) > 0 and IsCooledDown(thing) -- should be a spell key "Q"
+         return CanUse(GetSpell(thing))
+         -- return GetSpellLevel(thing) > 0 and IsCooledDown(thing) -- should be a spell key "Q"
       end
    end
    pp("Failed to get spell for "..thing)
@@ -635,12 +721,14 @@ end
 function ICast(thing, unit, spell)
    if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
-   if #mySpell.key > 1 then -- hack for if getspell fails
+   if type(mySpell) ~= "table" or
+   	( mySpell.key and #mySpell.key > 1 )
+   then -- hack for if getspell fails
       return find(spell.name, thing)      
    else
       if mySpell.name then
          return find(spell.name, mySpell.name)
-      else
+      elseif mySpell.key then
          return spell.name == me["SpellName"..mySpell.key]
       end
    end

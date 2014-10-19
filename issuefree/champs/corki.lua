@@ -10,7 +10,7 @@ AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("tear", {on=true, key=115, label="Tear"})
 
-AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
+AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1} / {2} - {3}", args={GetAADamage, "bomb", "barrage", function() return spells["barrage"].charges end}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
@@ -53,49 +53,39 @@ spells["gun"] = {
    cost=50
 }
 spells["barrage"] = {
+   name="MissileBarrageMissile",
    key="R", 
    range=1225,
    color=violet,
+
    base={100,180,260}, 
    ap=.3,
    ad={.2,.3,.4},
+   scale=function() if bigOne then return 1.5 end end,
+
    delay=.7,
    speed=20,
    width=80,
+
+   useCharges=true,
+   maxCharges=7,
+   rechargeTime={12,10,8},
+   charges=1
+
    cost=20,
-   missileTime={12,10,8},
-   name="MissileBarrage"
 }
 
-local missiles = 7
-local mst = time()
 local mCount = 0
-local bigOne = false
+bigOne = false
 
 function Run()
    spells["AA"].bonus = Damage((me.baseDamage+me.addDamage)*.1, "T")
 
-   local lvl = GetSpellLevel("R")
-   if lvl > 0 then
+   if GetSpellLevel("R") > 0 then
       if me.dead == 1 then
-         missiles = 4
-         mst = time()
+         spells["barrage"].charges = 7
+         spells["barrage"].lastRecharge = time()
       end
-      if missiles == 7 then
-         mst = time()
-      else
-         local mTime = spells["barrage"].missileTime[lvl] * (1+me.cdr)
-         if time() - mst > mTime then
-            mst = time()
-            missiles = missiles + 1
-         end
-      end
-      if mCount == 2 then
-         bigOne = true
-      end
-   end
-   if bigOne then
-      PrintState(1, "BIGONE")
    end
 
    if StartTickActions() then
@@ -122,7 +112,7 @@ function Run()
          return true
       end
 
-      if CanUse("barrage") and VeryAlone() and missiles >= 4 then
+      if CanUse("barrage") and VeryAlone() and spells["barrage"].charges >= 4 then
          local minion = GetWeakest("barrage", GetUnblocked("barrage", me, MINIONS))
          if WillKill("barrage", minion) and
             GetDistance(minion) > spells["AA"].range
@@ -178,12 +168,15 @@ end
 
 local function onSpell(unit, spell)
    if ICast("barrage", unit, spell) then
-      missiles = missiles - 1
-      mCount = mCount + 1
-   end
-   if ICast("MissileBarrageMissile2", unit, spell) then
-      mCount = 0
-      bigOne = false
+      if spell.name == "MissileBarrageMissile2" then
+         mCount = 0
+         bigOne = false
+      else
+         mCount = mCount + 1
+         if mCount == 2 then
+            bigOne = true
+         end
+      end
    end
 end
 
