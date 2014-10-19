@@ -112,8 +112,6 @@ if GetSpellLevel("E") == 0 then
    setSouls(0)
 end
 
-local health = 0
-
 function Run()
    if StartTickActions() then
       return true
