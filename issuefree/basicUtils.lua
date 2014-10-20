@@ -268,11 +268,17 @@ end
 
 function CalculateDamage(target, dam)
    if dam.m and dam.m > 0 then
-      local res = math.ceil(target.magicArmor*me.magicPenPercent - me.magicPen)
+      local res = target.magicArmor
+      if res > 0 then
+         res = math.max(math.ceil(res*me.magicPenPercent - me.magicPen), 0)
+      end
       dam.m = math.floor(dam.m*(100/(100+res)))
    end
    if dam.p and dam.p > 0 then
-      local res = math.ceil(target.armor*me.armorPenPercent - me.armorPen)
+      local res = target.armor
+      if res > 0 then
+         math.max(math.ceil(res*me.armorPenPercent - me.armorPen), 0)
+      end
       dam.p = math.floor(dam.p*(100/(100+res)))
    end
 
