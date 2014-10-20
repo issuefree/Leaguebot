@@ -60,10 +60,10 @@ CHAMP_STYLE = nil
 function SetChampStyle(style)
    CHAMP_STYLE = style
    if style == "caster" then
-      MASTERIES = {"executioner"} -- "havoc", "des", -- might not be applied to minions?
+      MASTERIES = {"executioner", "havoc", "des"} -- "havoc", "des", -- might not be applied to minions?
       BLOCK_FOR_AA = false
    elseif style == "marksman" then
-      MASTERIES = {"executioner"} -- "havoc", 
+      MASTERIES = {"executioner", "havoc"} -- "havoc", 
    elseif style == "bruiser" then
    elseif style == "support" then
       BLOCK_FOR_AA = false
