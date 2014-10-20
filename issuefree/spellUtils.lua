@@ -443,7 +443,7 @@ function GetSpellDamage(thing, target, ignoreResists)
    	end
    end
 
-   if type(damage) ~= "number" and damage.type ~= "H" and target then
+   if type(damage) ~= "number" and damage.type ~= "H" then
       local mult = 1
       if HasMastery("havoc") then
          mult = mult + .03
@@ -451,11 +451,11 @@ function GetSpellDamage(thing, target, ignoreResists)
       if HasMastery("des") then
          mult = mult + .015
       end
-      if HasMastery("executioner") then
-         if target and GetHPerc(target) < .5 then
-            mult = mult + .05
-         end
-      end
+      -- if target and HasMastery("executioner") then
+      --    if target and GetHPerc(target) < .5 then
+      --       mult = mult + .05
+      --    end
+      -- end
       damage = damage*mult
    end
 
