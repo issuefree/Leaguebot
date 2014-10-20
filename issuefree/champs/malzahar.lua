@@ -72,12 +72,17 @@ function Run()
       return true
    end
 
+
    -- auto stuff that always happen
-   -- if CastAtCC("zone") or
-   --    CastAtCC("void")
-   -- then
-   --    return true
-   -- end
+   if CheckDisrupt("void") then
+      return true
+   end
+
+   if CastAtCC("zone") or
+      CastAtCC("void")
+   then
+      return true
+   end   
 
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
