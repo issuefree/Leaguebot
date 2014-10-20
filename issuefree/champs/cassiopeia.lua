@@ -34,7 +34,7 @@ spells["blast"] = {
    ap=.45/3,
    -- base={75,115,155,195,235},
    -- ap=.35,
-   delay=3+2, -- hard to test but delay is 2.4 plus .6 from wiki.
+   delay=3+1, -- hard to test but delay is 2.4 plus .6 from wiki.
    speed=0,
    noblock=true,
    radius=150
@@ -48,7 +48,7 @@ spells["miasma"] = {
    delay=2.3,
    speed=25,
    noblock=true,
-   radius=150+50
+   radius=150+25
 } 
 spells["fang"] = {
    key="E", 
