@@ -34,19 +34,19 @@ spells["blast"] = {
    ap=.45/3,
    -- base={75,115,155,195,235},
    -- ap=.35,
-   delay=3+1, -- hard to test but delay is 2.4 plus .6 from wiki.
+   delay=3-2, -- hard to test but delay is 2.4 plus .6 from wiki.
    speed=0,
    noblock=true,
    radius=150
 } 
 spells["miasma"] = {
    key="W", 
-   range=850, 
+   range=850, -- need this for planting poison for E spam
    color=yellow, 
    base={10,15,20,25,30}, 
    ap=.1,
-   delay=2.3,
-   speed=25,
+   delay=2.3-1,
+   speed=0,
    noblock=true,
    radius=150+25
 } 
@@ -132,17 +132,22 @@ function Run()
 end
 
 function Action()
-   -- TestSkillShot("miasma", "CassMiasma")
-
    if SkillShot("blast") then
       return true
    end
 
    if CanUse("miasma") then
       local hits = GetBestArea(me, "miasma", 1, 0, GetFireaheads("miasma", ENEMIES))
-      if #hits > 0 then
+      if #hits > 1 then
          CastXYZ("miasma", GetCastPoint(hits, "miasma"))
          PrintAction("Miasma for AoE", #hits)
+         return true
+      end
+
+      local target = GetWeakestEnemy("miasma", -250)
+      if target then
+         CastXYZ("miasma", target)
+         PrintAction("Miasma near", target)
          return true
       end
    end
