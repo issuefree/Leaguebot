@@ -100,7 +100,10 @@ function Run()
 	end
 
 	-- auto stuff that should happen if you didn't do something more important
-
+   if IsOn("lasthit") then
+      if Alone() then
+      end
+   end
    
    -- low priority hotkey actions, e.g. killing minions, moving
    if HotKey() and CanAct() then
