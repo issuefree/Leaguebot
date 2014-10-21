@@ -820,7 +820,8 @@ function KillMinion(thing, method, force, targetOnly)
          return target
       else
          if IsSkillShot(thing) then
-            CastFireahead(thing, target)
+            -- CastFireahead(thing, target)
+            CastXYZ(thing, target)
          else
             Cast(spell, target)
          end
