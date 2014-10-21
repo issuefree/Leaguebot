@@ -12,7 +12,7 @@ pp("\nTim's Sion")
 InitAAData({ 
    windup=.3,
 --    minMoveTime = 0,
-   extraRange=25,
+   extraRange=10,
 --    particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 })
 

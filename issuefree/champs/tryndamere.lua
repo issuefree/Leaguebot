@@ -11,7 +11,7 @@ pp("\nTim's Tryndamere")
 
 InitAAData({ 
    windup=.25,
-   extraRange=-10,
+   extraRange=-15,
    particles = {"tryndamere_weapontrail"},
 })
 

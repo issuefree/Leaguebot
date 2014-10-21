@@ -11,7 +11,6 @@ pp("\nTim's Renekton")
 
 InitAAData({ 
    windup=.2,
-   extraRange=10,
    resets = {me.SpellNameQ, me.SpellNameW, me.SpellNameE}
 })
 

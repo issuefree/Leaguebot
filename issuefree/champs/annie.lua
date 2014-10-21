@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Annie")
 
+InitAAData({ 
+   projSpeed = 1.0, windup = .35,
+   particles = {"annie_basicattack"} 
+})
+
 -- SetChampStyle("support")
 SetChampStyle("caster")
 

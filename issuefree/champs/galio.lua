@@ -11,7 +11,6 @@ pp("\nTim's Galio")
 
 InitAAData({ 
    windup=.25,
-   -- extraRange=-20,
 })
 
 -- SetChampStyle("marksman")

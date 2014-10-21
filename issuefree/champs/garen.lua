@@ -10,7 +10,6 @@ pp(" - If strike is on cooldown and I have >= 2 enemies in range, activate spin"
 
 InitAAData({ 
    windup = .35,
-   extraRange=15,
    particles = {"Garen_Base_AA_Tar", "Garen_Base_Q_Land"},
    resets = {"GarenQ"}
 })

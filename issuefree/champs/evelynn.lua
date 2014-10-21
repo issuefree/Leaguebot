@@ -11,7 +11,7 @@ pp("\nTim's Evelynn")
 
 InitAAData({ 
    windup=.3,
-   extraRange=-25,
+   extraRange=-40,
    particles = {"EvelynnBasicAttack_tar"}
 })
 AddToggle("stealth", {on=false, key=112, label="Stealth Mode"})

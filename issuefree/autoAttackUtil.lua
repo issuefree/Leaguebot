@@ -40,7 +40,7 @@ function GetAARange(target)
       range = range + aaData.extraRange
    end
    if range < 300 then 
-      range = range + 15
+      range = range + 30
    end
    return range
 end
@@ -57,8 +57,6 @@ local function getAAData()
       Amumu        = { windup=.30,
                        particles = {"SadMummyBasicAttack"} },
 
-      Annie        = { windup=.30 }, -- untested
-
       Chogath      = { windup = .35,
                      particles = {"vorpal_spikes_mis"} },
 
@@ -69,9 +67,6 @@ local function getAAData()
 
       Anivia       = { projSpeed = 1.05, windup = .4,
                        particles = {"cryoBasicAttack"} },
-
-      Annie        = { projSpeed = 1.0, windup = .35,
-                       particles = {"annie_basicattack"} },
 
       Ashe         = { projSpeed = 2.0, windup = .25, -- can attack faster but seems to mess up move
                        minMoveTime = .25, -- ashe can't get move commands too early for some reason
@@ -302,6 +297,7 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
+      Circle(me, GetAARange()-37, red)
       Circle(Point(6529,51,4099), 25, red, 3)
       if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
          pp("No object. Windup "..aaData.windup.." too short. Incrementing")
@@ -331,7 +327,7 @@ function aaTick()
       end
 
 
-      PrintState(-1, GetAARange())
+      PrintState(-1, GetAARange().." ("..minAARange..")")
       PrintState(1, aarstr) 
 
       if CanAttack() then
@@ -445,7 +441,7 @@ function onObjAA(object)
    if ListContains(object.charName, aaData.particles) 
       and GetDistance(object) < GetWidth(me)+250
    then
-      shotFired = true
+      -- shotFired = true -- TODO for now this is timing based. ignore particles
 
       if time() - lastAttack > 2 then
          pp("Got a weird object "..object.charName)
@@ -547,6 +543,8 @@ end
 
 lastAATarget = nil
 
+minAARange = 1000
+
 function onSpellAA(unit, spell)
 
    if not unit or not IsMe(unit) then
@@ -563,6 +561,9 @@ function onSpellAA(unit, spell)
 
          if ModuleConfig.aaDebug then
             pp("AA at distance "..trunc(GetDistance(spell.target)))
+            if not minAARange or GetDistance(spell.target) < minAARange then
+              minAARange = GetDistance(spell.target)
+            end
             gotObj = false
          end
 
