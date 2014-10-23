@@ -16,7 +16,8 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["double"] = {
    key="Q", 
-   range=GetAARange, 
+   range=650, 
+   rangeType="e2e",
    color=violet, 
    base={20,35,50,65,80},
    ad=.85,
@@ -28,7 +29,7 @@ spells["double"] = {
 }
 spells["doubleBounce"] = {
    key="Q",
-   range=function() return GetAARange() + spells["double"].radius end,
+   range=function() return GetSpellRange("double") + 50 + spells["double"].radius end, -- estimate for range circle. not used in calcs.
    color=spells["double"].color,
    base={40,70,100,130,160},
    ad=1,
@@ -157,7 +158,7 @@ function scoreDouble(target, debug)
             if JustAttacked() then
                ks = ks + .1
             end
-            if GetDistance(kill) > GetAARange() then
+            if not IsInAARange(kill) then
                ks = ks + .5
             end
             if IsBigMinion(kill) then

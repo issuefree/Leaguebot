@@ -33,7 +33,7 @@ local minMoveTime = .1
 
 function GetAARange(target)
    target = target or me
-   local range = target.range + GetWidth(target)/2 + ( aaData.extraRange or 0)
+   local range = target.range + ( aaData.extraRange or 0)
    if aaData and aaData.extraRange then
       range = range + aaData.extraRange
    end

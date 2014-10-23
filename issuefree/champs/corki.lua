@@ -120,7 +120,7 @@ function Run()
       if CanUse("barrage") and VeryAlone() and spells["barrage"].charges >= 4 then
          local minion = GetWeakest("barrage", GetUnblocked("barrage", me, MINIONS))
          if WillKill("barrage", minion) and
-            GetDistance(minion) > spells["AA"].range
+            not IsInAARange(minion)
          then
             CastXYZ("barrage", minion)
             PrintAction("Barrage for lasthit")
