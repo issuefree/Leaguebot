@@ -82,7 +82,7 @@ function Run()
       end
 
       if P.mace then
-         local kills = SortByDistance(GetKills("mace", GetInRange(me, "mace", MINIONS)))
+         local kills = SortByDistance(GetKills("mace", GetInAARange(me, MINIONS)))
          if kills[1] then
             if AA(kills[1]) then
                PrintAction("Clobber minion")
@@ -92,7 +92,7 @@ function Run()
       end
 
       if CanUse("mace") and not P.mace then
-         local kills = SortByDistance(GetKills("mace", GetInRange(me, "mace", MINIONS)))
+         local kills = SortByDistance(GetKills("mace", GetInAARange(me, MINIONS)))
          if kills[1] then
             Cast("mace", me)
             AttackTarget(kills[1])
@@ -163,7 +163,7 @@ function Action()
    if CanUse("mace") then
       if target and 
          not P.mace and
-         GetDistance(target) < spells["AA"].range+25 
+         IsInAARange(target, me, 25)
       then
          Cast("mace", me)
          PrintAction("Mace up", nil, 1)
