@@ -161,11 +161,6 @@ function FollowUp()
       end
    end
 
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
    return false
 end
 

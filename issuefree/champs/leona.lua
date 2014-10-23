@@ -9,6 +9,12 @@ require "issuefree/modules"
 
 pp("\nTim's Leona")
 
+InitAAData({
+   windup=.3,
+   particles={"leona_basicattack_hit"}
+   -- shield of daybreak attack handled by default
+})
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -68,10 +74,6 @@ function Run()
 
    -- auto stuff that always happen
 
-   -- turn on eclipse and shield when blade hits
-
-
-
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() then
 		if Action() then
@@ -114,12 +116,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 

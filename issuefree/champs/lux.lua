@@ -11,6 +11,11 @@ pp(" - AA flared")
 
 SetChampStyle("caster")
 
+InitAAData({
+   projSpeed = 1.55, windup=.15,
+   particles = {"LuxBasicAttack"}
+})
+
 -- I'd like to find a way to use binding and singularity to peel off adc/apc
 
 -- final spark if people line up or for kills

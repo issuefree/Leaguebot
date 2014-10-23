@@ -11,8 +11,8 @@ pp("\nTim's Swain")
 
 InitAAData({ 
    projSpeed = 1.6, windup=.15,
-   extraRange=-25,
-   -- particles = {"swainBasicAttack_mis"}
+   -- extraRange=-25,
+   particles = {"swainBasicAttack_mis"}
    -- "swain_basicAttack_bird_cas", "swain_basicAttack_cas", 
 })
 

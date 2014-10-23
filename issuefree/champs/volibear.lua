@@ -118,12 +118,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 

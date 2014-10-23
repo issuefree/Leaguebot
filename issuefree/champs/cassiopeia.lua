@@ -11,7 +11,7 @@ pp("\nTim's Cassiopeia")
 
 InitAAData({ 
    projSpeed = 1.3, windup=.25,
-   extraRange=-10,
+   -- extraRange=-10,
    particles = {"CassBasicAttack"} 
 })
 

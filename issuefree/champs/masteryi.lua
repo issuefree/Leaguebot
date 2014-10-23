@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Master Yi")
 
+InitAAData({
+   windup=.25,
+   particles = {"Wuju_Trail"}
+})
+
 function getADam()
    if spells["alpha"].spellLevel > 0 then
       return GetSpellDamage("alpha") + GetLVal(spells["alpha"], "mmBonus")
@@ -164,12 +169,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 

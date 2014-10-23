@@ -190,13 +190,13 @@ function FollowUp()
       end
    end
 
-   if CanUse("mace") then
-      if IsOn("move") then
-         if MeleeMove() then
-            return true
-         end
-      end
-   end
+   -- if CanUse("mace") then
+   --    if IsOn("move") then
+   --       if MeleeMove() then
+   --          return true
+   --       end
+   --    end
+   -- end
 
 
    return false

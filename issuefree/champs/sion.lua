@@ -12,7 +12,7 @@ pp("\nTim's Sion")
 InitAAData({ 
    windup=.3,
 --    minMoveTime = 0,
-   extraRange=10,
+   -- extraRange=10,
 --    particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 })
 
@@ -193,11 +193,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
    return false
 end
 

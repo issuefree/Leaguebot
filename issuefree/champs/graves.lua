@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Graves")
 
+InitAAData({
+   projSpeed = 3.0, windup=.3,
+   particles = {"Graves_BasicAttack_mis"}
+})
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

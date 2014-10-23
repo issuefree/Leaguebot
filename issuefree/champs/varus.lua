@@ -222,7 +222,9 @@ function Run()
          end
       end
 
-      AutoMove()
+      if IsOn("move") then
+         AutoMove()
+      end
       return true
    end
 

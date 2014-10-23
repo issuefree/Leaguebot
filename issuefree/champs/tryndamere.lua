@@ -11,7 +11,7 @@ pp("\nTim's Tryndamere")
 
 InitAAData({ 
    windup=.25,
-   extraRange=-15,
+   -- extraRange=-15,
    particles = {"tryndamere_weapontrail"},
 })
 
@@ -181,11 +181,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
    return false
 end
 

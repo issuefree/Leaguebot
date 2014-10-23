@@ -1366,24 +1366,20 @@ function GetWeakestEnemy(thing, extraRange, stretch)
       stretch = 0
    end
 
-   local type
-
-   local spell = GetSpell(thing)
-   if spell then
-      if thing.type then
-         type = thing.type
-      end
+   local targets = FilterList(ENEMIES, 
+      function(target)
+         return IsInRange(thing, me, target, extraRange)
+      end )
+   if #targets == 0 then
+      targets = FilterList(ENEMIES, 
+         function(target)
+            return IsInRange(thing, me, target, extraRange+stretch)
+         end )
    end
-   if type == "T" then
-      type = "TRUE"
-   elseif type == "P" then
-      type = "PHYS"
-   else 
-      type = "MAGIC"
-   end
+   return GetWeakest(thing, targets)
 
-   return GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange, ENEMIES)) or
-          GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange+stretch, ENEMIES))
+   -- return GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange, ENEMIES)) or
+   --        GetWeakest(thing, GetInRange(me, GetSpellRange(spell)+extraRange+stretch, ENEMIES))
 end
 
 
@@ -1858,7 +1854,7 @@ end
 needMove = false
 
 function AutoMove()
-   if IsOn("move") and CanMove() then
+   if CanMove() then
       if HotKey() then
          if GetDistance(mousePos) < 3000 then
             MoveToCursor()
@@ -1929,7 +1925,19 @@ function EndTickActions()
 
    end
 
-   AutoMove()
+   if IsOn("move") then
+      if IsMelee() then
+         if MeleeMove() then
+            return true
+         end
+      end
+
+      AutoMove()
+   end
+
+
+
+
 
    PrintAction()
    return false

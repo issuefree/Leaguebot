@@ -92,7 +92,9 @@ function Run()
    end
 
    if P.pool then
-      AutoMove()
+      if IsOn("move") then
+         AutoMove()
+      end
       return
    end      
 

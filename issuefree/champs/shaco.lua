@@ -11,7 +11,7 @@ pp("\nTim's Shaco")
 
 InitAAData({ 
    windup=.25,
-   extraRange=-20,
+   -- extraRange=-20,
 })
 
 -- SetChampStyle("marksman")
@@ -111,11 +111,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
    return false
 end
 

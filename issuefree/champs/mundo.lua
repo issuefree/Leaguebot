@@ -3,6 +3,10 @@ require "issuefree/modules"
 
 pp("Tim's Mundo")
 
+InitAAData({
+   windup = .2
+})
+
 spells["cleaver"] = {
    key="Q", 
    range=1000-100, 
@@ -135,11 +139,7 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
+   return false
 end
 
 function onCreate(object)

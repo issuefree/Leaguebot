@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Elise")
 
+InitAAData({
+   windup=.25,
+   particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"}
+})
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("gank", {on=false, key=114, label="Gank"})
@@ -267,14 +272,6 @@ function Action()
 end
 
 function FollowUp()
-   if isSpider() then
-      if IsOn("move") then
-         if MeleeMove() then
-            return true
-         end
-      end
-   end
-
    return false
 end
 

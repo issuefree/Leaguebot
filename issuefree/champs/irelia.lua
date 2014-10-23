@@ -3,6 +3,10 @@ require "issuefree/modules"
 
 pp("\nTim's Irelia")
 
+InitAAData({
+   windup=.3
+})
+
 AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("ult", {on=true, key=113, label="Auto Ult"})
 AddToggle("", {on=true, key=114, label=""})
@@ -200,12 +204,6 @@ function Action()
 end
 
 function FollowUp()   
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 

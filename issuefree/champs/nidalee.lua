@@ -302,14 +302,6 @@ function FollowUp()
       end
    end
 
-   if isCougar then
-      if IsOn("move") then
-         if MeleeMove() then
-            return true
-         end
-      end      
-   end
-
    return false
 end
 

@@ -19,12 +19,11 @@ local latency = ping * 2 / 1000
 -- Get some attack speed (like 1.5 total) and orbwalk. If it misses some move commands, up the minMoveTime.
 
 -- attack range can also need some tweaking. 
--- What seems to work is near the blue side wraiths there are some flowers due south (marked with circle if debug is on)
--- attack move the south wraith and note the range that the attack started from.
 
 -- Particles used to be important but it is all timing based now. May as well throw them in...
 
       -- Ashe         = { projSpeed = 2.0, windup = .25,
+      --                  extraRange = 0,
       --                  minMoveTime = .25,
       --                  particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
       --                  attacks = {"attack", "frostarrow"} },
@@ -34,63 +33,21 @@ local minMoveTime = .1
 
 function GetAARange(target)
    target = target or me
-   local range = target.range + 85
-
+   local range = target.range + GetWidth(target)/2 + ( aaData.extraRange or 0)
    if aaData and aaData.extraRange then
       range = range + aaData.extraRange
-   end
-   if range < 300 then 
-      range = range + 30
    end
    return range
 end
 
 function IsMelee(target)
-   return GetAARange(target) < 350
+   return GetAARange(target) < 400
 end
 
 local function getAAData()
    local champData = { 
       Ahri         = { projSpeed = 1.6,
-                       particles = {"Ahri_BasicAttack_mis", "Ahri_BasicAttack_tar"} },
-
-      Amumu        = { windup=.30,
-                       particles = {"SadMummyBasicAttack"} },
-
-      Chogath      = { windup = .35,
-                     particles = {"vorpal_spikes_mis"} },
-
-      DrMundo      = { windup = .2 },
-
-      Elise        = { windup=.25,
-                       particles = {"Elise_spider_basicattack", "Elise_human_BasicAttack_mis"} },
-
-      Anivia       = { projSpeed = 1.05, windup = .4,
-                       particles = {"cryoBasicAttack"} },
-
-      Ashe         = { projSpeed = 2.0, windup = .25, -- can attack faster but seems to mess up move
-                       minMoveTime = .25, -- ashe can't get move commands too early for some reason
-                       particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
-                       attacks = {"attack", "frostarrow"} },
-      
-      Blitzcrank   = { windup=.3, },
-
-      Brand        = { projSpeed = 1.975, windup=.4,
-                       particles = {"BrandBasicAttack", "BrandCritAttack"} },
-
-      Cassiopeia   = { projSpeed = 1.22,
-                       particles = {"CassBasicAttack_mis"} },
-
-      Corki        = { projSpeed = 2.0, windup=.1, -- !
-                       particles = {"corki_basicAttack_mis", "Corki_crit_mis"} },
-
-      FiddleSticks = { projSpeed = 1.75, windup=.30,
-                       particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"} },
-
-      Graves       = { projSpeed = 3.0, windup=.3,
-                       particles = {"Graves_BasicAttack_mis"} },
-
-      Irelia       = { windup=.3 },
+                       particles = {"Ahri_BasicAttack_mis"} },
 
       JarvanIV     = { 
                        attacks={"JarvanIVBasicAttack"} },
@@ -101,30 +58,6 @@ local function getAAData()
       Karma        = { projSpeed = nil,
                        particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
 
-      Kassadin     = { windup=.2,
-                       resets = {me.SpellNameW} },
-
-      Kayle        = { projSpeed = 1.8, windup=.3,
-                       particles = {"RighteousFury_nova"} },
-
-      Kennen       = { projSpeed = 1.35,
-                       particles = {"KennenBasicAttack_mis"} },
-
-      KogMaw       = { projSpeed = 1.8, windup=.2,
-                       particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"} },
-
-      Leblanc      = { projSpeed = 1.7, windup=.2,
-                       extraRange=-10,
-                       particles = {"leBlancBasicAttack_mis"} },
-
-      Leona        = { windup=.3,
-                       particles={"leona_basicattack_hit"} },
-
-      Lux          = { projSpeed = 1.55, windup=.15,
-                       particles = {"LuxBasicAttack"} },
-
-      MasterYi     = { windup=.25,
-                       particles = {"Wuju_Trail"} },
 
       MissFortune  = { projSpeed = 2.0, windup=.25,
                        particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"} },
@@ -297,8 +230,6 @@ function aaTick()
    end
 
    if ModuleConfig.aaDebug then
-      Circle(me, GetAARange()-37, red)
-      Circle(Point(6529,51,4099), 25, red, 3)
       if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
          pp("No object. Windup "..aaData.windup.." too short. Incrementing")
          for wu,_ in ipairs(windups) do
@@ -327,7 +258,6 @@ function aaTick()
       end
 
 
-      PrintState(-1, GetAARange().." ("..minAARange..")")
       PrintState(1, aarstr) 
 
       if CanAttack() then
@@ -543,8 +473,6 @@ end
 
 lastAATarget = nil
 
-minAARange = 1000
-
 function onSpellAA(unit, spell)
 
    if not unit or not IsMe(unit) then
@@ -560,10 +488,6 @@ function onSpellAA(unit, spell)
          lastAATarget = spell.target
 
          if ModuleConfig.aaDebug then
-            pp("AA at distance "..trunc(GetDistance(spell.target)))
-            if not minAARange or GetDistance(spell.target) < minAARange then
-              minAARange = GetDistance(spell.target)
-            end
             gotObj = false
          end
 

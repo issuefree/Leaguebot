@@ -5,6 +5,13 @@ pp("\nTim's Ashe")
 
 SetChampStyle("marksman")
 
+InitAAData({
+   projSpeed = 2.0, windup = .25, -- can attack faster but seems to mess up move
+   minMoveTime = .25, -- ashe can't get move commands too early for some reason
+   particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
+   attacks = {"attack", "frostarrow"}
+})
+
 AddToggle("frost", {on=true, key=112, label="Auto frost"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

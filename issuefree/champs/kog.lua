@@ -12,6 +12,11 @@ pp(" - lasthit artillery >= 2 if no stacks and alone")
 
 SetChampStyle("marksman")
 
+InitAAData({
+   projSpeed = 1.8, windup=.2,
+   particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"}
+})
+
 AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

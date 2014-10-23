@@ -9,6 +9,12 @@ require "issuefree/modules"
 
 pp("\nTim's LeBlanc")
 
+InitAAData({
+   projSpeed = 1.7, windup=.2,
+   -- extraRange=-10,
+   particles = {"leBlancBasicAttack_mis"}
+})
+
 function getComboDamage(target, spells)
    local dam = Damage(0)
    local mana = me.mana

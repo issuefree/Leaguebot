@@ -4,6 +4,10 @@ require "issuefree/modules"
 pp("Tim's Taric")
 pp(" - Heal")
 
+spells["gemcraft"] = {
+	base=0,
+	armor=.2
+}
 spells["heal"] = {
 	key="Q",
 	range=750,
@@ -56,7 +60,7 @@ function Run()
 	spells["heal"].bonus = (me.maxHealth - (468+(90*me.selflevel-1)))*.05
 	
 	if P.gemcraft then
-		spells["AA"].bonus = me.armor * .2
+		spells["AA"].bonus = GetSpellDamage("gemcraft")
 	else
 		spells["AA"].bonus = 0
 	end
@@ -80,10 +84,23 @@ function Run()
 			return
 		end
 	end
+
+	if P.gemcraft then
+		if HitMinion("AA") then
+			return true
+		end
+	end
+
 	EndTickActions()
 end 
 
 function Action()
+	if not P.gemcraft then
+		if CastBest("shatter") then
+			return true
+		end
+	end
+
    local target = GetMarkedTarget() or GetMeleeTarget()
    if AutoAA(target) then
       return true

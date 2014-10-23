@@ -3,6 +3,10 @@ require "issuefree/modules"
 
 pp("\nTim's Blitz")
 
+InitAAData({
+   windup=.3,
+})
+
 AddToggle("pull", {on=false, key=112, label="Pull"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -111,12 +115,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
-
    return false
 end
 

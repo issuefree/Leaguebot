@@ -430,23 +430,37 @@ function UnderMyTower(target)
    return #GetInRange(target, 950, MYTURRETS) > 0
 end
 
-function IsInRange(thing, target, source)
+function IsInRange(thing, target, source, extraRange)
    if not target then return false end
    local range
    if type(thing) ~= "number" then
+      local spell = GetSpell(thing)
+      if spell.name == "attack" then
+         return IsInAARange(target, source)
+      end
       range = GetSpellRange(thing)
    else
       range = thing
    end
-   return GetDistance(target, source) < range
+   return GetDistance(target, source) < range + (extraRange or 0)
 end
 
-function GetInRange(target, thing, ...)
-   assert(type(target) == "table" or type(target) == "userdata")
+function IsInAARange(target, source, extraRange)
+   if not target then return false end
+
+   return GetDistance(target, source) < GetAARange(source) + GetWidth(target) / 2 + (extraRange or 0)
+end
+
+function GetInRange(source, thing, ...)
+   assert(type(source) == "table" or type(source) == "userdata")
    -- assert(type(concat(...)[1]) ~= "nil")
 
    local range
    if type(thing) ~= "number" then
+      local spell = GetSpell(thing)
+      if spell.name == "attack" then
+         return GetInAARange(source, concat(...))
+      end
       range = GetSpellRange(thing)
    else
       range = thing
@@ -454,10 +468,22 @@ function GetInRange(target, thing, ...)
    local result = {}
    local list = ValidTargets(concat(...))
    for _,test in ipairs(list) do
-      if target and test and
-         GetDistance(target, test) <= range 
+      if source and test and
+         GetDistance(source, test) <= range 
       then
          table.insert(result, test)
+      end
+   end
+   return result
+end
+
+function GetInAARange(source, ...)
+   assert(type(source) == "table" or type(source) == "userdata")
+
+   local result = {}
+   for _,target in ipairs(concat(...)) do
+      if GetDistance(source, target) <= GetAARange(source) + GetWidth(target)/2 then
+         table.insert(result, target)
       end
    end
    return result

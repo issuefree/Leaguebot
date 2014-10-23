@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Kayle")
 
+InitAAData({
+  projSpeed = 1.8, windup=.3,
+  particles = {"RighteousFury_nova"}
+})
+
 AddToggle("ult", {on=true, key=112, label="Auto Ult"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

@@ -150,12 +150,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return false
-      end
-   end
-
    return false
 end
 

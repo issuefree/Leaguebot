@@ -5,6 +5,11 @@ print("Tim's Kassadin")
 
 SetChampStyle("caster")
 
+InitAAData({
+	windup=.2,
+	resets = {me.SpellNameW}
+})
+
 AddToggle("execute", {on=false, key=112, label="Execute", auxLabel="", args={}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -174,13 +179,13 @@ function Action()
    return false
 end
 function FollowUp()
-	if CanUse("blade") then
-	   if IsOn("move") then
-	      if MeleeMove() then
-	         return true
-	      end
-	   end
-	end
+	-- if CanUse("blade") then
+	--    if IsOn("move") then
+	--       if MeleeMove() then
+	--          return true
+	--       end
+	--    end
+	-- end
    return false
 end
 

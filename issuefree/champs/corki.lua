@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Corki")
 
+InitAAData({
+   projSpeed = 2.0, windup=.1, -- !
+   particles = {"corki_basicAttack_mis", "Corki_crit_mis"}
+})
+
 SetChampStyle("marksman")
 
 AddToggle("", {on=true, key=112, label=""})

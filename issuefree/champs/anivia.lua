@@ -8,6 +8,11 @@ pp(" - Spike chilled people")
 pp(" - Storm for aoe")
 pp(" - Storm for minion clear")
 
+InitAAData({
+   projSpeed = 1.05, windup = .4,
+   particles = {"cryoBasicAttack"}
+})
+
 SetChampStyle("caster")
 
 AddToggle("", {on=true, key=112, label=""})

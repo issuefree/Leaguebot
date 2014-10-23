@@ -5,6 +5,11 @@ pp("\nTim's Amumu")
 pp(" - Despair and Tantrum in the jungle")
 pp(" - Despair and Tantrum enemies")
 
+InitAAData({
+  windup=.30,
+  particles = {"SadMummyBasicAttack"}
+})
+
 AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})
@@ -123,12 +128,6 @@ function FollowUp()
       if CanUse("tantrum") and #GetInRange(me, "tantrum", MINIONS) >= 3 then
          Cast("tantrum", me)
          PrintAction("Tantrum for clear")
-         return true
-      end
-   end
-
-   if IsOn("move") then
-      if MeleeMove() then
          return true
       end
    end

@@ -10,9 +10,9 @@ require "issuefree/modules"
 pp("\nTim's Kennen")
 
 InitAAData({ 
-   windup=.25,
+   projSpeed = 1.35, windup=.25,
    attacks={"KennenBasicAttack", "KennenMegaProc"},
-   -- particles = {"KennenBasicAttack_mis"} 
+   particles = {"KennenBasicAttack_mis"} 
 })
 
 SetChampStyle("caster")
@@ -116,7 +116,9 @@ function Run()
    end
 
    if P.rush then
-      AutoMove()
+      if IsOn("move") then
+         AutoMove()
+      end
       return true
    end
    EndTickActions()

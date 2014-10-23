@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 print("\nTim's Cho'Gath")
 
+InitAAData({
+	windup = .35,
+	particles = {"vorpal_spikes_mis"}
+})
+
 AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("feast", {on=true, key=113, label="Feast"})
 AddToggle("jungle", {on=true, key=114, label="Jungle"})
@@ -181,11 +186,6 @@ function Action()
 end
 
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return false
-      end
-   end
    return false
 end
 

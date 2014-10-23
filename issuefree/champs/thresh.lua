@@ -17,7 +17,7 @@ pp("\nTim's Thresh")
 
 InitAAData({
    windup=.35+.1,  -- fundge because of his very poor speed scaling.
-   extraRange=15,
+   -- extraRange=15,
    particles = {"Thresh_ba"} 
 })
 
