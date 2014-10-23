@@ -75,7 +75,7 @@ ccNames = {
    "DarkBinding_tar", 
    "Global_Fear", 
    "Global_Taunt", 
-   "leBlanc_shackle", 
+   -- "leBlanc_shackle", 
    "LOC_Stun",
    "LOC_Suppress",
    "LOC_Taunt",
