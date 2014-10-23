@@ -47,6 +47,7 @@ spells["empower"] = {
 	modAA="empower",
 	object="armsmaster_empower",
 	range=GetAARange,
+	rangeType="e2e",
 	cost=30
 }
 spells["counter"] = {
@@ -107,7 +108,7 @@ function Run()
 			for _,minion in ipairs(minions) do
 				if IsBigMinion(minion) then
 					if WillKill("leap", minion) then
-						if GetDistance(minion) < GetAARange() and
+						if IsInAARange(minion) and
 						   ( WillKill("AA", minion) or 
 						     ( CanUse("empower") and WillKill("empower", minion) ) )
 						then
@@ -159,7 +160,7 @@ function Action()
 	   local target = GetMarkedTarget() or GetWeakestEnemy("leap")
 	   if target and
 	   	GetDistance(target) < spells["leap"].range and
-	   	GetDistance(target) > spells["AA"].range+50
+	   	not IsInAARange(target, me, 50)
 	   then
 	   	if CanUse("counter") and not P.counter then
 	   		Cast("counter", me)
