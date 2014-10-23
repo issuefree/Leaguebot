@@ -26,8 +26,6 @@ AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0} / {1}", 
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
 
--- TODO track marks
-
 spells["shuriken"] = {
    key="Q", 
    range=1050, 
