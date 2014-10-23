@@ -139,7 +139,7 @@ function Action()
       if not P.rushingM then
          -- gap close
          local target = GetMarkedTarget() or GetWeakestEnemy("AA", 100)
-         if target and GetDistance(target) > GetAARange() and GetDistance(target) < GetAARange() + 100 then
+         if target and not IsInAARange(target) and IsInAARange(target, me, 100) then
             Cast("rush", me)
             PrintAction("Rush to close gap", target)
             return true
@@ -169,7 +169,7 @@ function Action()
 
    if CanUse("standaside") then
       local target = GetMarkedTarget() or GetWeakestEnemy("standaside")
-      if target and GetDistance(target) > GetAARange() and IsInRange("standaside", target) then
+      if target and not IsInAARange(target) and IsInRange("standaside", target) then
          CastFireahead("standaside", target)
          PrintAction("Standaside for chase", target)
          return true
