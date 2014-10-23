@@ -11,7 +11,6 @@ pp("\nTim's Evelynn")
 
 InitAAData({ 
    windup=.3,
-   extraRange=-40,
    particles = {"EvelynnBasicAttack_tar"}
 })
 AddToggle("stealth", {on=false, key=112, label="Stealth Mode"})
@@ -86,9 +85,9 @@ function Run()
 
          if CanUse("spike") then
             if GetThreshMP("spike", .15) <= 1 then
-               local minions = GetInRange(me, "spike", MINIONS)
-               local lt = SortByHealth(GetWithBuff("attack", minions))[1]
-               if lt and WillKill("spike", lt) and
+               local minions = GetKills("spike", SortByHealth(GetInRange(me, "spike", MINIONS)))
+               local lt = GetWithBuff("attack", minions)[1]
+               if lt and
                   ( JustAttacked() or not IsInRange("AA", lt) )
                then
                   Cast("spike", me)
@@ -97,8 +96,8 @@ function Run()
                   return true
                end
 
-               local lt = SortByHealth(minions)[1]               
-               if lt and WillKill("spike", lt) then
+               local lt = minions[1]
+               if lt then
                   if not IsInRange("AA", lt) or JustAttacked() then
                      Cast("spike", me)
                      AddWillKill(lt, "spike")
@@ -195,11 +194,6 @@ function Action()
    return false
 end
 function FollowUp()
-   if IsOn("move") then
-      if MeleeMove() then
-         return true
-      end
-   end
    return false
 end
 
