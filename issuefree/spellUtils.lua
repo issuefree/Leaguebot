@@ -215,7 +215,11 @@ function CastFireahead(thing, target)
    end   
    if GetDistance(point) < GetSpellRange(spell) then
       if IsWall(point.x, point.y, point.z) == 1 then
-         pp("Casting "..thing.." into wall.")
+	   	local name = thing
+	   	if type(name) ~= "string" then
+	   		name = me["SpellName"..GetSpell(thing).key]
+	   	end
+         pp("Casting "..name.." into wall.")
       end
       CastXYZ(spell, point)
       return true
