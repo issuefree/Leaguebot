@@ -221,7 +221,7 @@ function Action()
       local hits, kills, score = GetBestArea(me, "crunch", 1, 5, ENEMIES)
 
       local near = SortByDistance(hits)[1]
-      if near and GetDistance(near) > GetAARange() then
+      if near and not IsInAARange(near)  then
          local point = Projection(me, near, GetDistance(near), GetSpellRange("crunch"))
          CastXYZ("crunch", point)
          PrintAction("Crunch for gap close", near)
