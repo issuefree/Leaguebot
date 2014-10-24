@@ -836,7 +836,7 @@ function KillMinion(thing, method, force, targetOnly)
 end
 
 -- weak, far, near, strong
-function HitMinion(thing, method, extraRange)
+function HitMinion(thing, method)
    if not CanUse(thing) then return false end
 
    local spell = GetSpell(thing)
@@ -844,7 +844,7 @@ function HitMinion(thing, method, extraRange)
    if not extraRange then extraRange = 0 end
    if not method then method = "weak" end
 
-   local minions = GetInRange(me, GetSpellRange(spell)+extraRange, MINIONS)
+   local minions = GetInRange(me, thing, MINIONS)
    if method == "weak" then
       SortByHealth(minions, spell)
    elseif method == "far" then
