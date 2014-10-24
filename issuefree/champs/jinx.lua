@@ -99,7 +99,7 @@ function Run()
    if IsOn("switch") and Alone() and CanUse("switch") then
       if minigun then
          if #GetKills("AA", GetInRange(me, "AA", MINIONS)) == 0 then
-            local minions = FilterList(GetInRange(me, launcherRange, MINIONS), function(m) return GetDistance(m) > GetAARange() end)
+            local minions = FilterList(GetInE2ERange(me, launcherRange, MINIONS), function(m) return not IsInAARange(m) end)
             for _,minion in ipairs(minions) do
                if WillKill("AA", "switch", minion) then
                   Cast("switch", me)

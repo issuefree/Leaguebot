@@ -17,13 +17,14 @@ InitAAData({
    particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"}
 })
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 spells["spittle"] = {
    key="Q", 
@@ -80,10 +81,6 @@ spells["AA"].damOnTarget =
 local barrage = nil
 local lastArtillery = 0
 local artilleryCount = 0
-
-local function getBarrageRange()
-   return GetAARange()+GetSpellRange("barrage")
-end
 
 local function updateSpells()
    if time() - lastArtillery > 6.25 then
@@ -160,7 +157,7 @@ function Action()
    end
 
    if CanUse("barrage") and not P.barrage then
-      local target = GetWeakestEnemy("AA", getBarrageRange())
+      local target = GetWeakestEnemy("AA", GetSpellRange("barrage"))
       if target then
          Cast("barrage", me)
          PrintAction("Barrage")
@@ -171,7 +168,7 @@ function Action()
       local target = SortByHealth(GetGoodFireaheads("artillery", nil, ENEMIES), "artillery")[1]
       local tManaP = (me.mana - GetSpellCost("artillery")) / me.maxMana
       if target and 
-         ( GetDistance(target) > spells["AA"].range or
+         ( IsInAARange(target) or
            JustAttacked() )
       then
          if artilleryCount == 0 or 

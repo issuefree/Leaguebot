@@ -378,7 +378,7 @@ function Action()
 
    if IsOn("dive") then
       if CanUse("strike") and watched then
-         if GetDistance(watched) > GetAARange()+25 then
+         if not IsInAARange(watched, me, 25) then
             Cast("strike", me)
             PrintAction("Strike to close", watched)
             return true
@@ -413,9 +413,9 @@ function Action()
 
       local target = GetMarkedTarget()
       if not target then
-         local eir = GetInRange(me, GetAARange()+50, ENEMIES)
+         local eir = GetInRange(me, GetAARange()+150, ENEMIES)
          for _,ally in ipairs(GetInRange(me, "safeguard", ALLIES, MYMINIONS, WARDS)) do
-            for _,e in ipairs(GetInRange(ally, GetAARange()+50, ENEMIES)) do
+            for _,e in ipairs(GetInRange(ally, GetAARange()+150, ENEMIES)) do
                table.insert(eir, e)
             end
          end
@@ -426,7 +426,7 @@ function Action()
       end
 
       if target then
-         local ally = SortByDistance(GetInRange(target, GetAARange()+50, ALLIES, MYMINIONS, WARDS))[1]
+         local ally = SortByDistance(GetInRange(target, GetAARange()+150, ALLIES, MYMINIONS, WARDS))[1]
          if ally and GetDistance(ally) > 100 then
             Cast("safeguard", ally)
             PrintAction("Safeguard for improved position", ally)
@@ -435,7 +435,7 @@ function Action()
       end
 
       if CanUse("tempest") or CanUse("kick") then
-         if #GetInRange(me, GetAARange()+25, ENEMIES) == 0 then
+         if #GetInRange(me, GetAARange()+125, ENEMIES) == 0 then
             local target = GetWeakest("AA", GetInRange(me, 525, ENEMIES))
 
             if target then
