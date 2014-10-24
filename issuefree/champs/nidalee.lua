@@ -26,7 +26,8 @@ spells["jav"] = {
 }
 spells["takedown"] = {
    key="Q",
-   range=function() return GetAARange() + 75 end,
+   range=200,
+   rangeType="e2e",
    color=violet,
    base=function()
       base={4,20,50,90}

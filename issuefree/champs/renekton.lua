@@ -123,7 +123,7 @@ function Action()
 
    if CanUse("slice") then
       local target = GetMarkedTarget() or GetWeakestEnemy("slice")
-      if target and GetDistance(target) > GetAARange() and IsInRange("slice", target) then
+      if target and not IsInAARange(target) and IsInRange("slice", target) then
          CastXYZ("slice", target)
          PrintAction("Slice", target)
          return true

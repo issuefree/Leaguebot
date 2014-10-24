@@ -38,6 +38,7 @@ spells["pick"] = {
 spells["blue"] = {
 	key="W", 
 	range=GetAARange, 
+	type="e2e",
 	base={40,60,80,100,120}, 
 	ap=.5,
 	type="M"
@@ -45,12 +46,14 @@ spells["blue"] = {
 spells["red"] = {
 	key="W", 
 	range=GetAARange, 
+	type="e2e",
 	base={30,45,60,75,90}, 
 	ap=.5, 
 	type="M"
 }
 spells["gold"] = {
 	key="W", 
+	type="e2e",
 	range=GetAARange, 
 	base={15,22.5,30,37.5,45}, 
 	ap=.5, 
@@ -59,7 +62,8 @@ spells["gold"] = {
 
 spells["stacked"] = {
 	key="E", 
-	range=spells["AA"].range, 
+	range=GetAARange, 
+	type="e2e",
 	base={55,80,105,130,155}, 
 	ap=.5, 
 	type="M"
@@ -134,7 +138,7 @@ function Run()
 	if IsOn("lasthit") and Alone() and not gating then
 
 		if canPick() then
-			local minions = GetInRange(me, "AA", MINIONS)
+			local minions = GetInAARange(me, MINIONS)
 			for _,minion in ipairs(minions) do
             if minion.health < GetAADamage(minion)+GetSpellDamage(card, minion) and
             	not WillKill("AA", minion)

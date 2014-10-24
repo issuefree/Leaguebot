@@ -170,7 +170,7 @@ function Action()
          end
       end
 
-      local target = SortByDistance(GetKills("AA", GetInRange(me, GetSpellRange("tumble")+GetAARange(), ENEMIES)))[1]
+      local target = SortByDistance(GetKills("AA", GetInE2ERange(me, GetSpellRange("tumble")+GetAARange(), ENEMIES)))[1]
       if target then
          if not IsInRange("AA", target) then
             CastXYZ("tumble", target)

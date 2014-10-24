@@ -387,7 +387,7 @@ function Skirmishing(target)
    end
    local skirmishingAllies = 0
    for _,ally in ipairs(nearAllies) do
-      if #GetInRange(ally, GetAARange(ally)+100, ENEMIES) >= 2 then
+      if #GetInE2ERange(ally, GetAARange(ally)+100, ENEMIES) >= 2 then
          skirmishingAllies = skirmishingAllies + 1         
       end
    end
@@ -435,8 +435,8 @@ function IsInRange(thing, target, source, extraRange)
    local range
    if type(thing) ~= "number" then
       local spell = GetSpell(thing)
-      if spell.name == "attack" then
-         return IsInAARange(target, source)
+      if spell.rangeType and spell.rangeType == "e2e" then
+         return IsInE2ERange(thing, target, source, extraRange)
       end
       range = GetSpellRange(thing)
    else
@@ -445,10 +445,20 @@ function IsInRange(thing, target, source, extraRange)
    return GetDistance(target, source) < range + (extraRange or 0)
 end
 
-function IsInAARange(target, source, extraRange)
+function IsInE2ERange(thing, target, source, extraRange)
    if not target then return false end
+   source = source or me
+   local range
+   if type(thing) ~= "number" then
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
+   return GetDistance(target, source) < range + GetWidth(source)/2 + GetWidth(target)/2 + (extraRange or 0)
+end
 
-   return GetDistance(target, source) < GetAARange(source) + GetWidth(target) / 2 + (extraRange or 0)
+function IsInAARange(target, source, extraRange)
+   return IsInE2ERange("AA", target, source, extraRange)
 end
 
 function GetInRange(source, thing, ...)
@@ -460,6 +470,9 @@ function GetInRange(source, thing, ...)
       local spell = GetSpell(thing)
       if spell.name == "attack" then
          return GetInAARange(source, concat(...))
+      end
+      if spell.rangeType and spell.rangeType == "e2e" then
+         return GetInE2ERange(source, thing, concat(...))
       end
       range = GetSpellRange(thing)
    else
@@ -477,16 +490,34 @@ function GetInRange(source, thing, ...)
    return result
 end
 
-function GetInAARange(source, ...)
+function GetInE2ERange(source, thing, ...)
    assert(type(source) == "table" or type(source) == "userdata")
+
+   local range
+   if type(thing) ~= "number" then
+      local spell = GetSpell(thing)
+      if spell.name == "attack" then
+         range = GetAARange(source)
+      end
+      range = GetSpellRange(thing)
+   else
+      range = thing
+   end
 
    local result = {}
    for _,target in ipairs(concat(...)) do
-      if GetDistance(source, target) <= GetAARange(source) + GetWidth(target)/2 then
+      if GetDistance(source, target) <= range + GetWidth(source)/2 + GetWidth(target)/2 then
          table.insert(result, target)
       end
    end
    return result
+end
+
+
+function GetInAARange(source, ...)
+   assert(type(source) == "table" or type(source) == "userdata")
+
+   return GetInE2ERange(source, "AA", concat(...))
 end
 
 function GetAllInRange(target, thing, ...)

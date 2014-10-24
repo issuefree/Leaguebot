@@ -16,6 +16,9 @@ function rangeTick()
            info.summoners )
       then
          local range = GetSpellRange(info)
+         if info.rangeType and info.rangeType == "e2e" then
+            range = range + GetWidth(me)/2
+         end
          local time 
          if info.key then
             time = me["SpellTime"..info.key] - 2

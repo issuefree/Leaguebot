@@ -38,6 +38,7 @@ spells["strike"] = {
    modAA="strike",
    object="Nasus_Base_Q_Buf",
    range=GetAARange,
+   rangeType="e2e",
    cost=20
 }
 spells["wither"] = {
@@ -88,7 +89,7 @@ function Run()
 
    if IsOn("lasthit") and Alone() then
       if CanUse("strike") then
-         local targets = SortByDistance(GetInRange(me, spells["AA"].range+100, CREEPS, MINIONS))
+         local targets = SortByDistance(GetInE2ERange(me, spells["AA"].range+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
             if WillKill("strike", target) then
                Cast("strike", target)

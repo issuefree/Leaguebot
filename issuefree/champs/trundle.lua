@@ -37,7 +37,8 @@ spells["chomp"] = {
    ad={0,.05,.1,.15,.2},
    modAA="chomp",
    object="Trundle_Q_TrollSmash_buf.troy",
-   range=GetAARange(), -- TODO
+   range=GetAARange, -- TODO
+   rangeType="e2e",
    type="P"
 } 
 spells["domain"] = {

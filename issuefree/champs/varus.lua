@@ -330,7 +330,7 @@ function Action()
 
       local target = GetWeakestEnemy("maxArrow")
       if target and WillKill("maxArrow", target) and
-         ( GetDistance(target) > GetAARange() or not WillKill("AA", target) )
+         ( not IsInAARange(target) or not WillKill("AA", target) )
       then
          StartArrow()
          PrintAction("Start arrow for execute")

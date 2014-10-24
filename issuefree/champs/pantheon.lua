@@ -114,7 +114,7 @@ function Action()
    if IsOn("dive") and CanUse("aegis") then
       local target = GetMarkedTarget() or GetWeakestEnemy("aegis")
       if target and
-         GetDistance(target) > spells["AA"].range
+         not IsInAARange(target)
       then
          Cast("aegis", target)
          PrintAction("Aegis", target)

@@ -150,7 +150,7 @@ function Action()
       if not P.spin then
          for _,target in ipairs(SortByDistance(ENEMIES)) do
             if Chasing(target) and not FacingMe(target) then
-               if GetDistance(target) > (GetAARange() + 50) and 
+               if not IsInAARange(target, me, 50) and 
                   GetDistance(target) < 650
                then
                   Cast("shout", me)
@@ -166,7 +166,7 @@ function Action()
    if CanUse("spin") then
       -- gap close
       local target = GetWeakestEnemy("spin")
-      if target and GetDistance(target) > GetAARange() + 50 then
+      if target and not IsInAARange(target, me, 50) then
          CastFireahead("spin", target)
          PrintAction("Spin for gap", target)
          return true

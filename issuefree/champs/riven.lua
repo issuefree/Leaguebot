@@ -256,7 +256,7 @@ function Action()
 
    if CanUse("wings") and not IsAttacking() then
       local target = GetMarkedTarget() or GetWeakestEnemy("wings", spells["wings"].radius)
-      if target and ( GetDistance(target) > GetAARange() or ( P.runic and not CanAttack() ) ) then
+      if target and ( not IsInAARange(target) or ( P.runic and not CanAttack() ) ) then
          CastXYZ("wings", target)
          PrintAction("Wings "..wingsStage, target)
          return true

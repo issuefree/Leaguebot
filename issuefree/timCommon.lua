@@ -140,7 +140,8 @@ playerTeam = ""
 
 
 spells["AA"] = {
-   range=GetAARange(), 
+   range=GetAARange, 
+   rangeType="e2e",
    base={0}, 
    ad=1,
    type="P", 
@@ -786,7 +787,7 @@ function KillMinion(thing, method, force, targetOnly)
             rangeThresh = GetAARange() + 25
          end
          if JustAttacked() or
-            GetDistance(minion) > rangeThresh or
+            not IsInE2ERange(rangeThresh, minion) or
             GetAADamage(minion)*1.5 < minion.health
          then
             target = minion
@@ -872,7 +873,7 @@ function HitMinion(thing, method, extraRange)
 end
 
 function HitObjectives()
-   local targets = GetInRange(me, GetAARange()+25, TURRETS, INHIBS)
+   local targets = GetInE2ERange(me, GetAARange()+25, TURRETS, INHIBS)
    table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
@@ -1641,8 +1642,6 @@ function TimTick()
       LOADING = false
    end
    
-   spells["AA"].range = GetAARange()
-
    for _,spell in pairs(spells) do
       if spell.key == "Q" or
          spell.key == "W" or
@@ -1958,17 +1957,17 @@ end
 
 function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
-   if target and GetDistance(target) < GetAARange()+150 then
+   if target and IsInE2ERange(GetAARange()+150, target) then
       if thing and CanUse(thing) and not P[thing] and
-         ( JustAttacked() or GetDistance(target) > GetAARange() ) 
+         ( JustAttacked() or not IsInAARange(target) ) 
       then
          Cast(thing, me)
          mod = " ("..thing..")"
       end
 
-      if GetDistance(target) < GetAARange() then
+      if IsInAARange(target) then
          if AA(target) then
-            if GetAARange() < 300 then
+            if IsMelee() then
                ClearCursor()
             end
             PrintAction("AA"..mod, target)
@@ -2021,7 +2020,7 @@ function MeleeMove()
    if CanMove() then   
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
-         if GetDistance(target) > GetAARange() then            
+         if not IsInAARange(target) then            
             -- if not RetreatingFrom(target) then
             Circle(target, lockRange, yellow)
             if GetDistance(target, CURSOR) < 350 then
