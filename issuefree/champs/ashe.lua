@@ -13,7 +13,7 @@ InitAAData({
 })
 
 AddToggle("frost", {on=true, key=112, label="Auto frost"})
-AddToggle("", {on=true, key=113, label=""})
+AddToggle("tear", {on=true, key=113, label="Charge Tear"})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
@@ -84,10 +84,17 @@ function Run()
       end
    end
 
+
    if HotKey() and CanAct() then
       if FollowUp() then
          return true
       end
+   end
+
+   if IsOn("tear") and CanChargeTear() and P.frost then
+      if HitMinion("AA", "strong") then
+         return true
+      end      
    end
 
    EndTickActions()
