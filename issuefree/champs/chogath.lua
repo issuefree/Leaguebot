@@ -5,6 +5,7 @@ print("\nTim's Cho'Gath")
 
 InitAAData({
 	windup = .35,
+	extraRange=10,
 	particles = {"vorpal_spikes_mis"}
 })
 
