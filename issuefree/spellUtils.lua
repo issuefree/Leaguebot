@@ -143,7 +143,7 @@ function Cast(thing, target, force)
       return false
    end
 
-   if IsSkillShot(spell) then
+   if IsSkillShot(spell) and not IsMe(target) then
    	CastFireahead(spell, target)
    else
    	if spell.id then
