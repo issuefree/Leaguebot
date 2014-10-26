@@ -760,8 +760,6 @@ function KillMinion(thing, method, force, targetOnly)
       ignoreMana = true
    end
 
-
-
    local targets = {}
 
    local spellName = GetSpellName(thing)
@@ -1162,6 +1160,8 @@ function UseAutoItems()
    UseItem("Mikael's Crucible")
    UseItem("Locket of the Iron Solari")
    UseItem("Crystaline Flask")
+   UseItem("Tiamat")
+   UseItem("Ravenous Hydra")
 end
 
 function GetNearestIndex(target, list)
@@ -1393,11 +1393,9 @@ function GetWeakest(thing, list)
    
    local spell = GetSpell(thing)
    if spell then
-      if thing.type then
-         type = thing.type
+      if spell.type then
+         type = spell.type
       end
-   else
-      type = thing
    end
    
    local weakest
@@ -1406,7 +1404,7 @@ function GetWeakest(thing, list)
 
    for _,target in ipairs(list) do      
       if target then
-         if IsImmune(thing, target) then
+         if IsImmune(spell, target) then
             -- pp("Don't cast "..thing.." on "..target.name.." due to invuln")
          else
             local tScore = target.health / CalculateDamage(target, Damage(100, type))
@@ -1824,12 +1822,6 @@ function StartTickActions()
    UseAutoItems()
 
    if HotKey() then
-      if UseItems() then
-         return true
-      end
-   end
-
-   if HotKey() then
       if GetDistance(mousePos) < 3000 then
          CURSOR = Point(mousePos)
       end
@@ -1906,6 +1898,13 @@ function EndTickActions()
       if KillMinion("AA") then
          return true
       end
+
+      if KillMinion("Tiamat") then
+         return true
+      end
+      if KillMinion("Ravenous Hydra") then
+         return true
+      end
    end
 
    if HitObjectives() then
@@ -1922,6 +1921,16 @@ function EndTickActions()
          return true
       end
 
+      if CanUse("Tiamat") or CanUse("Ravenous Hydra") then
+         local minions = GetInRange(me, item, MINIONS)
+         if #minions >= 2 then
+            Cast("Tiamat", me)
+            Cast("Ravenous Hydra", me)
+            PrintAction("Crescent for clear")
+            return true
+         end
+      end
+
    end
 
    if IsOn("move") then
@@ -1934,10 +1943,6 @@ function EndTickActions()
       AutoMove()
    end
 
-
-
-
-
    PrintAction()
    return false
 end
@@ -1949,7 +1954,7 @@ end
 function AA(target)
    if CanAttack() and IsValid(target) then
       AttackTarget(target)
-      needMove = true
+      -- needMove = true
       return true
    end
    return false
@@ -2073,7 +2078,7 @@ function UseItems(target)
 end
 
 local flaskCharges = 3
-function UseItem(itemName, target)
+function UseItem(itemName, target, force)
    local item = ITEMS[itemName]
    local slot = GetInventorySlot(item.id)
    if not slot then return end   
@@ -2088,7 +2093,7 @@ function UseItem(itemName, target)
       itemName == "Youmuu's Ghostblade" or
       itemName == "Randuin's Omen"
    then
-      if target and GetDistance(target) > item.range then
+      if target and IsInRange(item, target) then
          return
       end
       if not target then
@@ -2110,11 +2115,8 @@ function UseItem(itemName, target)
    elseif itemName == "Tiamat" or
           itemName == "Ravenous Hydra"
    then
-      if not target then
-         target = GetWeakestEnemy("Tiamat")
-      end
-      if target and JustAttacked() then
-         CastSpellTarget(slot, me)
+      if #GetInRange(me, item, ENEMIES) >= 1 then
+         CastSpellTarget(slot, me, 0)
          PrintAction(itemName, nil, 1)
          return true
       end
