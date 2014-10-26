@@ -11,6 +11,7 @@ pp("\nTim's Riven")
 
 InitAAData({
    windup=.25,
+   extraRange=20,
    resets = {me.SpellNameQ}
 })
 
@@ -70,6 +71,10 @@ spells["valor"] = {
 } 
 spells["exile"] = {
    key="R", 
+   timeout=15,
+}
+spells["windSlash"] = {
+   key="R", 
    range=900, 
    color=red, 
    base={80,120,160}, 
@@ -79,14 +84,13 @@ spells["exile"] = {
    noblock=true,
    cone=30,
    width=300, -- hack until I actually do the math for cone into fireahead
-   timeout=15,
-   type="P"
-} 
+   type="P"   
+}
 
-spells["exile"].damOnTarget = 
+spells["windSlash"].damOnTarget = 
    function(target)
       local missingPerc = math.min(1-GetHPerc(target), .75)
-      local dam = GetSpellDamage("exile")
+      local dam = GetSpellDamage("windSlash")
       return dam * 8/3 * missingPerc
    end
 
@@ -140,14 +144,14 @@ function Run()
    end
 
    if P.exile and exileExpireTime - time() < 2 and exileExpireTime ~= 0 then
-      local target = GetWeakestEnemy("exile")
+      local target = GetWeakestEnemy("windSlash")
       if target then
-         CastFireahead("exile", target)
+         CastFireahead("windSlash", target)
          PrintAction("Wind Slash - use it or lose it", target)
          return true
       end
 
-      if HitMinionsInLine("exile", 0) then
+      if HitMinionsInLine("windSlash", 1) then
          return true
       end
    end
@@ -210,12 +214,13 @@ function Run()
          if CanUse("wings") and wingsStage > 1 then
             local hits, kills, score = GetBestArea(me, "wings", .1, 1, MINIONS)
             if score >= .3 then
-               local target = GetCenterTarget(hits)
+               local target = GetAngularCenter(hits)
                if target then
                   CastXYZ("wings", target)
+                  PrintAction("Wings to finish chain")
+                  return true
                end
             end
-            return true
          end
       end
 
@@ -238,28 +243,47 @@ function Action()
       return true
    end
 
-   if CanUse("exile") and P.exile then
-      local target = GetWeakestEnemy("exile")
-      if target and WillKill("exile", target) then
-         CastFireahead("exile", target)
+   if CanUse("windSlash") and P.exile and exileExpireTime ~= 0 then
+      local target = GetWeakestEnemy("windSlash")
+      if target and WillKill("windSlash", target) then
+         CastFireahead("windSlash", target)
          PrintAction("Wind Slash for execute", target)
+         return true
+      end
+   end
+
+   if GetWeakestEnemy("Tiamat") then
+      if UseItem("Tiamat", me, true) or
+         UseItem("Ravenous Hydra", nil, true)
+      then
+         PrintAction("Hydra Cleave")
          return true
       end
    end
 
    -- easy stun if I can
    if CastBest("burst") then
+      Cast("burst", me)
       return true
    end
 
    -- could do a chase for execute.
 
-   if CanUse("wings") and not IsAttacking() then
+   if CanUse("wings") and CanAct() then
       local target = GetMarkedTarget() or GetWeakestEnemy("wings", spells["wings"].radius)
       if target and ( not IsInAARange(target) or ( P.runic and not CanAttack() ) ) then
          CastXYZ("wings", target)
          PrintAction("Wings "..wingsStage, target)
          return true
+      end
+
+      if wingsStage > 1 then
+         local target = GetMarkedTarget() or GetWeakestEnemy("wings", 500)
+         if target then
+            CastXYZ("wings", target)
+            PrintAction("Wings to close gap", target)
+            return true
+         end
       end
    end
 
@@ -273,6 +297,57 @@ end
 function FollowUp()
    return false
 end
+
+function AutoJungle()
+   local creep = GetBiggestCreep(GetInRange(me, "AA", CREEPS))
+   local score = ScoreCreeps(creep)
+   if AA(creep) then
+      PrintAction("AA "..creep.charName)
+      return true
+   end
+
+   if CanAct() then
+      if CanUse("valor") and GetHPerc(me) < .8 then
+         local creep = GetBiggestCreep(GetInRange(me, "valor", CREEPS))
+         if creep then
+            CastXYZ("valor", creep)
+            PrintAction("Valor in jungle")
+            return true
+         end
+      end
+
+      if CanUse("wings") then
+         local hits, kills, score = GetBestArea(me, "wings", .1, 1, CREEPS)
+         if score > 0 then
+            local target = GetAngularCenter(hits)
+            if target then
+               CastXYZ("wings", target)
+               PrintAction("Wings in jungle")
+               return true
+            end
+         end
+      end
+
+      if CanUse("Tiamat") or CanUse("Ravenous Hydra") then
+         if #GetInRange(me, "Tiamat", CREEPS) >= 2 then
+            Cast("Tiamat", me)
+            Cast("Ravenous Hydra", me)
+            PrintAction("Crescent in jungle")
+            return true
+         end
+      end
+
+      if CanUse("burst") then
+         local creep = GetBiggestCreep(GetInRange(me, "burst", CREEPS))
+         if creep then
+            Cast("burst", me)
+            PrintAction("Burst in jungle")
+            return true
+         end
+      end
+   end
+end   
+SetAutoJungle(AutoJungle)
 
 local function onCreate(object)
    Persist("runic", object, "Riven_Skin05_P_Buff")
