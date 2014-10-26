@@ -129,7 +129,12 @@ end
 -- angle of approach of attacker to target
 -- 0 should be dead on, 180 should be dead away
 function ApproachAngle(attacker, target)
-   local point = Point(GetFireahead(attacker, 3, 0))
+   local point
+   if IsMe(attacker) then
+      point = ProjectionA(me, GetMyDirection(), 25)
+   else
+      point = Point(GetFireahead(attacker, 3, 0))
+   end
    local aa = RadsToDegs(math.abs( AngleBetween(attacker, target) - AngleBetween(attacker, point) ))
    if aa > 180 then
       aa = 360 - aa
@@ -454,7 +459,16 @@ function IsInE2ERange(thing, target, source, extraRange)
    else
       range = thing
    end
-   return GetDistance(target, source) < range + GetWidth(source)/2 + GetWidth(target)/2 + (extraRange or 0)
+   extraRange = extraRange or 0
+
+   -- if I'm facing away from my target take downt he range a touch so I don't do weird orbwalks
+   if IsMe(source) and ApproachAngle(me, target) > 60 then
+      extraRange = extraRange - 10
+   else
+      extraRange = extraRange + 10
+   end
+
+   return GetDistance(target, source) < range + GetWidth(source)/2 + GetWidth(target)/2 + extraRange
 end
 
 function IsInAARange(target, source, extraRange)
@@ -504,12 +518,12 @@ function GetInE2ERange(source, thing, ...)
       range = thing
    end
 
-   local result = {}
-   for _,target in ipairs(concat(...)) do
-      if GetDistance(source, target) <= range + GetWidth(source)/2 + GetWidth(target)/2 then
-         table.insert(result, target)
-      end
-   end
+   local result = FilterList(concat(...), function(item) return IsInE2ERange(thing, item, source) end)
+   -- for _,target in ipairs(concat(...)) do
+   --    if GetDistance(source, target) <= range + GetWidth(source)/2 + GetWidth(target)/2 then
+   --       table.insert(result, target)
+   --    end
+   -- end
    return result
 end
 
