@@ -62,14 +62,12 @@ spells["cask"] = {
 local barrelTime = 0
 
 function Run()
-   PrintState(0, GetSpellDamage("barrel", MINIONS[1]))
-
    spells["AA"].bonus = 0
    if P.rage then
       spells["AA"].bonus = GetSpellDamage("rage", target)
    end
 
-   if P.barrel then
+   if P.barrel and CanUse("barrel") then
       local mult = .5*math.min(time() - barrelTime, 2) / 2
       spells["barrel"].bonus = GetSpellDamage("barrel") * mult
    else
@@ -81,7 +79,7 @@ function Run()
    end
 
 
-   if P.barrel then
+   if P.barrel and CanUse("barrel") then
       local spell = GetSpell("barrel")
       local enemies = GetInRange(P.barrel, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
@@ -90,7 +88,7 @@ function Run()
             PrintAction("Pop to kill", enemy)
             break
          end
-         local nextPos = Point(GetFireahead(enemy, 4, 0))
+         local nextPos = Point(GetFireahead(enemy, 3, 0))
          if GetDistance(P.barrel, nextPos) > spell.radius then
             Cast(spell, me, true)
             PrintAction("Pop escapees", nil, 1)
@@ -107,7 +105,7 @@ function Run()
       local kills = GetKills("barrel", minions)
       if #kills >= 2 then
          Cast("barrel", me, true)
-         PrintAction("Pop to kill "..#kills.." minions")
+         PrintAction("Pop to kill "..#kills.." minions", nil, .5)
       end
 
    end
