@@ -136,7 +136,7 @@ function Run()
 
    -- if anyone tries to get out of my singularity pop it
    -- don't return, this is free
-   if P.singularity and activeSingularity() then
+   if activeSingularity() and CanUse("singularity") then
       local spell = GetSpell("singularity")
       local enemies = GetInRange(P.singularity, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
@@ -170,7 +170,7 @@ function Run()
       end
    end
    
-   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() and not P.singularity then
+   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() then
       -- lasthit with singularity if it kills 3 minions or more
       if KillMinionsInArea("singularity", 3) then
          return true
@@ -192,7 +192,7 @@ function Action()
    -- TestSkillShot("singularity")
 
    -- try to deal some damage with singularity
-   if CanUse("singularity") and not activeSingularity() and not P.singularity then
+   if CanUse("singularity") and not activeSingularity() then
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
@@ -279,7 +279,7 @@ function FollowUp()
 end
 
 function activeSingularity()
-   return me.SpellNameE == "luxlightstriketoggle"
+   return me.SpellNameE == "luxlightstriketoggle" and P.singularity
 end
 
 function checkBarrier(unit, spell)
