@@ -76,7 +76,7 @@ function getComboDamage(target, spells)
       end
    end
 
-   if CanUseItem("Deathfire Grasp") then
+   if CanUse("Deathfire Grasp") then
       dam = dam * 1.2
    end
    if target then
