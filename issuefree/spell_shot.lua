@@ -15,6 +15,16 @@ Tim's modified version of...
             			end
 --]]
 
+
+-- 1. detect the spell
+-- 2. who's it going to hit
+-- 3. if it's me find a good safepoint
+-- TODO there seem to be errors here. I get safepoints that don't make sense. Hard to debug.
+-- 4. move to the safepoint
+-- TODO Improve the "juking" ie I know where I'm going (CURSOR) so move enough out of my way then continue going there
+
+-- TODO I'd like to get the speeds/objects on the skill shots to improve the "is it going to hit a teammate" logic for shields
+
 require "issuefree/telemetry"
 require "issuefree/walls"
 require "issuefree/basicUtils"
@@ -78,8 +88,8 @@ local spells = {
 	},
 	Chogath = {
 		{name="Rupture", range=950, radius=275, time=2, ss=true, show=true, isline=false, cc=SLOW},
-		{name="feralscream", cc=SILENCE},			
-		{name="feast"},			
+		{name="feralscream", cc=SILENCE},
+		{name="feast"},
 	},
 	Corki = {
 		{name="MissileBarrageMissile", range=1225, radius=80, time=1, ss=true, isline=true, block=true},
@@ -111,7 +121,7 @@ local spells = {
 	FiddleSticks = {
 		{name="terrify", cc=FEAR, nodamage=true},
 		{name="drain"},			
-		{name="Crowstorm", range=800, radius=600, time=1.5, ss=true, isline=false},
+		{name="Crowstorm", range=800, radius=300, time=1.5, ss=true, isline=false},
 	},
 	Fizz = {
 		{name="FizzMarinerDoom", range=1275, radius=100, time=1.5, ss=true, isline=true, point=true, block=true, cc=SLOW},
@@ -242,7 +252,7 @@ local spells = {
 		{name="MissFortuneScattershot", range=800, radius=400, time=3, ss=true, isline=false},
 	},
 	Morgana = {
-		{name="DarkBindingMissile", key="Q", range=1300, radius=90, time=1.5, ss=true, show=true, perm=true, block=true, isline=true, cc=BIND},
+		{name="DarkBindingMissile", key="Q", range=1300, radius=110, time=1.5, ss=true, show=true, perm=true, block=true, isline=true, cc=BIND},
 		{name="TormentedSoil", range=900, radius=300, time=1.5, ss=true, isline=false},
 	},
 	Nami = {
@@ -434,6 +444,7 @@ end
 
 function GetSpellShot(unit, spell)
 
+
 	local shot = GetSpellDef(unit.name, spell.name)
 	if shot then
 		shot.startPoint = Point(unit)
@@ -449,10 +460,14 @@ function GetSpellShot(unit, spell)
 end
 
 function SetEndPoints(shot)
-	if shot.range then
+	if shot.range and shot.ss then
 		if shot.point or not shot.isline then
 			if GetDistance(shot.startPoint, shot.endPoint) > shot.range then
 				shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
+			end
+			if shot.name == "ZiggsQ" then
+				local bounceDist = GetDistance(shot.startPoint, shot.endPoint)*1.3
+				shot.endPoint = Projection(shot.startPoint, shot.endPoint, bounceDist)
 			end
 			shot.maxDist = GetDistance(shot.startPoint, shot.endPoint) + shot.radius
 		else
@@ -462,23 +477,23 @@ function SetEndPoints(shot)
 	end
 end
 
-local function isSafe(safePoint, spellShot)
+local function isSafe(safePoint, shot)
 	if not safePoint then
 		return false
 	end
 
-	if spellShot.range and spellShot.isline and not spellShot.point then
-		local dist = GetDistance(spellShot.startPoint, safePoint)
+	if shot.range and shot.isline and not shot.point then
+		local dist = GetDistance(shot.startPoint, safePoint)
 
-		if dist < spellShot.maxDist then
-			local impactPoint = Projection(spellShot.startPoint, spellShot.endPoint, dist)
+		if dist < shot.maxDist then
+			local impactPoint = Projection(shot.startPoint, shot.endPoint, dist)
 			local impactDistance = GetDistance(impactPoint, safePoint)
-			if impactDistance <= spellShot.safeDist then -- hit
+			if impactDistance <= shot.safeDist then -- hit
 				return false
 			end
 		end
 	else
-		if GetDistance(safePoint, spellShot.endPoint) < spellShot.safeDist then
+		if GetDistance(safePoint, shot.endPoint) < shot.safeDist then
 			return false
 		end
 	end
@@ -496,55 +511,68 @@ end
 function ShotTarget(shot, target)
 	if shot and shot.ss then
 		
-		shot.safeDist = shot.radius + GetWidth(target)/2
+		shot.safeDist = shot.radius + GetWidth(target)
 
 		if not IsMe(target) and not isSafe(target, shot) then
 			shot.target = target
 			return shot
 		end
 
-		-- calculate a safe points if I'm the target
+		-- calculate a safe point if I'm the target
 		if IsMe(target) and not isSafe(me, shot) then
 			shot.target = me
 			local impactPoint = shot.endPoint
 			if shot.isline and not shot.point then
+				-- if the spell were cast directly at me it would hit me here
 				impactPoint = Projection(shot.startPoint, shot.endPoint, GetDistance(shot.startPoint))
 			end
 			
 			-- is where I'll be clear?
 			local safePoint = ProjectionA(me, GetMyDirection(), me.movespeed*.75)
 			if isSafe(safePoint, shot) then
+				-- pp("Current movement will take me safe")
 				if isSafe(CURSOR, shot) then
 					safePoint = Point(CURSOR)
+					-- pp("  cursor safe")
 				end
 			end
 
 			if not isSafe(safePoint, shot) then					
+				-- pp("Current move not safe")
 				safePoint = Projection(impactPoint, target, shot.safeDist)
+				-- pp("moving orthog")
+				-- pp("start "..Point(shot.startPoint))
+				-- pp("end   "..Point(shot.endPoint))
+				-- pp("orthag "..safePoint)
 			end
 
 			if IsSolid(safePoint) then -- if safe is into a wall go the other direction
+				pp("Safepoint is in a wall")
 				safePoint = nil
 				local locs = SortByDistance(GetCircleLocs(impactPoint, shot.safeDist))
 				for _,loc in ipairs(locs) do
 					if not IsSolid(loc) and isSafe(loc, shot) then
 						safePoint = loc
+						pp("nearest nonwall safepoint "..safePoint)
 						break
 					end
 				end
 			end
 
-			-- if I'm moving and the safepoint is out of my way don't bother
-			if safePoint then
-				if GetDistance(me, GetMyLastPosition()) > 0 and
-					RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50)) > 45
-				then
-					safePoint = nil
-				end
-			end
+			-- -- if I'm moving and the safepoint is out of my way don't bother
+			-- if safePoint then
+			-- 	if GetDistance(me, GetMyLastPosition()) > 0 then
+			-- 		local ra = RadsToDegs(RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50)))
+			-- 		pp("safepoint is "..ra.." degrees off path")
+			-- 		if RadsToDegs(RelativeAngle(me, safePoint, ProjectionA(me, GetMyDirection(), 50))) > 45 then
+			-- 			safePoint = nil
+			-- 		end
+			-- 	end
+			-- end
 
 			if safePoint then					
 				shot.safePoint = Projection(me, safePoint, GetDistance(safePoint)+50)
+				-- pp("Final safepoint "..shot.safePoint)
 			else
 				pp("No safe point dodging "..shot.name)
 			end
