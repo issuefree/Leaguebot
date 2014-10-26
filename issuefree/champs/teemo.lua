@@ -10,7 +10,7 @@ InitAAData({
 	particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
 })
 
-AddToggle("shroom", {on=true, key=112, label="Auto Shroom", auxLabel="{0} - {1}", args={"shroom", function() return spells["shroom"].charges end}})
+AddToggle("shroom", {on=true, key=112, label="Auto Shroom", auxLabel="{0} ~ {1}", args={"shroom", function() return spells["shroom"].charges end}})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
