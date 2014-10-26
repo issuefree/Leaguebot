@@ -21,7 +21,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["double"] = {
    key="Q", 
-   range=650, 
+   range=GetAARange, 
    rangeType="e2e",
    color=violet, 
    base={20,35,50,65,80},
