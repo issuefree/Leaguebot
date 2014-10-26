@@ -5,6 +5,12 @@ pp("\nTim's Morgana")
 pp(" - Auto shield CC")
 pp(" - Soil CC'd enemies")
 
+InitAAData({
+   projSpeed = 1.6, windup=.15,
+   extraRange=-10,
+   particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack2_mis"}
+})
+
 AddToggle("shield", {on=true, key=112, label="Auto Shield"})
 AddToggle("bind", {on=false, key=113, label="Auto Bind"})
 AddToggle("", {on=true, key=114, label=""})
@@ -16,7 +22,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["binding"] = {
    key="Q", 
-   range=1300-200, -- this is really 1300 but max range never seems to hit
+   range=1300,
    color=red, 
    base={80,135,190,245,300}, 
    ap=.9,
@@ -92,7 +98,7 @@ function Action()
          if SkillShot("binding", "peel") then
             return true
          end
-         if SkillShot("binding") then
+         if SkillShot("binding", nil, GetInRange(me, GetSpellRange("binding")-200, ENEMIES), .8) then
             return true
          end
       end

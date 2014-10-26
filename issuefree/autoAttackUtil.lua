@@ -62,9 +62,6 @@ local function getAAData()
       Mordekaiser  = { windup=.3,
                        resets = {me.SpellNameQ}},
 
-      Morgana      = { projSpeed = 1.6,
-                       particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack_tar", "FallenAngelBasicAttack2_mis"} },
-
       Olaf         = { windup=.35,
                        minMoveTime=0,
                      },
