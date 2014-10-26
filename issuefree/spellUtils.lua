@@ -146,7 +146,12 @@ function Cast(thing, target, force)
    if IsSkillShot(spell) then
    	CastFireahead(spell, target)
    else
-   	CastSpellTarget(spell.key, target, 0)
+   	if spell.id then
+   		local slot = GetInventorySlot(spell.id)
+   		CastSpellTarget(slot, target, 0)
+   	else
+   		CastSpellTarget(spell.key, target, 0)
+   	end
    end
    return true
 end
@@ -193,7 +198,6 @@ function CastBuff(spell, switch)
          return
       end
       if not P[spell] and switch ~= false then
-      	pp("here")
          Cast(spell, me)
          PersistTemp(spell, .5)
          PrintAction(spell.." ON")
@@ -292,10 +296,6 @@ function CanUse(thing)
    pp("Failed to get spell for "..thing)
 end
 
-function CanUseItem(itemName)
-	return CanUse(ITEMS[itemName])
-end
-
 function GetSpellCost(thing)
    local spell = GetSpell(thing)
    if spell.key then
@@ -334,20 +334,22 @@ function GetSpell(thing)
       if type(thing) == "string" and #thing == 1 then
          for _,spell in pairs(spells) do
             if spell.key == thing then
-               break
+            	return spell
             end
          end
       else
          spell = spells[thing]
       end
       if not spell then
-         for _,s in pairs(spells) do
-            if thing == s.key then
-               spell = s
-               break
+         for _,spell in pairs(spells) do
+            if thing == spell.key then
+               return spell
             end
          end
       end
+		if not spell then
+			spell = ITEMS[thing]
+		end
       -- couldn't find a defined spell.
       -- make a fake spell with the thing as the key as this is almost certainly
       -- an item or a summoner spell
@@ -726,7 +728,7 @@ function ICast(thing, unit, spell)
    if not IsMe(unit) then return false end
    local mySpell = GetSpell(thing)
    if type(mySpell) ~= "table" or
-   	( mySpell.key and #mySpell.key > 1 )
+   	( mySpell.key and ( #mySpell.key > 1 and mySpell.key ~= "--") )
    then -- hack for if getspell fails
       return find(spell.name, thing)      
    else
