@@ -5,8 +5,8 @@ ITEMS["Bilgewater Cutlass"]       = {id=3144, range=450, type="active", color=vi
 ITEMS["Hextech Gunblade"]         = {id=3146, range=700, type="active", color=violet}
 ITEMS["Blade of the Ruined King"] = {id=3153, range=450, type="active", color=violet}
 ITEMS["Deathfire Grasp"]          = {id=3128, range=750, type="active", color=violet}
-ITEMS["Tiamat"]                   = {id=3077, range=350, type="active", color=red}
-ITEMS["Ravenous Hydra"]           = {id=3074, range=350, type="active", color=red}
+ITEMS["Tiamat"]                   = {id=3077, range=350, ad=.6, type="active", color=red}
+ITEMS["Ravenous Hydra"]           = {id=3074, range=350, ad=.6, type="active", color=red}
 ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=300, type="active"}
 ITEMS["Randuin's Omen"]           = {id=3143, range=500, type="active", color=yellow}
 ITEMS["Frost Queen's Claim"]      = {id=3092, range=600, type="active", radius=200, color=blue}
@@ -56,3 +56,7 @@ ITEMS["Manamune"] = {id=3004}
 ITEMS["Muramana"] = {id=3042}
 
 ITEMS["Crystaline Flask"] = {id=2041}
+
+for name,item in ipairs(ITEMS) do
+	item.name = name
+end
