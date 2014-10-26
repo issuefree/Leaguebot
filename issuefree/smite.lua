@@ -30,7 +30,7 @@ function smiteTick()
       for _,target in ipairs(smiteTargets) do
          if GetDistance(target) < smite.range+50 and WillKill("smite", target) then
             CastSpellTarget(smite.key, target)
-            PrintAction("SMITE", target)
+            PrintAction("SMITE", target, 1)
             break 
          end
       end
