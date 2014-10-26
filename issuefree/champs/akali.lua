@@ -93,7 +93,7 @@ function Run()
          end
       end
 
-      if KillMinion("mark", "far") then
+      if KillMinion("mark", "burn") then
          return true
       end
 
@@ -121,6 +121,7 @@ function Action()
    end
 
    if CastBest("slash") then
+      Cast("slash", me)
       return true
    end
 
