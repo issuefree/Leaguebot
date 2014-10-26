@@ -34,9 +34,6 @@ local minMoveTime = .1
 function GetAARange(target)
    target = target or me
    local range = target.range + ( aaData.extraRange or 0)
-   if aaData and aaData.extraRange then
-      range = range + aaData.extraRange
-   end
    return range
 end
 
@@ -136,7 +133,7 @@ function InitAAData(data)
 
    if not aaData.duration then
       aaData.duration = 1/me.baseattackspeed
-      aaData.duration = aaData.duration*.9
+      aaData.duration = aaData.duration*.95
    end
 
 end
@@ -201,6 +198,9 @@ local gotObj = true
 local windups = {}
 
 function aaTick()
+   -- PrintState(0, getAADuration())
+   -- PrintState(1, 1/getAADuration())
+
    -- PrintState(20, me.attackspeed)
    -- PrintState(21, me.baseattackspeed)
    -- PrintState(22, getAttackSpeed())   
@@ -434,22 +434,6 @@ function IAttack(unit, spell)
    return false
 end
 
-function trackAADuration()
-
-   pp("APS: "..trunc(1/lastAADelta,2))
-
-   local testDur = lastAADelta*getAttackSpeed()
-
-   if testDur < 2.25 then
-      table.insert(testDurs, testDur)
-   end
-
-   if #testDurs > 0 then
-      estimatedDuration = sum(testDurs)/#testDurs
-   end
-end
-
-
 function isResetSpell(spell)
    local spellName = aaData.resets
    if not spellName then return false end
@@ -521,7 +505,6 @@ function onSpellAA(unit, spell)
 
          setAttackState(0)
          lastAADelta = time() - lastAttack
-         trackAADuration()         
       end
 
       if BLOCK_FOR_AA and Alone() then
