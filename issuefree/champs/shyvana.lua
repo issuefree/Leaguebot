@@ -3,6 +3,10 @@ require "issuefree/modules"
 
 pp("\nTim's Shyvana")
 
+InitAAData({
+   resets = {me.SpellNameQ}
+})
+
 AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})

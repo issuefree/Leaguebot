@@ -6,6 +6,11 @@ pp(" - Swing for last hits")
 pp(" - Ham in jungle")
 pp(" - Axe peeps")
 
+InitAAData({
+   windup=.35,
+   minMoveTime=0   
+})
+
 AddToggle("", {on=true, key=112, label="- - -"})
 AddToggle("jungle", {on=true, key=113, label="Jungle"})
 AddToggle("", {on=true, key=114, label=""})

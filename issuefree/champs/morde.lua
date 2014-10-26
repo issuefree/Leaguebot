@@ -8,6 +8,11 @@ require "issuefree/modules"
 
 pp("\nTim's Morde")
 
+InitAAData({
+   windup=.3,
+   resets={me.SpellNameQ}
+})
+
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

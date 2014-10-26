@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Zilean")
 
+InitAAData({
+   projSpeed = 1.25,
+   particles = {"ChronoBasicAttack_mis"}
+})
+
 AddToggle("autoChrono", {on=true, key=112, label="Auto Chrono Shift"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

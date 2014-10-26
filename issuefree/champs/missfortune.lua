@@ -3,6 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Miss Fortune")
 
+InitAAData({
+   projSpeed = 2.0, windup=.25,
+   particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"}
+})
+
 SetChampStyle("marksman")
 
 AddToggle("double", {on=true, key=112, label="DoubleUp Enemies", auxLabel="{0}", args={"doubleBounce"}})

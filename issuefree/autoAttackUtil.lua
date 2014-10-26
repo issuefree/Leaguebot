@@ -52,19 +52,6 @@ local function getAAData()
       Jayce        = { projSpeed = 2.2,
                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
-      Karma        = { projSpeed = nil,
-                       particles = {"karma_basicAttack_cas", "karma_basicAttack_mis", "karma_crit_mis"} },
-
-
-      MissFortune  = { projSpeed = 2.0, windup=.25,
-                       particles = {"missFortune_basicAttack_mis", "missFortune_crit_mis"} },
-
-      Mordekaiser  = { windup=.3,
-                       resets = {me.SpellNameQ}},
-
-      Olaf         = { windup=.35,
-                       minMoveTime=0,
-                     },
 
       Orianna      = { projSpeed = 1.4,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
@@ -72,34 +59,14 @@ local function getAAData()
       Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Shyvana      = { 
-                       resets = {me.SpellNameQ} },
-
-      Sivir        = { projSpeed = 1.4, windup=.15,
-                       resets = {me.SpellNameW},
-                       particles = {"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"} },
-
       Syndra       = { projSpeed = 1.2,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
-
-      TwistedFate  = { projSpeed = 1.5, windup=.4,
-                       particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"} },
-
-      Veigar       = { projSpeed = 1.05,
-                       particles = {"permission_basicAttack_mis"} },
 
       Viktor       = { projSpeed = 2.25,
                        particles = {"ViktorBasicAttack"} },
 
-      XinZhao      = { windup=.35,
-                       particles={"xen_ziou_intimidate"},
-                       resets={me.SpellNameQ}, },
-
       Ziggs        = { projSpeed = 1.5,
                        particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
-
-      Zilean       = { projSpeed = 1.25,
-                       particles = {"ChronoBasicAttack_mis"} },
 
    }
 

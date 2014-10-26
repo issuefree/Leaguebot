@@ -3,6 +3,12 @@ require "issuefree/modules"
 
 print("\nTim's Sivir")
 
+InitAAData({
+   projSpeed=1.4, windup=.15,
+   resets={me.SpellNameW},
+   particles={"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"}
+})
+
 AddToggle("block", {on=true, key=112, label="SpellShield"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})

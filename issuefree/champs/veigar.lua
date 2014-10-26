@@ -8,6 +8,11 @@ pp(" - Dark Matter stunned enemies")
 pp(" - Hit good Primordial Burst targets while trying not to waste")
 pp(" - Clear minion waves with Dark Matter")
 
+InitAAData({
+   projSpeed = 1.05,
+   particles = {"permission_basicAttack_mis"}   
+})
+
 spells["strike"] = {
    key="Q", 
    range=650, 
