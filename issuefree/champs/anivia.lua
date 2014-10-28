@@ -76,7 +76,7 @@ function Run()
       end
    end
 
-   if P.orb then
+   if P.orb and CanUse("orb") then
       Circle(P.orb, spells["orb"].radius, blue)
       if CanUse("orb") then
          local inRange = GetInRange(P.orb, spells["orb"].radius, ENEMIES)
