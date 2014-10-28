@@ -11,7 +11,7 @@ pp(" - Slash for last hit >= 2")
 SetChampStyle("caster")
 
 InitAAData({ 
-   windup = .25
+   windup=.25
 })
 
 AddToggle("ultSpam", {on=true, key=112, label="Ult Spam"})
