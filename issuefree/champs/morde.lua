@@ -26,6 +26,7 @@ spells["mace"] = {
    key="Q", 
    color=red,
    range=GetAARange(),
+   rangeType="e2e",
    base={80,110,140,170,200}, 
    ap=.4,
    adBonus=1,
