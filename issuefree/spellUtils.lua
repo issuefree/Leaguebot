@@ -367,7 +367,7 @@ function GetLVal(spell, field, target)
       return spell[field]
    end
 
-   if type(spell[field]) == "function" then
+   if type(spell[field]) == "function" then   	
    	return spell[field](target)
    end
 
