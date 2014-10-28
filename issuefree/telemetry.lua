@@ -187,6 +187,20 @@ function RelativeAngleRight(center, o1, o2)
    return ra
 end
 
+function IsBetween(pA, pB, radius, target)
+   return GetDistance(pA, target) < GetDistance(pA, pB) and
+          GetDistance(pB, target) < GetDistance(pB, pA) and
+          GetOrthDist(pA, target, pB) < radius + GetWidth(target) / 2 
+end
+
+function GetBetween(pA, pB, radius, ...)   
+   return FilterList( concat(...), 
+      function(item)
+         return IsBetween(pA, pB, radius, item)
+      end
+   )
+end
+
 -- return how far t is from the line between p1 and p2
 function GetOrthDist(p1, t, p2)
    p2 = p2 or me
