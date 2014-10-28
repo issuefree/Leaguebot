@@ -52,7 +52,7 @@ spells["frenzy"] = {
 
 spells["cocoon"] = {
    key="E", 
-   range=750+75, -- patch notes
+   range=1075, -- patch notes
    color=yellow, 
    delay=2,
    speed=14,
@@ -62,7 +62,7 @@ spells["cocoon"] = {
 } 
 spells["rappel"] = {
    key="E", 
-   range=1150, 
+   range=825, 
    color=yellow
 } 
 spells["spider"] = {
