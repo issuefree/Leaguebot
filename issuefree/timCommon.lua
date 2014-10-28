@@ -1162,6 +1162,10 @@ function UseAutoItems()
    UseItem("Crystaline Flask")
    UseItem("Tiamat")
    UseItem("Ravenous Hydra")
+   UseItem("Bilgewater Cutlass")
+   UseItem("Hextech Gunblade")
+   UseItem("Blade of the Ruined King")
+
 end
 
 function GetNearestIndex(target, list)
