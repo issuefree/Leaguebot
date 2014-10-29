@@ -305,6 +305,7 @@ end
 returns the width of a unit
 --]]
 function GetWidth(unit)
+   unit = unit or me
    local minbb = GetMinBBox(unit)
    if not minbb.x then -- for when I pass in not a real unit
       if unit.width then
