@@ -74,6 +74,7 @@ end
 function Action()
    -- knockup anything in range
    if CastBest("pulverize") then
+      Cast("pulverize", me)
       return true
    end
    
