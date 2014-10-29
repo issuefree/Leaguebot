@@ -32,6 +32,7 @@ spells["talon"] = {
    modAA="talon",
    object="xenZiou_ChainAttack_indicator",
    range=GetAARange,
+   rangeType="e2e",
    cost=30
 } 
 spells["cry"] = {

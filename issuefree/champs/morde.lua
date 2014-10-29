@@ -25,7 +25,7 @@ AddToggle("move", {on=true, key=112, label="Move to Mouse"})
 spells["mace"] = {
    key="Q", 
    color=red,
-   range=GetAARange(),
+   range=GetAARange,
    rangeType="e2e",
    base={80,110,140,170,200}, 
    ap=.4,

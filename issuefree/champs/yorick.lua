@@ -27,6 +27,7 @@ spells["war"] = {
    modAA="war",
    object="yorick_spectralGhoul_attack_buf_self",
    range=GetAARange,
+   rangeType="e2e",
    cost=40   
 }
 spells["pestilence"] = {

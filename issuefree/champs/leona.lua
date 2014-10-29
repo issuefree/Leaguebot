@@ -11,8 +11,9 @@ pp("\nTim's Leona")
 
 InitAAData({
    windup=.3,
-   particles={"leona_basicattack_hit"}
+   particles={"leona_basicattack_hit"},
    -- shield of daybreak attack handled by default
+   resets={me.SpellNameQ}
 })
 
 AddToggle("", {on=true, key=112, label=""})
@@ -32,6 +33,7 @@ spells["shield"] = {
    modAA="shield",
    object="Leona_ShieldOfDaybreak",
    range=GetAARange,
+   rangeType="e2e",
    cost={45,50,55,60,65}
 } 
 spells["eclipse"] = {

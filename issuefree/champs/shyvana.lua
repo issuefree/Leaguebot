@@ -25,6 +25,7 @@ spells["bite"] = {
    modAA="bite",
    object="findbiteobject",
    range=GetAARange,
+   rangeType="e2e",
    onHit=true,
    type="P"
 } 

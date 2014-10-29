@@ -11,7 +11,7 @@ pp("\nTim's Renekton")
 
 InitAAData({ 
    windup=.2,
-   resets = {me.SpellNameQ, me.SpellNameW, me.SpellNameE}
+   resets = {me.SpellNameW}
 })
 
 SetChampStyle("bruiser")
@@ -27,7 +27,7 @@ AddToggle("move", {on=true, key=118, label="Move"})
 
 spells["cull"] = {
    key="Q", 
-   range=225+80, 
+   range=225+80, -- TODO
    color=yellow, 
    base={60,90,120,150,180}, 
    adBonus=.8,
@@ -41,7 +41,8 @@ spells["predator"] = {
    type="P",
    modAA="predator",
    object="Renekton_Weapon_Hot.troy",
-   range=GetAARange,   
+   range=GetAARange,
+   rangeType="e2e",
    scale=function() if GetMPerc(me) >= .5 then return 1.5 end end
 } 
 spells["slice"] = {

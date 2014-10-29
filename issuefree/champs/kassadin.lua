@@ -39,6 +39,7 @@ spells["blade"] = {
 	-- ap=.6,
 	ap=.5,
 	range=GetAARange,
+	rangeType="e2e",
 	modAA="blade",
 	object="Kassadin_Base_W_buf"
 }

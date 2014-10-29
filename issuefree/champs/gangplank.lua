@@ -7,6 +7,11 @@ pp(" - warn for good ult")
 pp(" - shoot for lasthit")
 pp(" - morale if near enemies")
 
+InitAAData({
+	windup=.25,
+	extraRange=15,
+	resets={me.SpellNameQ}
+})
 
 AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
@@ -76,7 +81,7 @@ function Run()
    end
 
 	if IsOn("lasthit") and Alone() then
-		if KillMinion("gun", "far", true) then
+		if KillMinion("gun", {"far", "lowMana"}, true) then
 			return true
 		end
 	end

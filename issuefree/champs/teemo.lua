@@ -7,7 +7,8 @@ InitAAData({
 	projSpeed = 1.3, windup=.25,
 	minMoveTime = 0,
 	-- extraRange=-20,
-	particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"} 
+	particles = {"TeemoBasicAttack_mis", "Toxicshot_mis"},
+	resets={me.SpellNameQ} -- wiki says so
 })
 
 AddToggle("shroom", {on=true, key=112, label="Auto Shroom", auxLabel="{0} ~ {1}", args={"shroom", function() return spells["shroom"].charges end}})

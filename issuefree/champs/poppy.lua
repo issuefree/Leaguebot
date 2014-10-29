@@ -28,6 +28,7 @@ spells["blow"] = {
    modAA="blow", -- modAA calcs won't be quite right because I don't convert the AA damage to magic
    object="Poppy_DevastatingBlow_buf",
    range=GetAARange,
+   rangeType="e2e",
    type="M"
 }
 spells["paragon"] = {

@@ -46,13 +46,14 @@ spells["bolts"] = {
 } 
 spells["condemn"] = {
    key="E", 
-   range=700, 
+   range=550,
+   rangeType="e2e",
    color=violet, 
    base={45,80,115,150,185}, 
    adBonus=.5,
    type="P",
    cost=90,
-   knockback=435
+   knockback=470-25
 } 
 spells["final"] = {
    key="R", 

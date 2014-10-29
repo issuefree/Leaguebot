@@ -29,7 +29,8 @@ spells["strike"] = {
    ad=.4,
    modAA="strike",
    object="Garen_Base_Q_Cas_Sword",
-   range=GetAARange,   
+   range=GetAARange,
+   rangeType="e2e",
    type="P"
 }
 spells["courage"] = {

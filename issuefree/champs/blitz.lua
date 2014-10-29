@@ -5,6 +5,7 @@ pp("\nTim's Blitz")
 
 InitAAData({
    windup=.3,
+   resets={me.SpellNameE}
 })
 
 AddToggle("pull", {on=false, key=112, label="Pull"})
@@ -38,6 +39,7 @@ spells["fist"] = {
    modAA="fist",
    object="Powerfist_buf",
    range=GetAARange,
+   rangeType="e2e",
    type="P",
    cost=25
 }

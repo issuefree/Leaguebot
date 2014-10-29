@@ -6,7 +6,6 @@ pp("\nTim's Tristana")
 InitAAData({
    projSpeed = 2.25, windup=.15,
    minMoveTime=0,
-   -- extraRange=-25,  --TODO check range
    -- particles = {"TristannaBasicAttack_mis"}  -- Trists object is shared with minions. This could result in clipping. Can be turned back on for testing
 })
 
@@ -21,14 +20,6 @@ AddToggle("", {on=true, key=115, label=""})
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
 AddToggle("move", {on=true, key=118, label="Move"})
-
-function getShotRange()
-   return 675+(9*(me.selflevel-1))
-end
-
-function getBusterRange()
-   return 650+(9*(me.selflevel-1))
-end
 
 spells["rapid"] = {
    key="Q", 
@@ -45,7 +36,8 @@ spells["jump"] = {
 } 
 spells["shot"] = {
    key="E", 
-   range=getShotRange,
+   range=function() return 541+(9*me.selflevel)+5 end,
+   rangeType="e2e",
    color=violet, 
    base={80,125,170,215,260}, 
    ap=1,
@@ -53,7 +45,8 @@ spells["shot"] = {
 } 
 spells["buster"] = {
    key="R", 
-   range=getBusterRange, 
+   range=function() return 541+(9*me.selflevel)+10 end,
+   rangeType="e2e",
    color=red, 
    base={300,400,500}, 
    ap=1.5,

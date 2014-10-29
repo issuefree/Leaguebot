@@ -62,7 +62,8 @@ spells["cocoon"] = {
 } 
 spells["rappel"] = {
    key="E", 
-   range=825, 
+   range=750, 
+   rangeType="e2e",
    color=yellow
 } 
 spells["spider"] = {

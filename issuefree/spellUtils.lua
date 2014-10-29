@@ -11,6 +11,7 @@ spells["alias"] = {
 
    key="Q",                   -- the key that casts the spell. If no key is supplied then the spell will always read "ready"
    range=1175,                -- range of the spell
+   rangeType="e2e",				-- if the spell is ranged edge to edge like auto attacks
    color=violet,              -- color of the range circle
 
       Most fields are passed through GetLVal which will handle a few ways of specifying a value:
