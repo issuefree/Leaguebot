@@ -745,19 +745,34 @@ function KillMinion(thing, method, force, targetOnly)
    end      
 
    local ignoreMana = false
+   local thresh = .1
 
-   if method == "weak" then
-      SortByHealth(minions, spell)
-   elseif method == "far" then
+   if type(method) == "string" then
+      method = {method}
+   end
+
+   local targetBy = "weak"
+
+   if ListContains("far", method) then
+      SortByDistance(minions, me, true)
+      targetBy = "far"
+   elseif ListContains("near", method) then
       SortByDistance(minions)
-      minions = reverse(minions)
-   elseif method == "near" then
-      SortByDistance(minions)
-   elseif method == "strong" then
+      targetBy = "near"
+   elseif ListContains("strong", method) then
+      SortByHealth(minions, spell, true)
+      targetBy = "strong"
+   else
       SortByHealth(minions, spell)
-      minions = reverse(minions)
-   elseif method == "burn" then
+      targetBy = "weak"
+   end
+
+   if ListContains("burn", method) or
+      ListContains("ignoreMana", method)
+   then
       ignoreMana = true
+   elseif ListContains("lowMana", method) then
+      thresh = .2
    end
 
    local targets = {}
@@ -801,7 +816,7 @@ function KillMinion(thing, method, force, targetOnly)
          if IsBigMinion(target) then
             score = 1.5
          end
-         if GetThreshMP(thing, .1) > score then
+         if GetThreshMP(thing, thresh) > score then
             return nil
          end
       end
@@ -815,7 +830,7 @@ function KillMinion(thing, method, force, targetOnly)
 
       if spell.name and spell.name == "attack" then
          AA(target)
-         PrintAction("Kill "..method.." minion")
+         PrintAction("Kill "..targetBy.." minion")
          return target
       else
          if IsSkillShot(thing) then
@@ -825,7 +840,7 @@ function KillMinion(thing, method, force, targetOnly)
             Cast(spell, target)
          end
          -- pp("setting lkms to "..spellName)
-         PrintAction(spellName.." "..method.." minion")
+         PrintAction(spellName.." "..targetBy.." minion")
          return target
       end
    end
@@ -2051,8 +2066,7 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakEnemy("PHYS", GetSpellRange("AA")*1.5) or
-          GetWeakEnemy("PHYS", GetSpellRange("AA")*2)
+   return GetWeakestEnemy("AA", GetAARange()*.5, GetAARange()*.75)
 end
 
 function DrawKnockback(object2, thing)
