@@ -91,8 +91,7 @@ function InitAAData(data)
    aaData.attacks = aaData.attacks or {"attack"}
    aaData.resets = aaData.resets or {}
 
-   table.insert(aaData.resets, "ItemTiamatCleave") -- TODO verify this spell name
-   -- TODO check if tiamat and hydra use the same spellname and reset name
+   table.insert(aaData.resets, "ItemTiamatCleave")
    -- TOOD check for other attack reset items
 
    if not aaData.duration then
