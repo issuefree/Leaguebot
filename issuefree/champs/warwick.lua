@@ -37,6 +37,7 @@ spells["duress"] = {
    key="R", 
    range=700, 
    color=red,
+   onHit=true,
    cost={100,125,150}
 }
 

@@ -60,7 +60,8 @@ spells["contaminateStack"] = {
 spells["rattat"] = {
    key="R",
    color=red,
-   range=850
+   range=850,
+   onHit=true,
 }
 
 function Run()

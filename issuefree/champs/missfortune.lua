@@ -30,7 +30,7 @@ spells["double"] = {
    type="P",
    cost={43,46,49,52,55},
    radius=500,
-   onhit=true -- not sheen so watch for that
+   onHit=true -- not sheen so watch for that
 }
 spells["doubleBounce"] = {
    key="Q",

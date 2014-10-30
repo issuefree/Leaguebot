@@ -39,6 +39,7 @@ spells["predator"] = {
    base={10,30,50,70,90}, 
    ad=.5,
    type="P",
+   onHit=true,
    modAA="predator",
    object="Renekton_Weapon_Hot.troy",
    range=GetAARange,
