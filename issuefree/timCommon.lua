@@ -1180,6 +1180,7 @@ function UseAutoItems()
    UseItem("Bilgewater Cutlass")
    UseItem("Hextech Gunblade")
    UseItem("Blade of the Ruined King")
+   -- UseItem("Randuin's Omen")
 
 end
 
@@ -2105,16 +2106,28 @@ function UseItem(itemName, target, force)
    if not IsCooledDown(slot) then return end
 
    if itemName == "Entropy" or
-      itemName == "Bilgewater Cutlass" or
-      itemName == "Hextech Gunblade" or
-      itemName == "Blade of the Ruined King" or
-      itemName == "Youmuu's Ghostblade" or
-      itemName == "Randuin's Omen"
+      itemName == "Youmuu's Ghostblade" 
    then
-      if target and IsInRange(item, target) then
-         return
+      if ( IsMelee() and GetMeleeTarget() ) or
+         #GetInAARange(me, ENEMIES) > 0
+      then
+         CastSpellTarget(slot, me)
+         PrintAction(itemName, nil, .5)
+         return true
       end
-      if not target then
+
+   elseif itemName == "Randuin's Omen" then
+      if #GetInRange(me, item.range, ENEMIES) > 0 then
+         CastSpellTarget(slot, me)
+         PrintAction(itemName, nil, .5)
+         return true
+      end
+
+   elseif itemName == "Bilgewater Cutlass" or
+      itemName == "Hextech Gunblade" or
+      itemName == "Blade of the Ruined King"
+   then
+      if not target or not IsInRange(item, target) then
          target = GetWeakEnemy("MAGIC", item.range)
       end
       if target then
@@ -2124,7 +2137,7 @@ function UseItem(itemName, target, force)
       end
 
    elseif itemName == "Deathfire Grasp" then
-      if target and GetDistance(target) < item.range then
+      if target and IsInRange(item, target) then
          CastSpellTarget(slot, target)
          PrintAction(itemName, target, .5)
          return true
@@ -2134,7 +2147,7 @@ function UseItem(itemName, target, force)
           itemName == "Ravenous Hydra"
    then
       if #GetInRange(me, item, ENEMIES) >= 1 then
-         CastSpellTarget(slot, me, 0)
+         CastSpellTarget(slot, me)
          PrintAction(itemName, nil, 1)
          return true
       end
@@ -2275,8 +2288,8 @@ function UseItem(itemName, target, force)
          end
       end
       
-   else
-      -- CastSpellTarget(slot, me)
+   -- else
+   --    -- CastSpellTarget(slot, me)
    end
 
 end
