@@ -525,17 +525,36 @@ function GetOnHitDamage(target, needSpellbladeActive) -- gives your onhit damage
 
    damage = damage + GetSpellbladeDamage(needSpellbladeActive)
 
-   if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
-      if target then
-         damage = damage + Damage(target.health*.08, "P")
-      end
+	if GetInventorySlot(ITEMS["Feral Flare"].id) then
+      damage = damage + GetSpellDamage(ITEMS["Feral Flare"])
    end
 
-   if GetInventorySlot(ITEMS["Kitae's Bloodrazor"].id) then
-      if target then
+   if target then
+	   if GetInventorySlot(ITEMS["Blade of the Ruined King"].id) then
+         damage = damage + Damage(target.health*.08, "P")
+	   end
+
+	   if GetInventorySlot(ITEMS["Kitae's Bloodrazor"].id) then
          damage = damage + Damage(target.maxHealth*.025, "M")
+	   end
+
+   	if GetInventorySlot(ITEMS["Feral Flare"].id) then
+         if IsCreep(target) or IsMinion(target) then
+         	damage = damage + GetSpellDamage(ITEMS["Feral Flare"])*2
+         end
       end
+
+	   if IsCreep(target) then
+	   	if GetInventorySlot(ITEMS["Madred's Razors"].id) then
+	         damage = damage + GetSpellDamage(ITEMS["Madred's Razors"])
+	      end
+	   	if GetInventorySlot(ITEMS["Wriggle's Lantern"].id) then
+	         damage = damage + GetSpellDamage(ITEMS["Wriggle's Lantern"])
+	      end
+		end
    end
+
+
    return damage
 end
 
