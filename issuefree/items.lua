@@ -7,10 +7,12 @@ ITEMS["Blade of the Ruined King"] = {id=3153, range=450, type="active", color=vi
 ITEMS["Deathfire Grasp"]          = {id=3128, range=750, type="active", color=violet}
 ITEMS["Tiamat"]                   = {id=3077, range=400-25, ad=.6, type="active", color=red}
 ITEMS["Ravenous Hydra"]           = {id=3074, range=400-25, ad=.6, type="active", color=red}
-ITEMS["Youmuu's Ghostblade"]      = {id=3142, range=300, type="active"}
-ITEMS["Randuin's Omen"]           = {id=3143, range=500, type="active", color=yellow}
 ITEMS["Frost Queen's Claim"]      = {id=3092, range=600, type="active", radius=200, color=blue}
 
+ITEMS["Randuin's Omen"]           = {id=3143, range=500, type="active", color=yellow}
+
+ITEMS["Entropy"]			      = {id=3184, type="active"}
+ITEMS["Youmuu's Ghostblade"]      = {id=3142, type="active"}
 
 --Active defense
 ITEMS["Locket of the Iron Solari"] = {id=3190, range=700, type="active", color=green}
@@ -42,7 +44,9 @@ ITEMS["Mikael's Crucible"]  = {id=3222, range=750, type="active"}
 ITEMS["Wit's End"] = {id=3091, base={42}, type="M"}
 ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15, type="M"}
 ITEMS["Kitae's Bloodrazor"] = {id=3186, type="M"}
-ITEMS["Feral Flare"] = {id=3160, base=100}
+ITEMS["Madred's Razors"] = {id=3106, base=50, type="M"}
+ITEMS["Wriggle's Lantern"] = {id=3154, base=75, type="M"}
+ITEMS["Feral Flare"] = {id=3160, base=25+30, type="M"}
 
 ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
 ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=2, type="P"}
