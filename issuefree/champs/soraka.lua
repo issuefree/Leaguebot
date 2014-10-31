@@ -18,7 +18,7 @@ spells["starcall"] = {
 	ap=.35,
 	delay=2.4+5-6,
 	speed=15, --?
-	radius=300, -- reticle
+	radius=300-25, -- reticle
 	innerRadius=100,
 	noblock=true,
 }
@@ -103,7 +103,7 @@ function Action()
 		return true
 	end
 
-	if SkillShot("starcall") then
+	if SkillShot("starcall", nil, nil, .7) then
 		return true
    end
 
