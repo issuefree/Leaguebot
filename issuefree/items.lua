@@ -46,7 +46,7 @@ ITEMS["Nashor's Tooth"] = {id=3115, base={15}, ap=.15, type="M"}
 ITEMS["Kitae's Bloodrazor"] = {id=3186, type="M"}
 ITEMS["Madred's Razors"] = {id=3106, base=50, type="M"}
 ITEMS["Wriggle's Lantern"] = {id=3154, base=75, type="M"}
-ITEMS["Feral Flare"] = {id=3160, base=25+30, type="M"}
+ITEMS["Feral Flare"] = {id=3160, base=25, type="M"}
 
 ITEMS["Sheen"]         = {id=3057, base={0}, adBase=1, type="P"}
 ITEMS["Trinity Force"] = {id=3078, base={0}, adBase=2, type="P"}
