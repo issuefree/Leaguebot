@@ -12,7 +12,7 @@ pp(" - AA flared")
 SetChampStyle("caster")
 
 InitAAData({
-   projSpeed = 1.55, windup=.15,
+   projSpeed = 1.55, windup=.2,
    particles = {"LuxBasicAttack"}
 })
 
@@ -66,10 +66,19 @@ spells["singularity"] = {
    ap=.6,
    delay=2, -- testskillshot
    speed=12,
+   canCast=function() return me.SpellNameE ~= "luxlightstriketoggle" and not P.singularity end,
    noblock=true,
-   radius=350,
+   radius=350-25,
    cost={70,85,100,115,130}
 }
+spells["detonate"] = {
+   key="E",
+   canCast=function() return me.SpellNameE == "luxlightstriketoggle" and P.singularity end
+}
+spells["detonate"].base = spells["singularity"].base
+spells["detonate"].ap = spells["singularity"].ap
+spells["detonate"].radius = spells["singularity"].radius
+
 spells["spark"] = {
    key="R", 
    range=3000, 
@@ -112,21 +121,25 @@ function Run()
       return true
    end
 
-   if CastAtCC("singularity") or
-      CastAtCC("binding")
-   then
+   if CanUse("singularity") then
+      if CastAtCC("singularity") then
+         return true
+      end
+   end
+
+   if CastAtCC("binding") then
       return true
    end
 
    -- check for instakills with spark. Alert and kill if toggled.
    if CanUse("spark") then
       local spell = GetSpell("spark")
-      local target = GetWeakestEnemy("spark")
-      if target and target.health < GetSpellDamage("spark", target) then
+      local target = GetWeakest("spark", RemoveFromList(GetInRange(me, "spark", ENEMIES), GetInAARange(me, ENEMIES)))
+      if target and WillKill("spark", target) then
          LineBetween(me, Projection(me, target, spell.range), spell.width)
          if IsOn("ks") or HotKey() then
             if IsGoodFireahead(spell, target) then
-               CastFireahead("spark", target)
+               CastFireahead("spark", target, .8)
                PrintAction("KS", target)
                return true
             end
@@ -136,25 +149,30 @@ function Run()
 
    -- if anyone tries to get out of my singularity pop it
    -- don't return, this is free
-   if activeSingularity() and CanUse("singularity") then
-      local spell = GetSpell("singularity")
+   if CanUse("detonate") then
+      local spell = spells["detonate"]
       local enemies = GetInRange(P.singularity, spell.radius, ENEMIES)
       for _,enemy in ipairs(enemies) do
-         if GetSpellDamage("singularity", enemy) > enemy.health then
-            Cast(spell, me, true)
+         if GetSpellDamage("detonate", enemy) > enemy.health then
+            Cast("detonate", me, true)
             PrintAction("Pop to kill", enemy, .5)
+            break
+         end
+         if IsInAARange(enemy) then
+            Cast("detonate", me, true)
+            PrintAction("Pop for flare", enemy, .5)
             break
          end
          local nextPos = Point(GetFireahead(enemy, 4, 0))
          if GetDistance(P.singularity, nextPos) > spell.radius then
-            Cast(spell, me, true)
+            Cast("detonate", me, true)
             PrintAction("Pop escapees", nil, .5)
             break
          end
       end
 
       local minions = GetInRange(P.singularity, spell.radius, MINIONS)
-      local kills = GetKills("singularity", minions)
+      local kills = GetKills("detonate", minions)
       if ( Alone() and #kills >= 2 ) or
          #kills >= 3
       then
@@ -170,7 +188,7 @@ function Run()
       end
    end
    
-   if IsOn("lasthit") and CanUse("singularity") and not activeSingularity() then
+   if IsOn("lasthit") and CanUse("singularity") then
       -- lasthit with singularity if it kills 3 minions or more
       if KillMinionsInArea("singularity", 3) then
          return true
@@ -192,7 +210,7 @@ function Action()
    -- TestSkillShot("singularity")
 
    -- try to deal some damage with singularity
-   if CanUse("singularity") and not activeSingularity() then
+   if CanUse("singularity")  then
       -- look for a big group or some kills.
       local hits, kills, score = GetBestArea(me, "singularity", 1, 3, ENEMIES)
       if score >= 3 then
@@ -201,11 +219,7 @@ function Action()
          return true
       end
 
-      -- barring that throw it at the weakest single
-      local target = GetWeakestEnemy("singularity")
-      if target then
-         CastFireahead("singularity", target)
-         PrintAction("Singularity", target)
+      if SkillShot("singularity", nil, nil, .6) then
          return true
       end
    end
@@ -216,7 +230,7 @@ function Action()
          UseItem("Deathfire Grasp", GetWeakestEnemy("binding"))
          return true
       end
-      if SkillShot("binding") then
+      if SkillShot("binding", nil, nil, .75) then
          UseItem("Deathfire Grasp", GetWeakestEnemy("binding"))
          return true
       end
@@ -248,6 +262,11 @@ function Action()
             return true
          end
       end
+
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      if AutoAA(target) then
+         return true
+      end
    end
 
    return false
@@ -276,10 +295,6 @@ function FollowUp()
 
    end
 
-end
-
-function activeSingularity()
-   return me.SpellNameE == "luxlightstriketoggle" and P.singularity
 end
 
 function checkBarrier(unit, spell)

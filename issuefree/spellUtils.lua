@@ -255,6 +255,9 @@ function CanUse(thing)
       		return false
       	end
          if thing.key == "D" or thing.key == "F" or ( GetSpellLevel(thing.key) > 0 and me.mana >= GetSpellCost(thing) ) then
+         	if not GetLVal(thing, "canCast") then
+         		return false
+         	end
          	if P.silence then
          		return false
          	end
@@ -386,7 +389,7 @@ function GetLVal(spell, field, target)
 
    local val = spell[field][lvl]
 
-   if not val then val = 0 end
+   if val == nil then val = 0 end
    
    return val
 end
