@@ -12,7 +12,8 @@ pp(" - lasthit with empower")
 
 
 InitAAData({
-	windup=.25,
+	windup=.3,
+	extraRange=-25,
 	particles = {"RelentlessAssault_tar", "EmpowerTwoHit"},
 	attacks={"JaxBasicAttack", "JaxCritAttack", "jaxrelentless"},
 	resets = {me.SpellNameW}
@@ -74,10 +75,11 @@ function WillProcMight()
 end
 
 function Run()
+	spells["AA"].bonus = 0
 	if WillProcMight() then
 		spells["AA"].bonus = GetSpellDamage("relentless")
-		if CanAct() then
-			Circle(me, GetAARange()+3, yellow, 3)
+		if CanAct() then			
+			Circle(me, GetAARange()+3+GetWidth()/2, yellow, 3)
 		end
 	end
 
