@@ -175,6 +175,10 @@ function aaTick()
       shotFired = true
    end
 
+   if CanAttack() then
+      lastAATarget = nil
+   end
+
    if lastAATarget and find(lastAATarget.name, "Minion") and
       not IsValid(lastAATarget) and 
       time() < lastAttack + (getWindup()/2)

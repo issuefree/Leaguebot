@@ -2017,7 +2017,7 @@ function ModAAFarm(thing)
             ( JustAttacked() or ( IsOn("clear") and not WillKill("AA", minion) ) )
          then
             AddWillKill(minion, thing)
-            Cast(thing, minion)
+            Cast(thing, me)
             AttackTarget(minion)
             PrintAction(thing.." lasthit", minion)
             return true
@@ -2043,6 +2043,14 @@ end
 function MeleeMove()
    local lockRange = 350
    if CanMove() then   
+      -- the goal with this is to not interrupt attack
+      -- What I think is happening is I get in range, throw the attack, the target moves out of aa range
+      -- the windup time passes, CanMove enables, I chase.
+      -- So if I tried to attack an enemy don't try to move until the AA timer resets rather than the windup is over
+      if IsEnemy(lastAATarget) then
+         -- pp("don't abort have target "..lastAATarget.name)         
+         return false
+      end
       local target = GetMarkedTarget() or GetMeleeTarget()
       if target then
          if not IsInAARange(target) then            
