@@ -7,7 +7,7 @@ pp(" - Ham in jungle")
 pp(" - Axe peeps")
 
 InitAAData({
-   windup=.35,
+   windup=.4,
    minMoveTime=0   
 })
 
@@ -136,7 +136,7 @@ function Run()
 end
 
 function Action()
-   if SkillShot("axe") then
+   if SkillShot("axe", nil, nil, .75) then
       return true
    end
       
@@ -155,6 +155,12 @@ function Action()
       end
 
       if AutoAA(target) then
+         return true
+      end
+   end
+
+   if P.strikes and Alone() then
+      if HitMinion("AA", "weak") then
          return true
       end
    end
@@ -194,6 +200,7 @@ function FollowUp()
 end
 
 local function onObject(object)
+   PersistBuff("strikes", object, "olaf_viciousStrikes_self")
 end
 
 local function onSpell(unit, spell)
