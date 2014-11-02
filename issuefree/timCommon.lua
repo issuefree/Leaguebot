@@ -1180,7 +1180,7 @@ function UseAutoItems()
    UseItem("Bilgewater Cutlass")
    UseItem("Hextech Gunblade")
    UseItem("Blade of the Ruined King")
-   -- UseItem("Randuin's Omen")
+   UseItem("Randuin's Omen")
 
 end
 
