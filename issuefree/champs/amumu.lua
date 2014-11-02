@@ -7,6 +7,7 @@ pp(" - Despair and Tantrum enemies")
 
 InitAAData({
   windup=.30,
+  extraRange=25,
   particles = {"SadMummyBasicAttack"}
 })
 
@@ -111,6 +112,7 @@ function Action()
    end
 
    if CastBest("tantrum") then
+      Cast("tantrum", me)
       return true
    end
 
