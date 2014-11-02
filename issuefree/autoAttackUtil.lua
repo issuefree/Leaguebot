@@ -127,7 +127,7 @@ end
 
 InitAAData()
 local lastAttack = 0 -- last time I cast an attack
-shotFired = true -- have I seen the projectile or waited long enough that it should show
+shotFired = true -- have I seen the projectile
 
 -- debug stuff
 local attackState = 0
@@ -172,7 +172,7 @@ function aaTick()
 
    -- we asked for an attack but it's been longer than the windup and we haven't gotten a shot so we must have clipped or something
    if not shotFired and time() - lastAttack > getWindup() then
-      shotFired = true
+      woundUp = true
    end
 
    if CanAttack() then
@@ -277,7 +277,7 @@ function CanAttack()
 end
 
 function IsAttacking()
-   return not shotFired or
+   return -- not shotFired or -- TODO for now this is timing based. ignore particles
           time() < lastAttack + getWindup()
 end
 
@@ -297,6 +297,14 @@ end
 function CanMove()
    if not aaData.minMoveTime then
       return CanAct()
+   end
+   -- the goal with this is to not interrupt attack
+   -- What I think is happening is I get in range, throw the attack, the target moves out of aa range
+   -- the windup time passes, CanMove enables, I chase.
+   -- So if I tried to attack an enemy don't try to move until the AA timer resets rather than the windup is over
+   if IsEnemy(lastAATarget) and not shotFired then
+      -- pp("don't abort have target "..lastAATarget.name)      
+      return false
    end
    if time() - lastAttack > aaData.minMoveTime then
       return CanAct()
@@ -338,7 +346,7 @@ function onObjAA(object)
    if ListContains(object.charName, aaData.particles) 
       and GetDistance(object) < GetWidth(me)+250
    then
-      -- shotFired = true -- TODO for now this is timing based. ignore particles
+      shotFired = true 
 
       if time() - lastAttack > 2 then
          pp("Got a weird object "..object.charName)
