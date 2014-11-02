@@ -53,7 +53,10 @@ spells["zero"] = {
 	base={625,875,1125}, 
 	ap=2.5,
 	type="M",
-	cost=100
+	cost=100,
+	channel=true,
+	name="AbsoluteZero",
+	object="AbsoluteZero2_green_cas"
 }
 
 local lastBoil = time()
@@ -120,4 +123,12 @@ function Action()
    return false
 end
 
+local function onObject(object)
+end
+
+local function onSpell(unit, spell)
+end
+
+AddOnCreate(onObject)
+AddOnSpell(onSpell)
 SetTimerCallback("Run")
