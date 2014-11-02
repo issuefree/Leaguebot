@@ -240,11 +240,6 @@ function Action()
 end
 
 function FollowUp()
-   -- if IsOn("move") then
-   --    if MeleeMove() then
-   --       return true
-   --    end
-   -- end
    return false
 end
 
@@ -264,7 +259,7 @@ function Farm()
                dam = dam + GetSpellDamage("dagger", minion)
             end
             if minion.health < dam then
-               Cast("sinister", minion)
+               Cast("sinister", me)
                PrintAction("Sinister for lasthit")
                return true
             end
