@@ -128,6 +128,7 @@ function PersistTemp(name, ttl)
       PData[name].cn = name
       PData[name].timeout = time() + ttl
    end
+   return P[name]
 end
 
 function IsTemp(name)
