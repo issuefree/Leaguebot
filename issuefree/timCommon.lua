@@ -10,6 +10,7 @@ require "issuefree/items"
 require "issuefree/autoAttackUtil"
 -- yayo = require "Common/yayo"
 require "issuefree/persist"
+require "issuefree/prediction"
 require "issuefree/spellUtils"
 require "issuefree/toggles"
 require "issuefree/walls"
@@ -385,106 +386,19 @@ function Disrupt(targetSpell, thing)
 end
 
 STALLERS = {
-   'katarinar',
-   'drain',
-   'crowstorm',
-   'consume',
-   'absolutezero',
-   'rocketgrab',
    'staticfield',
-   'cassiopeiapetrifyinggaze',
-   'ezrealtrueshotbarrage',
-   'galioidolofdurand',
-   'gragasdrunkenrage',
-   'luxmalicecannon',
-   'reapthewhirlwind',
-   'jinxw',
-   'jinxr',
-   'missfortunebullettime',
-   'shenstandunited',
-   'threshe',
-   'threshrpenta',
-   'infiniteduress',
-   'meditate',
 }
 
 GAPCLOSERS = {
-   'AkaliShadowDance', 
-   'Headbutt', 
-   'DariusExecute', 
-   'DianaTeleport', 
-   'EliseSpiderQCast', 
-   'FioraQ', 
    'UrchinStrike', 
-   'IreliaGatotsu', 
-   'JarvanIVCataclysm', 
-   'JaxLeapStrike', 
-   'JayceToTheSkies', 
-   'blindmonkqtwo', 
-   'BlindMonkWOne', 
-   'MaokaiUnstableGrowth', 
-   'AlphaStrike', 
-   'NocturneParanoia', 
-   'Pantheon_LeapBash', 
    'MonkeyKingNimbus', 
-   'XenZhaoSweep', 
    'ViR', 
-   'YasuoDashWrapper', 
-   'TalonCutthroat', 
-   'KatarinaE', 
-   'InfiniteDuress'
 }
 
 DASHES = {
-   AatroxQ=650,
-   AhriTumble=550,
-   CarpetBomb=800,
-   GragasBodySlam=600,
-   GravesMove=425,
-   LucianE=425,
-   RenektonSliceAndDice=450,
-   SejuaniArcticAssault=650,
-   ShenShadowDash=600,
-   ShyvanaTransformCast=1000,
-   slashCast=660,
-   ViQ=725,
+   slashCast=660,   
    FizzJump=400,
-   HecarimUlt=1000,
-   KhazixE=600,
-   khazixelong=900,
-   LeblancSlide=600,
-   LeblancSlideM=600,
-   UFSlash=1000,
-   Pounce=375,
-   Deceive=400,
-   VayneTumble=300,
-   RivenTriCleave=260,
-   RivenFeint=325,
-   EzrealArcaneShift=475,
-   RiftWalk=700,
-   RocketJump=900,
 }
-
-function PredictEnemy(unit, spell)
-   if IsEnemy(unit) then
-      if ListContains(spell.name, STALLERS) then
-         return Point(unit), unit
-      elseif ListContains(spell.name, GAPCLOSERS) then
-         return Point(spell.endPos), unit
-      end
-      for name,range in pairs(DASHES) do
-         if spell.name == name then
-            local p = Point(spell.endPos)
-            if GetDistance(unit, p) > range then
-               p = Projection(unit, p, range)
-               return p, unit
-            end
-         end
-      end
-   end
-   return nil
-end
-
 
 function DumpCloseObjects(object)
    if GetDistance(object) < 50 then
@@ -1570,6 +1484,8 @@ function OnProcessSpell(unit, spell)
       StartChannel(1)
    end
 
+   PredictEnemy(unit, spell)
+
    for _,name in ipairs(channeledSpells) do
       if ICast(name, unit, spell) then
          if spells[name].channelTime then
@@ -1616,7 +1532,9 @@ function OnProcessSpell(unit, spell)
 end
 AddOnSpell(OnProcessSpell)
 
-local blockTimeout = .25
+DODGING = false
+
+local blockTimeout = .5
 local lastMove = 0 
 function BlockingMove(move_dest)
    -- pp("block and move")
@@ -1624,8 +1542,10 @@ function BlockingMove(move_dest)
       
       MoveToXYZ(move_dest.x, 0, move_dest.z)
       -- BlockOrders()
+      DODGING = true
       DoIn( function()
                UnblockOrders()
+               DODGING = false
             end,
             blockTimeout )  
       lastMove = time()
@@ -1927,7 +1847,7 @@ function EndTickActions()
       end
    end
 
-   if HitObjectives() then
+   if HotKey() and HitObjectives() then
       return true
    end
 
@@ -1953,7 +1873,7 @@ function EndTickActions()
 
    end
 
-   if IsOn("move") then
+   if IsOn("move") and HotKey() then
       if IsMelee() then
          if MeleeMove() then
             return true
@@ -2298,6 +2218,10 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
    -- TODO Use this to target dash endpoints
    --    when vayne rolls you know where she's going to land. SS there.
 
+   if DODGING then
+      return
+   end
+
    local spell = GetSpell(thing)
 
    if not CanUse(spell) then return end
@@ -2309,18 +2233,32 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
 
    local target = GetWeakest(spell, GetWithBuff("cc", GetInRange(me, range, ENEMIES)))
    local stillMoving = false
+   local prediction = false
    if not target then
 
       if hardCCOnly then
          return nil
       end
 
-      local targets = GetInRange(me, thing, ENEMIES)
-      for _,t in ipairs(targets) do
-         if t.movespeed < 200 then
-            target = t
-            stillMoving = true
+      for _,enemy in ipairs(SortByHealth(ENEMIES, thing)) do
+         local pred = P[enemy.name..".pred"]
+         Circle(pred)
+         if IsInRange(range, pred) then
+            target = pred
+            Circle(pred)
+            prediction = true
             break
+         end
+      end
+
+      if not target then
+         local targets = GetInRange(me, thing, ENEMIES)
+         for _,t in ipairs(targets) do
+            if t.movespeed < 200 then
+               target = t
+               stillMoving = true
+               break
+            end
          end
       end
    end
@@ -2346,6 +2284,8 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
 
          if stillMoving then
             PrintAction(thing.." on very slow ("..trunc(target.movespeed)..")", target)
+         elseif prediction then
+            PrintAction(thing.." on predicted", target.enemy)
          else
             PrintAction(thing.." on immobile", target)
          end
