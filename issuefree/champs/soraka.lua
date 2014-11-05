@@ -18,7 +18,7 @@ spells["starcall"] = {
 	ap=.35,
 	delay=2.4+5-6,
 	speed=15, --?
-	radius=300-30, -- reticle
+	radius=300-25, -- reticle
 	innerRadius=100,
 	noblock=true,
 }
