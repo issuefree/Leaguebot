@@ -42,11 +42,10 @@ spells["wind"] = {
    color=red, 
    base={65,85,105,125,145},
    ap=.45,
-   damOnTarget=function(target)
+   scale=function(target)
                   if IsMinion(target) then
-                     return GetSpellDamage("wind")*.5
+                     return .5
                   end
-                  return 0
                end,
    cost={50,70,90,110,130}
 }
@@ -108,7 +107,7 @@ function Action()
       if CanUse("fear") then
          local target = GetMarkedTarget() or 
                         GetWeakest("fear", GetInRange(me, "fear", {EADC, EAPC})) or 
-                        GetWeakestEnemy("fear", 0, 100)
+                        GetWeakestEnemy("fear", 0, 50)
 
          if target then
             Cast("fear", target)
@@ -119,7 +118,7 @@ function Action()
 
       if CanUse("drain") then
          -- might update this to target feared guys first
-         local target = GetMarkedTarget() or GetWeakestEnemy("drain", 0, 100)
+         local target = GetMarkedTarget() or GetWeakestEnemy("drain", 0, 50)
          if target then
             Cast("drain", target)
             UseItem("Deathfire Grasp", target)
@@ -129,12 +128,8 @@ function Action()
       end
    end
 
-   if CanUse("wind") then
-      local target = GetWeakestEnemy("wind")
-      if target and Cast("wind", target) then
-         PrintAction("Wind Harass", target)
-         return true
-      end
+   if CastBest("wind") then
+      return true
    end
 
    return false
