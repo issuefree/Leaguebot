@@ -62,9 +62,8 @@ function Run()
    end 
 
    if P.death then
-      if Action() then
-         return true
-      end
+      Action()
+      return true
    end
 
    if StartTickActions() then
