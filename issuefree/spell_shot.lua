@@ -289,8 +289,8 @@ local spells = {
 		{name="puncturingtaunt", cc=TAUNT, nodamage=true},
 	},
 	Renekton = {
-		{name="RenektonSliceAndDice", range=450, radius=80, time=1, ss=true, isline=true, physical=true},
-		{name="renektondice", range=450, radius=80, time=1, ss=true, isline=true, physical=true},
+		-- {name="RenektonSliceAndDice", range=450, radius=80, time=1, ss=true, isline=true, physical=true},
+		-- {name="renektondice", range=450, radius=80, time=1, ss=true, isline=true, physical=true},
 	},
 	Rengar = {
 		{name="rengarE", cc=STUN, physical=true},
