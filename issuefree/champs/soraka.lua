@@ -7,7 +7,7 @@ SetChampStyle("support")
 
 InitAAData({ 
 	projSpeed = 1.0, windup=.25,
-	particles = {"SorakaBasicAttack"}
+	particles = {"Soraka_Base_BA_mis"}
 })
 
 spells["starcall"] = {
@@ -18,7 +18,7 @@ spells["starcall"] = {
 	ap=.35,
 	delay=2.4+5-6,
 	speed=15, --?
-	radius=300-25, -- reticle
+	radius=300-30, -- reticle
 	innerRadius=100,
 	noblock=true,
 }
@@ -65,18 +65,24 @@ function Run()
 		
 	Wish()
 
-   if CheckDisrupt("equinox") then
-      return true
-   end
-
 	if IsRecalling(me) then
 		PrintAction("Recalling")
 		return
 	end
-   
+
    if healTeam("heal") then
    	return true
    end
+
+   if CheckDisrupt("equinox") then
+      return true
+   end
+
+   if CastAtCC("starcall") or
+   	CastAtCC("equinox")
+   then
+      return true
+   end   
 
 	if HotKey() then
 		if Action() then
@@ -99,11 +105,11 @@ function Run()
 end 
 
 function Action()
-	if SkillShot("equinox") then
+	if SkillShot("equinox", nil, nil, .6) then
 		return true
 	end
 
-	if SkillShot("starcall", nil, nil, .7) then
+	if SkillShot("starcall", nil, nil, .8) then
 		return true
    end
 
@@ -126,7 +132,7 @@ end
 function healTeam()   
    if not CanUse("heal") then return false end
 
-   if GetHPerc(me) < .33 then return false end
+   if GetHPerc(me) < .25 then return false end
       
    local value = GetSpellDamage("heal")
 
