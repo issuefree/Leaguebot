@@ -16,7 +16,7 @@ pp("\nTim's Thresh")
 --    Flay away darius when he pulls
 
 InitAAData({
-   windup=.35+.1,  -- fundge because of his very poor speed scaling.
+   windup=.4+.1,  -- fundge because of his very poor speed scaling.
    -- extraRange=15,
    particles = {"Thresh_ba"} 
 })
@@ -28,7 +28,7 @@ local function setSouls(val)
    SaveConfig("thresh", config)
 end
 
-AddToggle("", {on=true, key=112, label=""})
+AddToggle("repell", {on=true, key=112, label="Repell"})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
@@ -126,6 +126,13 @@ function Run()
       return true
    end
 
+   if IsOn("repell") and repellTarget and CanUse("flay") and IsInRange("flay", repellTarget) then
+      if SkillShot("flay", nil, repellTarget, 0) then
+         PrintAction("Repell", repellTarget, 1)
+         return true
+      end
+   end
+
    -- high priority hotkey actions, e.g. killing enemies
 	if HotKey() and CanAct() then
 		if Action() then
@@ -173,8 +180,8 @@ function FollowUp()
 end
 
 local function onCreate(object)
-   if find(object.charName, "Thresh_Soul_Eat_buf") then
-      pp(object)
+   if find(object.charName, "Thresh_Soul_Eat.troy") then
+   -- if find(object.charName, "Thresh_Soul_Eat_buf") then
       setSouls(souls+1)
       PrintAction("Gathered soul "..souls)
    end
@@ -184,6 +191,21 @@ local function onSpell(unit, spell)
    if IAttack(unit, spell) then
       aaTime = time()+1.5
    end
+
+   if IsOn("repell") then
+      if IsEnemy(unit) then
+         if unit.name == "Leona" and spell.name == "LeonaZenithBlade" or
+            unit.name == "Alistar" and spell.name == "Headbutt" or
+            unit.name == "LeeSin" and spell.name == "blindmonkqtwo" or
+            unit.name == "Jax" and spell.name == "JaxLeapStrike" or
+            unit.name == "Amumu" and spell.name == "BandageToss"
+         then
+            repellTarget = unit
+            DoIn(function() repellTarget = nil end, 1)
+         end
+      end
+   end
+
 end
 
 function getBestFlay(source, thing, hitScore, killScore, ...)
