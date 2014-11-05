@@ -175,7 +175,9 @@ function aaTick()
       woundUp = true
    end
 
-   if CanAttack() then
+   if CanAttack() or
+      ( IsEnemy(lastAATarget) and time() > lastAttack + getWindup()*2 )
+   then
       lastAATarget = nil
    end
 
@@ -302,7 +304,7 @@ function CanMove()
    -- What I think is happening is I get in range, throw the attack, the target moves out of aa range
    -- the windup time passes, CanMove enables, I chase.
    -- So if I tried to attack an enemy don't try to move until the AA timer resets rather than the windup is over
-   if IsEnemy(lastAATarget) and not shotFired then
+   if IsEnemy(lastAATarget) and not IsInAARange(lastAATarget) and not shotFired then
       -- pp("don't abort have target "..lastAATarget.name)      
       return false
    end
