@@ -75,7 +75,7 @@ spells["barrage"] = {
    useCharges=true,
    maxCharges=7,
    rechargeTime={12,10,8},
-   charges=1
+   charges=1,
 
    cost=20,
 }
