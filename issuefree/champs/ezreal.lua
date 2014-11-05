@@ -6,7 +6,7 @@ pp("\nTim's Ezreal")
 SetChampStyle("marksman")
 
 InitAAData({ 
-   projSpeed = 2.0, windup=.2,
+   projSpeed = 2.0, windup=.25,
    minMoveTime=0,
    -- extraRange=-25,
    particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}
@@ -85,6 +85,12 @@ function Run()
       UseItem("Muramana")
    end
 
+   if CastAtCC("shot") or
+      CastAtCC("flux")
+   then
+      return true
+   end
+
    -- TODO something with ult
 --   local target = GetWeakEnemy("MAGIC", 99999)
 --   if target then
@@ -98,7 +104,7 @@ function Run()
    end
 
    if IsOn("harrass") then
-      if SkillShot("shot") then
+      if SkillShot("shot", nil, nil, .75) then
          return true
       end
    end
@@ -145,7 +151,7 @@ function Action()
       end
    end
    
-   if SkillShot("shot") then -- in case harass is off
+   if SkillShot("shot") then
       return true
    end
 
