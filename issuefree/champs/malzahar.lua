@@ -11,6 +11,7 @@ pp("\nTim's Malzahar")
 
 InitAAData({ 
    projSpeed = 1.5, windup=.4,
+   extraRange=-10,
    particles = {"AlzaharBasicAttack_mis"}
 })
 
