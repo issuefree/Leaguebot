@@ -8,7 +8,8 @@ pp(" - piltover people out of AA range")
 pp(" - farming w/headshot clears with piltover")
 
 InitAAData({
-   projSpeed = 2.5, windup=.2,
+   projSpeed = 2.5, windup=.3,
+   extraRange=-10,
    minMoveTime=0,
    particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},
    attacks = {"attack", "CaitlynHeadshotMissile"}
@@ -105,10 +106,14 @@ function Run()
       end
    end
 
-   if CastAtCC("trap") or
-      CastAtCC("pp")
-   then
+   if CastAtCC("trap") then
       return true
+   end
+   if IsOn("piltover") then
+      local target = CastAtCC("piltover", nil, true)
+      if target and not IsInAARange(target) then
+         return true
+      end
    end
 
    if HotKey() and CanAct() then
