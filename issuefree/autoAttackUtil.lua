@@ -110,7 +110,7 @@ function getAADuration()
 end
 
 function getWindup()
-   return aaData.windup / math.max(1, getAttackSpeed()*.9)^2 -- err a bit on the side of don't clip
+   return aaData.windup / math.max(1, getAttackSpeed()*.85)^2 -- err a bit on the side of don't clip
 end
 
 function OrbWalk()
