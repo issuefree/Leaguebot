@@ -13,7 +13,7 @@ pp(" - lasthit artillery >= 2 if no stacks and alone")
 SetChampStyle("marksman")
 
 InitAAData({
-   projSpeed = 1.8, windup=.2,
+   speed = 1800, windup=.2,
    particles = {"KogMawBasicAttack", "KogMawBioArcaneBarrage_mis"}
 })
 

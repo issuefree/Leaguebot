@@ -6,7 +6,7 @@ pp("\nTim's Heimerdinger")
 SetChampStyle("caster")
 
 InitAAData({
-  projSpeed = 1.4, windup=.25,
+  speed = 1400, windup=.25,
   particles = {"Heimerdinger_Base_AA"}
 })
 

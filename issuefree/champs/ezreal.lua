@@ -6,7 +6,7 @@ pp("\nTim's Ezreal")
 SetChampStyle("marksman")
 
 InitAAData({ 
-   projSpeed = 2.0, windup=.25,
+   speed = 2000, windup=.25,
    minMoveTime=0,
    -- extraRange=-25,
    particles = {"Ezreal_basicattack_mis", "Ezreal_critattack_mis"}

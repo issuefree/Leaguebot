@@ -4,7 +4,7 @@ require "issuefree/modules"
 print("\nTim's Sivir")
 
 InitAAData({
-   projSpeed=1.4, windup=.15,
+   speed=1400, windup=.15,
    resets={me.SpellNameW},
    particles={"sivirbasicattack_mis", "sivirbasicattack2_mis", "SivirRicochetAttack_mis"}
 })
@@ -105,7 +105,7 @@ function Action()
       return true
    end
 
-   if SkillShot("boomerang") then
+   if SkillShot("boomerang", nil, nil, .9) then
       return true
    end
 

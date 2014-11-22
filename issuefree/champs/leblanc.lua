@@ -10,7 +10,7 @@ require "issuefree/modules"
 pp("\nTim's LeBlanc")
 
 InitAAData({
-   projSpeed = 1.7, windup=.2,
+   speed = 1700, windup=.2,
    -- extraRange=-10,
    particles = {"leBlancBasicAttack_mis"}
 })

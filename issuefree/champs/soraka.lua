@@ -6,7 +6,7 @@ pp("Tim's Soraka")
 SetChampStyle("support")
 
 InitAAData({ 
-	projSpeed = 1.0, windup=.25,
+	speed = 1000, windup=.25,
 	particles = {"Soraka_Base_BA_mis"}
 })
 
@@ -24,7 +24,7 @@ spells["starcall"] = {
 }
 spells["heal"] = {
 	key="W", 
-	range=450,  
+	range=550,  
 	color=green,  
 	base={110,140,170,200,230}, 
 	ap=.6,
@@ -105,11 +105,11 @@ function Run()
 end 
 
 function Action()
-	if SkillShot("equinox", nil, nil, .6) then
-		return true
-	end
+	-- if SkillShot("equinox", nil, nil, .6) then
+	-- 	return true
+	-- end
 
-	if SkillShot("starcall", nil, nil, .8) then
+	if SkillShot("starcall", nil, nil, .85) then
 		return true
    end
 

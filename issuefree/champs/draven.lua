@@ -6,7 +6,7 @@ pp("\nTim's Draven")
 SetChampStyle("marksman")
 
 InitAAData({
-  projSpeed = 1.4, windup=.2,
+  speed = 1400, windup=.2,
   particles = {"Draven_Base_BA", "Draven_Base_Q_mis"} -- "Draven_BasicAttack_mis","Draven_Q_mis", "Draven_Q_mis_bloodless", "Draven_Q_mis_shadow", "Draven_Q_mis_shadow_bloodless", "Draven_Qcrit_mis", "Draven_Qcrit_mis_bloodless", "Draven_Qcrit_mis_shadow", "Draven_Qcrit_mis_shadow_bloodless", "Draven_BasicAttack_mis_shadow", "Draven_BasicAttack_mis_shadow_bloodless", "Draven_BasicAttack_mis_bloodless", "Draven_crit_mis", "Draven_crit_mis_shadow_bloodless", "Draven_crit_mis_bloodless", "Draven_crit_mis_shadow", "Draven_Q_mis", "Draven_Qcrit_mis"
 })
 

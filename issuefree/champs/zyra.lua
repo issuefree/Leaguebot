@@ -6,7 +6,7 @@ pp("\nTim's Zyra")
 SetChampStyle("caster")
 
 InitAAData({
-   projSpeed = 1.7, windup=.2,
+   speed = 1700, windup=.2,
    particles = {"Zyra_basicAttack"}
 })
 

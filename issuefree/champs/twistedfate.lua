@@ -4,7 +4,7 @@ require "issuefree/modules"
 print("\nTim's Twisted Fate")
 
 InitAAData({
-	projSpeed = 1.5, windup=.4,
+	speed = 1500, windup=.4,
 	particles = {"TwistedFateBasicAttack_mis", "TwistedFateStackAttack_mis", "PickaCard_blue", "PickaCard_red", "PickaCard_yellow"}	
 })
 

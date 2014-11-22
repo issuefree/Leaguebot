@@ -8,13 +8,14 @@ InitAAData({
    particles = {"Karma_Base_BA_mis"}
 })
 
-AddToggle("move", {on=true, key=112, label="Move to Mouse"})
+AddToggle("", {on=true, key=112, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
 AddToggle("clear", {on=false, key=117, label="Clear Minions"})
+AddToggle("move", {on=true, key=118, label="Move to Mouse"})
 
 spells["flame"] = {
    key="Q", 
@@ -104,7 +105,7 @@ function Action()
       if target then
          if GetHPerc(me) < .5 and CanUse("mantra") then
             Cast("mantra", me)
-            PrintAction("Mantra for heal")
+            PrintAction("Mantra for heal", nil, 1)
          end
          Cast("tether", target)
          PrintAction("Tether", target)
@@ -145,11 +146,11 @@ function Action()
          end
       end
 
-      local target = GetSkillShot("flame")
+      local target = GetSkillShot("flame", nil, nil, .75)
       if target then
          if CanUse("mantra") and ApproachAngleRel(me, target) < 30 then
             Cast("mantra", me)
-            PrintAction("Mantra for good flame")
+            PrintAction("Mantra for good flame", nil, 1)
          end
 
          UseItem("Deathfire Grasp", target)
@@ -163,6 +164,11 @@ function Action()
 end
 
 function FollowUp()
+   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+   if AutoAA(target) then
+      return true
+   end
+
    return false
 end
 

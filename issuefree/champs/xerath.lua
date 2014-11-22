@@ -7,7 +7,7 @@ pp(" - Xerath sucks (hard to script)")
 SetChampStyle("caster")
 
 InitAAData({ 
-   projSpeed = 1.2, windup=.35,
+   speed = 1200, windup=.35,
    attacks = {"XerathBasicAttack"},
    particles = {"Xerath_Base_BA_mis"}
 })
@@ -189,7 +189,7 @@ function Run()
 
    end
 
-   if canSurge then
+   if canSurge and GetMPerc(me) < .9 then
       local target = GetInRange(me, "AA", ENEMIES, MINIONS, CREEPS, PETS)
       if AA(target) then
          PrintAction("AA for surge")
@@ -253,7 +253,7 @@ function Action()
 end
 
 function FollowUp()
-   if CanAttack() and canSurge then
+   if CanAttack() and canSurge and GetMPerc(me) < .9 then
       local target = SortByDistance(GetInRange(me, "AA", ENEMIES, MINIONS, PETS))[1]
       if target then
          AA(target)

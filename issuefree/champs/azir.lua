@@ -30,7 +30,7 @@ spells["conquer"] = {
    key="Q", 
    range=800, 
    color=yellow, 
-   base={60,90,120,150,180}, 
+   base={75,105,135,165,195}, 
    ap=.5,
    delay=2.4,
    speed=12,
@@ -50,7 +50,7 @@ spells["arise"] = {
             local dam = {50,55,60,65,70,75,80,85,90,95,100,110,120,130,140,150,160,170}
             return dam[me.selflevel]
          end,
-   ap=.7,
+   ap=.6,
 
    useCharges=true,
    maxCharges=2,
@@ -68,7 +68,7 @@ spells["soldier"] = {
 }
 spells["shifting"] = {
    key="E", 
-   base={60,90,120,150,180}, 
+   base={80,100,140,180,220}, 
    ap=.4,
    width=GetWidth(me),
 } 

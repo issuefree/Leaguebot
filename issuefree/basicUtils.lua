@@ -136,6 +136,23 @@ function removeItems(list, items)
    return resTable
 end
 
+
+function SelectFromList(list, scoreFunction, args)
+   local bestItem
+   local bestScore = 0
+   for _,item in ipairs(list) do
+      local score = scoreFunction(item, args)
+      if score > bestScore then
+         bestItem = item
+         bestScore = score
+      end
+   end
+   if bestItem then 
+      return bestItem, bestScore 
+   end
+   return nil, 0
+end
+
 function rpairs(t)
    return prev, t, table.getn(t)+1
 end

@@ -132,7 +132,7 @@ function Run()
 
    else
       InitAAData({
-         projSpeed = 1.7, windup=.25,
+         speed = 1700, windup=.25,
          particles = {"nidalee_javelin_mis"},
       })
       spells["jav"].key = "Q"

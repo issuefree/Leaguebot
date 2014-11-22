@@ -12,7 +12,7 @@ pp(" - AA flared")
 SetChampStyle("caster")
 
 InitAAData({
-   projSpeed = 1.55, windup=.2,
+   speed = 1550, windup=.2,
    particles = {"LuxBasicAttack"}
 })
 

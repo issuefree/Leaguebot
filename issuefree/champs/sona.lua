@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Sona")
 
 InitAAData({ 
-   projSpeed = 1.6, windup=.2,
+   speed = 1600, windup=.2,
    -- extraRange=-20,
    particles = {"Sona_Base_BA", "PowerChord_mis"}
 })
@@ -33,7 +33,7 @@ spells["blue"] = {
 }
 spells["valor"] = {
    base={40,50,60,70,80},
-   ap=.25,
+   ap=.2,
    bonus=function() 
       base={10,20,30}
       return base[GetSpellLevel("R")]
@@ -43,12 +43,12 @@ spells["green"] = {
    key="W", 
    range=1000, 
    color=green, 
-   base={25,45,65,85,105}, 
+   base={30,50,70,90,110}, 
    ap=.2,
    damOnTarget=
       function(target)
          if target then
-            return GetSpellDamage("green")*(1-GetHPerc(target))
+            return GetSpellDamage("green")*.5*(1-GetHPerc(target))
          end
          return 0
       end,

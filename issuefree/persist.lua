@@ -46,22 +46,25 @@ PData = {}
 
 -- name field
 MinorCreepNames = {
-   "Wolf", 
-   "YoungLizard", 
-   "LesserWraith",
-   "SmallGolem",
-   "Wraith"
+   "SRU_MurkwolfMini", 
+   "SRU_RedMini", 
+   "SRU_BlueMini", 
+   "SRU_BlueMini2", 
+   "SRU_RazorbeakMini",
+   "SRU_KrugMini",
+   "Sru_Crab"
 }
 BigCreepNames = {
-   "GiantWolf", 
-   "Golem",
-   "GreatWraith"
+   "SRU_Murkwolf", 
+   "SRU_Krug",
+   "SRU_Razorbeak",
+   "SRU_Gromp"
 }
 MajorCreepNames = {
-   "AncientGolem", 
-   "LizardElder",
-   "Dragon",
-   "Worm"
+   "SRU_Blue", 
+   "SRU_Red",
+   "SRU_Dragon",
+   "SRU_Baron"
 }
 
 CreepNames = concat(MinorCreepNames, BigCreepNames, MajorCreepNames)
@@ -73,6 +76,8 @@ ccNames = {
    "Amumu_Ultwrap", 
    "CurseBandages",
    "DarkBinding_tar", 
+   "Morgana_Skin06_Q_Tar.troy",
+
    "Global_Fear", 
    "Global_Taunt", 
    -- "leBlanc_shackle", 
@@ -437,20 +442,6 @@ end
 
 
 function createForPersist(object)
-      -- find minions
-   -- if ( ( find(object.name, "Blue_Minion") and playerTeam == "Red" ) or 
-   --      ( find(object.name, "Red_Minion") and playerTeam == "Blue" ) )
-   -- then
-   --    table.insert(MINIONS, object)
-   -- end
-
-   -- -- find my minions
-   -- if ( ( find(object.name, "Blue_Minion") and playerTeam == "Blue" ) or 
-   --      ( find(object.name, "Red_Minion") and playerTeam == "Red" ) )
-   -- then
-   --    table.insert(MYMINIONS, object)
-   -- end
-
    if IsMinorCreep(object) then
       table.insert(MINORCREEPS, object)
       table.insert(CREEPS, object)

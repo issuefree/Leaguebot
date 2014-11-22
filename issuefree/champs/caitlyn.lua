@@ -8,7 +8,7 @@ pp(" - piltover people out of AA range")
 pp(" - farming w/headshot clears with piltover")
 
 InitAAData({
-   projSpeed = 2.5, windup=.3,
+   speed = 2500, windup=.3,
    extraRange=-10,
    minMoveTime=0,
    particles = {"caitlyn_Base_mis", "caitlyn_Base_passive"},

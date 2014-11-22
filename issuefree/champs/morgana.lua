@@ -6,7 +6,7 @@ pp(" - Auto shield CC")
 pp(" - Soil CC'd enemies")
 
 InitAAData({
-   projSpeed = 1.6, windup=.15,
+   speed = 1600, windup=.15,
    extraRange=-10,
    particles = {"FallenAngelBasicAttack_mis", "FallenAngelBasicAttack2_mis"}
 })
@@ -73,15 +73,16 @@ function Run()
       end
    end
 
+   if CastAtCC("soil", true) then
+      return true
+   end
+
    if HotKey() then
       if Action() then
          return true
       end
    end
 
-   if CastAtCC("soil", true) then
-      return true
-   end
 
    if HotKey() then
       if FollowUp() then

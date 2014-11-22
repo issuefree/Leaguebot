@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Janna")
 
 InitAAData({ 
-	projSpeed = 1.2,
+	speed = 1200,
 	particles = {"JannaBasicAttack_mis", "JannaBasicAttack_tar", "JannaBasicAttackFrost_tar"} 
 })
 

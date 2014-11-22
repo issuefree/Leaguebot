@@ -10,7 +10,7 @@ require "issuefree/modules"
 pp("\nTim's Malzahar")
 
 InitAAData({ 
-   projSpeed = 1.5, windup=.4,
+   speed = 1500, windup=.4,
    extraRange=-10,
    particles = {"AlzaharBasicAttack_mis"}
 })
@@ -55,6 +55,7 @@ spells["visions"] = {
    color=blue, 
    base={80,140,200,260,320}, 
    ap=.8,
+   radius=300,
 } 
 spells["grasp"] = {
    key="R", 
@@ -94,8 +95,14 @@ function Run()
 
 	-- auto stuff that should happen if you didn't do something more important
    if IsOn("lasthit") then
-      if KillMinion("visions", "strong") then
-         return true
+      local target = KillMinion("visions", "strong", nil, true)
+      if target then
+         -- there's something to bounce to
+         if #GetInRange(target, spells["visions"].radius, MINIONS, ENEMIES) > 1 then
+            Cast("visions", target)
+            PrintAction("Visions minion for LH")
+            return true
+         end
       end
    end
    

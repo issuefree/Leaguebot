@@ -16,7 +16,7 @@ pp("\nTim's Vayne")
 --    condemn away darius when he pulls
 
 InitAAData({
-   projSpeed = 2.0, windup=.2,
+   speed = 2000, windup=.2,
    -- extraRange=-10,
    resets={me.SpellNameQ},
    particles = {"vayne_basicAttack_mis.troy", "vayne_critAttack_mis.troy", "vayne_ult_mis.troy"}

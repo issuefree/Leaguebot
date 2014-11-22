@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Annie")
 
 InitAAData({ 
-   projSpeed = 1.0, windup = .35,
+   speed = 1000, windup = .35,
    particles = {"annie_basicattack"} 
 })
 

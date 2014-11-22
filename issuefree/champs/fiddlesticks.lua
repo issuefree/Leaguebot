@@ -6,7 +6,7 @@ pp(" - dark wind on weakest")
 pp(" - pause while draining")
 
 InitAAData({
-   projSpeed = 1.75, windup=.30,
+   speed = 1750, windup=.30,
    particles = {"FiddleSticks_cas", "FiddleSticks_mis", "FiddleSticksBasicAttack_tar"}
 })
 

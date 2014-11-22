@@ -10,7 +10,7 @@ require "issuefree/modules"
 pp("\nTim's Varus")
 
 InitAAData({ 
-   projSpeed = 2.0, windup=.25,
+   speed = 2000, windup=.25,
    particles = {"Varus_basicAttack_mis"}
 })
 

@@ -2,7 +2,7 @@ require "issuefree/timCommon"
 require "issuefree/modules"
 
 InitAAData({ 
-   projSpeed = 2.4, windup=.25,
+   speed = 2400, windup=.25,
    particles = {"ManaLeach_mis"}
 })
 

@@ -11,7 +11,7 @@ pp("\nTim's Vladimir")
 -- TODO auto pool
 
 InitAAData({ 
-   projSpeed = 1.4, windup=.3, -- tests ok at .25 but I thought I got a couple misses.
+   speed = 1400, windup=.3, -- tests ok at .25 but I thought I got a couple misses.
    particles = {"Vladimir_Base_BA_mis.troy"}
 })
 

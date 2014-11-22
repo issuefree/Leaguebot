@@ -137,11 +137,9 @@ local PREDICTION_DEFS = {
    },
    Malzahar={
       AlZaharNetherGrasp={type="stall"},
-      keys={"R"}
    },
    Maokai={
       MaokaiUnstableGrowth={type="dash", ends="target"},
-      keys={"W"}
    },
    MasterYi={
       Meditate={type="stall"},
@@ -151,9 +149,10 @@ local PREDICTION_DEFS = {
    },
    Nidalee={
       Pounce={type="dash", ends="max", max=375},
+      keys={"W"}
    },
    Nocturne={
-      NocturneParanoia={type="dash", ends="target"},
+      -- NocturneParanoia={type="dash", ends="target"},
       keys={"R"}
    },
    Nunu={
@@ -161,8 +160,7 @@ local PREDICTION_DEFS = {
       AbsoluteZero={type="stall"},
    },
    Pantheon={
-      Pantheon_LeapBash={type="dash", ends="target"},
-      keys={"W"}
+      PantheonW={type="dash", ends="target"},
    },
    Poppy={
       PoppyHeroicCharge={type="dash", ends="target", overShoot=300},
@@ -220,7 +218,6 @@ local PREDICTION_DEFS = {
 	},
 	Vi={
 		-- ViQ=725,
-      keys={"Q"}
 	},
    Warwick={
       InfiniteDuress={type="dash", ends="target"},
@@ -229,8 +226,8 @@ local PREDICTION_DEFS = {
    	MonkeyKingNimbus={type="dash", ends="target"},
 	},
 	Xerath={
-		-- rite={type="stall"},
-      keys={"Q"}
+		XerathLocusOfPower2={type="stall"},
+      XerathArcanopulseChargeUp={type="stall"},
 	},
    XinZhao={
       XenZhaoSweep={type="dash", ends="target"},

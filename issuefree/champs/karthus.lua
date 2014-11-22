@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Karthus")
 
 InitAAData({
-   projSpeed = 1.25, windup=.55,
+   speed = 1250, windup=.55,
    -- extraRange=-15,
    particles = {"Karthus_Base_AA_tar", "Karthus_Base_AA_mis"},
 })

@@ -416,12 +416,17 @@ function IsMinion(unit)
    return find(unit.name, "Minion")
 end
 
-function IsBigMinion(minion)
-   return find(minion.name, "MechCannon")
+function IsBasicMinion(minion)
+   return find(minion.name, "MinionMelee")
 end
-
+function IsCasterMinion(minion)
+   return find(minion.name, "MinionRanged")
+end
+function IsBigMinion(minion)
+   return find(minion.name, "MinionSiege")
+end
 function IsSuperMinion(minion)
-   return find(minion.name, "MechMelee")
+   return find(minion.name, "MinionSuper")
 end
 
 function IsHero(unit)
@@ -1049,6 +1054,7 @@ function SkillShot(thing, purpose, targets, minChance)
    return false
 end
 
+-- minChance isn't a very scientific metric
 function GetSkillShot(thing, purpose, targets, minChance)
    local spell = GetSpell(thing)
    if not CanUse(spell) then return nil end
@@ -1083,18 +1089,29 @@ function IsRecalling(hero)
 end
 
 function UseAutoItems()
+   UseItem("Guardian's Horn")
+
    UseItem("Zhonya's Hourglass")
    UseItem("Wooglet's Witchcap")
    UseItem("Seraph's Embrace")
+
    UseItem("Mikael's Crucible")
    UseItem("Locket of the Iron Solari")
+   
    UseItem("Crystaline Flask")
+   
    UseItem("Tiamat")
    UseItem("Ravenous Hydra")
+   
    UseItem("Bilgewater Cutlass")
    UseItem("Hextech Gunblade")
    UseItem("Blade of the Ruined King")
+   UseItem("Frost Queen's Claim")
+   
    UseItem("Randuin's Omen")
+
+   UseItem("Youmuu's Ghostblade")
+   UseItem("Entropy")
 
 end
 
@@ -1144,6 +1161,30 @@ function GetWardingSlot()
       local wardSlot = GetInventorySlot(id)
       if wardSlot and IsCooledDown(wardSlot) then
          return wardSlot
+      end
+   end
+end
+
+function CheckTrinket()
+   if GetDistance(HOME) > 1000 then
+      return
+   end
+
+   local trinketItem = GetInventoryItem(7)
+   if trinketItem == 0 then
+      Circle(me, 500, yellow, 10)
+   end
+
+   -- local ss = GetItem("Sightstone")
+   -- if not ss then
+   --    ss = GetItem("Ruby Sightstone")
+   -- end
+   if GetItem("Sightstone") or GetItem("Ruby Sightstone") then
+      if GetItem("Warding Totem") or
+         GetItem("Greater Stealth Totem") or
+         GetItem("Greater Vision Totem")
+      then
+         Circle(me, 500, yellow, 10)
       end
    end
 end
@@ -1205,25 +1246,73 @@ function GetAADamage(target)
    return math.floor(damage+.5)
 end
 
+-- assumes target not moving
+function GetImpactTime(source, target, delay, speed)
+   local dist = GetDistance(source, target) - GetWidth(source) / 2 - GetWidth(target) / 2
+   local travelTime = 0
+   if speed then
+      travelTime = dist/speed
+   end
+   return time() + delay/1000 + travelTime
+end
+
+INCOMING_DAMAGE = {}
+function AddIncomingDamage(target, damage, impactTime)
+   damage = CalculateDamage(target, Damage(damage, "P"))
+
+   -- pp("Adding "..damage.." incd at "..(impactTime-time()))
+   table.insert(INCOMING_DAMAGE, {target=target, damage=damage, time=impactTime})
+end
+
+function CleanIncomingDamage()
+   for i, incd in rpairs(INCOMING_DAMAGE) do
+      if incd.time < time() then
+         table.remove(INCOMING_DAMAGE, i)  
+      end
+   end
+end
+
 -- list of spells with the target being the last arg
 function WillKill(...)
+   CleanIncomingDamage()
+
    local arg = GetVarArg(...)
    local target = arg[#arg]
    local damage = 0
-   local usedMana = 0
+   local usedMana = 0   
    for i=1,#arg-1,1 do      
       local thing = arg[i]
       local spell = GetSpell(thing)
       if not IsImmune(thing, target) then
          if spell.name and spell.name == "attack" then
             damage = damage + GetAADamage(target)
+            local speed = aaData.speed
+            if not speed and not IsMelee(me) then
+               speed = 1500
+               pp("No speed set")
+            end
+            if not IsMelee(me) then
+               while speed < 1000 do
+                  speed = speed*10
+               end
+            end
+            local impactTime = GetImpactTime(me, target, getWindup(), speed)
+            local incdDam = 0
+            for _,incd in ipairs(INCOMING_DAMAGE) do
+               if incd.time < impactTime then
+                  if SameUnit(target, incd.target) then
+                     incdDam = incdDam + incd.damage
+                  end
+               end
+            end
+            damage = damage + incdDam
          else         
             if CanUse(thing) and usedMana + GetSpellCost(thing) <= me.mana then
                damage = damage + GetSpellDamage(thing, target)
                usedMana = usedMana + GetSpellCost(thing)
             end
          end
-      end
+      end      
       if damage > target.health + 3 then
          return true
       end
@@ -1366,21 +1455,6 @@ function IsImmune(thing, target)
    return false
 end
 
-function SelectFromList(list, scoreFunction, args)
-   local bestItem
-   local bestScore = 0
-   for _,item in ipairs(list) do
-      local score = scoreFunction(item, args)
-      if score > bestScore then
-         bestItem = item
-         bestScore = score
-      end
-   end
-   if bestItem then 
-      return bestItem, bestScore 
-   end
-   return nil, 0
-end
 
 DOLATERS = {}
 function DoIn(f, timeout, key)
@@ -1703,6 +1777,8 @@ function TimTick()
       end
 
    end
+
+   CheckTrinket()
 end
 
 DISRUPTS = {
@@ -1949,8 +2025,7 @@ end
 
 function ModAAJungle(thing)
    if CanUse(thing) and not P[thing] then
-      local creeps = SortByHealth(GetInRange(me, GetSpellRange("AA")+50, CREEPS), thing)
-      local creep = creeps[#creeps]
+      local creep = SortByHealth(GetInRange(me, GetSpellRange("AA")+50, CREEPS), thing, true)[1]
       if creep and not WillKill("AA", creep) and JustAttacked() then
          Cast(thing, me)
          PrintAction(thing.." jungle", creep)
@@ -2016,6 +2091,17 @@ function UseItems(target)
    end
 end
 
+function GetItem(itemName)
+   local item = ITEMS[itemName]
+   if not item then return nil end
+
+   local slot = GetInventorySlot(item.id)
+   if not slot then return nil end
+   slot = tostring(slot)
+
+   return item, slot
+end
+
 local flaskCharges = 3
 function UseItem(itemName, target, force)
    local item = ITEMS[itemName]
@@ -2066,7 +2152,7 @@ function UseItem(itemName, target, force)
    elseif itemName == "Tiamat" or
           itemName == "Ravenous Hydra"
    then
-      if #GetInRange(me, item, ENEMIES) >= 1 then
+      if not CanAttack() and #GetInRange(me, item, ENEMIES) >= 1 then
          CastSpellTarget(slot, me)
          PrintAction(itemName, nil, 1)
          return true
@@ -2129,13 +2215,16 @@ function UseItem(itemName, target, force)
       end
 
    elseif itemName == "Muramana" then
+      if GetMPerc(me) < .75 and Alone() then
+         target = false
+      end
       if target == nil or target then
          if not P.muramana then
             CastSpellTarget(slot, me)
             PrintAction("Muramana ON", nil, 1)
             return true
          end
-      else
+      else -- target == false
          if P.muramana then
             CastSpellTarget(slot, me)
             PrintAction("Muramana OFF")

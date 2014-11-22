@@ -6,7 +6,7 @@ local spells = {}
 
 local range = 250
 
-local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "Mfx_"}
+local ignoredObjects = {"Minion", "DrawFX", "Mfx_", "mm_ba", "cm_ba"}
 
 local testShot
 local testShotDelays = {}

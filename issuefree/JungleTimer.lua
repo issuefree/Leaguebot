@@ -33,7 +33,7 @@ local camps = {
 	baron = {id=12, timeout=420, num=1}
 }
 
-if GetMap() ~= 1 then
+if GetMap() ~= 8 then
 	camps = {
 	-- Howling abyss 
 		bInner = {id=4, timeout=40, num=1},
@@ -62,7 +62,7 @@ then
 			if camps[key] then
 				if 0+nextSpawn > time() then
 					camps[key].nextSpawn = 0+nextSpawn
-					pp("Timer "..key.." "..nextSpawn-time())
+					-- pp("Timer "..key.." "..nextSpawn-time())
 				end
 			end
 		end

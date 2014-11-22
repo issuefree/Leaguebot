@@ -61,6 +61,19 @@ ITEMS["Muramana"] = {id=3042}
 
 ITEMS["Crystaline Flask"] = {id=2041}
 
+ITEMS["Sightstone"] = {id=2049}
+ITEMS["Ruby Sightstone"] = {id=2045}
+
+ITEMS["Warding Totem"] = {id=3340}
+ITEMS["Greater Stealth Totem"] = {id=3361}
+ITEMS["Greater Vision Totem"] = {id=3362}
+
+ITEMS["Sweeping Lens"] = {id=3341}
+ITEMS["Oracle's Lens"] = {id=3364}
+
+ITEMS["Scrying Orb"] = {id=3342}
+
+
 for name,item in ipairs(ITEMS) do
 	item.name = name
 end

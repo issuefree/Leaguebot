@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Zilean")
 
 InitAAData({
-   projSpeed = 1.25,
+   speed = 1250,
    particles = {"ChronoBasicAttack_mis"}
 })
 

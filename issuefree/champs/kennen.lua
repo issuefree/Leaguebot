@@ -10,7 +10,7 @@ require "issuefree/modules"
 pp("\nTim's Kennen")
 
 InitAAData({ 
-   projSpeed = 1.35, windup=.25,
+   speed = 1350, windup=.25,
    attacks={"KennenBasicAttack", "KennenMegaProc"},
    particles = {"KennenBasicAttack_mis"} 
 })

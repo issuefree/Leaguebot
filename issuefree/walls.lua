@@ -8,7 +8,7 @@ MAPNAME = nil
 SUMMONERSRIFT = "SummonersRift"
 HOWLINGABYSS = "HowlingAbyss"
 
-if GetMap() == 1 then
+if GetMap() == 8 then
    MAPNAME = SUMMONERSRIFT
 elseif GetMap() == 2 then
    MAPNAME = CRYSTALSCAR

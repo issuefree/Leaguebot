@@ -10,7 +10,7 @@ require "issuefree/modules"
 pp("\nTim's Orianna")
 
 InitAAData({ 
-   projSpeed = 1.3, windup=.25,
+   speed = 1300, windup=.25,
    particles = {"OrianaBasicAttack_mis"} 
 })
 

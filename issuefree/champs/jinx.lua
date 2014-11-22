@@ -6,7 +6,7 @@ pp("\nTim's Jinx")
 SetChampStyle("marksman")
 
 InitAAData({ 
-   projSpeed = 2.4, windup=.2,
+   speed = 2400, windup=.2,
    particles = {"Jinx_Q_Minigun_mis", "Jinx_Q_Rocket_mis"}
 })
 

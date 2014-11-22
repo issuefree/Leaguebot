@@ -4,6 +4,8 @@ require "issuefree/telemetry"
 local ping = 50
 local latency = ping * 2 / 1000
 
+aaData = {}
+
 -- The most important thing is to register attack spells. Nothing works if the attack spell isn't
 -- picked up. 90% of the time the attack spell is just the default of "attack" something.
 -- There may be additional ones especially if the character has attack mod skills.
@@ -22,7 +24,7 @@ local latency = ping * 2 / 1000
 
 -- Particles used to be important but it is all timing based now. May as well throw them in...
 
-      -- Ashe         = { projSpeed = 2.0, windup = .25,
+      -- Ashe         = { speed = 2000, windup = .25,
       --                  extraRange = 0,
       --                  minMoveTime = .25,
       --                  particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
@@ -41,31 +43,46 @@ function IsMelee(target)
    return GetAARange(target) < 400
 end
 
+local minionAAData = {
+   basic={
+      delay=400,
+   },
+   caster={
+      delay=484, speed=650
+   },
+   mech={
+      delay=365, speed=1200
+   },
+   turret={
+      delay=150, speed=1200
+   },
+}
+
 local function getAAData()
    local champData = { 
-      Ahri         = { projSpeed = 1.6,
+      Ahri         = { speed = 1600,
                        particles = {"Ahri_BasicAttack_mis"} },
 
       JarvanIV     = { 
                        attacks={"JarvanIVBasicAttack"} },
 
-      Jayce        = { projSpeed = 2.2,
+      Jayce        = { speed = 2200,
                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
 
-      Orianna      = { projSpeed = 1.4,
+      Orianna      = { speed = 1400,
                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
-      Quinn        = { projSpeed = 1.85,  --Quinn's critical attack has the same particle name as his basic attack.
+      Quinn        = { speed = 1850,  --Quinn's critical attack has the same particle name as his basic attack.
                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Syndra       = { projSpeed = 1.2,
+      Syndra       = { speed = 1200,
                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
-      Viktor       = { projSpeed = 2.25,
+      Viktor       = { speed = 2250,
                        particles = {"ViktorBasicAttack"} },
 
-      Ziggs        = { projSpeed = 1.5,
+      Ziggs        = { speed = 1500,
                        particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
 
    }
@@ -137,7 +154,7 @@ local lastAAState = 0
 local lastAADelta = getAADuration()
 
 
-local ignoredObjects = {"Minion", "PurpleWiz", "BlueWiz", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
+local ignoredObjects = {"Minion", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
 local aaObjects = {}
 local aaObjectTime = {}
 
@@ -435,6 +452,25 @@ end
 lastAATarget = nil
 
 function onSpellAA(unit, spell)
+
+   if unit.team == me.team and IsMinion(unit) and GetDistance(unit) < 1000 then
+      if spell.target and IsMinion(spell.target) then
+         local delay, speed
+         if IsBasicMinion(unit) then
+            delay = minionAAData.basic.delay
+         elseif IsCasterMinion(unit) then
+            delay = minionAAData.caster.delay
+            speed = minionAAData.caster.speed
+         elseif IsBigMinion(unit) then
+            delay = minionAAData.mech.delay
+            speed = minionAAData.mech.speed  
+         end
+
+         if delay then
+            AddIncomingDamage(spell.target, unit.baseDamage+unit.addDamage, GetImpactTime(unit, spell.target, delay, speed))
+         end
+      end
+   end
 
    if not unit or not IsMe(unit) then
       return false

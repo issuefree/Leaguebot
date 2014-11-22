@@ -7,7 +7,7 @@ pp("\nTim's Lulu")
 SetChampStyle("support")
 
 InitAAData({
-	projSpeed = 2.5, windup=.2,
+	speed = 2500, windup=.2,
 	particles = {"LuluBasicAttack"}
 })
 

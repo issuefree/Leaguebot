@@ -10,7 +10,7 @@ pp(" - auto ss hunters")
 pp(" - minion farming")
 
 InitAAData({
-   projSpeed = 1.3, windup=.2,
+   speed = 1300, windup=.2,
    particles = {"UrgotBasicAttack_mis"}
 })
 

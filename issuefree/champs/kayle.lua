@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Kayle")
 
 InitAAData({
-  projSpeed = 1.8, windup=.3,
+  speed = 1800, windup=.3,
   particles = {"RighteousFury_nova"}
 })
 

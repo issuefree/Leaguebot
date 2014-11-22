@@ -6,7 +6,7 @@ pp("\nTim's Brand")
 SetChampStyle("caster")
 
 InitAAData({
-  projSpeed = 1.975, windup=.4,
+  speed = 1975, windup=.4,
   particles = {"BrandBasicAttack", "BrandCritAttack"}
 })
 

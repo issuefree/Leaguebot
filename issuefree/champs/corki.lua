@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Corki")
 
 InitAAData({
-   projSpeed = 2.0, windup=.1, -- !
+   speed = 2000, windup=.1, -- !
    particles = {"corki_basicAttack_mis", "Corki_crit_mis"}
 })
 

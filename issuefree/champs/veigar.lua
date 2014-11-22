@@ -9,7 +9,7 @@ pp(" - Hit good Primordial Burst targets while trying not to waste")
 pp(" - Clear minion waves with Dark Matter")
 
 InitAAData({
-   projSpeed = 1.05,
+   speed = 1050,
    particles = {"permission_basicAttack_mis"}   
 })
 
