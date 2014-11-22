@@ -159,7 +159,7 @@ function Run()
 end
 
 function Action()
-   if SkillShot("harpoon") then
+   if SkillShot("harpoon", nil, nil, .25) then
       return true
    end
 
