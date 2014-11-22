@@ -106,7 +106,7 @@ end
 
 function Action()
    -- TestSkillShot("gust", nil, {"Launcher"})
-   if SkillShot("smite") then
+   if SkillShot("smite", nil, nil, .8) then
       return true
    end
 
