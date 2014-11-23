@@ -94,7 +94,7 @@ spells["hail"] = {
    type="P",
    delay=7.2-2, -- tests at 7.2 for VarusECircleGreen
    speed=0, -- tests at 0
-   radius=275,  -- tested visusally
+   radius=275-10,  -- tested visusally
    cost=80,
    damOnTarget=getBlightDamage
 } 
@@ -125,6 +125,9 @@ spells["AA"].damOnTarget =
 local chargeStartTime = 0
 
 function Run()
+   for _,inhib in ipairs(INHIBS) do
+      LineBetween(me, inhib)
+   end
    P.markedTarget = nil
 
    if P.charging then      
@@ -270,7 +273,8 @@ function Run()
 
       if VeryAlone() then
          if CanUse("arrow") and not P.charging then
-            local hits, kills, score = GetBestLine(me, "maxArrow", .1, 1, MINIONS, ENEMIES)
+            local minions = FilterList(MINIONS, function(item) return not IsInAARange(item) end)
+            local hits, kills, score = GetBestLine(me, "maxArrow", .1, 1, minions, ENEMIES)
             if score > GetThreshMP("arrow", .1, 1.5) then
                StartArrow()
                PrintAction("Starting arrow for LH", #kills)
