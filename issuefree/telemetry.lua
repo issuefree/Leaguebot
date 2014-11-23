@@ -442,12 +442,12 @@ end
 
 function UnderTower(target)
    if not target then target = me end
-   return #GetInRange(target, 950, TURRETS) > 0
+   return #GetInRange(target, 900, TURRETS) > 0
 end
 
 function UnderMyTower(target)
    if not target then target = me end
-   return #GetInRange(target, 950, MYTURRETS) > 0
+   return #GetInRange(target, 900, MYTURRETS) > 0
 end
 
 function IsInRange(thing, target, source, extraRange)
