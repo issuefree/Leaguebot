@@ -7,12 +7,13 @@ SetChampStyle("support")
 
 InitAAData({ 
 	speed = 1000, windup=.25,
+	extraRange=-10,
 	particles = {"Soraka_Base_BA_mis"}
 })
 
 spells["starcall"] = {
 	key="Q", 
-	range=950,  
+	range=970,  
 	color=violet,    
 	base={70,110,150,190,230},
 	ap=.35,
