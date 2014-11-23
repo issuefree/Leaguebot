@@ -13,7 +13,8 @@ local SILENCE = 1
 ignoredSpells = {
 	"attack", "recall", "potion", "summoner", "IronStylus", "item", "ZhonyasHourglass",
 	"DeathfireGrasp", "totem", "ward", "BilgewaterCutlass", "ItemSwordOfFeastAndFamine",
-	"trinket", "HealthBomb", "RanduinsOmen", "YoumusBlade",
+	"trinket", "HealthBomb", "RanduinsOmen", "YoumusBlade", "FlaskOfCrystalWater", 
+	"ElixirOfWrath", "HextechGunblade", "Muramana", "shurelyascrest", "lanternwally",
 }
 
 SPELL_DEFS = {
@@ -28,8 +29,10 @@ SPELL_DEFS = {
       keys={"R"}
 	},
 	Akali = {
-		akalimota={},
+		AkaliMota={},
+      AkaliShadowSwipe={},
       AkaliShadowDance={type="dash", ends="target", key="R"},
+      AkaliSmokeBomb={},
 	},
 	Alistar = {
 		headbutt={
@@ -52,8 +55,11 @@ SPELL_DEFS = {
 		Frostbite={},
 	},
 	Ashe = {
-		volley={block=true, cc=SLOW, physical=true},
+		Volley={block=true, cc=SLOW, physical=true},
 		EnchantedCrystalArrow={range=50000, radius=120, time=4, ss=true, show=true, isline=true, cc=STUN, dodgeByObject=true},
+		frostarrow={},
+		FrostShot={},
+		AsheSpiritOfTheHawk={},
 	},
    Azir={
       keys={"E"} -- TODO shifting sands
@@ -116,6 +122,8 @@ SPELL_DEFS = {
 			type="stall"
 		},
       DariusExecute={type="dash", ends="target"},
+      DariusCleave={},
+      DariusNoxianTacticsONH={},
 	},
 	Diana = {
 		DianaArc={range=900, radius=205, time=1, ss=true, isline=true},
@@ -130,8 +138,14 @@ SPELL_DEFS = {
 		InfectedCleaverMissileCast={key="Q", range=1000, radius=60, time=1, ss=true, perm=true, block=true, isline=true, block=true, cc=SLOW},
 	},
 	Elise = {
-		EliseHumanE={range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true, block=true},
+		EliseHumanQ={},
       EliseSpiderQCast={type="dash", ends="target"},
+      EliseHumanW={},
+      EliseSpiderW={},
+		EliseHumanE={range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true, block=true},
+		EliseSpiderEInitial={},
+		elisespidere={},
+		EliseR={},
 	},
 	Ezreal = {
 		EzrealMysticShot={key="Q", range=1100, radius=80, time=1, ss=true, block=true, perm=true, isline=true, block=true, physical=true},
@@ -175,6 +189,7 @@ SPELL_DEFS = {
 	},
 	Garen = {
 		GarenQ={},
+		GarenW={},
 		GarenE={},
 		GarenR={},
 	},
@@ -308,8 +323,12 @@ SPELL_DEFS = {
 		leonasolarflare={cc=STUN},
 	},
 	Lissandra = { -- todo dash
+		LissandraQ={},
 		LissandraQMissile={range=725, radius=100, time=1, ss=true, isline=true, cc=SLOW},
+		LissandraW={},
 		LissandraE={range=1050, radius=100, time=1.5, ss=true, isline=true},
+		LissandraEMissile={},
+		LissandraR={},
 	},
 	Lucian = {
 		LucianQ={range=1100, radius=100, time=0.75, ss=true, isline=true, physical=true},
@@ -376,7 +395,10 @@ SPELL_DEFS = {
 		NamiE={},
 	},
 	Nasus = {
-		wither={cc=SLOW, nodamage=true},
+		NasusW={cc=SLOW, nodamage=true},
+		NasusQ={}, -- siphon
+		NasusE={}, -- spirit fire
+		NasusR={},
 	},
 	Nautilus = {
 		NautilusAnchorDrag={key="Q", range=950, radius=80, time=1.5, ss=true, perm=true, block=true, isline=true},
@@ -402,6 +424,10 @@ SPELL_DEFS = {
    },
 	Olaf = {
 		OlafAxeThrow={range=1000, radius=100, time=1.5, ss=true, isline=true, point=true, cc=SLOW, physical=true},
+		OlafAxeThrowCast={},
+		OlafRecklessStrike={},
+		OlafFrenziedStrikes={},
+		OlafRagnarok={},
 	},
 	Orianna = {
 		OrianaIzunaCommand={range=825, radius=90, time=1.5, ss=true, isline=false},
@@ -497,7 +523,10 @@ SPELL_DEFS = {
 	},
 	Talon={
 		TalonCutthroat={type="dash", ends="target"},
-      keys={"E"}
+		TalonRake={},
+		TalonNoxianDiplomacy={},
+		TalonShadowAssault={},
+		talonrakemissileone={},
 	},
 	Taric = {
 		dazzle={cc=STUN},
@@ -512,7 +541,6 @@ SPELL_DEFS = {
 		threshqinternal={},
 		threshqleap={--[[type="dash"]]},
 		ThreshW={},
-		lanternwally={},
       ThreshE={type="stall"},
       ThreshRPenta={type="stall"},
       keys={"Q","E"}
@@ -542,8 +570,13 @@ SPELL_DEFS = {
 		TwitchVenomCask={cc=SLOW, nodamage=true},
 	},
 	Urgot = {
+		UrgotHeatseekingMissile={},
+		UrgotHeatseekingHomeMissile={},
 		UrgotHeatseekingLineMissile={range=1000, radius=80, time=0.8, ss=true, isline=true, block=true, physical=true},
 		UrgotPlasmaGrenade={range=950, radius=300, time=1, ss=true, isline=false, physical=true},
+		UrgotPlasmaGrenadeBoom={},
+		UrgotTerrorCapacitorActive2={},
+		UrgotSwap2={},
 	},
 	Vayne = {
 		VayneCondemn={cc=KNOCK, physical=true},
