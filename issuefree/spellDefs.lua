@@ -582,7 +582,7 @@ SPELL_DEFS = {
       HuntersCall={key="W"},
       BloodScent={},
    },	
-   Wukong={
+   MonkeyKing={
    	MonkeyKingNimbus={type="dash", ends="target"},
 	},
 	Xerath = {
@@ -594,6 +594,7 @@ SPELL_DEFS = {
   	},
    XinZhao={
       XenZhaoSweep={type="dash", ends="target"},
+      XenZhaoBattleCry={},
    },
    Yasuo={
       YasuoDashWrapper={type="dash", ends="max", range=300},
