@@ -17,6 +17,8 @@ MYTURRETS = {}
 
 INHIBS = {}
 MYINHIBS = {}
+NEXUS = {}
+MYNEXUS = {}
 
 WARDS = {}
 
@@ -469,11 +471,43 @@ function createForPersist(object)
       PersistAll("MYMINIONS", object, "Minion_T")
    end
 
-   if startsWith(object.charName, "Inhibit_Gem") then
-      if object.team ~= me.team then
-         table.insert(INHIBS, object)
+   local inhibKey = "_Idle"
+   if GetMap() == 8 then
+      inhibKey = "inhibitor_idle"
+      nexusKey = "nexus_idle"
+   else
+      inhibKey = "inhibit_gem"
+      nexusKey = "nexus_on"
+   end
+   if find(object.charName, inhibKey)then
+      pp("here")
+      if find(object.charName, "order") then
+         if me.team == 100 then
+            table.insert(MYINHIBS, object)
+         else
+            table.insert(INHIBS, object)
+         end
       else
-         table.insert(MYINHIBS, object)
+         if me.team == 100 then
+            table.insert(INHIBS, object)
+         else
+            table.insert(MYINHIBS, object)
+         end
+      end
+   end
+   if find(object.charName, nexusKey) then
+      if find(object.charName, "order") then
+         if me.team == 100 then
+            table.insert(MYNEXUS, object)
+         else
+            table.insert(NEXUS, object)
+         end
+      else
+         if me.team == 100 then
+            table.insert(NEXUS, object)
+         else
+            table.insert(MYNEXUS, object)
+         end
       end
    end
 
@@ -593,8 +627,17 @@ end
 
 function persistTick()
    Clean(WARDS, "charName", "Ward")
-   Clean(INHIBS, "name", "Inhibit_Gem")
-   Clean(MYINHIBS, "name", "Inhibit_Gem")
+   if GetMap() == 8 then
+      Clean(INHIBS, "charName", "_Idle")
+      Clean(MYINHIBS, "charName", "_Idle")
+      Clean(NEXUS, "charName", "_Idle")
+      Clean(MYNEXUS, "charName", "_Idle")
+   else
+      Clean(INHIBS, "charName", "_gem")
+      Clean(MYINHIBS, "charName", "_gem")
+      Clean(NEXUS, "charName", "_on")
+      Clean(MYNEXUS, "charName", "_on")
+   end
 
    CleanPersistedObjects()
 

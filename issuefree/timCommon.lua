@@ -795,7 +795,7 @@ function HitObjectives()
       end
    end
 
-   for _,inhib in ipairs(INHIBS) do
+   for _,inhib in ipairs(concat(INHIBS, NEXUS)) do
       if IsInRange(GetAARange()+100, inhib) then
          if CanAttack() then
             if not isx then
