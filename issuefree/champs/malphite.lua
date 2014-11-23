@@ -9,6 +9,12 @@ require "issuefree/modules"
 
 pp("\nTim's Malphite")
 
+InitAAData({
+   windup=.35,
+   extraRange=5,
+   particles={"Malphite_Base_CleaveHit"}
+})
+
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=113, label=""})
 AddToggle("", {on=true, key=114, label=""})
@@ -33,7 +39,7 @@ spells["strikes"] = {
 } 
 spells["slam"] = {
    key="E", 
-   range=200, 
+   range=400, 
    color=yellow, 
    base={60,100,140,180,220}, 
    ap=.2,
