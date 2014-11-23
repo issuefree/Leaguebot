@@ -97,6 +97,7 @@ function InitAAData(data)
    spells["AA"].attacks = data.attacks or {"attack"}
    spells["AA"].resets = data.resets or {}
    spells["AA"].speed = data.speed
+   spells["AA"].extraRange = data.extraRange
 
    -- TOOD check for other attack reset items
    table.insert(spells["AA"].resets, "ItemTiamatCleave")
@@ -118,7 +119,11 @@ function getAADuration()
 end
 
 function getWindup()
-   return spells["AA"].windup / math.max(1, getAttackSpeed()*.85)^2 -- err a bit on the side of don't clip
+   if ModuleConfig.aaDebug then
+      return spells["AA"].windup / math.max(1, getAttackSpeed())^2
+   else
+      return spells["AA"].windup / math.max(1, getAttackSpeed()*.85)^2 -- err a bit on the side of don't clip      
+   end
 end
 
 function OrbWalk()
@@ -142,7 +147,7 @@ local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "justAttacked", "canAct", "canMove"}
 local lastAAState = 0
 
--- local lastAADelta = getAADuration()
+local lastAADelta = 0
 
 local ignoredObjects = {"Minion", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
 local aaObjects = {}
