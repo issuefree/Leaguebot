@@ -187,7 +187,7 @@ local function drawCommon()
    end
 
    for _,turret in ipairs(TURRETS) do
-      Circle(turret, 950, red)
+      Circle(turret, 900, red)
    end
 
    for _,minion in ipairs(MINIONS) do
@@ -782,8 +782,10 @@ function HitMinion(thing, method)
    return false
 end
 
+local isx = nil
+local isy = nil
 function HitObjectives()
-   local targets = GetInE2ERange(me, GetAARange()+25, TURRETS, INHIBS)
+   local targets = GetInE2ERange(me, GetAARange()+25, TURRETS)
    table.sort(targets, function(a,b) return a.maxhealth > b.maxhealth end)
 
    if targets[1] and CanAttack() then
@@ -792,6 +794,28 @@ function HitObjectives()
          return true
       end
    end
+
+   for _,inhib in ipairs(INHIBS) do
+      if IsInRange(GetAARange()+100, inhib) then
+         if CanAttack() then
+            if not isx then
+               isx = GetCursorX()
+               isy = GetCursorY()
+            end
+            ClickSpellXYZ('m', inhib.x, inhib.y, inhib.z, 0)
+            MouseRightClick()
+            PrintAction("Attack inhib")
+            return true
+         else
+            if isx then
+               send.mouse_move(isx, isy) 
+               isx = nil
+               isy = nil
+            end
+         end
+      end
+   end
+
    return false
 end
 
@@ -1607,6 +1631,9 @@ end
 
 MP5 = 0
 
+local manaCheck = nil
+local manaCheckTime = nil
+
 TICK_DELAY = .05
 -- Common stuff that should happen every time
 local tt = time()
@@ -1646,22 +1673,17 @@ function TimTick()
    updateObjects()
    drawCommon()
    
-   MP5 = 5 + (me.selflevel/2)
-   local haveChalice = false
-   for slot=1, 7 do
-      local item = itemPrices[me["InventorySlot"..slot]]        
-      if item then
-         MP5 = MP5 + item.mp5
-         if item.name == "Chalice of Harmony" or
-            item.name == "Mikael's Crucible" or
-            item.name == "Athene's Unholy Grail"
-         then
-            haveChalice = true
-         end
+   if not manaCheck then
+      manaCheck = me.mana
+      manaCheckTime = time()
+   elseif time() - manaCheckTime > 1 then
+      local manaDiff = me.mana - manaCheck
+      local manaDiffTime = time() - manaCheckTime
+      if manaDiff > 0 then
+         MP5 = manaDiff / manaDiffTime * 5
       end
-   end 
-   if haveChalice then
-      MP5 = MP5*1.5
+      manaCheck = me.mana
+      manaCheckTime = time()
    end
 
    if ModuleConfig.ass then
