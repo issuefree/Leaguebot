@@ -1,10 +1,9 @@
 require "issuefree/basicUtils"
 require "issuefree/telemetry"
+require "issuefree/spellUtils"
 
 local ping = 50
 local latency = ping * 2 / 1000
-
-aaData = {}
 
 -- The most important thing is to register attack spells. Nothing works if the attack spell isn't
 -- picked up. 90% of the time the attack spell is just the default of "attack" something.
@@ -30,13 +29,12 @@ aaData = {}
       --                  particles = {"Ashe_Base_BA_mis", "Ashe_Base_Q_mis"},
       --                  attacks = {"attack", "frostarrow"} },
 
-local windup = .4  -- this is the slowest I've seen. Shouldn't ever clip with this but not the most responsive.
-local minMoveTime = .1
-
 function GetAARange(target)
-   target = target or me
-   local range = target.range + ( aaData.extraRange or 0)
-   return range
+   if not target or IsMe(target) then
+      return GetSpellRange("AA")
+   else
+      return target.range
+   end
 end
 
 function IsMelee(target)
@@ -58,64 +56,57 @@ local minionAAData = {
    },
 }
 
-local function getAAData()
-   local champData = { 
-      Ahri         = { speed = 1600,
-                       particles = {"Ahri_BasicAttack_mis"} },
+-- local function getAAData()
+--    local champData = { 
+--       Ahri         = { speed = 1600,
+--                        particles = {"Ahri_BasicAttack_mis"} },
 
-      JarvanIV     = { 
-                       attacks={"JarvanIVBasicAttack"} },
+--       JarvanIV     = { 
+--                        attacks={"JarvanIVBasicAttack"} },
 
-      Jayce        = { speed = 2200,
-                       particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
+--       Jayce        = { speed = 2200,
+--                        particles = {"Jayce_Range_Basic_mis", "Jayce_Range_Basic_Crit"} },
 
 
-      Orianna      = { speed = 1400,
-                       particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
+--       Orianna      = { speed = 1400,
+--                        particles = {"OrianaBasicAttack_mis", "OrianaBasicAttack_tar"} },
 
-      Quinn        = { speed = 1850,  --Quinn's critical attack has the same particle name as his basic attack.
-                       particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
+--       Quinn        = { speed = 1850,  --Quinn's critical attack has the same particle name as his basic attack.
+--                        particles = {"Quinn_basicattack_mis", "QuinnValor_BasicAttack_01", "QuinnValor_BasicAttack_02", "QuinnValor_BasicAttack_03", "Quinn_W_mis"} },
 
-      Syndra       = { speed = 1200,
-                       particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
+--       Syndra       = { speed = 1200,
+--                        particles = {"Syndra_attack_hit", "Syndra_attack_mis"} },
 
-      Viktor       = { speed = 2250,
-                       particles = {"ViktorBasicAttack"} },
+--       Viktor       = { speed = 2250,
+--                        particles = {"ViktorBasicAttack"} },
 
-      Ziggs        = { speed = 1500,
-                       particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
+--       Ziggs        = { speed = 1500,
+--                        particles = {"ZiggsBasicAttack_mis", "ZiggsPassive_mis"} },
 
-   }
+--    }
 
-   return champData[me.name] or {}
-end
+--    return champData[me.name] or {}
+-- end
 
 function InitAAData(data)
-   if data then
-      aaData = data
-   else
-      aaData = getAAData()
-   end
+   data = data or {}
 
-   if IsMelee(me) then
-      aaData.melee = true
-   end   
+   spells["AA"].windup = data.windup or .4
+   spells["AA"].minMoveTime = data.minMoveTime or .1
+   spells["AA"].particles = data.particles or {}
+   spells["AA"].attacks = data.attacks or {"attack"}
+   spells["AA"].resets = data.resets or {}
+   spells["AA"].speed = data.speed
 
-   aaData.windup = aaData.windup or windup
-   aaData.minMoveTime = aaData.minMoveTime or minMoveTime
-
-   aaData.particles = aaData.particles or {}
-   aaData.attacks = aaData.attacks or {"attack"}
-   aaData.resets = aaData.resets or {}
-
-   table.insert(aaData.resets, "ItemTiamatCleave")
    -- TOOD check for other attack reset items
+   table.insert(spells["AA"].resets, "ItemTiamatCleave")
 
-   if not aaData.duration then
-      aaData.duration = 1/me.baseattackspeed
-      aaData.duration = aaData.duration*.95
+   if not spells["AA"].duration then
+      spells["AA"].duration = 1/me.baseattackspeed
+
+      -- err a bit on the side of attack faster
+      spells["AA"].duration = spells["AA"].duration*.95
    end
-
 end
 
 function getAttackSpeed()
@@ -123,11 +114,11 @@ function getAttackSpeed()
 end
 
 function getAADuration()
-   return aaData.duration / getAttackSpeed()
+   return spells["AA"].duration / getAttackSpeed()
 end
 
 function getWindup()
-   return aaData.windup / math.max(1, getAttackSpeed()*.85)^2 -- err a bit on the side of don't clip
+   return spells["AA"].windup / math.max(1, getAttackSpeed()*.85)^2 -- err a bit on the side of don't clip
 end
 
 function OrbWalk()
@@ -142,7 +133,7 @@ function OrbWalk()
    end
 end
 
-InitAAData()
+-- InitAAData()
 local lastAttack = 0 -- last time I cast an attack
 shotFired = true -- have I seen the projectile
 
@@ -151,8 +142,7 @@ local attackState = 0
 local attackStates = {"canAttack", "isAttacking", "justAttacked", "canAct", "canMove"}
 local lastAAState = 0
 
-local lastAADelta = getAADuration()
-
+-- local lastAADelta = getAADuration()
 
 local ignoredObjects = {"Minion", "DrawFX", "issuefree", "Cursor_MoveTo", "Mfx", "yikes", "glow", "XerathIdle"}
 local aaObjects = {}
@@ -161,8 +151,7 @@ local aaObjectTime = {}
 local testDurs = {}
 local testWUs = {}
 
-local estimatedDuration = aaData.duration
-local estimatedWU = aaData.windup
+-- local estimatedWU = spells["AA"].windup
 
 function AfterAttack()
    -- needMove = true
@@ -184,7 +173,7 @@ function aaTick()
    -- PrintState(20, me.attackspeed)
    -- PrintState(21, me.baseattackspeed)
    -- PrintState(22, getAttackSpeed())   
-   -- PrintState(23, aaData.windup)
+   -- PrintState(23, spells["AA"].windup)
    -- PrintState(24, getWindup())
 
    -- we asked for an attack but it's been longer than the windup and we haven't gotten a shot so we must have clipped or something
@@ -217,9 +206,9 @@ function aaTick()
 
    if ModuleConfig.aaDebug then
       if not IsMelee(me) and not gotObj and time() - lastAttack > 1 then
-         pp("No object. Windup "..aaData.windup.." too short. Incrementing")
+         pp("No object. Windup "..spells["AA"].windup.." too short. Incrementing")
          for wu,_ in ipairs(windups) do
-            if wu <= aaData.windup then
+            if wu <= spells["AA"].windup then
                windups[wu] = windups[wu] - 5
                if windups[wu] < 1 then
                   windups[wu] = nil
@@ -227,7 +216,7 @@ function aaTick()
             end
          end
 
-         aaData.windup = aaData.windup + .01
+         spells["AA"].windup = spells["AA"].windup + .01
          gotObj = true
       end
 
@@ -238,7 +227,7 @@ function aaTick()
       --  This MUST be greater than the actual windup (don't clip attacks)
       --  but close to it (don't wait too long to do other things)
       
-      local aarstr = "AARate "..trunc(getAADuration()).." ("..trunc(lastAADelta)..") - "..trunc(estimatedDuration, 3)
+      local aarstr = "AARate "..trunc(getAADuration()).." ("..trunc(lastAADelta)..") - "..trunc(spells["AA"].duration, 3)
       if getAADuration() > lastAADelta then
          aarstr = aarstr.."!!!"
       end
@@ -314,7 +303,7 @@ end
 -- since "acting" is more important than attacking we can slow down our AA rate
 -- to act but not to move.
 function CanMove()
-   if not aaData.minMoveTime then
+   if not spells["AA"].minMoveTime then
       return CanAct()
    end
    -- the goal with this is to not interrupt attack
@@ -325,7 +314,7 @@ function CanMove()
       -- pp("don't abort have target "..lastAATarget.name)      
       return false
    end
-   if time() - lastAttack > aaData.minMoveTime then
+   if time() - lastAttack > spells["AA"].minMoveTime then
       return CanAct()
    end
    return false
@@ -362,7 +351,7 @@ function setAttackState(state)
 end
 
 function onObjAA(object)
-   if ListContains(object.charName, aaData.particles) 
+   if ListContains(object.charName, spells["AA"].particles) 
       and GetDistance(object) < GetWidth(me)+250
    then
       shotFired = true 
@@ -373,16 +362,16 @@ function onObjAA(object)
 
       if ModuleConfig.aaDebug then
          gotObj = true
-         pp("Windup "..aaData.windup.." good. Decrementing.")
-         if windups[aaData.windup] then
-            windups[aaData.windup] = windups[aaData.windup] + 1
+         pp("Windup "..spells["AA"].windup.." good. Decrementing.")
+         if windups[spells["AA"].windup] then
+            windups[spells["AA"].windup] = windups[spells["AA"].windup] + 1
          else
-            windups[aaData.windup] = 1
+            windups[spells["AA"].windup] = 1
          end
          for wu,count in pairs(windups) do
             pp(wu.." "..count)
          end
-         aaData.windup = aaData.windup - .01
+         spells["AA"].windup = spells["AA"].windup - .01
 
          local delta = time() - lastAAState         
          pp("AAP: "..trunc(delta).." "..object.charName)
@@ -396,7 +385,7 @@ function onObjAA(object)
       then
          if not ListContains(object.charName, ignoredObjects) and
             not ListContains(object.charName, aaObjects) and
-            not ListContains(object.charName, aaData.particles)
+            not ListContains(object.charName, spells["AA"].particles)
          then         
             if time() - lastAttack < .5 then
                table.insert(aaObjects, object.charName)
@@ -414,7 +403,7 @@ function IAttack(unit, spell)
       return false
    end
 
-   local spellName = aaData.attacks
+   local spellName = spells["AA"].attacks
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName) then
          return true
@@ -429,7 +418,7 @@ function IAttack(unit, spell)
 end
 
 function isResetSpell(spell)
-   local spellName = aaData.resets
+   local spellName = spells["AA"].resets
    if not spellName then return false end
    if type(spellName) == "table" then
       if ListContains(spell.name, spellName, true) then

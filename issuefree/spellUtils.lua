@@ -314,7 +314,7 @@ function GetSpellCostPerc(thing)
 end
 
 function GetSpellRange(thing)
-   return GetLVal(GetSpell(thing), "range")
+   return GetLVal(GetSpell(thing), "range") + GetLVal(GetSpell(thing), "extraRange")
 end
 
 function GetSpellName(thing)

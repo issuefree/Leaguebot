@@ -17,18 +17,18 @@ require "issuefree/timCommon"
 -- }
 
 local camps = {
-	bWolf = {id=2, timeout=50, num=3},
-	rWolf = {id=8, timeout=50, num=3},
-	bWraiths = {id=3, timeout=50, num=4},
-	rWraiths = {id=9, timeout=50, num=4},
-	bWight = {id=13, timeout=50, num=1},
-	rWight = {id=14, timeout=50, num=1},
+	bWolf = {id=2, timeout=100, num=3},
+	rWolf = {id=8, timeout=100, num=3},
+	bWraiths = {id=3, timeout=100, num=4},
+	rWraiths = {id=9, timeout=100, num=4},
+	bWight = {id=13, timeout=100, num=1},
+	rWight = {id=14, timeout=100, num=1},
 	bBlue = {id=1, timeout=300, num=3},
 	rBlue = {id=7, timeout=300, num=3},
 	bRed = {id=4, timeout=300, num=3},
 	rRed = {id=10, timeout=300, num=3},
-	bGolems = {id=5, timeout=50, num=2},
-	rGolems = {id=11, timeout=50, num=2},
+	bGolems = {id=5, timeout=100, num=2},
+	rGolems = {id=11, timeout=100, num=2},
 	dragon = {id=6, timeout=360, num=1},
 	baron = {id=12, timeout=420, num=1}
 }

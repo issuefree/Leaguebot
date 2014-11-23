@@ -192,6 +192,7 @@ function startsWith(source, target)
 end
 
 function copy(orig)
+   if not orig then return nil end
    local orig_type = type(orig)
    local copy
    if orig_type == 'table' then
@@ -430,4 +431,31 @@ end
 
 function Damage:__concat(a)
     return tostring(self) .. tostring(a) 
+end
+
+function LoadConfig(name)
+   local status, config = pcall( 
+      function()
+         local config = {}
+         for line in io.lines(name..".cfg") do
+            for k,v in string.gmatch(line, "(%w+)=(%w+)") do
+               config[k] = v
+            end
+         end
+         return config
+      end 
+   )
+   if status then return config end
+end
+
+function SaveConfig(name, config)
+   local file = io.open(name..".cfg", "w")
+   for k,v in pairs(config) do
+      if type(v) == "table" then
+         file:write(k.." = {\n  "..table_print(v, 2))
+      else
+         file:write(k.."="..v.."\n")
+      end
+   end
+   file:close()
 end

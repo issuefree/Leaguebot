@@ -55,6 +55,17 @@ elseif me.SpellNameF == "SummonerHeal" then
    spells["summonerHeal"].key = "F"
 end
 
+spells["AA"] = {
+   range=me.range,
+   rangeType="e2e",
+   extraRange=0,
+   base={0}, 
+   ad=1,
+   type="P", 
+   color=red,
+   name="attack"   
+}
+
 MASTERIES = {}
 BLOCK_FOR_AA = true
 CHAMP_STYLE = nil
@@ -139,16 +150,6 @@ AddOnKey(OnKey)
 hotKey = GetScriptKey()
 playerTeam = ""
 
-
-spells["AA"] = {
-   range=GetAARange, 
-   rangeType="e2e",
-   base={0}, 
-   ad=1,
-   type="P", 
-   color=red,
-   name="attack"   
-}
 
 CHAR_SPELLS = {}
 
@@ -270,29 +271,6 @@ local function drawCommon()
          end
       end
    end
-end
-
-function LoadConfig(name)
-   local status, config = pcall( 
-      function()
-         local config = {}
-         for line in io.lines(name..".cfg") do
-            for k,v in string.gmatch(line, "(%w+)=(%w+)") do
-               config[k] = v
-            end
-         end
-         return config
-      end 
-   )
-   if status then return config end
-end
-
-function SaveConfig(name, config)
-   local file = io.open(name..".cfg", "w")
-   for k,v in pairs(config) do
-      file:write(k.."="..v.."\n")
-   end
-   file:close()
 end
 
 function doCreateObj(object)
@@ -1286,7 +1264,7 @@ function WillKill(...)
       if not IsImmune(thing, target) then
          if spell.name and spell.name == "attack" then
             damage = damage + GetAADamage(target)
-            local speed = aaData.speed
+            local speed = spells["AA"].speed
             if not speed and not IsMelee(me) then
                speed = 1500
                pp("No speed set")
@@ -1547,7 +1525,7 @@ function processShot(shot)
 end
 
 function OnProcessSpell(unit, spell)
-   if ModuleConfig.ass and unit.team ~= me.team then
+   if ModuleConfig.ass and IsEnemy(unit) then
       local shot = GetSpellShot(unit, spell)
       if shot and not shot.dodgeByObject then
          processShot(shot)
