@@ -18,9 +18,10 @@ spells["overload"] = {
    range=625, 
    color=violet, 
    base={40,60,80,100,120}, 
-   ap=.4, 
+   ap=.4,
    maxMana=.065,
-   cost=60
+   cost=60,
+   speed=1400
 }
 spells["prison"] = {
    key="W", 
@@ -118,9 +119,14 @@ function Action()
       end
    end
 
-   local target = GetMarkedTarget() or GetWeakestEnemy("AA")
-   if AutoAA(target) then
-      return true
+   if not CanUse("overload") and
+      not CanUse("prison") and
+      not CanUse("flux")
+   then
+      local target = GetMarkedTarget() or GetWeakestEnemy("AA")
+      if AutoAA(target) then
+         return true
+      end
    end
 
    return false   
