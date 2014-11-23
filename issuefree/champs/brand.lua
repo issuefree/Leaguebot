@@ -36,7 +36,7 @@ spells["sear"] = {
 }
 spells["pillar"] = {
    key="W", 
-   range=902, 
+   range=902-15, 
    color=yellow, 
    base={75,120,165,210,255}, 
    ap=.6,
