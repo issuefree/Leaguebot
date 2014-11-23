@@ -1,6 +1,11 @@
 require "issuefree/timCommon"
 require "issuefree/modules"
 
+InitAAData({
+   windup=.25,
+   particles={"Katarina_BasicAttack_tar"}
+})
+
 spells["blades"] = {
    key="Q", 
    range=675, 
