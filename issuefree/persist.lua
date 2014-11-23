@@ -408,16 +408,16 @@ local function updateHeroes()
    EAPC = getAPC(ENEMIES)
 
    if ADC then
-      DrawText("ADC:"..ADC.name, 10, 910, 0xFF00FF00)
+      DrawText("ADC:"..ADC.name, 10, 880, 0xFF00FF00)
    end
    if APC then
-      DrawText("APC:"..APC.name, 10, 925, 0xFF00FF00)
+      DrawText("APC:"..APC.name, 10, 895, 0xFF00FF00)
    end
    if EADC then
-      DrawText("ADC:"..EADC.name, 150, 910, 0xFFFF0000)
+      DrawText("ADC:"..EADC.name, 150, 880, 0xFFFF0000)
    end
    if EAPC then
-      DrawText("APC:"..EAPC.name, 150, 925, 0xFFFF0000)
+      DrawText("APC:"..EAPC.name, 150, 895, 0xFFFF0000)
    end
 end
 
