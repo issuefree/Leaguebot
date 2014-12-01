@@ -90,8 +90,8 @@ end
 local function createClose(point)
    local ix,iy = pointToIndex(point)
    POINTS[ix][iy] = point
-   for i=ix-1,ix+1,1 do
-      for j=iy-1,iy+1,1 do
+   for i=ix-2,ix+2,1 do
+      for j=iy-2,iy+2,1 do
          POINTS[i][j] = Point((i-1)*RES,0,(j-1)*RES)
       end
    end
@@ -275,10 +275,12 @@ function chasePoints()
 end
 
 load = true
+
+local chase = false
 local function Tick()
-   -- if #ALLIES > 1 then
+   if #ALLIES > 1 then
       EDITMODE = false
-   -- end
+   end
    if load then
       if MAPNAME then
          pp("Identified "..MAPNAME)
@@ -306,7 +308,14 @@ local function Tick()
          savePoints()
       end
 
-      chasePoints()
+      if KeyDown(string.byte("J")) then
+         chase = not chase
+      end
+
+      if chase then
+         PrintState(0, "CHASING")
+         chasePoints()
+      end
       checkPoints() 
       drawPoints()
    end
