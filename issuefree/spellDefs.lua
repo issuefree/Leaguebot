@@ -71,6 +71,7 @@ SPELL_DEFS = {
 		},
 	},
 	Brand = {
+		brandblaze={},
 		brandblazemissile={range=1050, radius=70, time=1, ss=true, isline=true, block=true, cc=STUN},
 		brandconflagration={},
 		brandfissure={range=900, radius=250, time=4, ss=true, isline=false},
@@ -340,6 +341,7 @@ SPELL_DEFS = {
 		leonazenithblademissile={range=700, radius=150, time=1, ss=true, isline=true},
       leonazenithblade={}, --{type="dash", ends="target?"}, -- TODO
       leonasolarbarrier={},
+      leonashieldofdaybreak={},
 		leonasolarflare={cc=STUN},
 	},
 	Lissandra = { -- todo dash
@@ -355,6 +357,7 @@ SPELL_DEFS = {
 		lucianw={range=1000, radius=150, time=1.5, ss=true, isline=true, physical=true},
       luciane={type="dash", ends="point", range=450},
 		lucianr={range=1400, radius=250, time=3, ss=true, isline=true, physical=true},
+		lucianrdisable={},
 	},
 	Lux = {
 		luxlightbinding={key="Q", range=1175, radius=150, time=1, ss=true, isline=true, cc=BIND},
@@ -616,6 +619,9 @@ SPELL_DEFS = {
 	Twitch = {
 		twitchvenomcask={cc=SLOW, nodamage=true},
 	},
+	Udyr={
+
+	},
 	Urgot = {
 		urgotheatseekingmissile={},
 		urgotheatseekinghomemissile={},
@@ -671,6 +677,8 @@ SPELL_DEFS = {
    },	
    MonkeyKing={
    	monkeykingnimbus={type="dash", ends="target"},
+   	monkeykingdecoy={},
+   	monkeykingspintowin={},
 	},
 	Xerath = {
 		xerathlocuspulse={},
