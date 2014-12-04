@@ -480,7 +480,6 @@ function createForPersist(object)
       nexusKey = "nexus_on"
    end
    if find(object.charName, inhibKey)then
-      pp("here")
       if find(object.charName, "order") then
          if me.team == 100 then
             table.insert(MYINHIBS, object)
@@ -495,6 +494,9 @@ function createForPersist(object)
          end
       end
    end
+   
+   PersistAll("destroyed", object, "DestroyedBuilding")
+
    if find(object.charName, nexusKey) then
       if find(object.charName, "order") then
          if me.team == 100 then
@@ -637,6 +639,17 @@ function persistTick()
       Clean(MYINHIBS, "charName", "_gem")
       Clean(NEXUS, "charName", "_on")
       Clean(MYNEXUS, "charName", "_on")
+   end
+
+   for i,inhib in rpairs(INHIBS) do
+      if #GetAllInRange(inhib, 250, GetPersisted("destroyed")) > 0 then
+         table.remove(INHIBS, i)
+      end
+   end
+   for i,inhib in ipairs(MYINHIBS) do
+      if #GetInRange(inhib, 250, GetPersisted("destroyed")) > 0 then
+         table.remove(MYINHIBS, i)
+      end
    end
 
    CleanPersistedObjects()
