@@ -15,6 +15,7 @@ ignoredSpells = {
 	"DeathfireGrasp", "totem", "ward", "BilgewaterCutlass", "ItemSwordOfFeastAndFamine",
 	"trinket", "HealthBomb", "RanduinsOmen", "YoumusBlade", "FlaskOfCrystalWater", 
 	"ElixirOfWrath", "HextechGunblade", "Muramana", "shurelyascrest", "lanternwally",
+	"kalistarallydash",
 }
 
 SPELL_DEFS = {
@@ -65,10 +66,14 @@ SPELL_DEFS = {
    	azirr={},
    }, 
 	Blitzcrank = {
+		rocketgrab={},
 		rocketgrabmissile={
 			key="Q", range=925, radius=90, time=1, ss=true, block=true, perm=true, show=true, isline=true, cc=GRAB,
 			type="stall",
 		},
+		overdrive={},
+		powerfist={},
+		staticfield={},
 	},
 	Brand = {
 		brandblaze={},
@@ -210,6 +215,7 @@ SPELL_DEFS = {
 	Graves = {
 		gravesclustershot={range=750, radius=50, time=1, ss=true, isline=true, physical=true},
 		gravessmokegrenade={range=700, radius=275, time=1.5, ss=true, isline=false},
+		gravessmokegrenadeboom={},
       gravesmove={type="dash", ends="max", range=425},
 		graveschargeshot={range=1000, radius=110, time=1, ss=true, isline=true, physical=true},
 	},
@@ -230,6 +236,7 @@ SPELL_DEFS = {
 		ireliatranscendentblades={range=1200, radius=80, time=0.8, ss=true, isline=true},
 		ireliaequilibriumstrike={cc=STUN},
       ireliagatotsu={type="dash", ends="target"},
+      ireliahitenstyle={},
 	},
 	Janna = {
 		howlinggale={range=1700, radius=100, time=3, ss=true, show=true, isline=true, dodgeByObject=true},
@@ -267,6 +274,9 @@ SPELL_DEFS = {
 			key="R", range=50000, radius=150, time=4, ss=true, show=true, isline=true, physical=true, dodgeByObject=true,
 			type="stall"
 		},
+	},
+	Kalista = {
+
 	},
 	Karma = {
 
@@ -336,6 +346,9 @@ SPELL_DEFS = {
 		blindmonkrkick={range=1200, radius=100, time=1, ss=true, isline=true, physical=true},
       blindmonkqtwo={type="dash", ends="target"},
       blindmonkwone={type="dash", ends="target"},
+      blindmonkwtwo={type="dash", ends="target"},
+      blindmonkeone={},
+      blindmonketwo={},
 	},
 	Leona = {
 		leonazenithblademissile={range=700, radius=150, time=1, ss=true, isline=true},
@@ -350,6 +363,7 @@ SPELL_DEFS = {
 		lissandraw={},
 		lissandrae={range=1050, radius=100, time=1.5, ss=true, isline=true},
 		lissandraemissile={},
+		lissandrarenemy={},
 		lissandrar={},
 	},
 	Lucian = {
@@ -395,6 +409,8 @@ SPELL_DEFS = {
 	 		cc=STUN,
 	 		type="dash", ends="target"
 	 	},
+	 	maokaitrunkline={},
+	 	maokaidrain3={},
 		maokaitrunklinemissile={range=600, radius=100, time=1, ss=true, isline=true, cc=SLOW},
 		maokaisapling2={range=1100, radius=350, time=1, ss=true, isline=false},
 	},
@@ -540,7 +556,10 @@ SPELL_DEFS = {
 		sionq={type="stall"},
   	},
 	Sivir = {
-		spiralblade={key="Q", range=1000, radius=100, time=1, ss=true, isline=true, physical=true},
+		sivirq={key="Q", range=1000, radius=100, time=1, ss=true, isline=true, physical=true},
+		-- spiralblade={key="Q", range=1000, radius=100, time=1, ss=true, isline=true, physical=true},
+		sivire={},
+		sivirr={},
 	},
 	Singed = {
 		megaadhesive={range=1000, radius=350, time=1.5, ss=true, isline=false, cc=SLOW},
@@ -560,6 +579,7 @@ SPELL_DEFS = {
 	Soraka = {
 		sorakaq={},
 		sorakaw={},
+		sorakawparticlemissile={},
 		sorakae={},
 		sorakar={},
 	},
@@ -572,6 +592,8 @@ SPELL_DEFS = {
 		syndrawcast={range=950, radius=200, time=1, ss=true, isline=false, cc=SLOW},
 		syndrae={range=650, radius=100, time=0.5, ss=true, isline=true, cc=STUN},
 		syndrar={},
+		syndrarcasttime={},
+		syndrae5={},
 	},
 	Talon={
 		taloncutthroat={type="dash", ends="target"},
@@ -579,6 +601,7 @@ SPELL_DEFS = {
 		talonnoxiandiplomacy={},
 		talonshadowassault={},
 		talonrakemissileone={},
+		talonshadowassaulttoggle={},
 	},
 	Taric = {
 		dazzle={cc=STUN},
@@ -666,7 +689,10 @@ SPELL_DEFS = {
 		assaultandbattery={cc=KNOCK, physical=true},
 	},
 	Viktor = {
-		--ViktorDeathRay={range=700, radius=80, time=2, ss=true, isline=true},
+		viktorqbuff={},
+		viktordeathray={}, --{range=700, radius=80, time=2, ss=true, isline=true},
+		viktorgravitonfield={},
+		viktorpowertransfer={},
 	},
    Warwick={
    	hungeringstrike={key="Q"},
@@ -692,13 +718,22 @@ SPELL_DEFS = {
    XinZhao={
       xenzhaosweep={type="dash", ends="target"},
       xenzhaobattlecry={},
+      yasuoqw={},
+      yasuoq={},
+      yasuodummyspell={},
+      yasuorknockupcombow={},
+      yasuordummyspell={},
+
    },
    Yasuo={
       yasuodashwrapper={type="dash", ends="max", range=300},
+      yasuowmovingwall={},
    },
   	Zac = {
 		zacq={range=550, radius=100, time=1, ss=true, isline=true, cc=SLOW},
+		zacw={},
 		zace={range=1550, radius=200, time=2, ss=true, isline=false, cc=KNOCK},
+		zacr={},
 	},
 	Zed = {
 		zedshuriken={range=900, radius=100, time=1, ss=true, isline=true, physical=true},
@@ -710,12 +745,16 @@ SPELL_DEFS = {
 	},
 	Ziggs = {
 		ziggsq={range=1100, radius=150, time=1.5, ss=true, show=true, isline=true, point=true, block=true},
+		ziggsqspell={},
 		ziggsw={range=1000, radius=225, time=1, ss=true, isline=false, cc=KNOCK},
+		ziggswtoggle={},
 		ziggse={range=900, radius=250, time=1, ss=true, isline=false, cc=SLOW},
+		ziggse2={},
 		ziggsr={range=5300, radius=550, time=3, ss=true, isline=false},
 	},
 	Zilean = {
-
+		timewarp={},
+		timebomb={},
 	},
 	Zyra = {
 		zyraqfissure={range=800, radius=275, time=1.5, ss=true},
