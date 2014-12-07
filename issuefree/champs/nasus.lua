@@ -53,7 +53,7 @@ spells["fire"] = {
    color=violet,
    base={55,95,135,175,215},
    ap=.6,
-   radius=400,
+   radius=400-25,
    delay=4,
    speed=0,
    noblock=true,
@@ -87,12 +87,12 @@ function Run()
    end   
    
 
-   if IsOn("lasthit") and Alone() then
+   if IsOn("lasthit") and not Engaged() then
       if CanUse("strike") then
-         local targets = SortByDistance(GetInE2ERange(me, spells["AA"].range+100, CREEPS, MINIONS))
+         local targets = SortByDistance(GetInE2ERange(me, GetAARange()+100, CREEPS, MINIONS))
          for _,target in ipairs(targets) do 
             if WillKill("strike", target) then
-               Cast("strike", target)
+               Cast("strike", me)
                AttackTarget(target) -- not using AA as I want to interupt auto attacks
                needMove = true
                PrintAction("strike lasthit")
