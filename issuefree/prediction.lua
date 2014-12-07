@@ -4,6 +4,7 @@ require "issuefree/spellDefs"
 
 function PredictEnemy(unit, spell)
    if IsEnemy(unit) then
+   -- if IsHero(unit) then
       local def = GetSpellDef(unit.name, spell.name)
       if def and def.type then
          local predName = unit.name..".pred"
@@ -14,7 +15,7 @@ function PredictEnemy(unit, spell)
             if def.ends == "max" then
                point = Projection(unit, spell.endPos, def.range)
             elseif def.ends == "reverse" then
-               point = Projection(spell.endPos, unit, def.range)
+               point = Projection(unit, spell.endPos, -def.range)
             elseif def.ends == "point" then
                if GetDistance(unit, spell.endPos) > def.range then
                   point = Projection(unit, spell.endPos, def.range)
