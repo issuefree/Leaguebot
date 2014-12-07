@@ -29,7 +29,7 @@ local types = {
 		charName="Noxious Trap", name="TeemoMushroom", spellName="BantamTrap" },
   	 { label="Yordle Trap", color = red, 
   		duration = 240, sightRange=150, triggerRange=150,
-  		charName="Cupcake Trap", name="CaitlynYordleTrap", spellName="CaitlynYordleTrap" }, 
+  		charName="Cupcake Trap", name="CaitlynTrap", spellName="CaitlynYordleTrap" }, 
   	 { label="Bushwhack", color=yellow,
   		duration = 240, sightRange=0, triggerRange=150,
 		charName="Noxious Trap", name="Nidalee_Spear", spellName="Bushwhack" }
@@ -77,13 +77,13 @@ end
 
 function drawWards()
 	for i,ward in ipairs(wards) do 
+		local timer = string.format(math.ceil((ward.tick+ward.duration-time())))
+		Circle(ward, ward.triggerRange, ward.color)
+		if showVisionRange then					
+			Circle(ward, ward.sightRange, ward.color)
+		end
 		if ward.duration > 0 then
-			local timer = string.format(math.ceil((ward.tick+ward.duration-time())))
-			Circle(ward.loc, ward.triggerRange, ward.color)
-			if showVisionRange then					
-				Circle(ward.loc, ward.sightRange, ward.color)
-			end
-			if GetDistance(ward.loc, GetMousePos()) < showTimerRadius then
+			if GetDistance(ward, GetMousePos()) < showTimerRadius then
 				if ward.source == "onload" then
 					DrawText(ward.label..": max "..timer, GetCursorX()-13, GetCursorY()-17, timerColor)
 				else
@@ -119,8 +119,10 @@ function addWard(ward, type)
 
 	--check for dups
 	for i,w in rpairs(wards) do
-		if GetDistance(w.loc, ward.loc) < 100 and
-		   math.abs(w.tick - ward.tick) < 1 then
+		if GetDistance(w, ward) < 100 and
+		   math.abs(w.tick - ward.tick) < 1 and
+		   w.label == ward.label
+		then
 			if ward.source == "spell" then  -- don't add spells if the obj exists
 				return
 			else
@@ -137,16 +139,44 @@ local function onCreate(object)
 		return
 	end
 
+	-- for _,ward in ipairs(wards) do
+	-- 	if GetDistance(ward, object) < 100 then
+	-- 		pp(object)
+	-- 	end
+	-- end
+
 	for _,type in ipairs(types) do
 		if object.charName == type.charName and 
 			object.name == type.name
 		then
-			local ward = {loc=Point(object), object=object, tick=time(), source="oncreate"}
+			local ward = {object=object, tick=time(), source="oncreate"}
+			ward = merge(ward, Point(object))
 			if LOADING then
 				ward.source = "onload"
 			end
 			addWard(ward, type)
 			break
+		end
+	end
+
+	if find(object.charName, "caitlyn_Base_yordleTrap_trigger") then
+		SortByDistance(wards, object)
+		for i,ward in ipairs(wards) do
+			if ward.name == "CaitlynYordleTrap" and GetDistance(object, ward) < 100 then
+				table.remove(wards, i)
+				pp("remove trap")
+				break
+			end
+		end
+	end
+	if find(object.charName, "ShroomMine") then
+		SortByDistance(wards, object)
+		for i,ward in ipairs(wards) do
+			if ward.name == "TeemoMushroom" and GetDistance(object, ward) < 100 then
+				table.remove(wards, i)
+				pp("remove shroom")
+				break
+			end
 		end
 	end
 end
@@ -155,7 +185,8 @@ local function onSpell(unit, spell)
 	if IsHero(unit) and (showSameTeam or IsEnemy(unit)) then
 		for _,type in ipairs(types) do
 			if type.spellName == spell.name then
-				local ward = {loc=Point(spell.endPos), tick=time(), source="spell"}
+				local ward = {tick=time(), source="spell"}
+				ward = merge(ward, Point(spell.endPos))
 				addWard(ward, type)
 				break
 			end
