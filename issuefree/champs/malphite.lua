@@ -39,7 +39,7 @@ spells["strikes"] = {
 } 
 spells["slam"] = {
    key="E", 
-   range=400, 
+   range=400-10, 
    color=yellow, 
    base={60,100,140,180,220}, 
    ap=.2,
@@ -102,7 +102,7 @@ function Action()
    if #GetInRange(me, "slam", ENEMIES) > 0 then
       if CanUse("strikes") then
          Cast("strikes", me)
-         PrintAction("Strikes!")
+         PrintAction("Strikes!", nil, 1)
       end
 
       if CanUse("slam") then
