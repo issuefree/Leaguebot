@@ -139,10 +139,12 @@ function Run()
 end
 
 function Action()
-   local target = SkillShot("barrel")
-   if target then
-      UseItem("Deathfire Grasp", target)
-      return true
+   if not P.barrel then
+      local target = SkillShot("barrel")
+      if target then
+         UseItem("Deathfire Grasp", target)
+         return true
+      end
    end
 
    local target = GetMarkedTarget() or GetMeleeTarget()
@@ -162,6 +164,9 @@ local function onObject(object)
 end
 
 local function onSpell(unit, spell)
+   if ICast("barrel", unit, spell) then
+      PersistTemp("barrel", .5)
+   end
 end
 
 AddOnCreate(onObject)
