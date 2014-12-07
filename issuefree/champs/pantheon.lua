@@ -9,6 +9,10 @@ pp(" - Strike if they're near")
 pp(" - Spear if they're running")
 pp(" - Spear to lasthit far minions if I have mana")
 
+InitAAData({
+   windup=.25
+})
+
 AddToggle("dive", {on=false, key=112, label="Dive"})
 AddToggle("", {on=true, key=113, label="- - -"})
 AddToggle("", {on=true, key=114, label=""})
