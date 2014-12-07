@@ -53,7 +53,8 @@ function pp(str)
       end
    elseif type(str) == "userdata" then
       if str.charName then
-         pp(str.charName..": "..str.id)
+         pp(str.charName)
+         pp(str.name..": "..str.id)
          pp("  ("..math.floor(str.x+.5)..","..math.floor(str.z+.5)..")")
       end
    else
