@@ -125,9 +125,6 @@ spells["AA"].damOnTarget =
 local chargeStartTime = 0
 
 function Run()
-   for _,inhib in ipairs(INHIBS) do
-      LineBetween(me, inhib)
-   end
    P.markedTarget = nil
 
    if P.charging then      
