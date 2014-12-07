@@ -15,7 +15,7 @@ ignoredSpells = {
 	"DeathfireGrasp", "totem", "ward", "BilgewaterCutlass", "ItemSwordOfFeastAndFamine",
 	"trinket", "HealthBomb", "RanduinsOmen", "YoumusBlade", "FlaskOfCrystalWater", 
 	"ElixirOfWrath", "HextechGunblade", "Muramana", "shurelyascrest", "lanternwally",
-	"kalistarallydash",
+	"kalistarallydash", "hextechsweeper",
 }
 
 SPELL_DEFS = {
@@ -38,6 +38,7 @@ SPELL_DEFS = {
 			cc=KNOCK,
 			type="dash", ends="target", overShoot=-25,
 		},
+		triumphantroar={},
 	},
 	Amumu = {
 		bandagetoss={
@@ -63,7 +64,13 @@ SPELL_DEFS = {
 		ashespiritofthehawk={},
 	},
    Azir = {
+   	azirq={},
+   	azirw={},
+   	azire={},
    	azirr={},
+   	azirdummyspell={},
+   	azirtowerclick={},
+
    }, 
 	Blitzcrank = {
 		rocketgrab={},
@@ -86,13 +93,13 @@ SPELL_DEFS = {
 		spellnameq={range=1000, radius=175, time=1, ss=true, isline=true, block=true, cc=SLOW},
 	},
 	Caitlyn = {
-		caitlynheadshotmissile={},
+		caitlynheadshotmissile={physical=true},
+      caitlynentrapment={type="dash", ends="reverse", range=400+75},
 		caitlynentrapmentmissile={range=1000, radius=50, time=1, ss=true, isline=true, cc=SLOW, physical=true},
 		caitlynpiltoverpeacemaker={
 			range=1300, radius=80, time=1, ss=true, isline=true, physical=true,
 			type="stall"
 		},
-      caitlynentrapment={type="dash", ends="reverse", range=400},
       caitlynyordletrap={key="W"},
 		caitlynaceinthehole={
 			physical=true,
@@ -114,12 +121,15 @@ SPELL_DEFS = {
 		feast={},
 	},
 	Corki = {
+		missilebarrage={},
 		missilebarragemissile={range=1225, radius=80, time=1, ss=true, isline=true, block=true},
 		missilebarragemissile2={range=1225, radius=100, time=1, ss=true, isline=true, block=true},
 		carpetbomb={
 			--range=800, radius=150, time=1, ss=true, isline=true, point=true,
 			type="dash", ends="point", range=800
 		},
+		phosphorusbomb={},
+		ggun={},
 	},
 	Darius = {
 		dariusaxegrabcone={
@@ -151,6 +161,7 @@ SPELL_DEFS = {
 		elisehumane={range=1075, radius=100, time=1, ss=true, block=true, perm=true, isline=true, block=true},
 		elisespidereinitial={},
 		elisespidere={},
+		eliserspider={},
 		eliser={},
 	},
 	Ezreal = {
@@ -197,6 +208,7 @@ SPELL_DEFS = {
 		parley={physical=true},
 		removescurvy={},
 		raisemorale={},
+		cannonbarrage={},
 	},
 	Garen = {
 		garenq={},
@@ -284,6 +296,14 @@ SPELL_DEFS = {
 	Karthus = {
 		laywaste={range=875, radius=150, time=1, ss=true, isline=false},
 		fallenone={},
+		karthusfallenone2={},
+		karthusdefile={},
+		karthusdeathdefiedbuff={},
+		karthuslaywastedeada2={},
+		karthuslaywastedeada3={},
+		karthuslaywastea1={},
+		karthuslaywastea2={},
+		karthuswallofpain={},
 	},
 	Kassadin = {
 		nulllance={cc=SILENCE},
@@ -473,6 +493,9 @@ SPELL_DEFS = {
 		olafragnarok={},
 	},
 	Orianna = {
+		orianaredactcommand={},
+		orianadetonatecommand={},
+		orianadissonancecommand={},
 		orianaizunacommand={range=825, radius=90, time=1.5, ss=true, isline=false},
 	},
 	Pantheon = {
@@ -535,6 +558,8 @@ SPELL_DEFS = {
 			type="dash", ends="point"
 		},
 		hallucinatefull={},
+		jackinthebox={},
+		twoshivpoison={},
 	},
 	Shen = {
 		shenshadowdash={
@@ -605,6 +630,9 @@ SPELL_DEFS = {
 	},
 	Taric = {
 		dazzle={cc=STUN},
+		shatter={},
+		imbue={},
+		tarichammersmash={},
 	},
 	Teemo = {
 		movequick={},
@@ -629,10 +657,14 @@ SPELL_DEFS = {
 		bustershot={cc=KNOCK},
 	},
 	Tryndamere = {
+		slashcast={},
 		slash={
 			range=660, radius=100, time=1, ss=true, isline=true, point=true, physical=true,
 			type="dash", ends="point"
 		},
+		mockingshout={},
+		undyingrage={},
+		bloodlust={},
 	},
 	TwistedFate = {
 		redcard={cc=SLOW},
@@ -714,6 +746,7 @@ SPELL_DEFS = {
 		xerathrmissilewrapper={range=5600, radius=150, time=1, ss=true, isline=false},
 		xerathlocusofpower2={type="stall"},
       xeratharcanopulsechargeup={type="stall"},
+      xerathmagespearmissile={},
   	},
    XinZhao={
       xenzhaosweep={type="dash", ends="target"},
