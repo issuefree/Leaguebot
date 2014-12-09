@@ -56,7 +56,7 @@ function SetEndPoints(shot)
 				shot.endPoint = Projection(shot.startPoint, shot.endPoint, shot.range)
 			end
 			if shot.name == "ZiggsQ" then
-				local bounceDist = GetDistance(shot.startPoint, shot.endPoint)*1.3
+				local bounceDist = GetDistance(shot.startPoint, shot.endPoint)*1.5
 				shot.endPoint = Projection(shot.startPoint, shot.endPoint, bounceDist)
 			end
 			shot.maxDist = GetDistance(shot.startPoint, shot.endPoint) + shot.radius
