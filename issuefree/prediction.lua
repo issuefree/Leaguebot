@@ -32,6 +32,10 @@ function PredictEnemy(unit, spell)
          elseif def.type == "stall" then
             point = Point(unit)
          end
+         if not point then
+            pp(def)
+            pp(spell)
+         end
          pred.x = point.x
          pred.y = point.y
          pred.z = point.z
