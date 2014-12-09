@@ -15,7 +15,7 @@ ignoredSpells = {
 	"DeathfireGrasp", "totem", "ward", "BilgewaterCutlass", "ItemSwordOfFeastAndFamine",
 	"trinket", "HealthBomb", "RanduinsOmen", "YoumusBlade", "FlaskOfCrystalWater", 
 	"ElixirOfWrath", "HextechGunblade", "Muramana", "shurelyascrest", "lanternwally",
-	"kalistarallydash", "hextechsweeper",
+	"kalistarallydash", "hextechsweeper", "quicksilversash",
 }
 
 SPELL_DEFS = {
@@ -26,6 +26,7 @@ SPELL_DEFS = {
 		ahriorbofdeception={range=880, radius=80, time=1, ss=true, isline=true},
 		ahriseduce={range=975, radius=80, time=1, ss=true, isline=true, block=true, cc=TAUNT, nodamage=true},
       ahritumble={type="dash", ends="max", range=450, key="R"},
+      ahrifoxfire={},
 	},
 	Akali = {
 		akalimota={},
@@ -218,7 +219,9 @@ SPELL_DEFS = {
 	},
 	Gnar = {
 		gnarq={},
+		gnarqmissile={},
 		gnarbigq={},
+		gnarbigqmissile={},
 		gnarbigw={},
 		gnare={},
 		gnarbige={},
@@ -243,6 +246,10 @@ SPELL_DEFS = {
 	Heimerdinger = {
 		ch1concussiongrenade={range=950, radius=225, time=2, ss=true, show=true, isline=false, cc=STUN},
 		hextechmicrorockets={},
+		heimerdingerq={},
+		heimerdingerw={},
+		heimerdingere={},
+		heimerdingerr={},
 	},
 	Irelia = {
 		ireliatranscendentblades={range=1200, radius=80, time=0.8, ss=true, isline=true},
@@ -327,8 +334,10 @@ SPELL_DEFS = {
 		kennenshurikenstorm={}, --TODO
 	},
 	Khazix = {
+		khazixq={},
 		khazixw={range=1000, radius=120, time=0.5, ss=true, isline=true, cc=SLOW, physical=true},
 		khazixwlong={range=1000, radius=150, time=1, ss=true, isline=true, cc=SLOW, physical=true},
+		khazixwevo={},
 		khazixe={
 			range=600, radius=200, time=1, ss=true, isline=false, physical=true,
 			type="dash", ends="point"
@@ -338,6 +347,7 @@ SPELL_DEFS = {
 			type="dash", ends="point"
 		},
 		khazixeevo={},
+		khazixr={},
 	},
 	KogMaw = {
 		kogmawq={},--TODO
@@ -523,9 +533,17 @@ SPELL_DEFS = {
 		-- renektondice={range=450, radius=80, time=1, ss=true, isline=true, physical=true},
       renektonsliceanddice={type="dash", ends="max", range=450},
       renektondice={type="dash", ends="max", range=450},
+      renektoncleave={},
+      renektonpreexecute={},
+      renektonsuperexecute={},
+      renektonreignofthetyrant={},
   	},
 	Rengar = {
+		rengarq={},
+		rengarw={},
 		rengare={cc=STUN, physical=true},
+		rengarefinal={},
+		rengarr={},
 	},
    Riven={
       rivenfeint={type="dash", ends="max", range=325},
@@ -583,6 +601,7 @@ SPELL_DEFS = {
 	Sivir = {
 		sivirq={key="Q", range=1000, radius=100, time=1, ss=true, isline=true, physical=true},
 		-- spiralblade={key="Q", range=1000, radius=100, time=1, ss=true, isline=true, physical=true},
+		sivirw={},
 		sivire={},
 		sivirr={},
 	},
@@ -610,6 +629,9 @@ SPELL_DEFS = {
 	},
 	Swain = {
 		swainshadowgrasp={range=900, radius=265, time=1.5, ss=true, isline=false, cc=STUN},
+		swaintorment={},
+		swaindecrepify={},
+		swainmetamorphism={},
 	},
 	Syndra = {
 		syndraq={range=800, radius=200, time=1, ss=true, isline=false},
@@ -710,6 +732,12 @@ SPELL_DEFS = {
    	velkoze={},
    	velkozr={type="stall"},
 	},	
+	Vladimir = {
+		vladimirtransfusion={},
+		vladimirtidesofblood={},
+		vladimirhemoplague={},
+		vladimirsanguinepool={},
+	},
 	Volibear = {
 		volibearq={cc=KNOCK, physical=true},
 		volibearw={},
@@ -816,7 +844,7 @@ function GetSpellDef(name, spellName)
 				end
 			end
 			pp("No def for "..name)
-			pp(string.lower(spellName))
+			pp(string.lower(spellName).."={},")
 			PlaySound("Beep")
 			table.insert(ignoredSpells, spellName)
 		end
