@@ -48,14 +48,14 @@ spells["seed"] = {
 }
 spells["roots"] = {
    key="E", 
-   range=1100-25, 
+   range=1100-50, 
    color=yellow, 
    base={60,95,130,165,200}, 
    ap=.5,
    delay=2.4,
    speed=11.5,
    noblock=true,
-   width=90,  --?
+   width=80,  --?
    growWidth=315,
    name="ZyraGraspingRoots"
    -- cost={70,75,80,85,90},
@@ -72,8 +72,6 @@ spells["strangle"] = {
    radius=525,  -- reticle
    -- cost={100,120,140}
 }
-
-seedDelay = .75
 
 function Run()
    if StartTickActions() then
@@ -93,13 +91,10 @@ function Run()
       end
    end
 
-   if CanUse("bloom") or CanUse("roots") then
-      if CastAtCC("bloom") or
-         CastAtCC("roots")
-      then
-         StartChannel(.5)
-         return true
-      end
+   if CastAtCC("bloom") or
+      CastAtCC("roots")
+   then
+      return true
    end
 
    if HotKey() then
@@ -137,36 +132,18 @@ function Action()
    -- TestSkillShot("roots")
    -- TestSkillShot("bloom", "zyra_Q_expire")
 
-   if CanUse("roots") then
-      local target = GetSkillShot("roots")
-      if target then
-         -- if CanUse("seed") then
-         --    local point = GetSpellFireahead("roots", target)
-         --    if GetDistance(point) > GetSpellRange("seed") then
-         --       point = Projection(me, point, GetSpellRange("seed"))
-         --    end            
-         --    CastXYZ("seed", point)
-         -- end
-         CastFireahead("roots", target)
-         PrintAction("Roots", target)
-         StartChannel(.5)
-         return true
-      end
+   if SkillShot("roots", nil, nil, .8) then
+      return true
+   end
+
+   if SkillShot("bloom") then
+      return true
    end
 
    if CanUse("bloom") then
-      local target = GetSkillShot("bloom")
-      if target then
-         -- if CanUse("seed") then
-         --    CastXYZ("seed", GetSpellFireahead("bloom", target))
-         -- end
-         CastFireahead("bloom", target)
-         PrintAction("Bloom", target)
-         StartChannel(.5)
-         return true
-      end
+      CastXYZ("bloom", mousePos)
+      return true
    end
-
    return false
 end
 
@@ -193,6 +170,7 @@ local function onSpell(unit, spell)
                   if GetDistance(point) > GetSpellRange("seed") then
                      point = Projection(me, point, GetSpellRange("seed"))
                   end
+                  StartChannel(.25)
                   CastXYZ("seed", point)
                   PrintAction("Seed on roots")
                   break
@@ -203,10 +181,9 @@ local function onSpell(unit, spell)
 
       if ICast("bloom", unit, spell) then
          if CanUse("seed") then
-            -- if #GetInRange(spell.endPos, 250, ENEMIES) > 0 then
-               CastXYZ("seed", spell.endPos)
-               PrintAction("Seed on bloom")
-            -- end
+            StartChannel(.25)
+            CastXYZ("seed", spell.endPos)
+            PrintAction("Seed on bloom")
          end
       end
    end
