@@ -136,7 +136,7 @@ function Action()
       end
    end
 
-   if SkillShot("lay") then
+   if SkillShot("lay", nil, nil, .66) then
       -- StartChannel(.5)
       return true
    end
