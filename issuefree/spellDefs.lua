@@ -236,20 +236,19 @@ SPELL_DEFS = {
 	},
 	Gragas = {
 		gragasq={range=850, radius=320, time=2.5, ss=true, show=true, isline=false},
+		gragasqtoggle={},
 		gragasw={},
 		gragase={range=650, radius=150, time=1.5, ss=true, isline=true, point=true, block=true, cc=STUN},
-		gragasexplosivecask={range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
+		gragasr={range=1050, radius=400, time=1.5, ss=true, isline=false, cc=KNOCK},
 	},
    Hecarim={
       hecarimult={type="dash", ends="point", range=1000},
    },
 	Heimerdinger = {
-		ch1concussiongrenade={range=950, radius=225, time=2, ss=true, show=true, isline=false, cc=STUN},
-		hextechmicrorockets={},
-		heimerdingerq={},
-		heimerdingerw={},
-		heimerdingere={},
-		heimerdingerr={},
+		heimerdingerq={key="Q"},
+		heimerdingerw={key="W"},
+		heimerdingere={key="E", range=950, radius=225, time=2, ss=true, show=true, isline=false, cc=STUN},
+		heimerdingerr={key="R"},
 	},
 	Irelia = {
 		ireliatranscendentblades={range=1200, radius=80, time=0.8, ss=true, isline=true},
@@ -286,7 +285,7 @@ SPELL_DEFS = {
 	},
 	Jinx = {
 		jinxq={key="Q"},
-      jinxw={type="stall"},
+      jinxw={key="W", type="stall"},
 		jinxwmissile={key="W", range=1500, radius=80, time=1.5, ss=true, show=true, isline=true, block=true, perm=true, physical=true, cc=SLOW},
 		jinxe={key="E"},
 		jinxr={
@@ -298,19 +297,25 @@ SPELL_DEFS = {
 
 	},
 	Karma = {
+		karmaq={key="Q"},
+		karmasolkimshield={key="E"},
+		karmamantra={key="R"},
 
 	},
 	Karthus = {
-		laywaste={range=875, radius=150, time=1, ss=true, isline=false},
-		fallenone={},
-		karthusfallenone2={},
-		karthusdefile={},
+		laywaste={key="Q", range=875, radius=150, time=1, ss=true, isline=false},
+		karthuslaywastea1={"laywaste"},
+		karthuslaywastea2={"laywaste"},
+		karthuslaywastea3={"laywaste"},
+		karthuslaywastedeada1={"laywaste"},
+		karthuslaywastedeada2={"laywaste"},
+		karthuslaywastedeada3={"laywaste"},
+		karthusdefile={key="E"},
+		karthuswallofpain={key="W"},
+		karthuswallofpain2={key="W"},
+		karthusfallenone={key="R"},
+		karthusfallenone2={key="R"},
 		karthusdeathdefiedbuff={},
-		karthuslaywastedeada2={},
-		karthuslaywastedeada3={},
-		karthuslaywastea1={},
-		karthuslaywastea2={},
-		karthuswallofpain={},
 	},
 	Kassadin = {
 		nulllance={cc=SILENCE},
@@ -328,6 +333,9 @@ SPELL_DEFS = {
 	},
 	Kayle = {
 		judicatorreckoning={cc=SLOW},
+		judicatorrighteousfury={},
+		judicatordivineblessing={},
+		judicatorintervention={},
 	},	
 	Kennen = {
 		kennenshurikenhurlmissile1={range=1050, radius=75, time=1, ss=true, isline=true, block=true},
@@ -728,6 +736,7 @@ SPELL_DEFS = {
    	-- ult={type="stall"},
    	-- TODO get obj for channel
    	velkozq={},
+   	velkozqsplitactivate={},
    	velkozw={},
    	velkoze={},
    	velkozr={type="stall"},
@@ -828,6 +837,9 @@ function GetSpellDef(name, spellName)
 	if spellTable then
 		local spellDef = spellTable[string.lower(spellName)]
 		if spellDef then
+			if type(spellDef[1]) == "string" then
+				spellDef = spellTable[spellDef[1]]
+			end
 			spellDef.name = spellName
 			if not spellDef.time then
 				spellDef.time = 1
