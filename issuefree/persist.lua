@@ -496,6 +496,8 @@ function createForPersist(object)
    end
    
    PersistAll("destroyed", object, "DestroyedBuilding")
+   PersistAll("destroyed", object, "Dest_")
+
 
    if find(object.charName, nexusKey) then
       if find(object.charName, "order") then
