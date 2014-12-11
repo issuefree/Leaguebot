@@ -4,7 +4,7 @@ require "issuefree/modules"
 pp("\nTim's Blitz")
 
 InitAAData({
-   windup=.3,
+   windup=.4,
    resets={me.SpellNameE}
 })
 
@@ -62,7 +62,7 @@ function Run()
    -- auto stuff that always happen
 
    -- high priority hotkey actions, e.g. killing enemies
-	if HotKey() and CanAct() then
+	if HotKey() then
 		if Action() then
 			return true
 		end
@@ -109,7 +109,7 @@ function Action()
 
 
    local target = GetMarkedTarget() or GetMeleeTarget()
-   if AutoAA(target, "fist") then
+   if AutoAA(target, "fist", true) then
       return true
    end
 
