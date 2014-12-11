@@ -10,7 +10,7 @@ pp(" - Spear if they're running")
 pp(" - Spear to lasthit far minions if I have mana")
 
 InitAAData({
-   windup=.25
+   windup=.25 -- TODO 4.21 This may have gotten faster?
 })
 
 AddToggle("dive", {on=false, key=112, label="Dive"})

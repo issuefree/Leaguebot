@@ -55,7 +55,7 @@ spells["fang"] = {
    range=700, 
    color=violet, 
    base={55,80,105,130,155},
-   ap={.4,.45,.5,.55,.6},
+   ap={.55},
 } 
 spells["gaze"] = {
    key="R", 

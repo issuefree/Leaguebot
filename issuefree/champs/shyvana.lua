@@ -3,6 +3,8 @@ require "issuefree/modules"
 
 pp("\nTim's Shyvana")
 
+-- TODO needs love, especially jungle love
+
 InitAAData({
    resets = {me.SpellNameQ}
 })

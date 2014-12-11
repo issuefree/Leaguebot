@@ -32,8 +32,8 @@ spells["volley"] = {
    base={40,50,60,70,80}, 
    ad=1,
    delay=2.5,
-   speed=20,
-   cone=50, -- wiki says 57.5 but through DrawSpellCone aagainst the reticle it's 50
+   speed=9,
+   cone=24.32*2, 
    cost=60,
    width=25
 }

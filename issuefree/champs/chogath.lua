@@ -102,7 +102,7 @@ function Run()
 		end
 	end
 
-
+	-- TODO increase the odds of this happening due to cooldown changes
    if IsOn("lasthit") then
    	if VeryAlone() then
    		if me.range < MAX_FEAST_RANGE then   		

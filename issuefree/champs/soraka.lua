@@ -110,6 +110,7 @@ function Action()
 	-- 	return true
 	-- end
 
+	-- TODO starcall less when I'm full health!?
 	if SkillShot("starcall", nil, nil, .85) then
 		return true
    end
