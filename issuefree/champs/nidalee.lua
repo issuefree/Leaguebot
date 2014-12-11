@@ -3,9 +3,11 @@ require "issuefree/modules"
 
 pp("\nTim's Nidalee")
 
-AddToggle("healTeam", {on=true, key=112, label="Heal Team", auxLabel="{0}", args={"heal"}})
-AddToggle("trap", {on=true, key=113, label="Auto Trap", auxLabel="{0}", args={"trap"}})
-AddToggle("", {on=true, key=114, label=""})
+InitAAData({})
+
+AddToggle("pounce", {on=true, key=112, label="Pounce"})
+AddToggle("healTeam", {on=true, key=113, label="Heal Team", auxLabel="{0}", args={"heal"}})
+AddToggle("trap", {on=true, key=114, label="Auto Trap", auxLabel="{0}", args={"trap"}})
 AddToggle("", {on=true, key=115, label=""})
 
 AddToggle("lasthit", {on=true, key=116, label="Last Hit", auxLabel="{0}", args={GetAADamage}})
@@ -120,6 +122,7 @@ function Run()
    if isCougar then
       InitAAData({ -- cougar
          windup=.2,
+         extraRange=-10,
          resets = {me.SpellNameQ},   
       })
       spells["jav"].key = "--"
@@ -195,16 +198,18 @@ end
 
 function Action()
    if not isCougar then
-      if SkillShot("jav") then
+      if SkillShot("jav", .75) then
          return true
       end      
       
-      if CanUse("cougar") and me.SpellLevelW > 0 then
-         local target = GetWeakest("pounce", GetInRange(me, "pounceProwl", GetWithBuff("prowl", ENEMIES)))
-         if target then
-            Cast("cougar", me)
-            PrintAction("Cougar for big pounce", target)
-            return true
+      if IsOn("pounce") then
+         if CanUse("cougar") and me.SpellLevelW > 0 then
+            local target = GetWeakest("pounce", GetInRange(me, "pounceProwl", GetWithBuff("prowl", ENEMIES)))
+            if target then
+               Cast("cougar", me)
+               PrintAction("Cougar for big pounce", target)
+               return true
+            end
          end
       end
 
