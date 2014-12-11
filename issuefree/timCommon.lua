@@ -56,7 +56,7 @@ elseif me.SpellNameF == "SummonerHeal" then
 end
 
 spells["AA"] = {
-   range=me.range,
+   range=function() return me.range end,
    rangeType="e2e",
    extraRange=0,
    base={0}, 
@@ -1457,7 +1457,6 @@ function IsImmune(thing, target)
    return false
 end
 
-
 DOLATERS = {}
 function DoIn(f, timeout, key)
    if key then
@@ -1512,7 +1511,7 @@ function checkDodge(shot)
       if not shot.block or ( shot.block and IsUnblocked(me, shot, shot.target, MINIONS, ENEMIES) ) then
          if not IsChannelling() or (shot.cc and shot.cc >= 3) then
             PrintAction("Dodge "..shot.name)
-            BlockingMove(shot.safePoint)
+            -- BlockingMove(shot.safePoint)
          end
       end
    end
@@ -1616,11 +1615,11 @@ function BlockingMove(move_dest)
    -- pp("block and move")
    if time() - lastMove > 1 then
       
-      MoveToXYZ(move_dest.x, 0, move_dest.z)
+      -- MoveToXYZ(move_dest.x, 0, move_dest.z)
       -- BlockOrders()
       DODGING = true
       DoIn( function()
-               UnblockOrders()
+               -- UnblockOrders()
                DODGING = false
             end,
             blockTimeout )  
@@ -1712,7 +1711,8 @@ function TimTick()
          end
 
          if spell.charges < spell.maxCharges then
-            local ttRecharge = GetLVal(spell, "rechargeTime") * (1+me.cdr)
+            -- local ttRecharge = GetLVal(spell, "rechargeTime") * (1+me.cdr)
+            local ttRecharge = GetLVal(spell, "rechargeTime") * (1+0)
             if ttRecharge > 0 then -- no recharge time means time doesn't generate charges
                if time() - spell.lastRecharge > ttRecharge then
                   spell.lastRecharge = time()
@@ -1976,11 +1976,12 @@ function AA(target)
    return false
 end
 
-function AutoAA(target, thing) -- thing is for modaa like Jax AutoAA(target, "empower")
+function AutoAA(target, thing, force) -- thing is for modaa like Jax AutoAA(target, "empower")
    local mod = ""
    if target and IsInE2ERange(GetAARange()+150, target) then
       if thing and CanUse(thing) and not P[thing] and
-         ( JustAttacked() or not IsInAARange(target) ) 
+         ( ( JustAttacked() or not IsInAARange(target) ) or
+           force )
       then
          Cast(thing, me)
          mod = " ("..thing..")"
@@ -2062,7 +2063,7 @@ end
 -- don't jump too far as you end up chasing.
 -- look out further to find a target if there isn't one at hand.
 function GetMeleeTarget()
-   return GetWeakestEnemy("AA", GetAARange()*.5, GetAARange()*.75)
+   return GetWeakestEnemy("AA", GetAARange()*.75, GetAARange()*1)
 end
 
 function DrawKnockback(object2, thing)
@@ -2227,7 +2228,7 @@ function UseItem(itemName, target, force)
       else -- target == false
          if P.muramana then
             CastSpellTarget(slot, me)
-            PrintAction("Muramana OFF")
+            PrintAction("Muramana OFF", nil, 1)
             return true
          end
       end
@@ -2308,7 +2309,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
    --    when vayne rolls you know where she's going to land. SS there.
 
    if DODGING then
-      return
+      return 
    end
 
    local spell = GetSpell(thing)
@@ -2326,7 +2327,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
    if not target then
 
       if hardCCOnly then
-         return nil
+         return 
       end
 
       for _,enemy in ipairs(SortByHealth(ENEMIES, thing)) do
@@ -2367,7 +2368,7 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
                   CastXYZ(spell, GetCastPoint({target}, spell))
                end
             else
-               return false
+               return 
             end
          end
 
@@ -2379,9 +2380,9 @@ function CastAtCC(thing, hardCCOnly, targetOnly)
             PrintAction(thing.." on immobile", target)
          end
       end
-      return target, not stilMoving
+      return target, not stillMoving
    end
-   return nil
+   return 
 end
 
 function GetBiggestCreep(creeps)
