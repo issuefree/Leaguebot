@@ -703,7 +703,7 @@ function IsGoodFireahead(thing, target, minChance)
       return false
    end
 
-   minChance = minChance or .5
+   minChance = minChance or .66
 
    if chance < minChance then
    	-- PrintAction("Low chance SS")
